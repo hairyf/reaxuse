@@ -1,0 +1,16 @@
+{
+  "name": "@reaxuse/metadata",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Function metadata for generating docs — React port of @vueuse/metadata (experimental, AI-mapped)",
+  "license": "MIT",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": ["dist", "src"]
+}

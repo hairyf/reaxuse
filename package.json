@@ -1,0 +1,20 @@
+{
+  "name": "reaxuse",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Reactive utilities for React — an experimental 1:1 AI-mapped port of VueUse",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "echo \"build tooling WIP — TODO\" && exit 1",
+    "test": "echo \"test setup WIP — TODO\" && exit 1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "typescript": "^5.6.3"
+  }
+}
