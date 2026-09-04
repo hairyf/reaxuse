@@ -6,44 +6,37 @@
 
 # reaxuse
 
-**VueUse 的 React 翻版 —— 通过 AI 持续映射 VueUse 的实现**
+**A React port of VueUse — continuously AI-mapped from the upstream implementation**
 
 [![Status: Experimental](https://img.shields.io/badge/status-experimental-orange)](https://github.com/hairyf/reaxuse)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-> ⚠️ **实验性项目（WIP / TODO）**：基础架构已一比一还原，hooks 映射正在推进中。
+> ⚠️ **Experimental (WIP / TODO)**: the base architecture is a 1:1 mirror; hook mapping is in progress.
 
 </div>
 
-## 这是什么
+## What is this?
 
-`reaxuse` 是一个实验性的 React hooks 工具库，目标是**一比一还原 [VueUse](https://vueuse.org) 的能力**：
+`reaxuse` is an experimental React hooks library that aims to be a **1:1 port of [VueUse](https://vueuse.org)**:
 
-- 以 git 子模块引用官方 [vueuse/vueuse](https://github.com/vueuse/vueuse)（`source/vueuse`），作为映射的唯一事实来源
-- 包结构 1:1 镜像 VueUse，但 API 全部面向 React（`useState` / `useEffect` / `useMemo` …）
-- 由 AI 持续对照上游实现，把 Vue 的 composable 映射为 React hook
+- The official [vueuse/vueuse](https://github.com/vueuse/vueuse) repository is referenced as a git submodule (`source/vueuse`) and serves as the single source of truth for mapping
+- The package structure mirrors VueUse 1:1, but every API is React-flavored (`useState` / `useEffect` / `useMemo` …)
+- AI continuously maps upstream composables to React hooks
 
-## 包结构（镜像 VueUse）
+See [docs/architecture.md](docs/architecture.md) for the full VueUse → reaxuse architecture mapping.
 
-| VueUse | reaxuse | 状态 |
+## Package structure (mirroring VueUse)
+
+| VueUse | reaxuse | status |
 |---|---|---|
-| `@vueuse/core` | `@reaxuse/core` | 🚧 骨架 + 示例 hooks |
-| `@vueuse/shared` | `@reaxuse/shared` | 🚧 骨架 |
-| `@vueuse/integrations` | `@reaxuse/integrations` | 🚧 骨架 |
-| `@vueuse/math` | `@reaxuse/math` | 🚧 骨架 |
-| `@vueuse/metadata` | `@reaxuse/metadata` | 🚧 骨架 |
-| `@vueuse/router` / `rxjs` / `electron` / `nuxt` / `firebase` | — | ⏳ TODO |
+| `@vueuse/core` | `@reaxuse/core` | 🚧 skeleton + example hooks |
+| `@vueuse/shared` | `@reaxuse/shared` | 🚧 skeleton |
+| `@vueuse/integrations` | `@reaxuse/integrations` | 🚧 skeleton |
+| `@vueuse/math` | `@reaxuse/math` | 🚧 skeleton |
+| `@vueuse/metadata` | `@reaxuse/metadata` | 🚧 skeleton |
+| `@vueuse/router` / `rxjs` / `electron` / `nuxt` / `firebase` / `components` / `skills` | — | ⏳ TODO |
 
-## 映射模式
-
-| VueUse（Vue） | reaxuse（React） |
-|---|---|
-| `ref()` / `reactive()` | `useState()` |
-| `watch()` / `watchEffect()` | `useEffect()` |
-| `computed()` | `useMemo()` / `useCallback()` |
-| composable 生命周期 | hook 卸载时清理副作用 |
-
-## 快速开始
+## Quick start
 
 ```bash
 git clone --recurse-submodules https://github.com/hairyf/reaxuse.git
@@ -52,7 +45,7 @@ npm install
 npm run typecheck
 ```
 
-## 已移植示例
+## Ported examples
 
 - `useToggle` → [`packages/core/src/useToggle.ts`](packages/core/src/useToggle.ts)
 - `useCounter` → [`packages/core/src/useCounter.ts`](packages/core/src/useCounter.ts)
@@ -60,13 +53,13 @@ npm run typecheck
 
 ## TODO
 
-- [ ] 构建工具链（tsdown / rollup，镜像 VueUse 的 `tsdown.config.ts`）
-- [ ] 测试框架（vitest + React Testing Library）
-- [ ] 文档站点（VitePress）
-- [ ] 大规模 AI 映射 `@vueuse/core` 全部 functions
-- [ ] `router` / `rxjs` / `electron` / `nuxt` / `firebase` 子包
-- [ ] 发布 npm（`@reaxuse/*`）
+- [ ] Build toolchain (tsdown / rollup, mirroring VueUse's `tsdown.config.ts`)
+- [ ] Test framework (vitest + React Testing Library)
+- [ ] Documentation site (VitePress)
+- [ ] Large-scale AI mapping of all `@vueuse/core` functions
+- [ ] `router` / `rxjs` / `electron` / `nuxt` / `firebase` / `components` / `skills` sub-packages
+- [ ] Publish to npm (`@reaxuse/*`)
 
-## 许可证
+## License
 
-[MIT](LICENSE)。VueUse logo 来自 [vueuse/vueuse](https://github.com/vueuse/vueuse)（MIT 许可），reaxuse logo 为同款字形的 React 配色翻版。
+[MIT](LICENSE). VueUse logo from [vueuse/vueuse](https://github.com/vueuse/vueuse) (MIT licensed); the reaxuse logo is a React-colored variant of the same lettering.
