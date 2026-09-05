@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { basename, join } from 'node:path'
 import { format } from 'prettier'
 import { globSync } from 'tinyglobby'
 import { root } from './utils'
@@ -103,7 +103,10 @@ export const functions: FunctionInfo[] = ${JSON.stringify(functions, null, 2)}
  */
 async function generateFunctionsPage() {
   const functions = collectFunctions()
-  const rows = functions.map(fn => `- [\`${fn.name}\`](/${fn.pkg}/${fn.name}/index) — \`@reaxuse/${fn.pkg}\``)
+  // Link to the docs page derived from the implementation file's basename:
+  // hooks are 1 file = 1 page named after the function (basename === name),
+  // while grouped helpers share their group page (e.g. utils.ts → /shared/utils/index).
+  const rows = functions.map(fn => `- [\`${fn.name}\`](/${fn.pkg}/${basename(fn.file, '.ts')}/index) — \`@reaxuse/${fn.pkg}\``)
 
   const md = `# Functions
 
