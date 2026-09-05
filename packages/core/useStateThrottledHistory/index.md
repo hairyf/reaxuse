@@ -50,9 +50,9 @@ is reworked for React hooks:
 - **Watcher becomes an effect** — upstream's `deep` and `flush` watch options don't apply: replace
   the state instead of mutating it, a mutated object does not re-render and stays invisible to the
   history. The `clone` option and custom `dump` / `parse` still support mutation-style sources
-  (see [`useStateManualHistory`](/core/useStateManualHistory)).
+  (see [`useStateManualHistory`](/core/useStateManualHistory/)).
 - **Throttle filter inlined** — upstream composes `throttleFilter` from `@vueuse/shared`; the same
-  algorithm is inlined here (mirroring [`useThrottleFn`](/shared/useThrottleFn)), with the leading
+  algorithm is inlined here (mirroring [`useThrottleFn`](/shared/useThrottleFn/)), with the leading
   edge fixed to `true` since upstream's shorthand only forwards `throttle` and `trailing`. The
   `throttle` value is re-read on every change, so passing the current value of a state works
   naturally.
@@ -64,7 +64,7 @@ is reworked for React hooks:
   on unmount.
 - **Same-tick commits** — for updates that must be visible to a manual `commit()` in the same tick,
   use `controls.setSource()` (value or updater form, a drop-in for `setState`) — see
-  [`useStateManualHistory`](/core/useStateManualHistory) for the full explanation.
+  [`useStateManualHistory`](/core/useStateManualHistory/) for the full explanation.
 - **Not ported** — upstream's `dispose` (disposal follows the component lifecycle; use `clear()`)
   and `shouldCommit`.
 
