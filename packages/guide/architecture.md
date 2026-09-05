@@ -40,11 +40,12 @@ VueUse's npm packages live in `packages/*`; reaxuse mirrors the same layout with
 
 **Source layout** (uniform adaptation, documented once here):
 
-| VueUse                                      | reaxuse                                                   |
-| ------------------------------------------- | --------------------------------------------------------- |
-| `packages/<pkg>/<fn>/index.ts`              | `packages/<pkg>/src/<fn>.ts`                              |
-| `packages/<pkg>/<fn>/index.browser.test.ts` | `packages/<pkg>/src/<fn>.test.tsx` (vitest-browser-react) |
-| `packages/<pkg>/index.ts`                   | `packages/<pkg>/src/index.ts` (re-exported via `exports`) |
+| VueUse                                                     | reaxuse                                                                                                                                       |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/<pkg>/<fn>/index.ts`                             | `packages/<pkg>/src/<fn>.ts`                                                                                                                  |
+| `packages/<pkg>/<fn>/index.browser.test.ts`                | `packages/<pkg>/src/<fn>.test.tsx` (vitest-browser-react)                                                                                     |
+| `packages/<pkg>/index.ts`                                  | `packages/<pkg>/src/index.ts` (re-exported via `exports`)                                                                                     |
+| `main`/`module`/`types` → `./dist/index.js` (package.json) | same — legacy entry fields point at the tsdown build output (mirrors upstream so JS-only resolvers work); `exports` stays on `./src/index.ts` |
 
 Each reaxuse package declares `react >= 18` as a peer dependency and bundles with tsdown
 (`"build": "tsdown"` + per-package `tsdown.config.ts`).
@@ -121,19 +122,19 @@ mapped files; `markdownTransform` links backticked function names from the
 
 All of VueUse's CI surface is mirrored in [`../.github`](https://github.com/hairyf/reaxuse/tree/main/.github).
 
-| VueUse file                                  | purpose                                                                                                                                       | reaxuse |
-| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `.github/workflows/ci.yml`                   | lint + typecheck, test matrix (Node `22.x`, `lts/*`) with Playwright chromium, build — on `push`/`pull_request` to `main`, plus `merge_group` | ✅      |
-| `.github/workflows/publish.yml`              | publish npm on merge of `release/*` PRs (release cut via `bumpp --pr`)                                                                        | ✅      |
-| `.github/workflows/autofix.yml`              | auto-fix bot (autofix.ci) for PRs                                                                                                             | ✅      |
-| `.github/workflows/export-size.yml`          | export-size CI report via `antfu/export-size-action`                                                                                          | ✅      |
-| `.github/ISSUE_TEMPLATE/bug_report.yml`      | bug report form                                                                                                                               | ✅      |
-| `.github/ISSUE_TEMPLATE/feature_request.yml` | feature request form                                                                                                                          | ✅      |
-| `.github/ISSUE_TEMPLATE/config.yml`          | issue template routing                                                                                                                        | ✅      |
-| `.github/PULL_REQUEST_TEMPLATE.md`           | PR template                                                                                                                                   | ✅      |
-| `.github/FUNDING.yml`                        | sponsor buttons                                                                                                                               | ✅      |
-| `.github/stale.yml`                          | stale issue/PR bot                                                                                                                            | ✅      |
-| `.github/agentscan.yml`                      | GitHub agent scan config                                                                                                                      | ✅      |
+| VueUse file                                  | purpose                                                                                                                                                                                                                                                      | reaxuse |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
+| `.github/workflows/ci.yml`                   | lint + typecheck, test matrix (Node `22.x`, `lts/*`) with Playwright chromium, build — on `push`/`pull_request` to `main`, plus `merge_group`                                                                                                                | ✅      |
+| `.github/workflows/publish.yml`              | publish npm on merge of `release/*` PRs (release cut via `bumpp --pr`)                                                                                                                                                                                       | ✅      |
+| `.github/workflows/autofix.yml`              | auto-fix bot (autofix.ci) for PRs                                                                                                                                                                                                                            | ✅      |
+| `.github/workflows/export-size.yml`          | export-size CI report via `antfu/export-size-action` — **removed (⏳)**: the action's JS-only resolver fails on the base (main) branch while entry fields point at `./src/index.ts`; re-enable once a compatible resolver or merged-state check is available | ⏳      |
+| `.github/ISSUE_TEMPLATE/bug_report.yml`      | bug report form                                                                                                                                                                                                                                              | ✅      |
+| `.github/ISSUE_TEMPLATE/feature_request.yml` | feature request form                                                                                                                                                                                                                                         | ✅      |
+| `.github/ISSUE_TEMPLATE/config.yml`          | issue template routing                                                                                                                                                                                                                                       | ✅      |
+| `.github/PULL_REQUEST_TEMPLATE.md`           | PR template                                                                                                                                                                                                                                                  | ✅      |
+| `.github/FUNDING.yml`                        | sponsor buttons                                                                                                                                                                                                                                              | ✅      |
+| `.github/stale.yml`                          | stale issue/PR bot                                                                                                                                                                                                                                           | ✅      |
+| `.github/agentscan.yml`                      | GitHub agent scan config                                                                                                                                                                                                                                     | ✅      |
 
 ## 6. Scripts — `scripts/`
 
@@ -192,20 +193,21 @@ provider.
 
 ## 11. Root tooling & config files
 
-| VueUse                                                    | purpose                   | reaxuse                                                                                                                       |
-| --------------------------------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `package.json` + `pnpm-workspace.yaml` + `pnpm-lock.yaml` | monorepo (pnpm)           | `package.json` + `package-lock.json` (npm workspaces — [decision](#mapping-decisions)) ✅                                     |
-| `tsconfig.json`                                           | TS config                 | ✅                                                                                                                            |
-| `turbo.json`                                              | task orchestration        | ✅                                                                                                                            |
-| `tsdown.config.ts`                                        | package bundling          | ✅ (root helper + per-package configs)                                                                                        |
-| `vitest.config.ts`                                        | test config               | ✅                                                                                                                            |
-| `eslint.config.js`                                        | linting (flat config)     | ✅ — `@antfu/eslint-config` (same as VueUse)                                                                                  |
-| `taze.config.ts`                                          | dependency updates        | ✅                                                                                                                            |
-| `netlify.toml`                                            | docs site deploy          | ✅                                                                                                                            |
-| `.editorconfig`                                           | editor style              | ✅                                                                                                                            |
-| `.gitignore` / `.gitattributes`                           | git hygiene               | ✅                                                                                                                            |
-| `.vscode/`                                                | editor workspace settings | ✅ [`extensions.json`](https://github.com/hairyf/reaxuse/blob/main/.vscode/extensions.json) + `settings.json` + `launch.json` |
-| `unocss.config.ts`                                        | docs styling              | — default VitePress theme instead ([decision](#mapping-decisions))                                                            |
+| VueUse                                                    | purpose                                                                                                         | reaxuse                                                                                                                       |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `package.json` + `pnpm-workspace.yaml` + `pnpm-lock.yaml` | monorepo (pnpm)                                                                                                 | `package.json` + `package-lock.json` (npm workspaces — [decision](#mapping-decisions)) ✅                                     |
+| `tsconfig.json`                                           | TS config                                                                                                       | ✅                                                                                                                            |
+| `turbo.json`                                              | task orchestration                                                                                              | ✅                                                                                                                            |
+| `tsdown.config.ts`                                        | package bundling                                                                                                | ✅ (root helper + per-package configs)                                                                                        |
+| `vitest.config.ts`                                        | test config                                                                                                     | ✅                                                                                                                            |
+| `eslint.config.js`                                        | linting (flat config)                                                                                           | ✅ — `@antfu/eslint-config` (same as VueUse)                                                                                  |
+| `taze.config.ts`                                          | dependency updates                                                                                              | ✅                                                                                                                            |
+| `netlify.toml`                                            | docs site deploy                                                                                                | ✅                                                                                                                            |
+| `.editorconfig`                                           | editor style                                                                                                    | ✅                                                                                                                            |
+| `.gitignore` / `.gitattributes`                           | git hygiene                                                                                                     | ✅                                                                                                                            |
+| `.vscode/`                                                | editor workspace settings                                                                                       | ✅ [`extensions.json`](https://github.com/hairyf/reaxuse/blob/main/.vscode/extensions.json) + `settings.json` + `launch.json` |
+| `simple-git-hooks` + `lint-staged` (in `package.json`)    | git hooks — `prepare: simple-git-hooks`, `pre-commit: npx lint-staged` → `eslint --cache --fix` on staged files | ✅                                                                                                                            |
+| `unocss.config.ts`                                        | docs styling                                                                                                    | — default VitePress theme instead ([decision](#mapping-decisions))                                                            |
 
 ## 12. Community & legal
 

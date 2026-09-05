@@ -24,6 +24,7 @@
     "lint": "eslint --cache .",
     "lint:fix": "npm run lint -- --fix",
     "publish:ci": "tsx scripts/publish.ts",
+    "prepare": "simple-git-hooks",
     "release": "bumpp --execute=\"npm run release:prepare\" --all --pr",
     "release:prepare": "npm run update && npm run build:packages",
     "size": "tsx scripts/export-size.ts",
@@ -44,14 +45,18 @@
     "@vitejs/plugin-react": "^6.1.1",
     "@vitest/browser": "^5.0.0",
     "@vitest/browser-playwright": "^5.0.0",
+    "@vitest/coverage-v8": "^5.0.0",
     "bumpp": "^12.3.0",
     "changelogen": "^0.6.2",
     "eslint": "^10.10.0",
     "eslint-plugin-format": "^2.0.1",
+    "export-size": "^0.8.0",
+    "lint-staged": "^16.4.0",
     "next": "^15.5.25",
     "playwright": "^1.63.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "simple-git-hooks": "^2.14.0",
     "taze": "^21.1.0",
     "tinyglobby": "^0.2.17",
     "tsdown": "^0.23.0",
@@ -68,5 +73,13 @@
     "workbox-precaching": "^7.4.1",
     "workbox-routing": "^7.4.1",
     "workbox-strategies": "^7.4.1"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx,vue,md,json}": [
+      "eslint --cache --fix"
+    ]
   }
 }

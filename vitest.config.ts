@@ -18,6 +18,11 @@ export default defineConfig({
   },
   test: {
     reporters: 'dot',
+    coverage: {
+      provider: 'v8',
+      include: ['packages/*/src/**'],
+      reporter: ['text'],
+    },
     projects: [
       {
         // hook tests run in a real browser (chromium) via vitest-browser-react
