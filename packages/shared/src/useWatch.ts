@@ -1,0 +1,52 @@
+import { useEffect, useRef } from 'react'
+
+export interface UseWatchCallback<T = any> {
+  (value: T, oldValue: T): void
+}
+
+export interface UseWatchOptions {
+  /**
+   * Fire the callback once on mount with the current value.
+   * @default false
+   */
+  immediate?: boolean
+}
+
+/**
+ * React port of VueUse's `watch` (via hairylib `useWatch`).
+ *
+ * Mapping: Vue's reactive dependency tracking becomes a `useEffect` whose
+ * dependency list is the source itself — `[source]` for a single value, the
+ * source's elements for an array source — so the callback re-fires whenever
+ * any watched part changes. The previous value is tracked in a ref updated
+ * by the effect (inlined `usePrevious`), and the callback never fires on the
+ * first render unless `immediate: true`.
+ *
+ * This is the parent of all `useWatch*` variants.
+ *
+ * @example
+ * ```ts
+ * useWatch(count, (value, oldValue) => console.log(value, oldValue))
+ * useWatch([count, name], (value, oldValue) => console.log(value, oldValue))
+ * ```
+ */
+export function useWatch<T extends any[]>(source: readonly [...T], callback: UseWatchCallback<[...T]>, options?: UseWatchOptions): void
+export function useWatch<T>(source: T, callback: UseWatchCallback<T>, options?: UseWatchOptions): void
+export function useWatch(source: any, callback: UseWatchCallback, options: UseWatchOptions = {}) {
+  const firstRender = useRef(true)
+  const oldValueRef = useRef<any>(undefined)
+  const deps = Array.isArray(source) ? source : [source]
+
+  useEffect(() => {
+    const oldValue = oldValueRef.current
+    if (firstRender.current) {
+      firstRender.current = false
+      if (options.immediate)
+        callback(source, oldValue)
+    }
+    else {
+      callback(source, oldValue)
+    }
+    oldValueRef.current = source
+  }, deps)
+}
