@@ -25,4 +25,9 @@ export const functions: FunctionInfo[] = [
     file: 'packages/shared/src/useToggle.ts',
     pkg: 'shared',
   },
+  {
+    name: 'useUpdate',
+    file: 'packages/shared/src/useUpdate.ts',
+    pkg: 'shared',
+  },
 ]
