@@ -126,6 +126,21 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useArrayDifference',
+    file: 'packages/shared/src/useArrayDifference.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArrayDifference',
+    file: 'packages/shared/src/useArrayDifference.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArrayDifference',
+    file: 'packages/shared/src/useArrayDifference.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useArrayEvery',
     file: 'packages/shared/src/useArrayEvery.ts',
     pkg: 'shared',
@@ -171,8 +186,28 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useArrayReduce',
+    file: 'packages/shared/src/useArrayReduce.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArrayReduce',
+    file: 'packages/shared/src/useArrayReduce.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArrayReduce',
+    file: 'packages/shared/src/useArrayReduce.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useArraySome',
     file: 'packages/shared/src/useArraySome.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArrayUnique',
+    file: 'packages/shared/src/useArrayUnique.ts',
     pkg: 'shared',
   },
   {
