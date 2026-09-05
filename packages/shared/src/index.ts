@@ -16,3 +16,4 @@ export type MaybeRef<T> = T | { current: T }
 export * from './useCounter'
 export * from './useMount'
 export * from './useToggle'
+export * from './useUpdate'
