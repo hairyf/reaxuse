@@ -25,4 +25,9 @@ export const functions: FunctionInfo[] = [
     file: 'packages/shared/src/useToggle.ts',
     pkg: 'shared',
   },
+  {
+    name: 'useWatch',
+    file: 'packages/shared/src/useWatch.ts',
+    pkg: 'shared',
+  },
 ]
