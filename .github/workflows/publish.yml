@@ -1,0 +1,51 @@
+name: Publish Package
+
+permissions:
+  id-token: write
+  contents: write
+
+# Releases are cut with `npm run release` (bumpp --pr), which opens a `release/*`
+# pull request. Merging that PR tags the merge commit and publishes from here.
+# Mirror of VueUse's `.github/workflows/publish.yml`.
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+jobs:
+  publish-npm:
+    # Only merged `release/*` pull requests that originate from this repository.
+    # The same-repo check is essential: a fork can name its branch `release/*`
+    # too, and this job runs with publishing credentials.
+    if: >-
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      startsWith(github.event.pull_request.head.ref, 'release/')
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # The merge commit is what carries the bumped version
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          fetch-depth: 0
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Set node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          registry-url: https://registry.npmjs.org/
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Publish
+        run: npm run publish:ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

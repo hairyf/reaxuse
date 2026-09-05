@@ -1,0 +1,27 @@
+name: Feature Request
+description: Suggest a new hook or improvement for reaxuse
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your interest in improving reaxuse!
+  - type: textarea
+    id: problem
+    attributes:
+      label: Describe the problem
+      description: What problem does this feature solve?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How should the feature work? Name a VueUse function it maps from, if any.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any workarounds you are using today?

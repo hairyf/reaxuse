@@ -1,0 +1,34 @@
+name: Export Size
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  size:
+    runs-on: ubuntu-latest
+    env:
+      CI_JOB_NUMBER: 1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - uses: antfu/export-size-action@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          comment_token: ${{ secrets.COMMENT_TOKEN }}
+          paths: packages/core,packages/shared,packages/integrations,packages/math,packages/metadata
