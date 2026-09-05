@@ -31,6 +31,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useToString',
+    file: 'packages/shared/src/useToString.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useUnmount',
     file: 'packages/shared/src/useUnmount.ts',
     pkg: 'shared',
