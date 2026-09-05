@@ -13,6 +13,7 @@ export function noop(): void {}
 
 export type MaybeRef<T> = T | { current: T }
 
+export * from './useArrayDifference'
 export * from './useArrayEvery'
 // export * from './useArrayFilter'
 export * from './useArrayFind'
