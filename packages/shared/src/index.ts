@@ -15,6 +15,7 @@ export type MaybeRef<T> = T | { current: T }
 
 export * from './useCounter'
 export * from './useMount'
+export * from './useTimeout'
 export * from './useToggle'
 export * from './useToString'
 export * from './useUnmount'
