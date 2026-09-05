@@ -45,7 +45,7 @@ VueUse's npm packages live in `packages/*`; reaxuse mirrors the same layout with
 | `packages/<pkg>/<fn>/index.ts`                             | `packages/<pkg>/src/<fn>.ts`                                                                                                                  |
 | `packages/<pkg>/<fn>/index.browser.test.ts`                | `packages/<pkg>/src/<fn>.test.tsx` (vitest-browser-react)                                                                                     |
 | `packages/<pkg>/index.ts`                                  | `packages/<pkg>/src/index.ts` (re-exported via `exports`)                                                                                     |
-| `main`/`module`/`types` → `./dist/index.js` (package.json) | same — legacy entry fields point at the tsdown build output (needed by `export-size`'s JS-only resolver); `exports` stays on `./src/index.ts` |
+| `main`/`module`/`types` → `./dist/index.js` (package.json) | same — legacy entry fields point at the tsdown build output (mirrors upstream so JS-only resolvers work); `exports` stays on `./src/index.ts` |
 
 Each reaxuse package declares `react >= 18` as a peer dependency and bundles with tsdown
 (`"build": "tsdown"` + per-package `tsdown.config.ts`).
@@ -122,19 +122,19 @@ mapped files; `markdownTransform` links backticked function names from the
 
 All of VueUse's CI surface is mirrored in [`../.github`](https://github.com/hairyf/reaxuse/tree/main/.github).
 
-| VueUse file                                  | purpose                                                                                                                                       | reaxuse |
-| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `.github/workflows/ci.yml`                   | lint + typecheck, test matrix (Node `22.x`, `lts/*`) with Playwright chromium, build — on `push`/`pull_request` to `main`, plus `merge_group` | ✅      |
-| `.github/workflows/publish.yml`              | publish npm on merge of `release/*` PRs (release cut via `bumpp --pr`)                                                                        | ✅      |
-| `.github/workflows/autofix.yml`              | auto-fix bot (autofix.ci) for PRs                                                                                                             | ✅      |
-| `.github/workflows/export-size.yml`          | export-size CI report via `antfu/export-size-action`                                                                                          | ✅      |
-| `.github/ISSUE_TEMPLATE/bug_report.yml`      | bug report form                                                                                                                               | ✅      |
-| `.github/ISSUE_TEMPLATE/feature_request.yml` | feature request form                                                                                                                          | ✅      |
-| `.github/ISSUE_TEMPLATE/config.yml`          | issue template routing                                                                                                                        | ✅      |
-| `.github/PULL_REQUEST_TEMPLATE.md`           | PR template                                                                                                                                   | ✅      |
-| `.github/FUNDING.yml`                        | sponsor buttons                                                                                                                               | ✅      |
-| `.github/stale.yml`                          | stale issue/PR bot                                                                                                                            | ✅      |
-| `.github/agentscan.yml`                      | GitHub agent scan config                                                                                                                      | ✅      |
+| VueUse file                                  | purpose                                                                                                                                                                                                                                                      | reaxuse |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
+| `.github/workflows/ci.yml`                   | lint + typecheck, test matrix (Node `22.x`, `lts/*`) with Playwright chromium, build — on `push`/`pull_request` to `main`, plus `merge_group`                                                                                                                | ✅      |
+| `.github/workflows/publish.yml`              | publish npm on merge of `release/*` PRs (release cut via `bumpp --pr`)                                                                                                                                                                                       | ✅      |
+| `.github/workflows/autofix.yml`              | auto-fix bot (autofix.ci) for PRs                                                                                                                                                                                                                            | ✅      |
+| `.github/workflows/export-size.yml`          | export-size CI report via `antfu/export-size-action` — **removed (⏳)**: the action's JS-only resolver fails on the base (main) branch while entry fields point at `./src/index.ts`; re-enable once a compatible resolver or merged-state check is available | ⏳      |
+| `.github/ISSUE_TEMPLATE/bug_report.yml`      | bug report form                                                                                                                                                                                                                                              | ✅      |
+| `.github/ISSUE_TEMPLATE/feature_request.yml` | feature request form                                                                                                                                                                                                                                         | ✅      |
+| `.github/ISSUE_TEMPLATE/config.yml`          | issue template routing                                                                                                                                                                                                                                       | ✅      |
+| `.github/PULL_REQUEST_TEMPLATE.md`           | PR template                                                                                                                                                                                                                                                  | ✅      |
+| `.github/FUNDING.yml`                        | sponsor buttons                                                                                                                                                                                                                                              | ✅      |
+| `.github/stale.yml`                          | stale issue/PR bot                                                                                                                                                                                                                                           | ✅      |
+| `.github/agentscan.yml`                      | GitHub agent scan config                                                                                                                                                                                                                                     | ✅      |
 
 ## 6. Scripts — `scripts/`
 
