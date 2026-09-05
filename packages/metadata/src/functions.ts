@@ -241,6 +241,26 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useInterval',
+    file: 'packages/shared/src/useInterval.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useInterval',
+    file: 'packages/shared/src/useInterval.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useInterval',
+    file: 'packages/shared/src/useInterval.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useIntervalFn',
+    file: 'packages/shared/src/useIntervalFn.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useMount',
     file: 'packages/shared/src/useMount.ts',
     pkg: 'shared',
@@ -249,6 +269,11 @@ export const functions: FunctionInfo[] = [
     name: 'useNow',
     file: 'packages/core/src/useNow.ts',
     pkg: 'core',
+  },
+  {
+    name: 'useThrottleFn',
+    file: 'packages/shared/src/useThrottleFn.ts',
+    pkg: 'shared',
   },
   {
     name: 'useTimeout',
@@ -308,6 +333,26 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useWatch',
     file: 'packages/shared/src/useWatch.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchArray',
+    file: 'packages/shared/src/useWatchArray.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchDebounced',
+    file: 'packages/shared/src/useWatchDebounced.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchDebounced',
+    file: 'packages/shared/src/useWatchDebounced.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchDebounced',
+    file: 'packages/shared/src/useWatchDebounced.ts',
     pkg: 'shared',
   },
   {
