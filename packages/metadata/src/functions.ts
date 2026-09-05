@@ -176,6 +176,26 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useArrayIncludes',
+    file: 'packages/shared/src/useArrayIncludes.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArrayIncludes',
+    file: 'packages/shared/src/useArrayIncludes.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArrayIncludes',
+    file: 'packages/shared/src/useArrayIncludes.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArrayIncludes',
+    file: 'packages/shared/src/useArrayIncludes.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useArrayJoin',
     file: 'packages/shared/src/useArrayJoin.ts',
     pkg: 'shared',

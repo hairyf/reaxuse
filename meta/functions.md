@@ -38,6 +38,10 @@
 | `useArrayFind`           | packages/shared/useArrayFind       | `packages/shared/src/useArrayFind.ts`       | ✅ ported                     |
 | `useArrayFindIndex`      | packages/shared/useArrayFindIndex  | `packages/shared/src/useArrayFindIndex.ts`  | ✅ ported                     |
 | `useArrayFindLast`       | packages/shared/useArrayFindLast   | `packages/shared/src/useArrayFindLast.ts`   | ✅ ported                     |
+| `useArrayIncludes`       | packages/shared/useArrayIncludes   | `packages/shared/src/useArrayIncludes.ts`   | ✅ ported                     |
+| `useArrayIncludes`       | packages/shared/useArrayIncludes   | `packages/shared/src/useArrayIncludes.ts`   | ✅ ported                     |
+| `useArrayIncludes`       | packages/shared/useArrayIncludes   | `packages/shared/src/useArrayIncludes.ts`   | ✅ ported                     |
+| `useArrayIncludes`       | packages/shared/useArrayIncludes   | `packages/shared/src/useArrayIncludes.ts`   | ✅ ported                     |
 | `useArrayJoin`           | packages/shared/useArrayJoin       | `packages/shared/src/useArrayJoin.ts`       | ✅ ported                     |
 | `useArrayMap`            | packages/shared/useArrayMap        | `packages/shared/src/useArrayMap.ts`        | ✅ ported                     |
 | `useArrayReduce`         | packages/shared/useArrayReduce     | `packages/shared/src/useArrayReduce.ts`     | ✅ ported                     |
