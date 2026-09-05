@@ -11,8 +11,138 @@ export interface FunctionInfo {
 
 export const functions: FunctionInfo[] = [
   {
+    name: 'assert',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'clamp',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'createSingletonPromise',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'hasOwn',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'hyphenate',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'increaseWithUnit',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'increaseWithUnit',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'increaseWithUnit',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'increaseWithUnit',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'isClient',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'isDef',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'isIOS',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'isObject',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'noop',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'now',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'objectOmit',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'objectPick',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'promiseTimeout',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'rand',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'timestamp',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'toArray',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'toArray',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'toArray',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useArrayEvery',
     file: 'packages/shared/src/useArrayEvery.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArrayFilter',
+    file: 'packages/shared/src/useArrayFilter.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArrayFilter',
+    file: 'packages/shared/src/useArrayFilter.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArrayFilter',
+    file: 'packages/shared/src/useArrayFilter.ts',
     pkg: 'shared',
   },
   {
@@ -23,6 +153,11 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useArrayFindIndex',
     file: 'packages/shared/src/useArrayFindIndex.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArrayFindLast',
+    file: 'packages/shared/src/useArrayFindLast.ts',
     pkg: 'shared',
   },
   {
