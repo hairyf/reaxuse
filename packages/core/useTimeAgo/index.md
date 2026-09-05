@@ -14,7 +14,7 @@ matching upstream's default `useIntervalFn(cb, 30_000)`) via the house
 `useNow` hook, whose interval is cleaned up on unmount — pass new `time`
 values to update the input. Upstream's `controls: true` option (pause/resume)
 is not ported; `UseTimeAgoOptions` therefore drops the `Controls` boolean
-generic. The non-reactive `formatTimeAgo` helper is mirrored 1:1.
+generic. The non-reactive [`formatTimeAgo`](/core/useTimeAgo/index) helper is mirrored 1:1.
 
 ## Usage
 
