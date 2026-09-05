@@ -9,6 +9,3 @@
 | `useNow`        | packages/core/useNow        | `packages/core/src/useNow.ts`        | ✅ ported                     |
 | `useToggle`     | packages/shared/useToggle   | `packages/shared/src/useToggle.ts`   | ✅ ported                     |
 | `useToString`   | packages/shared/useToString | `packages/shared/src/useToString.ts` | ✅ ported                     |
-| `useWatch`      | —                           | `packages/shared/src/useWatch.ts`    | 🚧 ported (no upstream match) |
-| `useWatch`      | —                           | `packages/shared/src/useWatch.ts`    | 🚧 ported (no upstream match) |
-| `useWatch`      | —                           | `packages/shared/src/useWatch.ts`    | 🚧 ported (no upstream match) |

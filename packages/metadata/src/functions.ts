@@ -30,19 +30,4 @@ export const functions: FunctionInfo[] = [
     file: 'packages/shared/src/useToString.ts',
     pkg: 'shared',
   },
-  {
-    name: 'useWatch',
-    file: 'packages/shared/src/useWatch.ts',
-    pkg: 'shared',
-  },
-  {
-    name: 'useWatch',
-    file: 'packages/shared/src/useWatch.ts',
-    pkg: 'shared',
-  },
-  {
-    name: 'useWatch',
-    file: 'packages/shared/src/useWatch.ts',
-    pkg: 'shared',
-  },
 ]
