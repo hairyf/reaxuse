@@ -281,8 +281,18 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useMounted',
+    file: 'packages/core/src/useMounted.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useNow',
     file: 'packages/core/src/useNow.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useOnline',
+    file: 'packages/core/src/useOnline.ts',
     pkg: 'core',
   },
   {
