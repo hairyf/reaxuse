@@ -11,8 +11,18 @@ export interface FunctionInfo {
 
 export const functions: FunctionInfo[] = [
   {
+    name: 'useArrayEvery',
+    file: 'packages/shared/src/useArrayEvery.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useArrayFind',
     file: 'packages/shared/src/useArrayFind.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArrayFindIndex',
+    file: 'packages/shared/src/useArrayFindIndex.ts',
     pkg: 'shared',
   },
   {
@@ -33,6 +43,11 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useCounter',
     file: 'packages/shared/src/useCounter.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useDebounceFn',
+    file: 'packages/shared/src/useDebounceFn.ts',
     pkg: 'shared',
   },
   {
