@@ -55,6 +55,9 @@
 | `useInterval`            | packages/shared/useInterval        | `packages/shared/src/useInterval.ts`        | ✅ ported                     |
 | `useInterval`            | packages/shared/useInterval        | `packages/shared/src/useInterval.ts`        | ✅ ported                     |
 | `useIntervalFn`          | packages/shared/useIntervalFn      | `packages/shared/src/useIntervalFn.ts`      | ✅ ported                     |
+| `useLastChanged`         | packages/shared/useLastChanged     | `packages/shared/src/useLastChanged.ts`     | ✅ ported                     |
+| `useLastChanged`         | packages/shared/useLastChanged     | `packages/shared/src/useLastChanged.ts`     | ✅ ported                     |
+| `useLastChanged`         | packages/shared/useLastChanged     | `packages/shared/src/useLastChanged.ts`     | ✅ ported                     |
 | `useMount`               | —                                  | `packages/shared/src/useMount.ts`           | 🚧 ported (no upstream match) |
 | `useNow`                 | packages/core/useNow               | `packages/core/src/useNow.ts`               | ✅ ported                     |
 | `useThrottleFn`          | packages/shared/useThrottleFn      | `packages/shared/src/useThrottleFn.ts`      | ✅ ported                     |
@@ -71,6 +74,9 @@
 | `useWatch`               | —                                  | `packages/shared/src/useWatch.ts`           | 🚧 ported (no upstream match) |
 | `useWatch`               | —                                  | `packages/shared/src/useWatch.ts`           | 🚧 ported (no upstream match) |
 | `useWatchArray`          | —                                  | `packages/shared/src/useWatchArray.ts`      | 🚧 ported (no upstream match) |
+| `useWatchAtMost`         | —                                  | `packages/shared/src/useWatchAtMost.ts`     | 🚧 ported (no upstream match) |
+| `useWatchAtMost`         | —                                  | `packages/shared/src/useWatchAtMost.ts`     | 🚧 ported (no upstream match) |
+| `useWatchAtMost`         | —                                  | `packages/shared/src/useWatchAtMost.ts`     | 🚧 ported (no upstream match) |
 | `useWatchDebounced`      | —                                  | `packages/shared/src/useWatchDebounced.ts`  | 🚧 ported (no upstream match) |
 | `useWatchDebounced`      | —                                  | `packages/shared/src/useWatchDebounced.ts`  | 🚧 ported (no upstream match) |
 | `useWatchDebounced`      | —                                  | `packages/shared/src/useWatchDebounced.ts`  | 🚧 ported (no upstream match) |
