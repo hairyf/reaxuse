@@ -11,6 +11,26 @@ export interface FunctionInfo {
 
 export const functions: FunctionInfo[] = [
   {
+    name: 'useArrayFind',
+    file: 'packages/shared/src/useArrayFind.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArrayJoin',
+    file: 'packages/shared/src/useArrayJoin.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArrayMap',
+    file: 'packages/shared/src/useArrayMap.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArraySome',
+    file: 'packages/shared/src/useArraySome.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useCounter',
     file: 'packages/shared/src/useCounter.ts',
     pkg: 'shared',
@@ -41,8 +61,18 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useTimeoutFn',
+    file: 'packages/shared/src/useTimeoutFn.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useToggle',
     file: 'packages/shared/src/useToggle.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useToNumber',
+    file: 'packages/shared/src/useToNumber.ts',
     pkg: 'shared',
   },
   {
