@@ -164,7 +164,7 @@ provider.
 | ------------------------------------------------- | ---------------------------------------------------------------------------------- | ------ |
 | `test/exports.test.ts`                            | same — asserts public exports of every package                                     | ✅     |
 | `test/package-json-export.test.ts`                | same — asserts `package.json` export maps                                          | ✅     |
-| `test/*.snapshot.*` (generated API snapshots)     | — generated alongside the external-lib wrapper packages (`axios`/`firebase`/…)    | ⏳     |
+| `test/*.snapshot.*` (generated API snapshots)     | — generated alongside the external-lib wrapper packages (`axios`/`firebase`/…)     | ⏳     |
 | per-function browser tests                        | `packages/*/src/*.test.tsx` via `vitest-browser-react`                             | ✅     |
 | vitest projects (`unit` browser / `exports` node) | [`vitest.config.ts`](https://github.com/hairyf/reaxuse/blob/main/vitest.config.ts) | ✅     |
 | coverage (`test:cov`)                             | `test:coverage` script                                                             | ✅     |
@@ -192,20 +192,20 @@ provider.
 
 ## 11. Root tooling & config files
 
-| VueUse                                                    | purpose                   | reaxuse                                                                                                       |
-| --------------------------------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `package.json` + `pnpm-workspace.yaml` + `pnpm-lock.yaml` | monorepo (pnpm)           | `package.json` + `package-lock.json` (npm workspaces — [decision](#mapping-decisions)) ✅                     |
-| `tsconfig.json`                                           | TS config                 | ✅                                                                                                            |
-| `turbo.json`                                              | task orchestration        | ✅                                                                                                            |
-| `tsdown.config.ts`                                        | package bundling          | ✅ (root helper + per-package configs)                                                                        |
-| `vitest.config.ts`                                        | test config               | ✅                                                                                                            |
-| `eslint.config.js`                                        | linting (flat config)     | ✅ — `@antfu/eslint-config` (same as VueUse)                                                                  |
-| `taze.config.ts`                                          | dependency updates        | ✅                                                                                                            |
-| `netlify.toml`                                            | docs site deploy          | ✅                                                                                                            |
-| `.editorconfig`                                           | editor style              | ✅                                                                                                            |
-| `.gitignore` / `.gitattributes`                           | git hygiene               | ✅                                                                                                            |
+| VueUse                                                    | purpose                   | reaxuse                                                                                                                       |
+| --------------------------------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `package.json` + `pnpm-workspace.yaml` + `pnpm-lock.yaml` | monorepo (pnpm)           | `package.json` + `package-lock.json` (npm workspaces — [decision](#mapping-decisions)) ✅                                     |
+| `tsconfig.json`                                           | TS config                 | ✅                                                                                                                            |
+| `turbo.json`                                              | task orchestration        | ✅                                                                                                                            |
+| `tsdown.config.ts`                                        | package bundling          | ✅ (root helper + per-package configs)                                                                                        |
+| `vitest.config.ts`                                        | test config               | ✅                                                                                                                            |
+| `eslint.config.js`                                        | linting (flat config)     | ✅ — `@antfu/eslint-config` (same as VueUse)                                                                                  |
+| `taze.config.ts`                                          | dependency updates        | ✅                                                                                                                            |
+| `netlify.toml`                                            | docs site deploy          | ✅                                                                                                                            |
+| `.editorconfig`                                           | editor style              | ✅                                                                                                                            |
+| `.gitignore` / `.gitattributes`                           | git hygiene               | ✅                                                                                                                            |
 | `.vscode/`                                                | editor workspace settings | ✅ [`extensions.json`](https://github.com/hairyf/reaxuse/blob/main/.vscode/extensions.json) + `settings.json` + `launch.json` |
-| `unocss.config.ts`                                        | docs styling              | — default VitePress theme instead ([decision](#mapping-decisions))                                            |
+| `unocss.config.ts`                                        | docs styling              | — default VitePress theme instead ([decision](#mapping-decisions))                                                            |
 
 ## 12. Community & legal
 

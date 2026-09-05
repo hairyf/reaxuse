@@ -436,6 +436,7 @@ function create(issue: { title: string, labels: string[], body: string }): strin
 const args = process.argv.slice(2)
 const dry = args.includes('--dry')
 const debug = args.includes('--debug')
+const fromRendered = args.includes('--create-from-rendered')
 const names = (args.find(a => a.startsWith('--names=')) || '').replace('--names=', '').split(',').filter(Boolean)
 
 if (debug) {
@@ -456,6 +457,45 @@ else if (dry) {
   console.log(`[dry-run] rendered ${files.length}/${issues.length} bodies to ${OUT_DIR}`)
   if (files.length > 0)
     console.log(readFileSync(files[0], 'utf-8'))
+}
+else if (fromRendered) {
+  const issues = allIssues()
+  const picked = names.length
+    ? issues.filter(i => names.some(n => i.title.includes(`| \`${n}\` |`)))
+    : issues
+  console.log(`[create-from-rendered] ${picked.length} issues → ${REPO} (bodies from ${OUT_DIR})`)
+  const created: Array<{ title: string, url: string }> = []
+  const failed: string[] = []
+  for (const issue of picked) {
+    const file = join(OUT_DIR, `${issue.title.replace(/[^\w@()-]+/g, '_')}.md`)
+    if (!existsSync(file)) {
+      failed.push(`${issue.title} (no rendered body)`)
+      continue
+    }
+    try {
+      const out = execFileSync('gh', [
+        'issue',
+        'create',
+        '--repo',
+        REPO,
+        '--title',
+        issue.title,
+        '--label',
+        issue.labels.join(','),
+        '--body-file',
+        file,
+      ], { encoding: 'utf-8' })
+      created.push({ title: issue.title, url: out.trim() })
+      console.log(`  ✓ ${issue.title} → ${out.trim()}`)
+    }
+    catch (e) {
+      failed.push(issue.title)
+      console.error(`  ✗ ${issue.title}: ${(e as Error).message.split('\n')[0]}`)
+    }
+  }
+  console.log(`\n[result] created ${created.length}, failed ${failed.length}`)
+  if (failed.length)
+    console.log(`failed: ${failed.join(', ')}`)
 }
 else {
   const issues = allIssues()
