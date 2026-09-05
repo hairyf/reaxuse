@@ -39,8 +39,8 @@ useWatchWithFilter(
 
 ### Event Filters
 
-The filter factories are exported alongside the hook, mirroring upstream's
-`debounceFilter` / `throttleFilter` semantics:
+The filter factories are exported alongside the hook — `debounceFilter(ms)`
+and `throttleFilter(ms)` — mirroring upstream's filter semantics:
 
 ```tsx
 import { debounceFilter, throttleFilter, useWatchWithFilter } from '@reaxuse/shared'
@@ -53,7 +53,7 @@ useWatchWithFilter(input, callback, { eventFilter: debounceFilter(100, { maxWait
 useWatchWithFilter(scrollY, callback, { eventFilter: throttleFilter(100) })
 ```
 
-`debounceFilter` returns a `CancelableEventFilter` carrying `cancel()` / `flush()` /
+The `debounceFilter(ms, options)` factory returns a `CancelableEventFilter` carrying `cancel()` / `flush()` /
 `isPending` — the hook calls `cancel()` when the watcher is stopped or the component
 unmounts, so a pending debounced call never fires afterwards.
 
