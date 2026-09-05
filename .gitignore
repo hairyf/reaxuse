@@ -4,6 +4,7 @@ coverage/
 .turbo/
 playwright-report/
 test-results/
+.next/
 .DS_Store
 *.log
 *.tsbuildinfo
@@ -11,5 +12,9 @@ test-results/
 .vite/
 .vscode/
 .idea/
-docs/.vitepress/dist/
-docs/.vitepress/cache/
+.issues/
+.vitest/
+packages/.vitepress/dist/
+packages/.vitepress/cache/
+packages/.vitepress/dev-dist/
+packages/.vitepress/.temp/

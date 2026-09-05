@@ -1,51 +1,41 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import tseslint from 'typescript-eslint'
-import reactHooks from 'eslint-plugin-react-hooks'
+import antfu from '@antfu/eslint-config'
 
-export default tseslint.config(
+/**
+ * ESLint flat config mirroring VueUse's `eslint.config.js`
+ * (https://github.com/vueuse/vueuse/blob/main/eslint.config.js) via
+ * `@antfu/eslint-config`. Differences:
+ * - `pnpm: true` → npm workspaces, so the flag is omitted.
+ * - `patches/` ignore → `source/` (upstream submodule) and `playgrounds/`.
+ * - self-import guard is scoped to package `src` files (a source file must
+ *   not import its own package by name — use relative imports), while
+ *   co-located demos/tests/docs import the public package name on purpose.
+ */
+export default antfu(
   {
+    formatters: true,
     ignores: [
-      '**/dist/**',
-      '**/coverage/**',
-      '**/node_modules/**',
-      'playgrounds/**',
       'source/**',
-      'docs/.vitepress/dist/**',
-      'docs/.vitepress/cache/**',
+      'playgrounds/**',
+      '**/skills/**',
+      '**/types',
+      '**/cache',
+      '**/dist',
+      'coverage/**',
+      '.issues/**',
       '**/*.svg',
     ],
   },
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
   {
-    files: ['packages/**/*.{ts,tsx}', 'docs/**/*.{ts,tsx}', 'meta/**/*.ts'],
-    languageOptions: {
-      globals: {
-        ...globals.browser,
-      },
-    },
-    plugins: {
-      'react-hooks': reactHooks,
-    },
     rules: {
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn',
+      'spaced-comment': ['error', 'always', { exceptions: ['#__PURE__', '///'] }],
     },
   },
   {
-    files: ['scripts/**/*.ts', 'test/**/*.ts', '*.config.ts', '*.config.js', 'docs/.vitepress/**/*.ts'],
-    languageOptions: {
-      globals: {
-        ...globals.node,
-      },
-    },
-  },
-  {
-    files: ['**/*.{ts,tsx}'],
+    files: ['packages/*/src/**'],
     rules: {
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 'off',
+      'no-restricted-imports': ['error', {
+        paths: ['@reaxuse/*'],
+      }],
     },
   },
 )

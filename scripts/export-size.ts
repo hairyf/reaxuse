@@ -1,6 +1,7 @@
-import { gzipSync } from 'node:zlib'
 import { readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
+import process from 'node:process'
+import { gzipSync } from 'node:zlib'
 import { globSync } from 'tinyglobby'
 import { root } from './utils'
 
