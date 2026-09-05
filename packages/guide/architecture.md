@@ -164,6 +164,7 @@ provider.
 | ------------------------------------------------- | ---------------------------------------------------------------------------------- | ------ |
 | `test/exports.test.ts`                            | same — asserts public exports of every package                                     | ✅     |
 | `test/package-json-export.test.ts`                | same — asserts `package.json` export maps                                          | ✅     |
+| `test/*.snapshot.*` (generated API snapshots)     | — generated alongside the external-lib wrapper packages (`axios`/`firebase`/…)    | ⏳     |
 | per-function browser tests                        | `packages/*/src/*.test.tsx` via `vitest-browser-react`                             | ✅     |
 | vitest projects (`unit` browser / `exports` node) | [`vitest.config.ts`](https://github.com/hairyf/reaxuse/blob/main/vitest.config.ts) | ✅     |
 | coverage (`test:cov`)                             | `test:coverage` script                                                             | ✅     |
@@ -203,7 +204,7 @@ provider.
 | `netlify.toml`                                            | docs site deploy          | ✅                                                                                                            |
 | `.editorconfig`                                           | editor style              | ✅                                                                                                            |
 | `.gitignore` / `.gitattributes`                           | git hygiene               | ✅                                                                                                            |
-| `.vscode/`                                                | editor workspace settings | ✅ [`extensions.json`](https://github.com/hairyf/reaxuse/blob/main/.vscode/extensions.json) + `settings.json` |
+| `.vscode/`                                                | editor workspace settings | ✅ [`extensions.json`](https://github.com/hairyf/reaxuse/blob/main/.vscode/extensions.json) + `settings.json` + `launch.json` |
 | `unocss.config.ts`                                        | docs styling              | — default VitePress theme instead ([decision](#mapping-decisions))                                            |
 
 ## 12. Community & legal

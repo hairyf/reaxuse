@@ -123,7 +123,18 @@ function readReaxuseUsage(pkg: string, fn: string): string {
   return extractUsage(body)
 }
 
+/** strip `import ...` lines from a code snippet (imports are not shown in Expected implementation) */
+function stripImports(snippet: string): string {
+  return snippet
+    .split(/\r?\n/)
+    .filter(line => !/^\s*import\b/.test(line))
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
 function extractExternalDeps(src: string): string[] {
+  const deps = new Set<string>()
   for (const m of src.matchAll(/from\s+['"]([^'"]+)['"]/g)) {
     const spec = m[1]
     if (spec.startsWith('.'))
@@ -233,14 +244,15 @@ function bodyFor(fn: FnInfo): string {
     fn.deprecated ? '- **⚠️ DEPRECATED upstream** — map only if still desired' : '',
   ].filter(Boolean).join('\n')
 
-  const reaxuseUsage = ported ? readReaxuseUsage(fn.pkg, fn.name) : ''
-  const vueuseBlock = fn.usage
-    ? `// vueuse — @vueuse/${fn.pkg}\n${fn.usage}`
-    : `// vueuse — @vueuse/${fn.pkg}\nimport { ${fn.name} } from '@vueuse/${fn.pkg}'\n// TODO: add the upstream usage example from ${fn.dir}/index.md`
+  const reaxuseUsage = ported ? stripImports(readReaxuseUsage(fn.pkg, fn.name)) : ''
+  const vueuseUsage = stripImports(fn.usage)
+  const vueuseBlock = vueuseUsage
+    ? `// vueuse — @vueuse/${fn.pkg}\n${vueuseUsage}`
+    : `// vueuse — @vueuse/${fn.pkg}\n// TODO: add the upstream usage example from ${fn.dir}/index.md`
   const reaxuseBlock = reaxuseUsage
     ? `// reaxuse — @reaxuse/${fn.pkg} (current port: ${reaxuseFile})\n${reaxuseUsage}`
-    : `// reaxuse — @reaxuse/${fn.pkg} (${reaxuseFile})\nimport { ${fn.name} } from '@reaxuse/${fn.pkg}'\n// TODO: complete the React port during mapping — generally the same shape as\n// VueUse; document any React differences (state/effect/refs/SSR) here`
-  const usageBlock = `\`\`\`tsx\n${vueuseBlock}\n\n${reaxuseBlock}\n// ...\n\`\`\``
+    : `// reaxuse — @reaxuse/${fn.pkg} (${reaxuseFile})\n// TODO: complete the React port during mapping — generally the same shape as\n// VueUse; document any React differences (state/effect/refs/SSR) here`
+  const usageBlock = `\`\`\`tsx\n${vueuseBlock}\n\n${reaxuseBlock}\n\`\`\``
 
   const notes = [
     `${fn.category || '—'} · ${fn.testFiles.length ? 'upstream tests exist to mirror' : 'no upstream tests'}`,
@@ -336,10 +348,10 @@ Map to (reaxuse):
 
 \`\`\`tsx
 // vueuse — @vueuse/shared
-import { isClient, noop, toValue } from '@vueuse/shared'
+isClient · noop · toValue
 
-// reaxuse — expected @reaxuse/shared
-import { isClient, noop, toValue } from '@reaxuse/shared'
+// reaxuse — @reaxuse/shared
+// TODO: port the shared utility helpers above — plain TS, no React state
 \`\`\`
 
 ## Mapping notes

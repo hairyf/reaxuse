@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="assets/vueuse.svg" width="100" alt="VueUse" style="vertical-align: middle" />
+<img src="packages/public/vueuse.svg" width="100" alt="VueUse" style="vertical-align: middle" />
 &nbsp;&nbsp; → &nbsp;&nbsp;
-<img src="assets/reaxuse.svg" width="100" alt="reaxuse" style="vertical-align: middle" />
+<img src="packages/public/reaxuse.svg" width="100" alt="reaxuse" style="vertical-align: middle" />
 
 # reaxuse
 

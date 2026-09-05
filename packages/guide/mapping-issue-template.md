@@ -79,15 +79,10 @@ Map to (reaxuse):
 
 ```tsx
 // vueuse — @vueuse/core
-import { useNow } from '@vueuse/core'
-
 const now = useNow()
 
 // reaxuse — @reaxuse/core
-import { useNow } from '@reaxuse/core'
-
 const now = useNow()
-// ...
 ```
 ````
 
