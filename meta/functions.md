@@ -51,6 +51,9 @@
 | `useArrayUnique`         | packages/shared/useArrayUnique     | `packages/shared/src/useArrayUnique.ts`     | ✅ ported                     |
 | `useCounter`             | packages/shared/useCounter         | `packages/shared/src/useCounter.ts`         | ✅ ported                     |
 | `useDebounceFn`          | packages/shared/useDebounceFn      | `packages/shared/src/useDebounceFn.ts`      | ✅ ported                     |
+| `useInterval`            | packages/shared/useInterval        | `packages/shared/src/useInterval.ts`        | ✅ ported                     |
+| `useInterval`            | packages/shared/useInterval        | `packages/shared/src/useInterval.ts`        | ✅ ported                     |
+| `useInterval`            | packages/shared/useInterval        | `packages/shared/src/useInterval.ts`        | ✅ ported                     |
 | `useMount`               | —                                  | `packages/shared/src/useMount.ts`           | 🚧 ported (no upstream match) |
 | `useNow`                 | packages/core/useNow               | `packages/core/src/useNow.ts`               | ✅ ported                     |
 | `useTimeout`             | packages/shared/useTimeout         | `packages/shared/src/useTimeout.ts`         | ✅ ported                     |

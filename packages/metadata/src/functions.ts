@@ -241,6 +241,21 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useInterval',
+    file: 'packages/shared/src/useInterval.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useInterval',
+    file: 'packages/shared/src/useInterval.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useInterval',
+    file: 'packages/shared/src/useInterval.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useMount',
     file: 'packages/shared/src/useMount.ts',
     pkg: 'shared',
