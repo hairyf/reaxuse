@@ -286,6 +286,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useStateManualHistory',
+    file: 'packages/core/src/useStateManualHistory.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useThrottleFn',
     file: 'packages/shared/src/useThrottleFn.ts',
     pkg: 'shared',
@@ -383,6 +388,36 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useWatchDebounced',
     file: 'packages/shared/src/useWatchDebounced.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchOnce',
+    file: 'packages/shared/src/useWatchOnce.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchOnce',
+    file: 'packages/shared/src/useWatchOnce.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchOnce',
+    file: 'packages/shared/src/useWatchOnce.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchThrottled',
+    file: 'packages/shared/src/useWatchThrottled.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchThrottled',
+    file: 'packages/shared/src/useWatchThrottled.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchThrottled',
+    file: 'packages/shared/src/useWatchThrottled.ts',
     pkg: 'shared',
   },
   {
