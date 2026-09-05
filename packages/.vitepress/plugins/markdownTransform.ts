@@ -15,7 +15,7 @@ export interface FunctionRef {
 }
 
 export function MarkdownTransform(functions: FunctionRef[]): Plugin {
-  const registered = new Map(functions.map(fn => [fn.name, `/${fn.pkg}/${fn.name}/`]))
+  const registered = new Map(functions.map(fn => [fn.name, `/${fn.pkg}/${fn.name}/index`]))
 
   return {
     name: 'reaxuse-markdown-transform',

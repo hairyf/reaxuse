@@ -103,7 +103,7 @@ export const functions: FunctionInfo[] = ${JSON.stringify(functions, null, 2)}
  */
 async function generateFunctionsPage() {
   const functions = collectFunctions()
-  const rows = functions.map(fn => `- [\`${fn.name}\`](/${fn.pkg}/${fn.name}/) — \`@reaxuse/${fn.pkg}\``)
+  const rows = functions.map(fn => `- [\`${fn.name}\`](/${fn.pkg}/${fn.name}/index) — \`@reaxuse/${fn.pkg}\``)
 
   const md = `# Functions
 
