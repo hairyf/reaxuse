@@ -19,7 +19,7 @@ export type MaybeRef<T> = T | { current: T }
 // export * from './useArrayFindIndex'
 // export * from './useArrayFindLast'
 // export * from './useArrayIncludes'
-// export * from './useArrayJoin'
+export * from './useArrayJoin'
 // export * from './useArrayMap'
 // export * from './useArrayReduce'
 // export * from './useArraySome'
