@@ -1,4 +1,5 @@
 export * from './useMounted'
 export * from './useNow'
 export * from './useOnline'
+export * from './usePreferredDark'
 export * from './useStateManualHistory'
