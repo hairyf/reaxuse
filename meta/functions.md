@@ -8,7 +8,14 @@
 | `useCounter`    | packages/shared/useCounter  | `packages/shared/src/useCounter.ts`  | ✅ ported                     |
 | `useMount`      | —                           | `packages/shared/src/useMount.ts`    | 🚧 ported (no upstream match) |
 | `useNow`        | packages/core/useNow        | `packages/core/src/useNow.ts`        | ✅ ported                     |
+| `useTimeout`    | packages/shared/useTimeout  | `packages/shared/src/useTimeout.ts`  | ✅ ported                     |
+| `useTimeout`    | packages/shared/useTimeout  | `packages/shared/src/useTimeout.ts`  | ✅ ported                     |
+| `useTimeout`    | packages/shared/useTimeout  | `packages/shared/src/useTimeout.ts`  | ✅ ported                     |
 | `useToggle`     | packages/shared/useToggle   | `packages/shared/src/useToggle.ts`   | ✅ ported                     |
 | `useToString`   | packages/shared/useToString | `packages/shared/src/useToString.ts` | ✅ ported                     |
 | `useUnmount`    | —                           | `packages/shared/src/useUnmount.ts`  | 🚧 ported (no upstream match) |
 | `useUpdate`     | —                           | `packages/shared/src/useUpdate.ts`   | 🚧 ported (no upstream match) |
+| `useWatch`      | —                           | `packages/shared/src/useWatch.ts`    | 🚧 ported (no upstream match) |
+| `useWatch`      | —                           | `packages/shared/src/useWatch.ts`    | 🚧 ported (no upstream match) |
+| `useWatch`      | —                           | `packages/shared/src/useWatch.ts`    | 🚧 ported (no upstream match) |
+| `useWhenever`   | —                           | `packages/shared/src/useWhenever.ts` | 🚧 ported (no upstream match) |
