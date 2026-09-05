@@ -1,0 +1,16 @@
+/* Utility classes — mirrors VueUse's packages/.vitepress/theme/styles/utils.css. */
+.mt-1 {
+  margin-top: 0.25rem;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.text-muted {
+  color: var(--vp-c-text-2);
+}

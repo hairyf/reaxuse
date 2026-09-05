@@ -1,0 +1,18 @@
+/* Demo styles — co-located React demos mounted by DemoContainer.vue.
+   Mirrors VueUse's packages/.vitepress/theme/styles/demo.css. */
+.react-demo {
+  margin: 1rem 0;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  background-color: var(--vp-c-bg-soft);
+}
+
+.react-demo p {
+  margin: 0.25rem 0;
+}
+
+.react-demo button {
+  margin-right: 0.5rem;
+  margin-top: 0.5rem;
+}

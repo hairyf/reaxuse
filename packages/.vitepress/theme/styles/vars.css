@@ -1,0 +1,9 @@
+/* Theme variables — mirrors VueUse's packages/.vitepress/theme/styles/vars.css. */
+:root {
+  --reaxuse-brand: #3b82f6;
+  --reaxuse-brand-light: #60a5fa;
+}
+
+.dark {
+  --reaxuse-brand: #60a5fa;
+}

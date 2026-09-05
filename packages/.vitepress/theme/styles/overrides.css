@@ -1,0 +1,56 @@
+/* VitePress theme overrides — mirrors VueUse's overrides.css. */
+.VPNavBarTitle .title {
+  font-weight: 600;
+}
+
+.VPFooter {
+  border-top: 1px solid var(--vp-c-divider);
+}
+
+/* Note callout */
+.note {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--reaxuse-brand);
+  border-radius: 4px;
+  background-color: var(--vp-c-bg-soft);
+  font-size: 0.95rem;
+}
+
+/* Contributors row */
+.contributors {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.contributors img {
+  border-radius: 50%;
+  border: 1px solid var(--vp-c-divider);
+}
+
+/* Reload prompt */
+.reload-prompt {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  background-color: var(--vp-c-bg-soft);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 10%);
+  z-index: 100;
+}
+
+.reload-prompt button {
+  font: inherit;
+  color: #fff;
+  background-color: var(--reaxuse-brand);
+  border: none;
+  border-radius: 6px;
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+}
