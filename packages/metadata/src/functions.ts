@@ -261,6 +261,21 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useLastChanged',
+    file: 'packages/shared/src/useLastChanged.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useLastChanged',
+    file: 'packages/shared/src/useLastChanged.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useLastChanged',
+    file: 'packages/shared/src/useLastChanged.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useMount',
     file: 'packages/shared/src/useMount.ts',
     pkg: 'shared',
@@ -268,6 +283,11 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useNow',
     file: 'packages/core/src/useNow.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStateManualHistory',
+    file: 'packages/core/src/useStateManualHistory.ts',
     pkg: 'core',
   },
   {
@@ -341,8 +361,18 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
-    name: 'useWatchDebounced',
-    file: 'packages/shared/src/useWatchDebounced.ts',
+    name: 'useWatchAtMost',
+    file: 'packages/shared/src/useWatchAtMost.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchAtMost',
+    file: 'packages/shared/src/useWatchAtMost.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchAtMost',
+    file: 'packages/shared/src/useWatchAtMost.ts',
     pkg: 'shared',
   },
   {
@@ -353,6 +383,41 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useWatchDebounced',
     file: 'packages/shared/src/useWatchDebounced.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchDebounced',
+    file: 'packages/shared/src/useWatchDebounced.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchOnce',
+    file: 'packages/shared/src/useWatchOnce.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchOnce',
+    file: 'packages/shared/src/useWatchOnce.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchOnce',
+    file: 'packages/shared/src/useWatchOnce.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchThrottled',
+    file: 'packages/shared/src/useWatchThrottled.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchThrottled',
+    file: 'packages/shared/src/useWatchThrottled.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchThrottled',
+    file: 'packages/shared/src/useWatchThrottled.ts',
     pkg: 'shared',
   },
   {
