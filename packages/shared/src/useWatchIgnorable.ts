@@ -1,18 +1,9 @@
-import type { Dispatch, SetStateAction } from 'react'
 import type { UseWatchCallback } from './useWatch'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useWatch } from './useWatch'
 
 export type IgnoredUpdater = (updater: () => void) => void
 export type IgnoredPrevAsyncUpdates = () => void
-
-export interface UseWatchIgnorableOptions {
-  /**
-   * Fire the callback once on mount with the initial value.
-   * @default false
-   */
-  immediate?: boolean
-}
 
 export interface UseWatchIgnorableReturn {
   /**
@@ -22,8 +13,9 @@ export interface UseWatchIgnorableReturn {
   ignoreUpdates: IgnoredUpdater
 
   /**
-   * Ignore all source changes made since the last time the callback fired —
-   * only meaningful before the batch carrying those changes is committed.
+   * Ignore the source changes made since the last time the callback fired —
+   * as long as no other changes follow, the callback is not fired for that
+   * batch.
    */
   ignorePrevAsyncUpdates: IgnoredPrevAsyncUpdates
 
@@ -33,104 +25,112 @@ export interface UseWatchIgnorableReturn {
   stop: () => void
 }
 
+export interface UseWatchIgnorableOptions {
+  /**
+   * Fire the callback once on mount with the current value.
+   * @default false
+   */
+  immediate?: boolean
+}
+
 /**
- * Ignorable watch — a watched value whose updates can be selectively ignored —
- * React port of VueUse's `watchIgnorable`.
+ * Ignorable watch — extended watch that returns `ignoreUpdates(updater)` /
+ * `ignorePrevAsyncUpdates()` / `stop` to ignore particular updates to the
+ * source — React port of VueUse's `watchIgnorable`.
+ * Map from @vueuse/shared watchIgnorable.
  *
- * Map from @vueuse/shared watchIgnorable. Upstream watches an external Vue ref
- * and returns `ignoreUpdates(updater)` / `ignorePrevAsyncUpdates()` / `stop`;
- * in React the hook must be able to count every change made to the source, so
- * it owns the state instead and returns `[value, setValue, controls]`: every
- * change made through the returned `setValue` is counted (the equivalent of
- * upstream's hidden `flush: 'sync'` shadow watcher), `ignoreUpdates(updater)`
- * marks the `setValue` calls made inside `updater` as ignored, and the watch
- * callback — built on the house `useWatch`, firing in the effect after commit
- * (upstream `flush: 'pre'` timing) — skips the batch only when every counted
- * change came from `ignoreUpdates` (`ignore === sync`, both counters reset
- * together), exactly upstream's counter mechanism. Changes made outside the
- * updater therefore still fire with the latest value.
+ * The API follows the maintainer-directed adjustment of issue #263: the
+ * source is the caller's own state value (house `useWatch` source convention)
+ * and the return is the upstream `WatchIgnorableReturn` object shape — this
+ * deliberately overrides the house array-destructure return convention.
  *
- * Divergences from upstream:
- * - The source is owned by the hook (`initialValue`) rather than an external
- *   `WatchSource` — React-idiomatic state ownership; `setValue` accepts the
- *   same `SetStateAction` forms as `useState` (plain value or updater function)
- *   and is stable across renders.
- * - Returns `[value, setValue, controls]` (React array-destructure convention)
- *   instead of a `WatchIgnorableReturn` object; `controls` carries the upstream
- *   `ignoreUpdates` / `ignorePrevAsyncUpdates` / `stop`.
- * - The `flush` option is not ported — React effects always run after commit.
- *   Under upstream's `flush: 'sync'` `ignorePrevAsyncUpdates` is a no-op; here
- *   it always applies (the port's only timing is async).
+ * Mapping: upstream counts every source modification with a hidden
+ * `flush: 'sync'` shadow watcher (`syncCounter`), accumulates the changes to
+ * skip in `ignoreCounter`, and skips a trigger only when every counted change
+ * came from `ignoreUpdates` (`ignoreCounter === syncCounter`, both counters
+ * reset together). React offers no way to observe — let alone intercept — the
+ * caller's `setSource`: changes only become visible at the next commit, where
+ * automatic batching has already collapsed consecutive updates into a single
+ * render. The port therefore approximates the counters with a one-shot
+ * "ignore barrier": `ignoreUpdates(updater)` snapshots the latest observed
+ * value, runs `updater` synchronously and arms the barrier; the next change
+ * the watch observes is skipped (upstream skips it too when no other changes
+ * follow) and the flag is consumed either way, so later genuine changes fire
+ * again. `ignorePrevAsyncUpdates()` arms the same barrier for the changes
+ * queued before the call (snapshot-style one-shot skip). A commit that
+ * carries no source change disarms the barrier so a no-op updater cannot
+ * consume a later genuine change.
+ *
+ * Divergences from upstream (React batching):
+ * - Changes made inside `ignoreUpdates` and further changes made afterwards
+ *   in the same synchronous batch collapse into one render, which the barrier
+ *   skips as a whole — upstream would fire the trigger with the latest value.
+ *   Let the updater's batch commit (return from the event handler) before
+ *   making changes that must fire.
+ * - If the updater produces no change and the very next commit carries a
+ *   source change, that change is skipped where upstream would fire it (a
+ *   commit without a source change disarms the barrier).
+ * - The `flush` option is not ported — the callback fires in the effect after
+ *   commit (upstream `flush: 'pre'` timing); where upstream's
+ *   `flush: 'sync'` makes `ignorePrevAsyncUpdates` a no-op, here it always
+ *   applies.
  * - `eventFilter` and the other `WatchWithFilterOptions` members (`deep`,
- *   pause/resume) are not ported — tracking is by `Object.is` identity, like a
- *   Vue ref reassignment.
+ *   pause/resume) are not ported.
  * - `stop()` keeps the effect registered but the callback becomes a no-op —
  *   observable behavior is identical (the callback never fires again).
  *
  * @example
  * ```ts
- * const [value, setValue, { ignoreUpdates }] = useWatchIgnorable('foo', v => console.log(`Changed to ${v}!`))
- * setValue('bar') // logs: Changed to bar!
- * ignoreUpdates(() => setValue('foobar')) // (nothing logged)
+ * const [source, setSource] = useState('foo')
+ * const { ignoreUpdates } = useWatchIgnorable(source, v => console.log(`Changed to ${v}!`))
+ * setSource('bar') // logs: Changed to bar!
+ * ignoreUpdates(() => setSource('foobar')) // (nothing logged)
  * ```
  */
-export function useWatchIgnorable<T>(
-  initialValue: T,
-  callback: UseWatchCallback<NoInfer<T>>,
-  options: UseWatchIgnorableOptions = {},
-): [T, Dispatch<SetStateAction<T>>, UseWatchIgnorableReturn] {
+export function useWatchIgnorable<T extends any[]>(source: readonly [...T], callback: UseWatchCallback<[...T]>, options?: UseWatchIgnorableOptions): UseWatchIgnorableReturn
+export function useWatchIgnorable<T>(source: T, callback: UseWatchCallback<T>, options?: UseWatchIgnorableOptions): UseWatchIgnorableReturn
+export function useWatchIgnorable(source: any, callback: UseWatchCallback, options: UseWatchIgnorableOptions = {}): UseWatchIgnorableReturn {
   const { immediate } = options
 
-  const [value, setValue] = useState(initialValue)
-
-  // Modification counters — the React equivalent of upstream's hidden
-  // `flush: 'sync'` shadow watcher: every real change made through the setter
-  // bumps `sync`, `ignore` accumulates the changes that must not fire the
-  // callback.
-  const syncRef = useRef(0)
-  const ignoreRef = useRef(0)
+  // — ignore barrier — the React equivalent of upstream's counters —
+  const lastSeenRef = useRef(source) // value observed at the last watch fire
+  const snapshotRef = useRef(source) // observed value when the barrier was armed
+  const ignoreRef = useRef(false) // one-shot skip flag
   const stoppedRef = useRef(false)
-  // Latest value seen by the setter — lets a `setValue` call detect no-op
-  // updates (`Object.is` equal) the way a Vue ref assignment does.
-  const latestRef = useRef(initialValue)
 
-  const setSource = useCallback<Dispatch<SetStateAction<T>>>((action) => {
-    const prev = latestRef.current
-    const next = typeof action === 'function'
-      ? (action as (prev: T) => T)(prev)
-      : action
-    latestRef.current = next
-    if (!Object.is(next, prev))
-      syncRef.current += 1
-    setValue(action)
-  }, [])
+  useWatch(source, (value, oldValue) => {
+    lastSeenRef.current = value
+    const ignore = ignoreRef.current
+    ignoreRef.current = false
+    if (ignore || stoppedRef.current)
+      return
+    callback(value, oldValue)
+  }, { immediate })
+
+  // Disarm the barrier when a commit carries no source change (the updater
+  // produced nothing observable) so it cannot consume a later genuine change.
+  useEffect(() => {
+    if (ignoreRef.current && Object.is(source, snapshotRef.current))
+      ignoreRef.current = false
+  })
 
   const ignoreUpdates = useCallback<IgnoredUpdater>((updater) => {
-    // Call the updater function and count how many changes are performed,
-    // then add them to the ignore count.
-    const syncPrev = syncRef.current
+    // Snapshot the observed value before the updater runs — the next watch
+    // trigger is skipped when it observes a change since this snapshot.
+    snapshotRef.current = lastSeenRef.current
     updater()
-    ignoreRef.current += syncRef.current - syncPrev
+    ignoreRef.current = true
   }, [])
 
   const ignorePrevAsyncUpdates = useCallback<IgnoredPrevAsyncUpdates>(() => {
-    ignoreRef.current = syncRef.current
+    // Snapshot-style one-shot skip for the changes queued before this call.
+    snapshotRef.current = lastSeenRef.current
+    ignoreRef.current = true
   }, [])
 
   const stop = useCallback(() => {
     stoppedRef.current = true
   }, [])
 
-  useWatch(value, (current, oldValue) => {
-    // Ignore only when every counted change came from `ignoreUpdates` —
-    // otherwise the batch also carries changes that must be committed.
-    const ignore = ignoreRef.current > 0 && ignoreRef.current === syncRef.current
-    ignoreRef.current = 0
-    syncRef.current = 0
-    if (ignore || stoppedRef.current)
-      return
-    callback(current, oldValue)
-  }, { immediate })
-
-  return [value, setSource, { ignoreUpdates, ignorePrevAsyncUpdates, stop }]
+  return { ignoreUpdates, ignorePrevAsyncUpdates, stop }
 }

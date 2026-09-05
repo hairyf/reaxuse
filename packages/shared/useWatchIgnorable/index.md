@@ -4,19 +4,29 @@ category: Watch
 
 # useWatchIgnorable
 
-Extended watch that lets you ignore particular updates to the source — React port of
-VueUse's [`watchIgnorable`](https://vueuse.org/shared/watchIgnorable/).
+Extended watch that returns `ignoreUpdates(updater)` / `ignorePrevAsyncUpdates()` / `stop`
+to ignore particular updates to the source — React port of VueUse's
+[`watchIgnorable`](https://vueuse.org/shared/watchIgnorable/).
 
-**Mapping:** upstream watches an external Vue ref and returns `ignoreUpdates(updater)` /
-`ignorePrevAsyncUpdates()` / `stop`; in React the hook must be able to count every change
-made to the source, so it owns the state instead and returns
-`[value, setValue, controls]` (like `useStateWithControl`). Every change made through the
-returned `setValue` is counted — the equivalent of upstream's hidden `flush: 'sync'`
-shadow watcher — and `ignoreUpdates(updater)` marks the `setValue` calls inside `updater`
-as ignored: as long as no other changes follow, the callback is skipped for that batch,
-while changes made outside the updater still fire with the latest value. The callback
-fires in the effect after commit (upstream `flush: 'pre'` timing); the `flush` and
-`eventFilter` options are not ported, and where upstream's `flush: 'sync'` makes
+**Mapping:** the API follows the maintainer-directed adjustment of issue #263 — the
+source is the caller's own state value (house `useWatch` source convention) and the
+return is the upstream `WatchIgnorableReturn` object shape. Upstream counts every source
+modification with a hidden `flush: 'sync'` shadow watcher and skips a trigger only when
+every counted change came from `ignoreUpdates`; React offers no way to observe — let
+alone intercept — the caller's `setSource` (changes only become visible at the next
+commit, where automatic batching has already collapsed consecutive updates into a single
+render), so the port approximates the counters with a one-shot "ignore barrier":
+`ignoreUpdates(updater)` snapshots the latest observed value, runs `updater`
+synchronously and arms the barrier; the next change the watch observes is skipped and
+the flag is consumed either way, so later genuine changes fire again.
+`ignorePrevAsyncUpdates()` arms the same barrier for the changes queued before the call.
+
+React-batching deviations: changes made inside `ignoreUpdates` and further changes made
+afterwards in the same synchronous batch collapse into one render, which the barrier
+skips as a whole (upstream would fire the trigger with the latest value) — let the
+updater's batch commit before making changes that must fire. The `flush` and
+`eventFilter` options are not ported (the callback fires in the effect after commit,
+upstream `flush: 'pre'` timing), and where upstream's `flush: 'sync'` makes
 `ignorePrevAsyncUpdates` a no-op, here it always applies.
 
 ## Usage
@@ -24,23 +34,43 @@ fires in the effect after commit (upstream `flush: 'pre'` timing); the `flush` a
 ```tsx
 import { useWatchIgnorable } from '@reaxuse/shared'
 
-const [value, setValue, { ignoreUpdates }] = useWatchIgnorable(
-  'foo',
+const [source, setSource] = useState('foo')
+
+const { stop, ignoreUpdates } = useWatchIgnorable(
+  source,
   v => console.log(`Changed to ${v}!`),
 )
 
-setValue('bar') // logs: Changed to bar!
+setSource('bar') // logs: Changed to bar!
 
 ignoreUpdates(() => {
-  setValue('foobar')
+  setSource('foobar')
 }) // (nothing logged)
 
-setValue('hello') // logs: Changed to hello!
+setSource('hello') // logs: Changed to hello!
 
 ignoreUpdates(() => {
-  setValue('ignored')
+  setSource('ignored')
 })
-setValue('logged') // logs: Changed to logged!
+setSource('logged') // logs: Changed to logged!
+```
+
+`ignorePrevAsyncUpdates()` ignores the changes made since the last time the callback
+fired — as long as no other changes follow:
+
+```tsx
+const { ignorePrevAsyncUpdates } = useWatchIgnorable(
+  source,
+  v => console.log(`Changed to ${v}!`),
+)
+
+setSource('good')
+setSource('by')
+ignorePrevAsyncUpdates() // (nothing logged for 'by')
+
+setSource('prev')
+ignorePrevAsyncUpdates()
+setSource('after') // logs: Changed to after!
 ```
 
 <DemoContainer name="UseWatchIgnorable" />
@@ -62,7 +92,8 @@ export interface UseWatchIgnorableReturn {
   stop: () => void
 }
 
-export function useWatchIgnorable<T>(initialValue: T, callback: UseWatchCallback<T>, options?: UseWatchIgnorableOptions): [T, Dispatch<SetStateAction<T>>, UseWatchIgnorableReturn]
+export function useWatchIgnorable<T extends any[]>(source: readonly [...T], callback: UseWatchCallback<[...T]>, options?: UseWatchIgnorableOptions): UseWatchIgnorableReturn
+export function useWatchIgnorable<T>(source: T, callback: UseWatchCallback<T>, options?: UseWatchIgnorableOptions): UseWatchIgnorableReturn
 ```
 
 ## Source
