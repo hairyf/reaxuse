@@ -38,6 +38,10 @@
 | `useArrayFind`           | packages/shared/useArrayFind       | `packages/shared/src/useArrayFind.ts`       | ✅ ported                     |
 | `useArrayFindIndex`      | packages/shared/useArrayFindIndex  | `packages/shared/src/useArrayFindIndex.ts`  | ✅ ported                     |
 | `useArrayFindLast`       | packages/shared/useArrayFindLast   | `packages/shared/src/useArrayFindLast.ts`   | ✅ ported                     |
+| `useArrayIncludes`       | packages/shared/useArrayIncludes   | `packages/shared/src/useArrayIncludes.ts`   | ✅ ported                     |
+| `useArrayIncludes`       | packages/shared/useArrayIncludes   | `packages/shared/src/useArrayIncludes.ts`   | ✅ ported                     |
+| `useArrayIncludes`       | packages/shared/useArrayIncludes   | `packages/shared/src/useArrayIncludes.ts`   | ✅ ported                     |
+| `useArrayIncludes`       | packages/shared/useArrayIncludes   | `packages/shared/src/useArrayIncludes.ts`   | ✅ ported                     |
 | `useArrayJoin`           | packages/shared/useArrayJoin       | `packages/shared/src/useArrayJoin.ts`       | ✅ ported                     |
 | `useArrayMap`            | packages/shared/useArrayMap        | `packages/shared/src/useArrayMap.ts`        | ✅ ported                     |
 | `useArrayReduce`         | packages/shared/useArrayReduce     | `packages/shared/src/useArrayReduce.ts`     | ✅ ported                     |
@@ -47,6 +51,9 @@
 | `useArrayUnique`         | packages/shared/useArrayUnique     | `packages/shared/src/useArrayUnique.ts`     | ✅ ported                     |
 | `useCounter`             | packages/shared/useCounter         | `packages/shared/src/useCounter.ts`         | ✅ ported                     |
 | `useDebounceFn`          | packages/shared/useDebounceFn      | `packages/shared/src/useDebounceFn.ts`      | ✅ ported                     |
+| `useInterval`            | packages/shared/useInterval        | `packages/shared/src/useInterval.ts`        | ✅ ported                     |
+| `useInterval`            | packages/shared/useInterval        | `packages/shared/src/useInterval.ts`        | ✅ ported                     |
+| `useInterval`            | packages/shared/useInterval        | `packages/shared/src/useInterval.ts`        | ✅ ported                     |
 | `useMount`               | —                                  | `packages/shared/src/useMount.ts`           | 🚧 ported (no upstream match) |
 | `useNow`                 | packages/core/useNow               | `packages/core/src/useNow.ts`               | ✅ ported                     |
 | `useTimeout`             | packages/shared/useTimeout         | `packages/shared/src/useTimeout.ts`         | ✅ ported                     |

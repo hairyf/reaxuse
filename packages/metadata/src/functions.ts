@@ -176,6 +176,26 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useArrayIncludes',
+    file: 'packages/shared/src/useArrayIncludes.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArrayIncludes',
+    file: 'packages/shared/src/useArrayIncludes.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArrayIncludes',
+    file: 'packages/shared/src/useArrayIncludes.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useArrayIncludes',
+    file: 'packages/shared/src/useArrayIncludes.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useArrayJoin',
     file: 'packages/shared/src/useArrayJoin.ts',
     pkg: 'shared',
@@ -218,6 +238,21 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useDebounceFn',
     file: 'packages/shared/src/useDebounceFn.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useInterval',
+    file: 'packages/shared/src/useInterval.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useInterval',
+    file: 'packages/shared/src/useInterval.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useInterval',
+    file: 'packages/shared/src/useInterval.ts',
     pkg: 'shared',
   },
   {
