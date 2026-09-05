@@ -40,11 +40,12 @@ VueUse's npm packages live in `packages/*`; reaxuse mirrors the same layout with
 
 **Source layout** (uniform adaptation, documented once here):
 
-| VueUse                                      | reaxuse                                                   |
-| ------------------------------------------- | --------------------------------------------------------- |
-| `packages/<pkg>/<fn>/index.ts`              | `packages/<pkg>/src/<fn>.ts`                              |
-| `packages/<pkg>/<fn>/index.browser.test.ts` | `packages/<pkg>/src/<fn>.test.tsx` (vitest-browser-react) |
-| `packages/<pkg>/index.ts`                   | `packages/<pkg>/src/index.ts` (re-exported via `exports`) |
+| VueUse                                                     | reaxuse                                                                                                                                       |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/<pkg>/<fn>/index.ts`                             | `packages/<pkg>/src/<fn>.ts`                                                                                                                  |
+| `packages/<pkg>/<fn>/index.browser.test.ts`                | `packages/<pkg>/src/<fn>.test.tsx` (vitest-browser-react)                                                                                     |
+| `packages/<pkg>/index.ts`                                  | `packages/<pkg>/src/index.ts` (re-exported via `exports`)                                                                                     |
+| `main`/`module`/`types` → `./dist/index.js` (package.json) | same — legacy entry fields point at the tsdown build output (needed by `export-size`'s JS-only resolver); `exports` stays on `./src/index.ts` |
 
 Each reaxuse package declares `react >= 18` as a peer dependency and bundles with tsdown
 (`"build": "tsdown"` + per-package `tsdown.config.ts`).
