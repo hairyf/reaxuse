@@ -26,8 +26,28 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useTimeout',
+    file: 'packages/shared/src/useTimeout.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useTimeout',
+    file: 'packages/shared/src/useTimeout.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useTimeout',
+    file: 'packages/shared/src/useTimeout.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useToggle',
     file: 'packages/shared/src/useToggle.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useToString',
+    file: 'packages/shared/src/useToString.ts',
     pkg: 'shared',
   },
   {
@@ -38,6 +58,26 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useUpdate',
     file: 'packages/shared/src/useUpdate.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatch',
+    file: 'packages/shared/src/useWatch.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatch',
+    file: 'packages/shared/src/useWatch.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatch',
+    file: 'packages/shared/src/useWatch.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWhenever',
+    file: 'packages/shared/src/useWhenever.ts',
     pkg: 'shared',
   },
 ]
