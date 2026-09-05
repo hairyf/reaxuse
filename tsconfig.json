@@ -10,8 +10,20 @@
     "declaration": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "allowImportingTsExtensions": true,
     "forceConsistentCasingInFileNames": true,
-    "types": []
+    "types": ["node"]
   },
-  "include": ["packages/*/src/**/*.ts", "packages/*/src/**/*.tsx"]
+  "include": [
+    "packages/*/src/**/*.ts",
+    "packages/*/src/**/*.tsx",
+    "test/**/*.ts",
+    "scripts/**/*.ts",
+    "meta/**/*.ts",
+    "docs/demos/**/*.ts",
+    "docs/demos/**/*.tsx",
+    "docs/.vitepress/**/*.ts",
+    "*.config.ts",
+    "*.config.js"
+  ]
 }

@@ -4,6 +4,9 @@
   "type": "module",
   "description": "Function metadata for generating docs — React port of @vueuse/metadata (experimental, AI-mapped)",
   "license": "MIT",
+  "scripts": {
+    "build": "tsdown"
+  },
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {

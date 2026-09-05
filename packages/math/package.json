@@ -4,6 +4,9 @@
   "type": "module",
   "description": "Math functions — React port of @vueuse/math (experimental, AI-mapped)",
   "license": "MIT",
+  "scripts": {
+    "build": "tsdown"
+  },
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
