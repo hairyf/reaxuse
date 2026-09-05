@@ -10,4 +10,5 @@
 | `useNow`        | packages/core/useNow        | `packages/core/src/useNow.ts`        | ✅ ported                     |
 | `useToggle`     | packages/shared/useToggle   | `packages/shared/src/useToggle.ts`   | ✅ ported                     |
 | `useToString`   | packages/shared/useToString | `packages/shared/src/useToString.ts` | ✅ ported                     |
+| `useUnmount`    | —                           | `packages/shared/src/useUnmount.ts`  | 🚧 ported (no upstream match) |
 | `useUpdate`     | —                           | `packages/shared/src/useUpdate.ts`   | 🚧 ported (no upstream match) |
