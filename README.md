@@ -53,9 +53,6 @@ npm run typecheck
 
 ## TODO
 
-- [ ] Build toolchain (tsdown / rollup, mirroring VueUse's `tsdown.config.ts`)
-- [ ] Test framework (vitest + React Testing Library)
-- [ ] Documentation site (VitePress)
 - [ ] Large-scale AI mapping of all `@vueuse/core` functions
 - [ ] `router` / `rxjs` / `electron` / `nuxt` / `firebase` / `components` / `skills` sub-packages
 - [ ] Publish to npm (`@reaxuse/*`)
