@@ -9,3 +9,6 @@
 | `useNow`        | packages/core/useNow       | `packages/core/src/useNow.ts`       | ✅ ported                     |
 | `useToggle`     | packages/shared/useToggle  | `packages/shared/src/useToggle.ts`  | ✅ ported                     |
 | `useUpdate`     | —                          | `packages/shared/src/useUpdate.ts`  | 🚧 ported (no upstream match) |
+| `useMount`      | —                          | `packages/shared/src/useMount.ts`   | 🚧 ported (no upstream match) |
+| `useNow`        | packages/core/useNow       | `packages/core/src/useNow.ts`       | ✅ ported                     |
+| `useToggle`     | packages/shared/useToggle  | `packages/shared/src/useToggle.ts`  | ✅ ported                     |
