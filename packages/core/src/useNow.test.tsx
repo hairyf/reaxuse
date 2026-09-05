@@ -1,8 +1,8 @@
+import { expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
-import { expect, test } from 'vitest'
 import { useNow } from './useNow'
 
-test('useNow returns a recent timestamp', async () => {
+it('useNow returns a recent timestamp', async () => {
   const before = Date.now()
   const { result } = await renderHook(() => useNow(1000))
 
@@ -10,7 +10,7 @@ test('useNow returns a recent timestamp', async () => {
   expect(result.current).toBeLessThanOrEqual(Date.now() + 1000)
 })
 
-test('useNow advances over time', async () => {
+it('useNow advances over time', async () => {
   const { result } = await renderHook(() => useNow(50))
   const first = result.current
 

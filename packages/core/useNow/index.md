@@ -30,3 +30,5 @@ export function useNow(interval?: number): number
 
 - VueUse: [`packages/core/useNow`](https://github.com/vueuse/vueuse/tree/main/packages/core/useNow)
 - reaxuse: [`packages/core/src/useNow.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useNow.ts)
+
+<Contributors name="useNow" />

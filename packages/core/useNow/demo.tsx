@@ -6,7 +6,9 @@ export default function UseNowDemo() {
   return (
     <div>
       <p>
-        now: <strong>{new Date(now).toLocaleTimeString()}</strong>
+        now:
+        {' '}
+        <strong>{new Date(now).toLocaleTimeString()}</strong>
       </p>
     </div>
   )

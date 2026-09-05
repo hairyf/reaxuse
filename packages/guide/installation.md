@@ -15,7 +15,7 @@ npm install @reaxuse/core
 ```
 
 ```tsx
-import { useToggle } from '@reaxuse/core'
+import { useToggle } from '@reaxuse/shared'
 
 function App() {
   const [value, toggle] = useToggle()

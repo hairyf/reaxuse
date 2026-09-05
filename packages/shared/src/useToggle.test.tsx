@@ -1,8 +1,8 @@
+import { expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
-import { expect, test } from 'vitest'
 import { useToggle } from './useToggle'
 
-test('useToggle toggles between states', async () => {
+it('useToggle toggles between states', async () => {
   const { result, act } = await renderHook(() => useToggle())
 
   expect(result.current[0]).toBe(false)
@@ -14,7 +14,7 @@ test('useToggle toggles between states', async () => {
   expect(result.current[0]).toBe(false)
 })
 
-test('useToggle supports initial value and functional update', async () => {
+it('useToggle supports initial value and functional update', async () => {
   const { result, act } = await renderHook(() => useToggle('a' as 'a' | 'b'))
 
   expect(result.current[0]).toBe('a')

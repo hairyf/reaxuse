@@ -11,13 +11,13 @@ A Boolean (or value) toggler — React port of VueUse's [`useToggle`](https://vu
 ## Usage
 
 ```tsx
-import { useToggle } from '@reaxuse/core'
+import { useToggle } from '@reaxuse/shared'
 
 const [value, toggle] = useToggle()
 
-toggle()        // false → true
-toggle()        // true → false
-toggle(false)   // force to false
+toggle() // false → true
+toggle() // true → false
+toggle(false) // force to false
 toggle(c => !c) // functional update
 ```
 
@@ -39,4 +39,6 @@ export function useToggle<T extends boolean | number | string = boolean>(
 ## Source
 
 - VueUse: [`packages/shared/useToggle`](https://github.com/vueuse/vueuse/tree/main/packages/shared/useToggle)
-- reaxuse: [`packages/core/src/useToggle.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useToggle.ts)
+- reaxuse: [`packages/shared/src/useToggle.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/shared/src/useToggle.ts)
+
+<Contributors name="useToggle" />

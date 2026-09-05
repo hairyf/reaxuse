@@ -1,4 +1,4 @@
-import { useToggle } from '@reaxuse/core'
+import { useToggle } from '@reaxuse/shared'
 
 export default function UseToggleDemo() {
   const [value, toggle] = useToggle()
@@ -6,7 +6,9 @@ export default function UseToggleDemo() {
   return (
     <div>
       <p>
-        value: <strong>{String(value)}</strong>
+        value:
+        {' '}
+        <strong>{String(value)}</strong>
       </p>
       <button onClick={() => toggle()}>toggle</button>
       <button onClick={() => toggle(false)}>set false</button>

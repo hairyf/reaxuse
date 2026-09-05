@@ -1,19 +1,22 @@
+import { expect, it } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
-import { expect, test } from 'vitest'
 import { useCounter } from './useCounter'
 
 function CounterDemo() {
   const { count, inc, dec } = useCounter(5)
   return (
     <div>
-      <span>Count is {count}</span>
+      <span>
+        {'Count is '}
+        {count}
+      </span>
       <button onClick={() => inc()}>Increment</button>
       <button onClick={() => dec()}>Decrement</button>
     </div>
   )
 }
 
-test('useCounter increments and decrements (component)', async () => {
+it('useCounter increments and decrements (component)', async () => {
   const screen = await render(<CounterDemo />)
 
   await expect.element(screen.getByText('Count is 5')).toBeVisible()
@@ -25,7 +28,7 @@ test('useCounter increments and decrements (component)', async () => {
   await expect.element(screen.getByText('Count is 5')).toBeVisible()
 })
 
-test('useCounter respects min/max bounds', async () => {
+it('useCounter respects min/max bounds', async () => {
   const { result, act } = await renderHook(() => useCounter(10, { min: 0, max: 10 }))
 
   await act(() => result.current.inc())

@@ -9,4 +9,4 @@
   (`useState` / `useEffect` / `useMemo` …)
 - AI continuously maps upstream composables to React hooks
 
-See [architecture](/architecture) for the full VueUse → reaxuse mapping.
+See [architecture](/guide/architecture) for the full VueUse → reaxuse mapping.

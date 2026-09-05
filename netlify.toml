@@ -1,6 +1,6 @@
 [build]
-  command = "npm run docs:build"
-  publish = "docs/.vitepress/dist"
+command = "npm run docs:build"
+publish = "packages/.vitepress/dist"
 
 [build.environment]
-  NODE_VERSION = "22"
+NODE_VERSION = "22"

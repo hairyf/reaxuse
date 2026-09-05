@@ -27,14 +27,14 @@ See [docs/architecture.md](docs/architecture.md) for the full VueUse → reaxuse
 
 ## Package structure (mirroring VueUse)
 
-| VueUse | reaxuse | status |
-|---|---|---|
-| `@vueuse/core` | `@reaxuse/core` | 🚧 skeleton + example hooks |
-| `@vueuse/shared` | `@reaxuse/shared` | 🚧 skeleton |
-| `@vueuse/integrations` | `@reaxuse/integrations` | 🚧 skeleton |
-| `@vueuse/math` | `@reaxuse/math` | 🚧 skeleton |
-| `@vueuse/metadata` | `@reaxuse/metadata` | 🚧 skeleton |
-| `@vueuse/router` / `rxjs` / `electron` / `nuxt` / `firebase` / `components` / `skills` | — | ⏳ TODO |
+| VueUse                                                                                 | reaxuse                 | status                      |
+| -------------------------------------------------------------------------------------- | ----------------------- | --------------------------- |
+| `@vueuse/core`                                                                         | `@reaxuse/core`         | 🚧 skeleton + example hooks |
+| `@vueuse/shared`                                                                       | `@reaxuse/shared`       | 🚧 skeleton                 |
+| `@vueuse/integrations`                                                                 | `@reaxuse/integrations` | 🚧 skeleton                 |
+| `@vueuse/math`                                                                         | `@reaxuse/math`         | 🚧 skeleton                 |
+| `@vueuse/metadata`                                                                     | `@reaxuse/metadata`     | 🚧 skeleton                 |
+| `@vueuse/router` / `rxjs` / `electron` / `nuxt` / `firebase` / `components` / `skills` | —                       | ⏳ TODO                     |
 
 ## Quick start
 

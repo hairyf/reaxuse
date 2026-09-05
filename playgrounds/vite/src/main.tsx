@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { useCounter, useNow, useToggle } from '@reaxuse/core'
+import { useCounter, useToggle } from '@reaxuse/shared'
+import { useNow } from '@reaxuse/core'
 
 function App() {
   const [value, toggle] = useToggle()

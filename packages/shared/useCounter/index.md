@@ -13,15 +13,15 @@ options are kept in refs so callbacks stay stable.
 ## Usage
 
 ```tsx
-import { useCounter } from '@reaxuse/core'
+import { useCounter } from '@reaxuse/shared'
 
 const { count, inc, dec, set, reset } = useCounter(0, { min: 0, max: 10 })
 
-inc()    // +1
-inc(5)   // +5
-dec()    // -1
-set(3)   // = 3 (clamped to [min, max])
-reset()  // back to initialValue
+inc() // +1
+inc(5) // +5
+dec() // -1
+set(3) // = 3 (clamped to [min, max])
+reset() // back to initialValue
 ```
 
 <DemoContainer name="UseCounter" />
@@ -51,4 +51,6 @@ export function useCounter(
 ## Source
 
 - VueUse: [`packages/shared/useCounter`](https://github.com/vueuse/vueuse/tree/main/packages/shared/useCounter)
-- reaxuse: [`packages/core/src/useCounter.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useCounter.ts)
+- reaxuse: [`packages/shared/src/useCounter.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/shared/src/useCounter.ts)
+
+<Contributors name="useCounter" />

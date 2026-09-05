@@ -17,14 +17,14 @@ npm install
 
 ## Commands
 
-| Command | Description |
-|---|---|
-| `npm run typecheck` | TypeScript check (`tsc --noEmit`) |
-| `npm run test` | vitest — hook tests run in a real browser via `vitest-browser-react` |
-| `npm run lint` / `lint:fix` | eslint (flat config) |
-| `npm run build` | tsdown bundle of all packages (via turbo) |
-| `npm run docs` | VitePress dev server |
-| `npm run update` | regenerate `meta/functions.md` from package sources |
+| Command                     | Description                                                          |
+| --------------------------- | -------------------------------------------------------------------- |
+| `npm run typecheck`         | TypeScript check (`tsc --noEmit`)                                    |
+| `npm run test`              | vitest — hook tests run in a real browser via `vitest-browser-react` |
+| `npm run lint` / `lint:fix` | eslint (flat config)                                                 |
+| `npm run build`             | tsdown bundle of all packages (via turbo)                            |
+| `npm run docs`              | VitePress dev server                                                 |
+| `npm run update`            | regenerate `meta/functions.md` from package sources                  |
 
 Before running browser tests locally, install the chromium binary once:
 
