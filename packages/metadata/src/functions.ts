@@ -16,6 +16,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useMount',
+    file: 'packages/shared/src/useMount.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useNow',
     file: 'packages/core/src/useNow.ts',
     pkg: 'core',
