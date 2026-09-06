@@ -146,6 +146,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'pxValue',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'rand',
     file: 'packages/shared/src/utils.ts',
     pkg: 'shared',
@@ -316,6 +321,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useFileDialog',
+    file: 'packages/core/src/useFileDialog.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useInterval',
     file: 'packages/shared/src/useInterval.ts',
     pkg: 'shared',
@@ -356,6 +366,21 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useMediaQuery',
+    file: 'packages/core/src/useMediaQuery.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useMemoize',
+    file: 'packages/core/src/useMemoize.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useMemory',
+    file: 'packages/core/src/useMemory.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useMount',
     file: 'packages/shared/src/useMount.ts',
     pkg: 'shared',
@@ -363,6 +388,36 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useMounted',
     file: 'packages/core/src/useMounted.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useMouse',
+    file: 'packages/core/src/useMouse.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useMouseInElement',
+    file: 'packages/core/src/useMouseInElement.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useMousePressed',
+    file: 'packages/core/src/useMousePressed.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useMutationObserver',
+    file: 'packages/core/src/useMutationObserver.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useNavigatorLanguage',
+    file: 'packages/core/src/useNavigatorLanguage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useNetwork',
+    file: 'packages/core/src/useNetwork.ts',
     pkg: 'core',
   },
   {
@@ -378,6 +433,11 @@ export const functions: FunctionInfo[] = [
   {
     name: 'usePageLeave',
     file: 'packages/core/src/usePageLeave.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useParallax',
+    file: 'packages/core/src/useParallax.ts',
     pkg: 'core',
   },
   {

@@ -32,6 +32,7 @@
 | `objectOmit`                      | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `objectPick`                      | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `promiseTimeout`                  | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
+| `pxValue`                         | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `rand`                            | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `throttleFilter`                  | —                                             | `packages/shared/src/useWatchWithFilter.ts`            | 🚧 ported (no upstream match) |
 | `timestamp`                       | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
@@ -66,6 +67,7 @@
 | `useCounter`                      | packages/shared/useCounter                    | `packages/shared/src/useCounter.ts`                    | ✅ ported                     |
 | `useDateFormat`                   | packages/shared/useDateFormat                 | `packages/shared/src/useDateFormat.ts`                 | ✅ ported                     |
 | `useDebounceFn`                   | packages/shared/useDebounceFn                 | `packages/shared/src/useDebounceFn.ts`                 | ✅ ported                     |
+| `useFileDialog`                   | packages/core/useFileDialog                   | `packages/core/src/useFileDialog.ts`                   | ✅ ported                     |
 | `useInterval`                     | packages/shared/useInterval                   | `packages/shared/src/useInterval.ts`                   | ✅ ported                     |
 | `useInterval`                     | packages/shared/useInterval                   | `packages/shared/src/useInterval.ts`                   | ✅ ported                     |
 | `useInterval`                     | packages/shared/useInterval                   | `packages/shared/src/useInterval.ts`                   | ✅ ported                     |
@@ -74,11 +76,21 @@
 | `useLastChanged`                  | packages/shared/useLastChanged                | `packages/shared/src/useLastChanged.ts`                | ✅ ported                     |
 | `useLastChanged`                  | packages/shared/useLastChanged                | `packages/shared/src/useLastChanged.ts`                | ✅ ported                     |
 | `useListener`                     | —                                             | `packages/shared/src/useListener.ts`                   | 🚧 ported (no upstream match) |
+| `useMediaQuery`                   | packages/core/useMediaQuery                   | `packages/core/src/useMediaQuery.ts`                   | ✅ ported                     |
+| `useMemoize`                      | packages/core/useMemoize                      | `packages/core/src/useMemoize.ts`                      | ✅ ported                     |
+| `useMemory`                       | packages/core/useMemory                       | `packages/core/src/useMemory.ts`                       | ✅ ported                     |
 | `useMount`                        | —                                             | `packages/shared/src/useMount.ts`                      | 🚧 ported (no upstream match) |
 | `useMounted`                      | packages/core/useMounted                      | `packages/core/src/useMounted.ts`                      | ✅ ported                     |
+| `useMouse`                        | packages/core/useMouse                        | `packages/core/src/useMouse.ts`                        | ✅ ported                     |
+| `useMouseInElement`               | packages/core/useMouseInElement               | `packages/core/src/useMouseInElement.ts`               | ✅ ported                     |
+| `useMousePressed`                 | packages/core/useMousePressed                 | `packages/core/src/useMousePressed.ts`                 | ✅ ported                     |
+| `useMutationObserver`             | packages/core/useMutationObserver             | `packages/core/src/useMutationObserver.ts`             | ✅ ported                     |
+| `useNavigatorLanguage`            | packages/core/useNavigatorLanguage            | `packages/core/src/useNavigatorLanguage.ts`            | ✅ ported                     |
+| `useNetwork`                      | packages/core/useNetwork                      | `packages/core/src/useNetwork.ts`                      | ✅ ported                     |
 | `useNow`                          | packages/core/useNow                          | `packages/core/src/useNow.ts`                          | ✅ ported                     |
 | `useOnline`                       | packages/core/useOnline                       | `packages/core/src/useOnline.ts`                       | ✅ ported                     |
 | `usePageLeave`                    | packages/core/usePageLeave                    | `packages/core/src/usePageLeave.ts`                    | ✅ ported                     |
+| `useParallax`                     | packages/core/useParallax                     | `packages/core/src/useParallax.ts`                     | ✅ ported                     |
 | `useParentElement`                | packages/core/useParentElement                | `packages/core/src/useParentElement.ts`                | ✅ ported                     |
 | `usePerformanceObserver`          | packages/core/usePerformanceObserver          | `packages/core/src/usePerformanceObserver.ts`          | ✅ ported                     |
 | `usePermission`                   | packages/core/usePermission                   | `packages/core/src/usePermission.ts`                   | ✅ ported                     |
