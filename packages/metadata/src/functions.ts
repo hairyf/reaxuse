@@ -26,6 +26,36 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'customStorageEventName',
+    file: 'packages/core/src/useStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'debounceFilter',
+    file: 'packages/shared/src/useWatchWithFilter.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'formatDate',
+    file: 'packages/shared/src/useDateFormat.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'formatTimeAgo',
+    file: 'packages/core/src/useTimeAgo.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'formatTimeAgoIntl',
+    file: 'packages/core/src/useTimeAgoIntl.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'formatTimeAgoIntlParts',
+    file: 'packages/core/src/useTimeAgoIntl.ts',
+    pkg: 'core',
+  },
+  {
     name: 'hasOwn',
     file: 'packages/shared/src/utils.ts',
     pkg: 'shared',
@@ -81,6 +111,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'normalizeDate',
+    file: 'packages/shared/src/useDateFormat.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'now',
     file: 'packages/shared/src/utils.ts',
     pkg: 'shared',
@@ -106,6 +141,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'throttleFilter',
+    file: 'packages/shared/src/useWatchWithFilter.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'timestamp',
     file: 'packages/shared/src/utils.ts',
     pkg: 'shared',
@@ -124,6 +164,11 @@ export const functions: FunctionInfo[] = [
     name: 'toArray',
     file: 'packages/shared/src/utils.ts',
     pkg: 'shared',
+  },
+  {
+    name: 'TransitionPresets',
+    file: 'packages/core/src/useTransition.ts',
+    pkg: 'core',
   },
   {
     name: 'useArrayDifference',
@@ -236,6 +281,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useDateFormat',
+    file: 'packages/shared/src/useDateFormat.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useDebounceFn',
     file: 'packages/shared/src/useDebounceFn.ts',
     pkg: 'shared',
@@ -281,8 +331,168 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useMounted',
+    file: 'packages/core/src/useMounted.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useNow',
     file: 'packages/core/src/useNow.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useOnline',
+    file: 'packages/core/src/useOnline.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useParentElement',
+    file: 'packages/core/src/useParentElement.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'usePerformanceObserver',
+    file: 'packages/core/src/usePerformanceObserver.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'usePermission',
+    file: 'packages/core/src/usePermission.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'usePermission',
+    file: 'packages/core/src/usePermission.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'usePermission',
+    file: 'packages/core/src/usePermission.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'usePointer',
+    file: 'packages/core/src/usePointer.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'usePointerLock',
+    file: 'packages/core/src/usePointerLock.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'usePreferredColorScheme',
+    file: 'packages/core/src/usePreferredColorScheme.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'usePreferredContrast',
+    file: 'packages/core/src/usePreferredContrast.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'usePreferredDark',
+    file: 'packages/core/src/usePreferredDark.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'usePreferredLanguages',
+    file: 'packages/core/src/usePreferredLanguages.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'usePreferredReducedMotion',
+    file: 'packages/core/src/usePreferredReducedMotion.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'usePreferredReducedTransparency',
+    file: 'packages/core/src/usePreferredReducedTransparency.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'usePrevious',
+    file: 'packages/core/src/usePrevious.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useResizeObserver',
+    file: 'packages/core/src/useResizeObserver.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useScreenOrientation',
+    file: 'packages/core/src/useScreenOrientation.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useScreenSafeArea',
+    file: 'packages/core/src/useScreenSafeArea.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useScriptTag',
+    file: 'packages/core/src/useScriptTag.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useScrollLock',
+    file: 'packages/core/src/useScrollLock.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useSessionStorage',
+    file: 'packages/core/src/useSessionStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useSessionStorage',
+    file: 'packages/core/src/useSessionStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useSessionStorage',
+    file: 'packages/core/src/useSessionStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useSessionStorage',
+    file: 'packages/core/src/useSessionStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useSessionStorage',
+    file: 'packages/core/src/useSessionStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useSessionStorage',
+    file: 'packages/core/src/useSessionStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useShare',
+    file: 'packages/core/src/useShare.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useSorted',
+    file: 'packages/core/src/useSorted.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useSpeechRecognition',
+    file: 'packages/core/src/useSpeechRecognition.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useSpeechSynthesis',
+    file: 'packages/core/src/useSpeechSynthesis.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStateHistory',
+    file: 'packages/core/src/useStateHistory.ts',
     pkg: 'core',
   },
   {
@@ -291,9 +501,94 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useStateThrottledHistory',
+    file: 'packages/core/src/useStateThrottledHistory.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStepper',
+    file: 'packages/core/src/useStepper.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStorage',
+    file: 'packages/core/src/useStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStorage',
+    file: 'packages/core/src/useStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStorage',
+    file: 'packages/core/src/useStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStorage',
+    file: 'packages/core/src/useStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStorage',
+    file: 'packages/core/src/useStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStorage',
+    file: 'packages/core/src/useStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStyleTag',
+    file: 'packages/core/src/useStyleTag.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useSupported',
+    file: 'packages/core/src/useSupported.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useSwipe',
+    file: 'packages/core/src/useSwipe.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useTemporalNow',
+    file: 'packages/core/src/useTemporalNow.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useTextareaAutosize',
+    file: 'packages/core/src/useTextareaAutosize.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useTextDirection',
+    file: 'packages/core/src/useTextDirection.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useTextSelection',
+    file: 'packages/core/src/useTextSelection.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useThrottleFn',
     file: 'packages/shared/src/useThrottleFn.ts',
     pkg: 'shared',
+  },
+  {
+    name: 'useTimeAgo',
+    file: 'packages/core/src/useTimeAgo.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useTimeAgoIntl',
+    file: 'packages/core/src/useTimeAgoIntl.ts',
+    pkg: 'core',
   },
   {
     name: 'useTimeout',
@@ -316,6 +611,31 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useTimeoutPoll',
+    file: 'packages/core/src/useTimeoutPoll.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useTimestamp',
+    file: 'packages/core/src/useTimestamp.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useTimestamp',
+    file: 'packages/core/src/useTimestamp.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useTimestamp',
+    file: 'packages/core/src/useTimestamp.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useTitle',
+    file: 'packages/core/src/useTitle.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useToggle',
     file: 'packages/shared/src/useToggle.ts',
     pkg: 'shared',
@@ -331,6 +651,21 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useTransition',
+    file: 'packages/core/src/useTransition.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useTransition',
+    file: 'packages/core/src/useTransition.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useTransition',
+    file: 'packages/core/src/useTransition.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useUnmount',
     file: 'packages/shared/src/useUnmount.ts',
     pkg: 'shared',
@@ -339,6 +674,21 @@ export const functions: FunctionInfo[] = [
     name: 'useUpdate',
     file: 'packages/shared/src/useUpdate.ts',
     pkg: 'shared',
+  },
+  {
+    name: 'useUserMedia',
+    file: 'packages/core/src/useUserMedia.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useVibrate',
+    file: 'packages/core/src/useVibrate.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useWakeLock',
+    file: 'packages/core/src/useWakeLock.ts',
+    pkg: 'core',
   },
   {
     name: 'useWatch',
@@ -391,6 +741,51 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useWatchDeep',
+    file: 'packages/shared/src/useWatchDeep.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchDeep',
+    file: 'packages/shared/src/useWatchDeep.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchDeep',
+    file: 'packages/shared/src/useWatchDeep.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchIgnorable',
+    file: 'packages/shared/src/useWatchIgnorable.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchIgnorable',
+    file: 'packages/shared/src/useWatchIgnorable.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchIgnorable',
+    file: 'packages/shared/src/useWatchIgnorable.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchImmediate',
+    file: 'packages/shared/src/useWatchImmediate.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchImmediate',
+    file: 'packages/shared/src/useWatchImmediate.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchImmediate',
+    file: 'packages/shared/src/useWatchImmediate.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useWatchOnce',
     file: 'packages/shared/src/useWatchOnce.ts',
     pkg: 'shared',
@@ -419,10 +814,75 @@ export const functions: FunctionInfo[] = [
     name: 'useWatchThrottled',
     file: 'packages/shared/src/useWatchThrottled.ts',
     pkg: 'shared',
+  },
+  {
+    name: 'useWatchTriggerable',
+    file: 'packages/shared/src/useWatchTriggerable.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchTriggerable',
+    file: 'packages/shared/src/useWatchTriggerable.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchTriggerable',
+    file: 'packages/shared/src/useWatchTriggerable.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchWithFilter',
+    file: 'packages/shared/src/useWatchWithFilter.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchWithFilter',
+    file: 'packages/shared/src/useWatchWithFilter.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchWithFilter',
+    file: 'packages/shared/src/useWatchWithFilter.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWebNotification',
+    file: 'packages/core/src/useWebNotification.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useWebWorker',
+    file: 'packages/core/src/useWebWorker.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useWebWorker',
+    file: 'packages/core/src/useWebWorker.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useWebWorker',
+    file: 'packages/core/src/useWebWorker.ts',
+    pkg: 'core',
   },
   {
     name: 'useWhenever',
     file: 'packages/shared/src/useWhenever.ts',
     pkg: 'shared',
+  },
+  {
+    name: 'useWindowFocus',
+    file: 'packages/core/src/useWindowFocus.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useWindowScroll',
+    file: 'packages/core/src/useWindowScroll.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useWindowSize',
+    file: 'packages/core/src/useWindowSize.ts',
+    pkg: 'core',
   },
 ]
