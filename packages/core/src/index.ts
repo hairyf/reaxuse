@@ -29,7 +29,7 @@
 // export * from './useCssSupports'
 export * from './useCssVar'
 // export * from './useCurrentElement'
-// export * from './useCycleList'
+export * from './useCycleList'
 // export * from './useDark'
 // export * from './useDeviceMotion'
 // export * from './useDeviceOrientation'
