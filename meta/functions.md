@@ -84,6 +84,7 @@
 | `usePermission`                   | packages/core/usePermission                   | `packages/core/src/usePermission.ts`                   | ✅ ported                     |
 | `usePointer`                      | packages/core/usePointer                      | `packages/core/src/usePointer.ts`                      | ✅ ported                     |
 | `usePointerLock`                  | packages/core/usePointerLock                  | `packages/core/src/usePointerLock.ts`                  | ✅ ported                     |
+| `usePointerSwipe`                 | packages/core/usePointerSwipe                 | `packages/core/src/usePointerSwipe.ts`                 | ✅ ported                     |
 | `usePreferredColorScheme`         | packages/core/usePreferredColorScheme         | `packages/core/src/usePreferredColorScheme.ts`         | ✅ ported                     |
 | `usePreferredContrast`            | packages/core/usePreferredContrast            | `packages/core/src/usePreferredContrast.ts`            | ✅ ported                     |
 | `usePreferredDark`                | packages/core/usePreferredDark                | `packages/core/src/usePreferredDark.ts`                | ✅ ported                     |

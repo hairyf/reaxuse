@@ -406,6 +406,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'usePointerSwipe',
+    file: 'packages/core/src/usePointerSwipe.ts',
+    pkg: 'core',
+  },
+  {
     name: 'usePreferredColorScheme',
     file: 'packages/core/src/usePreferredColorScheme.ts',
     pkg: 'core',
