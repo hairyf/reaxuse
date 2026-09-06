@@ -1,17 +1,6 @@
+import type { ConfigurableWindow } from '@reaxuse/shared'
 import type { Dispatch, SetStateAction } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
-
-/**
- * Specify a custom `window` instance, e.g. working with iframes or in
- * testing environments.
- *
- * Declared locally on purpose: `useOnline` already exports the same name and
- * the package barrel uses `export *`, so a second export would collide
- * (TS2308).
- */
-interface ConfigurableWindow {
-  window?: Window
-}
 
 export type UrlParams = Record<string, string[] | string>
 

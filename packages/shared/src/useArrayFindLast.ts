@@ -1,14 +1,7 @@
 import type { MaybeRef } from './index'
+import { isRefLike, toValue } from './utils'
 
 export type UseArrayFindLastReturn<T = any> = T | undefined
-
-function isRefLike<T>(value: MaybeRef<T>): value is { current: T } {
-  return typeof value === 'object' && value !== null && 'current' in value
-}
-
-function toValue<T>(value: MaybeRef<T>): T {
-  return isRefLike(value) ? value.current : value
-}
 
 /**
  * Loop equivalent of `Array.prototype.findLast` — upstream ships the same

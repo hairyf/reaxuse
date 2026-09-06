@@ -1,4 +1,5 @@
 import type { MaybeRef } from './index'
+import { toValue } from './utils'
 
 export type UseArrayUniqueReturn<T = any> = T[]
 
@@ -48,12 +49,4 @@ function uniqueElementsBy<T>(
       acc.push(v)
     return acc
   }, [])
-}
-
-function toValue<T>(value: MaybeRef<T>): T {
-  return isRefLike(value) ? value.current : value
-}
-
-function isRefLike<T>(value: MaybeRef<T>): value is { current: T } {
-  return value !== null && typeof value === 'object' && 'current' in value
 }

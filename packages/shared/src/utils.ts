@@ -158,3 +158,43 @@ function cacheStringFunction<T extends (str: string) => string>(fn: T): T {
 
 const hyphenateRE = /\B([A-Z])/g
 export const hyphenate = cacheStringFunction((str: string) => str.replace(hyphenateRE, '-$1').toLowerCase())
+
+// ---------------------------------------------------------------------------
+// reaxuse 引用链核心工具 (single source of truth — other packages import
+// these from @reaxuse/shared, never re-implement; see MONITORING-HANDOFF §2C)
+// ---------------------------------------------------------------------------
+
+/**
+ * Value, React ref-like object (`{ current }`) or getter — the React analog of
+ * VueUse's `MaybeRefOrGetter`.
+ */
+export type MaybeRefOrGetter<T> = T | { current: T } | (() => T)
+
+/**
+ * Allow a custom `window` instance, e.g. working with iframes or in testing
+ * environments. Single source of truth — VueUse defines this in shared too.
+ */
+export interface ConfigurableWindow {
+  window?: Window
+}
+
+/**
+ * Type guard for React-style ref-like objects (`{ current }`).
+ */
+export function isRefLike<T>(value: MaybeRefOrGetter<T>): value is { current: T } {
+  return value !== null && typeof value === 'object' && 'current' in value
+}
+
+/**
+ * Resolve a plain value, a React ref-like object (`{ current }`) or a getter
+ * function to its current value — the React analog of VueUse's `toValue`.
+ */
+export function toValue<T>(value: MaybeRefOrGetter<T>): T
+export function toValue<T>(value: MaybeRefOrGetter<T> | undefined): T | undefined
+export function toValue<T>(value: MaybeRefOrGetter<T> | undefined): T | undefined {
+  if (typeof value === 'function')
+    return (value as () => T)()
+  if (value !== null && typeof value === 'object' && 'current' in value)
+    return (value as { current: T }).current
+  return value
+}

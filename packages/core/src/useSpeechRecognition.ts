@@ -1,3 +1,4 @@
+import type { ConfigurableWindow } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -46,14 +47,6 @@ interface SpeechRecognitionCtor {
 interface WindowWithSpeechRecognition {
   SpeechRecognition?: SpeechRecognitionCtor
   webkitSpeechRecognition?: SpeechRecognitionCtor
-}
-
-/**
- * Specify a custom `window` instance, e.g. working with iframes or in
- * testing environments.
- */
-interface ConfigurableWindow {
-  window?: Window
 }
 
 export interface UseSpeechRecognitionOptions extends ConfigurableWindow {
