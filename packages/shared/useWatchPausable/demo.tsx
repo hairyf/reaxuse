@@ -3,8 +3,9 @@ import { useState } from 'react'
 
 export default function UseWatchPausableDemo() {
   const [log, setLog] = useState('')
-  const [value, setValue, { pause, resume, isActive }] = useWatchPausable(
-    '',
+  const [value, setValue] = useState('')
+  const { pause, resume, isActive } = useWatchPausable(
+    value,
     v => setLog(prev => `${prev}Changed to "${v}"\n`),
   )
 

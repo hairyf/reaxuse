@@ -1,5 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react'
 import type { UseWatchPausableReturn } from './useWatchPausable'
+import { useState } from 'react'
 import { expect, it, vi } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
 import { useWatchPausable } from './useWatchPausable'
@@ -26,9 +27,9 @@ it('useWatchPausable pauses and resumes the callback (renderHook, upstream "shou
   let controls: UseWatchPausableReturn = noopControls
 
   const { act } = await renderHook(() => {
-    const [, update, watcher] = useWatchPausable(0, (next, prev) => calls.push({ value: next, oldValue: prev }))
+    const [source, update] = useState(0)
     setValue = update
-    controls = watcher
+    controls = useWatchPausable(source, (next, prev) => calls.push({ value: next, oldValue: prev }))
   })
 
   expect(calls).toEqual([])
@@ -67,13 +68,13 @@ it('useWatchPausable starts paused with initialState "paused" (renderHook, upstr
   let controls: UseWatchPausableReturn = noopControls
 
   const { act } = await renderHook(() => {
-    const [, update, watcher] = useWatchPausable(
-      0,
+    const [source, update] = useState(0)
+    setValue = update
+    controls = useWatchPausable(
+      source,
       (next, prev) => calls.push({ value: next, oldValue: prev }),
       { initialState: 'paused' },
     )
-    setValue = update
-    controls = watcher
   })
 
   expect(calls).toEqual([])
@@ -97,8 +98,9 @@ it('useWatchPausable fires on mount with immediate: true', async () => {
   let setValue: Dispatch<SetStateAction<number>> = () => {}
 
   const { act } = await renderHook(() => {
-    const [, update] = useWatchPausable(7, (next, prev) => calls.push({ value: next, oldValue: prev }), { immediate: true })
+    const [source, update] = useState(7)
     setValue = update
+    useWatchPausable(source, (next, prev) => calls.push({ value: next, oldValue: prev }), { immediate: true })
   })
 
   expect(calls).toEqual([{ value: 7, oldValue: undefined }])
@@ -116,13 +118,13 @@ it('useWatchPausable drops the immediate fire while paused (renderHook)', async 
   let controls: UseWatchPausableReturn = noopControls
 
   const { act } = await renderHook(() => {
-    const [, update, watcher] = useWatchPausable(
-      7,
+    const [source, update] = useState(7)
+    setValue = update
+    controls = useWatchPausable(
+      source,
       (next, prev) => calls.push({ value: next, oldValue: prev }),
       { immediate: true, initialState: 'paused' },
     )
-    setValue = update
-    controls = watcher
   })
 
   expect(calls).toEqual([])
@@ -135,11 +137,37 @@ it('useWatchPausable drops the immediate fire while paused (renderHook)', async 
   expect(calls).toEqual([{ value: 8, oldValue: 7 }])
 })
 
+it('useWatchPausable watches an array source (upstream WatchSource overload)', async () => {
+  const calls: number[][] = []
+  let setA: Dispatch<SetStateAction<number>> = () => {}
+  let setB: Dispatch<SetStateAction<number>> = () => {}
+
+  const { act } = await renderHook(() => {
+    const [a, updateA] = useState(1)
+    const [b, updateB] = useState(2)
+    setA = updateA
+    setB = updateB
+    useWatchPausable([a, b] as const, next => calls.push([...next]))
+  })
+
+  expect(calls).toEqual([])
+
+  await act(() => setA(3))
+  expect(calls).toEqual([[3, 2]])
+
+  await act(() => setB(4))
+  expect(calls).toEqual([
+    [3, 2],
+    [3, 4],
+  ])
+})
+
 it('useWatchPausable pauses and resumes from buttons (component, mirrors demo.vue)', async () => {
   const calls: number[] = []
 
   function PausableDemo() {
-    const [value, setValue, { pause, resume, isActive }] = useWatchPausable(0, next => calls.push(next))
+    const [value, setValue] = useState(0)
+    const { pause, resume, isActive } = useWatchPausable(value, next => calls.push(next))
     return (
       <div>
         <span>{value}</span>
@@ -172,8 +200,9 @@ it('useWatchPausable keeps the latest callback without extra firings (renderHook
   let setValue: Dispatch<SetStateAction<number>> = () => {}
 
   const { act } = await renderHook(() => {
-    const [, update] = useWatchPausable(0, (...args: [number, number | undefined]) => current(...args))
+    const [source, update] = useState(0)
     setValue = update
+    useWatchPausable(source, (...args: [number, number | undefined]) => current(...args))
   })
 
   current = latest

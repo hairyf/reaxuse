@@ -14,19 +14,22 @@ and the callback is skipped while the watcher is paused or stopped. Changes made
 while paused are dropped — upstream's `pausableFilter` defers nothing, so
 `resume()` only re-activates the watcher and never replays or fires by itself;
 the first change after resuming fires with the last committed value as
-`oldValue`. Like `useWatchIgnorable`, the hook owns the state instead of
-watching an external Vue ref and returns `[value, setValue, controls]`.
+`oldValue`. The source is the caller's own state value and the return is the
+upstream `WatchPausableReturn` control object, following the watch-wrapper
+convention of issue #263.
 
 ## Usage
 
-Use as normal a watched value, but the controls carry extra `pause()` and
+Watch your own state value; the returned controls carry extra `pause()` and
 `resume()` functions to control the callback.
 
 ```tsx
 import { useWatchPausable } from '@reaxuse/shared'
+import { useState } from 'react'
 
-const [value, setValue, { pause, resume }] = useWatchPausable(
-  'foo',
+const [value, setValue] = useState('foo')
+const { pause, resume } = useWatchPausable(
+  value,
   v => console.log(`Changed to ${v}!`),
 )
 
@@ -45,9 +48,11 @@ Start paused and fire once on mount with `initialState` / `immediate`:
 
 ```tsx
 import { useWatchPausable } from '@reaxuse/shared'
+import { useState } from 'react'
 
-const [value, setValue, { isActive }] = useWatchPausable(
-  'foo',
+const [value, setValue] = useState('foo')
+const { isActive } = useWatchPausable(
+  value,
   v => console.log(`Changed to ${v}!`),
   { initialState: 'paused' },
 )
@@ -58,7 +63,7 @@ const [value, setValue, { isActive }] = useWatchPausable(
 | Option         | Type                   | Default    | Description                                            |
 | -------------- | ---------------------- | ---------- | ------------------------------------------------------ |
 | `initialState` | `'active' \| 'paused'` | `'active'` | The initial state of the watcher                       |
-| `immediate`    | `boolean`              | `false`    | Fire the callback once on mount with the initial value |
+| `immediate`    | `boolean`              | `false`    | Fire the callback once on mount with the current value |
 
 <DemoContainer name="UseWatchPausable" />
 
@@ -77,7 +82,7 @@ export interface UseWatchPausableReturn {
   stop: () => void
 }
 
-export function useWatchPausable<T>(initialValue: T, callback: UseWatchCallback<T>, options?: UseWatchPausableOptions): [T, Dispatch<SetStateAction<T>>, UseWatchPausableReturn]
+export function useWatchPausable<T>(source: T, callback: UseWatchCallback<T>, options?: UseWatchPausableOptions): UseWatchPausableReturn
 ```
 
 ## Source

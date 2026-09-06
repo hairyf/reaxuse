@@ -1,4 +1,3 @@
-import type { Dispatch, SetStateAction } from 'react'
 import type { UseWatchCallback } from './useWatch'
 import { useCallback, useRef, useState } from 'react'
 import { useWatch } from './useWatch'
@@ -12,8 +11,8 @@ export interface UseWatchPausableOptions {
   initialState?: 'active' | 'paused'
 
   /**
-   * Fire the callback once on mount with the initial value (still subject to
-   * the pause state).
+   * Fire the callback once on mount with the current source value (still
+   * subject to the pause state).
    *
    * @default false
    */
@@ -58,14 +57,12 @@ export interface UseWatchPausableReturn {
  * the effect after commit — upstream `flush: 'pre'` timing) and the callback
  * is skipped whenever the watcher is paused or stopped.
  *
+ * The API follows the maintainer-directed watch-wrapper convention of issue
+ * #263: the source is the caller's own state value (house `useWatch` source
+ * convention) and the return is the upstream `WatchPausableReturn` object
+ * shape.
+ *
  * Divergences from upstream:
- * - The source is owned by the hook (`initialValue`) rather than an external
- *   `WatchSource` — React-idiomatic state ownership; `setValue` accepts the
- *   same `SetStateAction` forms as `useState` (plain value or updater
- *   function) and is stable across renders.
- * - Returns `[value, setValue, controls]` (React array-destructure convention)
- *   instead of a `WatchPausableReturn` object; `controls` carries the upstream
- *   `pause` / `resume` / `isActive` / `stop`.
  * - `isActive` is a plain boolean state instead of a readonly ref — it updates
  *   across renders, and `pause()` / `resume()` made in the same batch as a
  *   source change are still honoured (the pause state is mirrored into a ref
@@ -82,22 +79,20 @@ export interface UseWatchPausableReturn {
  *
  * @example
  * ```ts
- * const [value, setValue, { pause, resume }] = useWatchPausable('foo', v => console.log(`Changed to ${v}!`))
- * setValue('bar') // logs: Changed to bar!
+ * const [source, setSource] = useState('foo')
+ * const { pause, resume } = useWatchPausable(source, v => console.log(`Changed to ${v}!`))
+ * setSource('bar') // logs: Changed to bar!
  * pause()
- * setValue('foobar') // (nothing logged)
+ * setSource('foobar') // (nothing logged)
  * resume()
- * setValue('hello') // logs: Changed to hello!
+ * setSource('hello') // logs: Changed to hello!
  * ```
  */
-export function useWatchPausable<T>(
-  initialValue: T,
-  callback: UseWatchCallback<NoInfer<T>>,
-  options: UseWatchPausableOptions = {},
-): [T, Dispatch<SetStateAction<T>>, UseWatchPausableReturn] {
+export function useWatchPausable<T extends any[]>(source: readonly [...T], callback: UseWatchCallback<[...T]>, options?: UseWatchPausableOptions): UseWatchPausableReturn
+export function useWatchPausable<T>(source: T, callback: UseWatchCallback<NoInfer<T>>, options?: UseWatchPausableOptions): UseWatchPausableReturn
+export function useWatchPausable(source: any, callback: UseWatchCallback, options: UseWatchPausableOptions = {}): UseWatchPausableReturn {
   const { initialState = 'active', immediate } = options
 
-  const [value, setValue] = useState(initialValue)
   const [isActive, setIsActive] = useState(initialState === 'active')
 
   // Synchronous mirror of the pause state — lets a `pause()` / `resume()` made
@@ -120,11 +115,11 @@ export function useWatchPausable<T>(
     stoppedRef.current = true
   }, [])
 
-  useWatch(value, (current, oldValue) => {
+  useWatch(source, (current, oldValue) => {
     if (!activeRef.current || stoppedRef.current)
       return
     callback(current, oldValue)
   }, { immediate })
 
-  return [value, setValue, { pause, resume, isActive, stop }]
+  return { pause, resume, isActive, stop }
 }
