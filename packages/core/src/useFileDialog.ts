@@ -78,57 +78,6 @@ function prepareInitialFiles(files: UseFileDialogOptions['initialFiles']): FileL
   return dt.files
 }
 
-// ---------------------------------------------------------------------------
-// TODO: temporary local shim for the `useListener` protocol (#129, PR #380).
-// `useListener` is implemented in `@reaxuse/shared` but PR #380 is not merged
-// into `main` yet, so `import { useListener } from '@reaxuse/shared'` fails
-// type-checking. Remove the `ListenerOn` type and the `useListener` export
-// below once it lands, and switch the imports in `useFileDialog.test.tsx` /
-// `useFileDialog/demo.tsx` to `@reaxuse/shared`.
-// ---------------------------------------------------------------------------
-
-/**
- * A listener registration function — the `onXxx` callbacks returned by hooks
- * such as `useFileDialog`'s `onChange` / `onCancel`. Mirror of upstream
- * `EventHookOn<T>`.
- */
-export type ListenerOn<T extends (...args: any[]) => void> = (fn: T) => { off: () => void } | void
-
-/**
- * `useListener` protocol — bind a callback to an event registration function
- * returned by a reaxuse hook, with automatic cleanup on unmount.
- *
- * The callback is kept in a ref, so changing `cb` across renders does not
- * re-register — the latest callback is used by the already-registered
- * listener. If `on` itself changes (a new hook instance), the effect re-runs
- * and re-registers.
- *
- * @example
- * const { files, open, onChange, onCancel } = useFileDialog()
- * useListener(onChange, (files) => { console.log(files) })
- * useListener(onCancel, () => { console.log('cancelled') })
- */
-export function useListener<T extends (...args: any[]) => void>(
-  on: ListenerOn<T>,
-  cb: T,
-): void {
-  const cbRef = useRef<T>(cb)
-  cbRef.current = cb
-
-  useEffect(() => {
-    if (typeof on !== 'function')
-      return
-
-    // register with the latest callback — the ref keeps it fresh without
-    // re-registering on every render
-    const result = on(((...args: any[]) => cbRef.current(...args)) as T)
-
-    return () => {
-      result?.off?.()
-    }
-  }, [on])
-}
-
 /**
  * React port of VueUse's `useFileDialog`.
  *
