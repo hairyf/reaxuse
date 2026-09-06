@@ -1,3 +1,4 @@
+import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export type WebSocketStatus = 'OPEN' | 'CONNECTING' | 'CLOSED'
@@ -148,12 +149,6 @@ function resolveNestedOptions<T>(options: T | true): T {
   if (options === true)
     return {} as T
   return options
-}
-
-function toValue<T>(value: T | (() => T)): T {
-  return typeof value === 'function'
-    ? (value as () => T)()
-    : value
 }
 
 /**
