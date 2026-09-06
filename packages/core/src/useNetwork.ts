@@ -33,6 +33,10 @@ export interface UseNetworkReturn {
    */
   offlineAt: number | undefined
   /**
+   * The time the user was last connected.
+   */
+  onlineAt: number | undefined
+  /**
    * The download speed in Mbps.
    */
   downlink: number | undefined
@@ -48,6 +52,10 @@ export interface UseNetworkReturn {
    * If the user activated data saver mode.
    */
   saveData: boolean | undefined
+  /**
+   * The estimated round-trip time in ms.
+   */
+  rtt: number | undefined
   /**
    * The detected connection/network type.
    */
@@ -65,10 +73,7 @@ type NavigatorWithConnection = Navigator & { connection?: NetworkInformation }
  * window `online`/`offline` events.
  *
  * React divergences:
- * - the Vue `isOnline`/`offlineAt`/`downlink`/`downlinkMax`/`effectiveType`/
- *   `saveData`/`type` shallowRefs become plain state values in a single object
- *   return (upstream's `onlineAt`/`rtt` are dropped to keep the port aligned
- *   with the documented usage);
+ * - the Vue shallowRefs become plain state values in a single object return;
  * - `isSupported` (upstream `useSupported`) starts `false` and is resolved in
  *   the mount effect, so nothing touches `navigator` during render
  *   (SSR-safe);
@@ -79,16 +84,18 @@ type NavigatorWithConnection = Navigator & { connection?: NetworkInformation }
  *   it during setup).
  *
  * @example
- * const { isOnline, offlineAt, downlink, downlinkMax, effectiveType, saveData, type } = useNetwork()
+ * const { isOnline, offlineAt, onlineAt, downlink, downlinkMax, effectiveType, saveData, rtt, type } = useNetwork()
  */
 export function useNetwork(options: UseNetworkOptions = {}): UseNetworkReturn {
   const [isSupported, setIsSupported] = useState(false)
   const [isOnline, setIsOnline] = useState(true)
   const [offlineAt, setOfflineAt] = useState<number>()
+  const [onlineAt, setOnlineAt] = useState<number>()
   const [downlink, setDownlink] = useState<number>()
   const [downlinkMax, setDownlinkMax] = useState<number>()
   const [effectiveType, setEffectiveType] = useState<NetworkEffectiveType>()
   const [saveData, setSaveData] = useState<boolean | undefined>(false)
+  const [rtt, setRtt] = useState<number>()
   const [type, setType] = useState<NetworkType>('unknown')
 
   useEffect(() => {
@@ -103,12 +110,14 @@ export function useNetwork(options: UseNetworkOptions = {}): UseNetworkReturn {
     const updateNetworkInformation = () => {
       setIsOnline(nav.onLine)
       setOfflineAt(nav.onLine ? undefined : Date.now())
+      setOnlineAt(nav.onLine ? Date.now() : undefined)
 
       if (connection) {
         setDownlink(connection.downlink)
         setDownlinkMax(connection.downlinkMax)
         setEffectiveType(connection.effectiveType)
         setSaveData(connection.saveData)
+        setRtt(connection.rtt)
         setType(connection.type)
       }
     }
@@ -122,6 +131,7 @@ export function useNetwork(options: UseNetworkOptions = {}): UseNetworkReturn {
 
     const goOnline = () => {
       setIsOnline(true)
+      setOnlineAt(Date.now())
     }
 
     win.addEventListener('offline', goOffline, { passive: true })
@@ -139,10 +149,12 @@ export function useNetwork(options: UseNetworkOptions = {}): UseNetworkReturn {
     isSupported,
     isOnline,
     offlineAt,
+    onlineAt,
     downlink,
     downlinkMax,
     effectiveType,
     saveData,
+    rtt,
     type,
   }
 }

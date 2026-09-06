@@ -86,10 +86,12 @@ it('useNetwork reads the initial network state from navigator.connection', async
     isSupported: true,
     isOnline: true,
     offlineAt: undefined,
+    onlineAt: expect.any(Number),
     downlink: 10,
     downlinkMax: 100,
     effectiveType: '4g',
     saveData: false,
+    rtt: 50,
     type: 'wifi',
   })
 })
@@ -167,10 +169,12 @@ it('useNetwork stays SSR-safe during render before the mount effect', async () =
     isSupported: false,
     isOnline: true,
     offlineAt: undefined,
+    onlineAt: undefined,
     downlink: undefined,
     downlinkMax: undefined,
     effectiveType: undefined,
     saveData: false,
+    rtt: undefined,
     type: 'unknown',
   })
 })
