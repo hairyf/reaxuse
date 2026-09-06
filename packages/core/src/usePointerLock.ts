@@ -77,9 +77,9 @@ function resolveMaybeRef(value: MaybeElementRef): Element | null {
  *
  * React divergences:
  * - the Vue `element`/`triggerElement` refs become plain `Element | null`
- *   state and `isSupported` a plain boolean derived from the resolved
- *   document; a `typeof document` guard keeps SSR renders at `false` without
- *   touching `document`;
+ *   state; `isSupported` is resolved in a mount effect so both SSR and the
+ *   first client render report `false` (hydration-safe) and the capability
+ *   probe never runs during render;
  * - the document `pointerlockchange`/`pointerlockerror` listeners live in a
  *   self-contained `useEffect` (upstream uses `useEventListener`) and are
  *   removed on unmount; the effect re-binds when the `document` option
@@ -119,9 +119,10 @@ export function usePointerLock(target?: MaybeElementRef, options: UsePointerLock
   const docRef = useRef<Document | undefined>(doc)
   docRef.current = doc
 
-  const isSupported = Boolean(doc && 'pointerLockElement' in doc)
+  const [isSupported, setIsSupported] = useState(false)
 
   useEffect(() => {
+    setIsSupported(Boolean(doc && 'pointerLockElement' in doc))
     if (!doc || !('pointerLockElement' in doc))
       return
 
