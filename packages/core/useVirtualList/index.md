@@ -101,8 +101,6 @@ becomes visible, supporting `behavior` (`'auto' | 'smooth'`), `block`
 ## Type Declarations
 
 ```ts
-export type MaybeRef<T> = T | { current: T }
-
 export type UseVirtualListItemSize = number | ((index: number) => number)
 
 export interface UseHorizontalVirtualListOptions extends UseVirtualListOptionsBase {
