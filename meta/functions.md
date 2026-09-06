@@ -137,6 +137,7 @@
 | `useSorted`                       | packages/core/useSorted                       | `packages/core/src/useSorted.ts`                       | ✅ ported                     |
 | `useSpeechRecognition`            | packages/core/useSpeechRecognition            | `packages/core/src/useSpeechRecognition.ts`            | ✅ ported                     |
 | `useSpeechSynthesis`              | packages/core/useSpeechSynthesis              | `packages/core/src/useSpeechSynthesis.ts`              | ✅ ported                     |
+| `useStateDebouncedHistory`        | —                                             | `packages/core/src/useStateDebouncedHistory.ts`        | 🚧 ported (no upstream match) |
 | `useStateHistory`                 | —                                             | `packages/core/src/useStateHistory.ts`                 | 🚧 ported (no upstream match) |
 | `useStateManualHistory`           | —                                             | `packages/core/src/useStateManualHistory.ts`           | 🚧 ported (no upstream match) |
 | `useStateThrottledHistory`        | —                                             | `packages/core/src/useStateThrottledHistory.ts`        | 🚧 ported (no upstream match) |

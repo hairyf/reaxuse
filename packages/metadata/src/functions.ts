@@ -671,6 +671,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useStateDebouncedHistory',
+    file: 'packages/core/src/useStateDebouncedHistory.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useStateHistory',
     file: 'packages/core/src/useStateHistory.ts',
     pkg: 'core',
