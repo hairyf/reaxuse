@@ -15,6 +15,7 @@ export interface UseWatchOptions {
 /**
  * React port of VueUse's `watch` (via hairylib `useWatch`).
  *
+ * Map from @vueuse/shared `watch`
  * Mapping: Vue's reactive dependency tracking becomes a `useEffect` whose
  * dependency list is the source itself — `[source]` for a single value, the
  * source's elements for an array source — so the callback re-fires whenever

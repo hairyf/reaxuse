@@ -18,6 +18,7 @@ export type UseLastChangedReturn = number | null
 /**
  * React port of VueUse's `useLastChanged`.
  *
+ * Map from @vueuse/shared `useLastChanged`
  * Records the timestamp of the last change
  *
  * @see https://vueuse.org/shared/useLastChanged

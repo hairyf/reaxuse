@@ -29,6 +29,7 @@ function findLast<T>(
 /**
  * React port of VueUse's `useArrayFindLast`.
  *
+ * Map from @vueuse/shared `useArrayFindLast`
  * Mapping: upstream wraps native `Array.prototype.findLast` (with a loop
  * fallback for runtimes without it) in `computed(() => ...)` and returns a
  * `ComputedRef`; React has no reactive value tracking, so this is a plain

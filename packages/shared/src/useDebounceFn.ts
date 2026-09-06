@@ -54,6 +54,7 @@ function toValue(value: MaybeRef<number> | (() => number) | undefined): number |
 /**
  * Debounce execution of a function — React port of VueUse's `useDebounceFn`.
  *
+ * Map from @vueuse/shared `useDebounceFn`
  * Mapping: upstream builds `createFilterWrapper(debounceFilter(ms, options), fn)`
  * so every call returns a promise and the wrapper carries `cancel` / `flush` /
  * `isPending`. This port builds the same wrapper once (`useMemo`) so its

@@ -34,6 +34,7 @@ export function useWatchAtMost<T>(source: T, callback: UseWatchCallback<T>, opti
  * React port of VueUse's `watchAtMost` — `watch` with the number of times
  * triggered.
  *
+ * Map from @vueuse/shared `watchAtMost`
  * Mapping: built on the house `useWatch`. The callback is wrapped with a fire
  * counter: each invocation increments the `count` state (exposed in the
  * return so components re-render), and once the limit — `options.count` — is

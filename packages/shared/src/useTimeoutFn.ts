@@ -21,6 +21,7 @@ export interface UseTimeoutFnReturn<CallbackFn extends AnyFn> {
  * React port of VueUse's `useTimeoutFn` — wrapper for `setTimeout` with
  * controls.
  *
+ * Map from @vueuse/shared `useTimeoutFn`
  * Mapping: upstream accepts `MaybeRefOrGetter<number>` for the interval — this
  * port accepts a plain `number`. `isPending` becomes a boolean state (upstream:
  * a readonly shallow ref) initialized to `immediate`; the timer is scheduled in

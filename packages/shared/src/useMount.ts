@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 /**
  * React port of hairylib's `useMounted`.
  *
+ * Map from hairylib `useMounted`
  * Mapping: react-use's `useMount` runs a callback once on mount via
  * `useEffectOnce`; hairylib's `useMounted` instead returns a `boolean`
  * that becomes `true` once the component has mounted. This port follows

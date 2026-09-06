@@ -39,6 +39,7 @@ export interface UseIntervalFnReturn {
  * React port of VueUse's `useIntervalFn` — wrapper for `setInterval` with
  * controls.
  *
+ * Map from @vueuse/shared `useIntervalFn`
  * Mapping: upstream accepts `MaybeRefOrGetter<number>` for the interval — this
  * port accepts a plain `number`. `isActive` is a boolean state (upstream: a
  * readonly shallow ref), also mirrored in a ref so `resume()` can check it

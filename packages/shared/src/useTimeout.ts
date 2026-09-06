@@ -47,6 +47,7 @@ export interface UseTimeoutReturn {
 /**
  * React port of VueUse's `useTimeout`.
  *
+ * Map from @vueuse/shared `useTimeout`
  * Mapping: upstream `useTimeout` wraps `useTimeoutFn` and derives
  * `ready` as `!isPending`; since `useTimeoutFn` is mapped in its own module,
  * this port inlines the timer logic to stay self-contained — `ref` →

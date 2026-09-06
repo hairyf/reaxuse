@@ -5,6 +5,7 @@ export type UseArrayUniqueReturn<T = any> = T[]
 /**
  * Reactive `Array.unique`
  *
+ * Map from @vueuse/shared `useArrayUnique`
  * React port of VueUse's `useArrayUnique`.
  *
  * Mapping: upstream wraps `toValue(list)` in `computed(() => ...)` and returns

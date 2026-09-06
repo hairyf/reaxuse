@@ -5,6 +5,7 @@ export type UseArraySomeReturn = boolean
 /**
  * React port of VueUse's `useArraySome`.
  *
+ * Map from @vueuse/shared `useArraySome`
  * Mapping: `computed(() => ...)` → recompute on every render — the result is a
  * plain `boolean` (no `.value`, no caching). `MaybeRefOrGetter` → the repo's
  * `MaybeRef` (`T | { current: T }`), unwrapped on read: ref-like elements are

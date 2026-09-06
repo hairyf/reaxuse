@@ -3,6 +3,7 @@ export type UseArrayFindIndexReturn = number
 /**
  * React port of VueUse's `useArrayFindIndex`.
  *
+ * Map from @vueuse/shared `useArrayFindIndex`
  * Mapping: upstream wraps `toValue(list).findIndex(...)` in `computed(...)`
  * and accepts a `MaybeRefOrGetter`; React has no reactive value tracking, so
  * this is a plain function that recomputes the index on every render — pass

@@ -14,6 +14,7 @@ export interface UseWheneverOptions {
 /**
  * React port of VueUse's `whenever`.
  *
+ * Map from @vueuse/shared `whenever`
  * Mapping: upstream `whenever` is Vue's `watch` plus a truthy guard — the
  * callback runs every time the source CHANGES to a truthy value (a re-render
  * with the same truthy value never fires). In React this becomes a `useEffect`

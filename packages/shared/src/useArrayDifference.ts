@@ -40,6 +40,7 @@ export function useArrayDifference<T>(
 /**
  * React port of VueUse's `useArrayDifference`.
  *
+ * Map from @vueuse/shared `useArrayDifference`
  * Mapping: upstream wraps the diff passes in `computed(...)` and returns a
  * `ComputedRef`; React has no reactive value tracking, so this is a plain
  * function recomputed on every render — pass state arrays (upstream: reactive

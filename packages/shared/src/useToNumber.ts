@@ -25,6 +25,7 @@ export interface UseToNumberOptions {
 /**
  * React port of VueUse's `useToNumber`.
  *
+ * Map from @vueuse/shared `useToNumber`
  * Mapping: `ComputedRef<number>` → plain number recomputed from the current
  * value on every render (accepts `number | string`); no hook state needed.
  *

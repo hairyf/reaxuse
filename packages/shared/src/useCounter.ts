@@ -16,6 +16,7 @@ export interface UseCounterReturn {
 /**
  * React port of VueUse's `useCounter`.
  *
+ * Map from @vueuse/shared `useCounter`
  * Mapping: `ref(initialValue)` → `useState`, mutation functions become
  * stable `useCallback`s; options are kept in refs so callbacks stay stable.
  *

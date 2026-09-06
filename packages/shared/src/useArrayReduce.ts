@@ -15,6 +15,7 @@ function toValue<T>(value: MaybeRef<T>): T {
 /**
  * Reactive `Array.reduce`
  *
+ * Map from @vueuse/shared `useArrayReduce`
  * React port of VueUse's `useArrayReduce`.
  *
  * Mapping: upstream wraps `toValue(list).reduce(...)` in `computed(() => ...)`
