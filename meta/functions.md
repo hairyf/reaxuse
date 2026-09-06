@@ -14,6 +14,7 @@
 | `formatTimeAgo`                   | —                                             | `packages/core/src/useTimeAgo.ts`                      | 🚧 ported (no upstream match) |
 | `formatTimeAgoIntl`               | —                                             | `packages/core/src/useTimeAgoIntl.ts`                  | 🚧 ported (no upstream match) |
 | `formatTimeAgoIntlParts`          | —                                             | `packages/core/src/useTimeAgoIntl.ts`                  | 🚧 ported (no upstream match) |
+| `guessSerializerType`             | —                                             | `packages/core/src/useStorage.ts`                      | 🚧 ported (no upstream match) |
 | `hasOwn`                          | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `hyphenate`                       | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `increaseWithUnit`                | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
@@ -24,6 +25,7 @@
 | `isDef`                           | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `isIOS`                           | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `isObject`                        | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
+| `isRefLike`                       | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `noop`                            | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `normalizeDate`                   | —                                             | `packages/shared/src/useDateFormat.ts`                 | 🚧 ported (no upstream match) |
 | `now`                             | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
@@ -36,6 +38,9 @@
 | `toArray`                         | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `toArray`                         | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `toArray`                         | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
+| `toValue`                         | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
+| `toValue`                         | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
+| `toValue`                         | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `TransitionPresets`               | —                                             | `packages/core/src/useTransition.ts`                   | 🚧 ported (no upstream match) |
 | `useArrayDifference`              | packages/shared/useArrayDifference            | `packages/shared/src/useArrayDifference.ts`            | ✅ ported                     |
 | `useArrayDifference`              | packages/shared/useArrayDifference            | `packages/shared/src/useArrayDifference.ts`            | ✅ ported                     |
@@ -90,6 +95,7 @@
 | `useScreenOrientation`            | packages/core/useScreenOrientation            | `packages/core/src/useScreenOrientation.ts`            | ✅ ported                     |
 | `useScreenSafeArea`               | packages/core/useScreenSafeArea               | `packages/core/src/useScreenSafeArea.ts`               | ✅ ported                     |
 | `useScriptTag`                    | packages/core/useScriptTag                    | `packages/core/src/useScriptTag.ts`                    | ✅ ported                     |
+| `useScroll`                       | packages/core/useScroll                       | `packages/core/src/useScroll.ts`                       | ✅ ported                     |
 | `useScrollLock`                   | packages/core/useScrollLock                   | `packages/core/src/useScrollLock.ts`                   | ✅ ported                     |
 | `useSessionStorage`               | packages/core/useSessionStorage               | `packages/core/src/useSessionStorage.ts`               | ✅ ported                     |
 | `useSessionStorage`               | packages/core/useSessionStorage               | `packages/core/src/useSessionStorage.ts`               | ✅ ported                     |
@@ -111,6 +117,12 @@
 | `useStorage`                      | packages/core/useStorage                      | `packages/core/src/useStorage.ts`                      | ✅ ported                     |
 | `useStorage`                      | packages/core/useStorage                      | `packages/core/src/useStorage.ts`                      | ✅ ported                     |
 | `useStorage`                      | packages/core/useStorage                      | `packages/core/src/useStorage.ts`                      | ✅ ported                     |
+| `useStorageAsync`                 | packages/core/useStorageAsync                 | `packages/core/src/useStorageAsync.ts`                 | ✅ ported                     |
+| `useStorageAsync`                 | packages/core/useStorageAsync                 | `packages/core/src/useStorageAsync.ts`                 | ✅ ported                     |
+| `useStorageAsync`                 | packages/core/useStorageAsync                 | `packages/core/src/useStorageAsync.ts`                 | ✅ ported                     |
+| `useStorageAsync`                 | packages/core/useStorageAsync                 | `packages/core/src/useStorageAsync.ts`                 | ✅ ported                     |
+| `useStorageAsync`                 | packages/core/useStorageAsync                 | `packages/core/src/useStorageAsync.ts`                 | ✅ ported                     |
+| `useStorageAsync`                 | packages/core/useStorageAsync                 | `packages/core/src/useStorageAsync.ts`                 | ✅ ported                     |
 | `useStyleTag`                     | packages/core/useStyleTag                     | `packages/core/src/useStyleTag.ts`                     | ✅ ported                     |
 | `useSupported`                    | packages/core/useSupported                    | `packages/core/src/useSupported.ts`                    | ✅ ported                     |
 | `useSwipe`                        | packages/core/useSwipe                        | `packages/core/src/useSwipe.ts`                        | ✅ ported                     |

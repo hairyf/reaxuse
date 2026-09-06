@@ -56,6 +56,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'guessSerializerType',
+    file: 'packages/core/src/useStorage.ts',
+    pkg: 'core',
+  },
+  {
     name: 'hasOwn',
     file: 'packages/shared/src/utils.ts',
     pkg: 'shared',
@@ -102,6 +107,11 @@ export const functions: FunctionInfo[] = [
   },
   {
     name: 'isObject',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'isRefLike',
     file: 'packages/shared/src/utils.ts',
     pkg: 'shared',
   },
@@ -162,6 +172,21 @@ export const functions: FunctionInfo[] = [
   },
   {
     name: 'toArray',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'toValue',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'toValue',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'toValue',
     file: 'packages/shared/src/utils.ts',
     pkg: 'shared',
   },
@@ -436,6 +461,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useScroll',
+    file: 'packages/core/src/useScroll.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useScrollLock',
     file: 'packages/core/src/useScrollLock.ts',
     pkg: 'core',
@@ -538,6 +568,36 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useStorage',
     file: 'packages/core/src/useStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStorageAsync',
+    file: 'packages/core/src/useStorageAsync.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStorageAsync',
+    file: 'packages/core/src/useStorageAsync.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStorageAsync',
+    file: 'packages/core/src/useStorageAsync.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStorageAsync',
+    file: 'packages/core/src/useStorageAsync.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStorageAsync',
+    file: 'packages/core/src/useStorageAsync.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStorageAsync',
+    file: 'packages/core/src/useStorageAsync.ts',
     pkg: 'core',
   },
   {
