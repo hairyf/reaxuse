@@ -1,4 +1,4 @@
-import type { ConfigurableWindow } from './useOnline'
+import type { ConfigurableWindow } from '@reaxuse/shared'
 import { useEffect, useState } from 'react'
 
 export interface UseTextSelectionOptions extends ConfigurableWindow { }
