@@ -1,9 +1,8 @@
+import type { IgnoredUpdater } from './useWatchIgnorable'
 import { useCallback, useEffect, useRef } from 'react'
 import { useWatch } from './useWatch'
 
 export type OnCleanup = (cleanupFn: () => void) => void
-
-export type IgnoredUpdater = (updater: () => void) => void
 
 export interface UseWatchTriggerableCallback<V = any, OV = any, R = void> {
   (value: V, oldValue: OV, onCleanup: OnCleanup): R
