@@ -1,6 +1,7 @@
 export * from './useMounted'
 export * from './useNow'
 export * from './useOnline'
+export * from './usePreferredContrast'
 export * from './usePreferredDark'
 export * from './usePreferredLanguages'
 export * from './usePreferredReducedMotion'
