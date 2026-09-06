@@ -371,6 +371,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'usePageLeave',
+    file: 'packages/core/src/usePageLeave.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useParentElement',
     file: 'packages/core/src/useParentElement.ts',
     pkg: 'core',
@@ -411,6 +416,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'usePrecision',
+    file: 'packages/math/src/usePrecision.ts',
+    pkg: 'math',
+  },
+  {
     name: 'usePreferredColorScheme',
     file: 'packages/core/src/usePreferredColorScheme.ts',
     pkg: 'core',
@@ -444,6 +454,11 @@ export const functions: FunctionInfo[] = [
     name: 'usePrevious',
     file: 'packages/core/src/usePrevious.ts',
     pkg: 'core',
+  },
+  {
+    name: 'useProjection',
+    file: 'packages/math/src/useProjection.ts',
+    pkg: 'math',
   },
   {
     name: 'useResizeObserver',
@@ -936,8 +951,8 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
-    name: 'useWebWorker',
-    file: 'packages/core/src/useWebWorker.ts',
+    name: 'useWebSocket',
+    file: 'packages/core/src/useWebSocket.ts',
     pkg: 'core',
   },
   {
@@ -948,6 +963,16 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useWebWorker',
     file: 'packages/core/src/useWebWorker.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useWebWorker',
+    file: 'packages/core/src/useWebWorker.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useWebWorkerFn',
+    file: 'packages/core/src/useWebWorkerFn.ts',
     pkg: 'core',
   },
   {
