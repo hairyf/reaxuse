@@ -351,6 +351,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useListener',
+    file: 'packages/shared/src/useListener.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useMount',
     file: 'packages/shared/src/useMount.ts',
     pkg: 'shared',
@@ -459,6 +464,11 @@ export const functions: FunctionInfo[] = [
     name: 'useProjection',
     file: 'packages/math/src/useProjection.ts',
     pkg: 'math',
+  },
+  {
+    name: 'useRafFn',
+    file: 'packages/core/src/useRafFn.ts',
+    pkg: 'core',
   },
   {
     name: 'useResizeObserver',

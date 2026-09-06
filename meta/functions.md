@@ -73,6 +73,7 @@
 | `useLastChanged`                  | packages/shared/useLastChanged                | `packages/shared/src/useLastChanged.ts`                | ✅ ported                     |
 | `useLastChanged`                  | packages/shared/useLastChanged                | `packages/shared/src/useLastChanged.ts`                | ✅ ported                     |
 | `useLastChanged`                  | packages/shared/useLastChanged                | `packages/shared/src/useLastChanged.ts`                | ✅ ported                     |
+| `useListener`                     | —                                             | `packages/shared/src/useListener.ts`                   | 🚧 ported (no upstream match) |
 | `useMount`                        | —                                             | `packages/shared/src/useMount.ts`                      | 🚧 ported (no upstream match) |
 | `useMounted`                      | packages/core/useMounted                      | `packages/core/src/useMounted.ts`                      | ✅ ported                     |
 | `useNow`                          | packages/core/useNow                          | `packages/core/src/useNow.ts`                          | ✅ ported                     |
@@ -95,6 +96,7 @@
 | `usePreferredReducedTransparency` | packages/core/usePreferredReducedTransparency | `packages/core/src/usePreferredReducedTransparency.ts` | ✅ ported                     |
 | `usePrevious`                     | packages/core/usePrevious                     | `packages/core/src/usePrevious.ts`                     | ✅ ported                     |
 | `useProjection`                   | packages/math/useProjection                   | `packages/math/src/useProjection.ts`                   | ✅ ported                     |
+| `useRafFn`                        | packages/core/useRafFn                        | `packages/core/src/useRafFn.ts`                        | ✅ ported                     |
 | `useResizeObserver`               | packages/core/useResizeObserver               | `packages/core/src/useResizeObserver.ts`               | ✅ ported                     |
 | `useScreenOrientation`            | packages/core/useScreenOrientation            | `packages/core/src/useScreenOrientation.ts`            | ✅ ported                     |
 | `useScreenSafeArea`               | packages/core/useScreenSafeArea               | `packages/core/src/useScreenSafeArea.ts`               | ✅ ported                     |
