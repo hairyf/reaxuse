@@ -1,0 +1,26 @@
+{
+  "name": "@reaxuse/router",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "Router bindings for reaxuse — React port of @vueuse/router",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsdown"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  }
+}
