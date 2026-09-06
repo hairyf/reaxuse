@@ -1,4 +1,4 @@
-import type { ConfigurableWindow } from './useOnline'
+import type { ConfigurableWindow } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export type UseSpeechSynthesisStatus = 'init' | 'play' | 'pause' | 'end'

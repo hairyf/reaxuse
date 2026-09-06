@@ -1,29 +1,11 @@
+import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
-
-/**
- * Accepts a plain value, a React-style ref-like object (`{ current }`) or a
- * getter function — the React equivalent of VueUse's `MaybeRefOrGetter`.
- */
-export type MaybeRefOrGetter<T> = T | { current: T } | (() => T)
 
 export type UseSwipeDirection = 'up' | 'down' | 'left' | 'right' | 'none'
 
 interface Position {
   x: number
   y: number
-}
-
-/**
- * Specify a custom `window` instance, e.g. working with iframes or in
- * testing environments.
- *
- * Local mirror of upstream `ConfigurableWindow`, kept non-exported so the
- * `export *` barrel does not collide with `useOnline`'s export (TS2308).
- * Mirrored for API-shape parity only — like upstream, `useSwipe` never
- * reads it.
- */
-interface ConfigurableWindow {
-  window?: Window
 }
 
 export interface UseSwipeOptions extends ConfigurableWindow {
