@@ -31,6 +31,29 @@ export const packages: PackageManifest[] = [
     description: 'Math functions for reaxuse — 1:1 React port of @vueuse/math',
   },
   {
+    name: 'router',
+    display: '@reaxuse/router',
+    description: 'Router bindings for reaxuse — React port of @vueuse/router',
+  },
+  {
+    name: 'rxjs',
+    display: '@reaxuse/rxjs',
+    description: 'RxJS reactive functions for reaxuse — React port of @vueuse/rxjs',
+    external: ['rxjs'],
+  },
+  {
+    name: 'firebase',
+    display: '@reaxuse/firebase',
+    description: 'Realtime bindings for Firebase — React port of @vueuse/firebase',
+    external: ['firebase'],
+  },
+  {
+    name: 'electron',
+    display: '@reaxuse/electron',
+    description: 'Electron renderer process modules — React port of @vueuse/electron',
+    external: ['electron'],
+  },
+  {
     name: 'metadata',
     display: '@reaxuse/metadata',
     description: 'Metadata for reaxuse functions — 1:1 React port of @vueuse/metadata',
