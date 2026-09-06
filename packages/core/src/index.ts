@@ -72,7 +72,7 @@
 // export * from './useMemoize'
 // export * from './useMemory'
 export * from './useMounted'
-// export * from './useMouse'
+export * from './useMouse'
 // export * from './useMouseInElement'
 // export * from './useMousePressed'
 // export * from './useMutationObserver'
