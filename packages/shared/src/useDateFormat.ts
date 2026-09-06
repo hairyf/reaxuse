@@ -1,4 +1,5 @@
 import type { MaybeRef } from './index'
+import { toValue } from './utils'
 
 export type DateLike = Date | number | string | undefined
 
@@ -42,16 +43,6 @@ function formatOrdinal(num: number) {
  * or a getter function (house replacement for Vue's `toValue` /
  * `MaybeRefOrGetter<T>`).
  */
-function toValue<T>(value: MaybeRef<T> | (() => T)): T
-function toValue<T>(value: MaybeRef<T> | (() => T) | undefined): T | undefined
-function toValue(value: unknown): unknown {
-  if (typeof value === 'function')
-    return (value as () => unknown)()
-  if (typeof value === 'object' && value !== null && 'current' in value)
-    return (value as { current: unknown }).current
-  return value
-}
-
 export function formatDate(date: Date, formatStr: string, options: UseDateFormatOptions = {}) {
   const years = date.getFullYear()
   const month = date.getMonth()

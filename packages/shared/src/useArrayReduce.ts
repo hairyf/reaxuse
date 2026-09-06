@@ -1,16 +1,9 @@
 import type { MaybeRef } from './index'
+import { isRefLike, toValue } from './utils'
 
 export type UseArrayReducer<PV, CV, R> = (previousValue: PV, currentValue: CV, currentIndex: number) => R
 
 export type UseArrayReduceReturn<T = any> = T
-
-function isRefLike<T>(value: MaybeRef<T>): value is { current: T } {
-  return typeof value === 'object' && value !== null && 'current' in value
-}
-
-function toValue<T>(value: MaybeRef<T>): T {
-  return isRefLike(value) ? value.current : value
-}
 
 /**
  * Reactive `Array.reduce`

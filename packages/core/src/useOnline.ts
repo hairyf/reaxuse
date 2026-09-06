@@ -1,12 +1,5 @@
+import type { ConfigurableWindow } from '@reaxuse/shared'
 import { useEffect, useState } from 'react'
-
-/**
- * Specify a custom `window` instance, e.g. working with iframes or in
- * testing environments.
- */
-export interface ConfigurableWindow {
-  window?: Window
-}
 
 /**
  * React port of VueUse's `useOnline`.

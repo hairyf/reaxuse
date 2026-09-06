@@ -1,4 +1,5 @@
 import type { MaybeRef } from './index'
+import { isRefLike, toValue } from './utils'
 
 export type UseArrayIncludesComparatorFn<T, V> = (element: T, value: V, index: number, array: MaybeRef<T>[]) => boolean
 
@@ -24,14 +25,6 @@ function isArrayIncludesOptions<T, V>(obj: any): obj is UseArrayIncludesOptions<
   // an options object is only recognized when it also carries a
   // `comparator`, so pass `{ fromIndex, comparator }` together.
   return isObject(obj) && containsProp(obj, 'formIndex', 'comparator')
-}
-
-function isRefLike<T>(value: MaybeRef<T>): value is { current: T } {
-  return typeof value === 'object' && value !== null && 'current' in value
-}
-
-function toValue<T>(value: MaybeRef<T>): T {
-  return isRefLike(value) ? value.current : value
 }
 
 /**
