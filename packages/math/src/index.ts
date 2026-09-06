@@ -20,7 +20,7 @@
 // export * from './useMax'
 // export * from './useMin'
 export * from './usePrecision'
-// export * from './useProjection'
+export * from './useProjection'
 // export * from './useRound'
 // export * from './useSum'
 // export * from './useTrunc'
