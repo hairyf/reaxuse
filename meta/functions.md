@@ -73,10 +73,12 @@
 | `useLastChanged`                  | packages/shared/useLastChanged                | `packages/shared/src/useLastChanged.ts`                | ✅ ported                     |
 | `useLastChanged`                  | packages/shared/useLastChanged                | `packages/shared/src/useLastChanged.ts`                | ✅ ported                     |
 | `useLastChanged`                  | packages/shared/useLastChanged                | `packages/shared/src/useLastChanged.ts`                | ✅ ported                     |
+| `useListener`                     | —                                             | `packages/shared/src/useListener.ts`                   | 🚧 ported (no upstream match) |
 | `useMount`                        | —                                             | `packages/shared/src/useMount.ts`                      | 🚧 ported (no upstream match) |
 | `useMounted`                      | packages/core/useMounted                      | `packages/core/src/useMounted.ts`                      | ✅ ported                     |
 | `useNow`                          | packages/core/useNow                          | `packages/core/src/useNow.ts`                          | ✅ ported                     |
 | `useOnline`                       | packages/core/useOnline                       | `packages/core/src/useOnline.ts`                       | ✅ ported                     |
+| `usePageLeave`                    | packages/core/usePageLeave                    | `packages/core/src/usePageLeave.ts`                    | ✅ ported                     |
 | `useParentElement`                | packages/core/useParentElement                | `packages/core/src/useParentElement.ts`                | ✅ ported                     |
 | `usePerformanceObserver`          | packages/core/usePerformanceObserver          | `packages/core/src/usePerformanceObserver.ts`          | ✅ ported                     |
 | `usePermission`                   | packages/core/usePermission                   | `packages/core/src/usePermission.ts`                   | ✅ ported                     |
@@ -85,6 +87,7 @@
 | `usePointer`                      | packages/core/usePointer                      | `packages/core/src/usePointer.ts`                      | ✅ ported                     |
 | `usePointerLock`                  | packages/core/usePointerLock                  | `packages/core/src/usePointerLock.ts`                  | ✅ ported                     |
 | `usePointerSwipe`                 | packages/core/usePointerSwipe                 | `packages/core/src/usePointerSwipe.ts`                 | ✅ ported                     |
+| `usePrecision`                    | packages/math/usePrecision                    | `packages/math/src/usePrecision.ts`                    | ✅ ported                     |
 | `usePreferredColorScheme`         | packages/core/usePreferredColorScheme         | `packages/core/src/usePreferredColorScheme.ts`         | ✅ ported                     |
 | `usePreferredContrast`            | packages/core/usePreferredContrast            | `packages/core/src/usePreferredContrast.ts`            | ✅ ported                     |
 | `usePreferredDark`                | packages/core/usePreferredDark                | `packages/core/src/usePreferredDark.ts`                | ✅ ported                     |
@@ -92,6 +95,8 @@
 | `usePreferredReducedMotion`       | packages/core/usePreferredReducedMotion       | `packages/core/src/usePreferredReducedMotion.ts`       | ✅ ported                     |
 | `usePreferredReducedTransparency` | packages/core/usePreferredReducedTransparency | `packages/core/src/usePreferredReducedTransparency.ts` | ✅ ported                     |
 | `usePrevious`                     | packages/core/usePrevious                     | `packages/core/src/usePrevious.ts`                     | ✅ ported                     |
+| `useProjection`                   | packages/math/useProjection                   | `packages/math/src/useProjection.ts`                   | ✅ ported                     |
+| `useRafFn`                        | packages/core/useRafFn                        | `packages/core/src/useRafFn.ts`                        | ✅ ported                     |
 | `useResizeObserver`               | packages/core/useResizeObserver               | `packages/core/src/useResizeObserver.ts`               | ✅ ported                     |
 | `useScreenOrientation`            | packages/core/useScreenOrientation            | `packages/core/src/useScreenOrientation.ts`            | ✅ ported                     |
 | `useScreenSafeArea`               | packages/core/useScreenSafeArea               | `packages/core/src/useScreenSafeArea.ts`               | ✅ ported                     |
@@ -190,9 +195,11 @@
 | `useWatchWithFilter`              | —                                             | `packages/shared/src/useWatchWithFilter.ts`            | 🚧 ported (no upstream match) |
 | `useWatchWithFilter`              | —                                             | `packages/shared/src/useWatchWithFilter.ts`            | 🚧 ported (no upstream match) |
 | `useWebNotification`              | packages/core/useWebNotification              | `packages/core/src/useWebNotification.ts`              | ✅ ported                     |
+| `useWebSocket`                    | packages/core/useWebSocket                    | `packages/core/src/useWebSocket.ts`                    | ✅ ported                     |
 | `useWebWorker`                    | packages/core/useWebWorker                    | `packages/core/src/useWebWorker.ts`                    | ✅ ported                     |
 | `useWebWorker`                    | packages/core/useWebWorker                    | `packages/core/src/useWebWorker.ts`                    | ✅ ported                     |
 | `useWebWorker`                    | packages/core/useWebWorker                    | `packages/core/src/useWebWorker.ts`                    | ✅ ported                     |
+| `useWebWorkerFn`                  | packages/core/useWebWorkerFn                  | `packages/core/src/useWebWorkerFn.ts`                  | ✅ ported                     |
 | `useWhenever`                     | —                                             | `packages/shared/src/useWhenever.ts`                   | 🚧 ported (no upstream match) |
 | `useWindowFocus`                  | packages/core/useWindowFocus                  | `packages/core/src/useWindowFocus.ts`                  | ✅ ported                     |
 | `useWindowScroll`                 | packages/core/useWindowScroll                 | `packages/core/src/useWindowScroll.ts`                 | ✅ ported                     |
