@@ -396,6 +396,16 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useIdle',
+    file: 'packages/core/src/useIdle.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useImage',
+    file: 'packages/core/src/useImage.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useIntersectionObserver',
     file: 'packages/core/src/useIntersectionObserver.ts',
     pkg: 'core',

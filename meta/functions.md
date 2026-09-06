@@ -82,6 +82,8 @@
 | `useFetch`                        | packages/core/useFetch                        | `packages/core/src/useFetch.ts`                        | ✅ ported                     |
 | `useFetch`                        | packages/core/useFetch                        | `packages/core/src/useFetch.ts`                        | ✅ ported                     |
 | `useFileDialog`                   | packages/core/useFileDialog                   | `packages/core/src/useFileDialog.ts`                   | ✅ ported                     |
+| `useIdle`                         | packages/core/useIdle                         | `packages/core/src/useIdle.ts`                         | ✅ ported                     |
+| `useImage`                        | packages/core/useImage                        | `packages/core/src/useImage.ts`                        | ✅ ported                     |
 | `useIntersectionObserver`         | packages/core/useIntersectionObserver         | `packages/core/src/useIntersectionObserver.ts`         | ✅ ported                     |
 | `useInterval`                     | packages/shared/useInterval                   | `packages/shared/src/useInterval.ts`                   | ✅ ported                     |
 | `useInterval`                     | packages/shared/useInterval                   | `packages/shared/src/useInterval.ts`                   | ✅ ported                     |
