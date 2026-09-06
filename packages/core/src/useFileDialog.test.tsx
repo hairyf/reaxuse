@@ -1,6 +1,7 @@
+import { useListener } from '@reaxuse/shared'
 import { describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
-import { useFileDialog, useListener } from './useFileDialog'
+import { useFileDialog } from './useFileDialog'
 
 describe('useFileDialog', () => {
   const file1 = new File(['content1'], 'file1.txt', { type: 'text/plain' })
