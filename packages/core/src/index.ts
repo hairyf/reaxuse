@@ -60,7 +60,7 @@
 // export * from './useGamepad'
 // export * from './useGeolocation'
 // export * from './useIdle'
-// export * from './useImage'
+export * from './useImage'
 // export * from './useInfiniteScroll'
 // export * from './useIntersectionObserver'
 // export * from './useKeyModifier'
