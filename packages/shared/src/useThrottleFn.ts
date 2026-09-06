@@ -1,19 +1,9 @@
 import type { FunctionArgs, MaybeRef } from './index'
 import { useEffect, useMemo, useRef } from 'react'
+import { noop } from './index'
+import { toValue } from './utils'
 
 export type PromisifyFn<T extends FunctionArgs> = (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>>
-
-function noop(): void {}
-
-function toValue(value: MaybeRef<number> | (() => number) | undefined): number | undefined {
-  if (value === undefined)
-    return undefined
-  if (typeof value === 'function')
-    return value()
-  if (typeof value === 'object')
-    return value.current
-  return value
-}
 
 /**
  * Throttle execution of a function — React port of VueUse's `useThrottleFn`.

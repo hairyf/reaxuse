@@ -3,6 +3,7 @@ import type { DebounceFilterOptions } from './useDebounceFn'
 import type { UseWatchCallback } from './useWatch'
 import { useCallback, useEffect, useRef } from 'react'
 import { useWatch } from './useWatch'
+import { toValue } from './utils'
 
 /**
  * Filter for if events should to be received — the house equivalent of
@@ -56,16 +57,6 @@ export interface UseWatchWithFilterOptions {
  * stop-handle infrastructure).
  */
 export type UseWatchWithFilterReturn = () => void
-
-function toValue(value: MaybeRef<number> | (() => number) | undefined): number | undefined {
-  if (value === undefined)
-    return undefined
-  if (typeof value === 'function')
-    return value()
-  if (typeof value === 'object')
-    return value.current
-  return value
-}
 
 // the default filter (upstream `bypassFilter`) — kept internal so the new
 // exports stay minimal; the hook applies it as the option's default

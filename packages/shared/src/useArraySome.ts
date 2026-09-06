@@ -1,4 +1,5 @@
 import type { MaybeRef } from './index'
+import { toValue } from './utils'
 
 export type UseArraySomeReturn = boolean
 
@@ -28,12 +29,4 @@ export function useArraySome<T>(
 ): UseArraySomeReturn {
   const source = toValue(list)
   return source.some((element, index, array) => fn(toValue(element), index, array))
-}
-
-function toValue<T>(value: MaybeRef<T>): T {
-  return isRefLike(value) ? value.current : value
-}
-
-function isRefLike<T>(value: MaybeRef<T>): value is { current: T } {
-  return value !== null && typeof value === 'object' && 'current' in value
 }

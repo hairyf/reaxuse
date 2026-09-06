@@ -1,18 +1,7 @@
+import { toValue } from '@reaxuse/shared'
 import { useEffect, useState } from 'react'
 
 type ElementSource = HTMLElement | SVGElement | null | undefined
-
-function isRefLike(value: ElementSource | { current: ElementSource }): value is { current: ElementSource } {
-  return typeof value === 'object' && value !== null && 'current' in value
-}
-
-function toValue(value: ElementSource | { current: ElementSource } | (() => ElementSource)): ElementSource {
-  if (typeof value === 'function')
-    return value()
-  if (isRefLike(value))
-    return value.current
-  return value
-}
 
 /**
  * React port of VueUse's `useParentElement`.

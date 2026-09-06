@@ -1,4 +1,5 @@
 import type { MaybeRef } from './index'
+import { isRefLike, toValue } from './utils'
 
 export interface UseArrayDifferenceOptions {
   /**
@@ -14,14 +15,6 @@ export type UseArrayDifferenceReturn<T = any> = T[]
 
 function defaultComparator<T>(value: T, othVal: T) {
   return value === othVal
-}
-
-function isRefLike<T>(value: MaybeRef<T>): value is { current: T } {
-  return typeof value === 'object' && value !== null && 'current' in value
-}
-
-function toValue<T>(value: MaybeRef<T>): T {
-  return isRefLike(value) ? value.current : value
 }
 
 export function useArrayDifference<T>(

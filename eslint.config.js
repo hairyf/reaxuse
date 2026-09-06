@@ -9,6 +9,10 @@ import antfu from '@antfu/eslint-config'
  * - self-import guard is scoped to package `src` files (a source file must
  *   not import its own package by name — use relative imports), while
  *   co-located demos/tests/docs import the public package name on purpose.
+ * - `@reaxuse/shared` is the reference-chain single source (VueUse-style:
+ *   shared utilities live in shared, other packages import from it — see
+ *   MONITORING-HANDOFF §2C), so it is exempt from the self-import guard;
+ *   every other `@reaxuse/*` alias stays restricted.
  */
 export default antfu(
   {
@@ -34,7 +38,7 @@ export default antfu(
     files: ['packages/*/src/**'],
     rules: {
       'no-restricted-imports': ['error', {
-        paths: ['@reaxuse/*'],
+        patterns: ['@reaxuse/*', '!@reaxuse/shared'],
       }],
     },
   },
