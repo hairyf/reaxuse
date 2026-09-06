@@ -311,6 +311,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useCssVar',
+    file: 'packages/core/src/useCssVar.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useDateFormat',
     file: 'packages/shared/src/useDateFormat.ts',
     pkg: 'shared',
@@ -323,6 +328,11 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useFileDialog',
     file: 'packages/core/src/useFileDialog.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useIntersectionObserver',
+    file: 'packages/core/src/useIntersectionObserver.ts',
     pkg: 'core',
   },
   {
@@ -364,6 +374,36 @@ export const functions: FunctionInfo[] = [
     name: 'useListener',
     file: 'packages/shared/src/useListener.ts',
     pkg: 'shared',
+  },
+  {
+    name: 'useLocalStorage',
+    file: 'packages/core/src/useLocalStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useLocalStorage',
+    file: 'packages/core/src/useLocalStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useLocalStorage',
+    file: 'packages/core/src/useLocalStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useLocalStorage',
+    file: 'packages/core/src/useLocalStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useLocalStorage',
+    file: 'packages/core/src/useLocalStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useLocalStorage',
+    file: 'packages/core/src/useLocalStorage.ts',
+    pkg: 'core',
   },
   {
     name: 'useMediaQuery',
@@ -423,6 +463,26 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useNow',
     file: 'packages/core/src/useNow.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useObjectUrl',
+    file: 'packages/core/src/useObjectUrl.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useOffsetPagination',
+    file: 'packages/core/src/useOffsetPagination.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useOffsetPagination',
+    file: 'packages/core/src/useOffsetPagination.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useOffsetPagination',
+    file: 'packages/core/src/useOffsetPagination.ts',
     pkg: 'core',
   },
   {

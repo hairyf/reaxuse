@@ -65,9 +65,11 @@
 | `useArraySome`                    | packages/shared/useArraySome                  | `packages/shared/src/useArraySome.ts`                  | ✅ ported                     |
 | `useArrayUnique`                  | packages/shared/useArrayUnique                | `packages/shared/src/useArrayUnique.ts`                | ✅ ported                     |
 | `useCounter`                      | packages/shared/useCounter                    | `packages/shared/src/useCounter.ts`                    | ✅ ported                     |
+| `useCssVar`                       | packages/core/useCssVar                       | `packages/core/src/useCssVar.ts`                       | ✅ ported                     |
 | `useDateFormat`                   | packages/shared/useDateFormat                 | `packages/shared/src/useDateFormat.ts`                 | ✅ ported                     |
 | `useDebounceFn`                   | packages/shared/useDebounceFn                 | `packages/shared/src/useDebounceFn.ts`                 | ✅ ported                     |
 | `useFileDialog`                   | packages/core/useFileDialog                   | `packages/core/src/useFileDialog.ts`                   | ✅ ported                     |
+| `useIntersectionObserver`         | packages/core/useIntersectionObserver         | `packages/core/src/useIntersectionObserver.ts`         | ✅ ported                     |
 | `useInterval`                     | packages/shared/useInterval                   | `packages/shared/src/useInterval.ts`                   | ✅ ported                     |
 | `useInterval`                     | packages/shared/useInterval                   | `packages/shared/src/useInterval.ts`                   | ✅ ported                     |
 | `useInterval`                     | packages/shared/useInterval                   | `packages/shared/src/useInterval.ts`                   | ✅ ported                     |
@@ -76,6 +78,12 @@
 | `useLastChanged`                  | packages/shared/useLastChanged                | `packages/shared/src/useLastChanged.ts`                | ✅ ported                     |
 | `useLastChanged`                  | packages/shared/useLastChanged                | `packages/shared/src/useLastChanged.ts`                | ✅ ported                     |
 | `useListener`                     | —                                             | `packages/shared/src/useListener.ts`                   | 🚧 ported (no upstream match) |
+| `useLocalStorage`                 | packages/core/useLocalStorage                 | `packages/core/src/useLocalStorage.ts`                 | ✅ ported                     |
+| `useLocalStorage`                 | packages/core/useLocalStorage                 | `packages/core/src/useLocalStorage.ts`                 | ✅ ported                     |
+| `useLocalStorage`                 | packages/core/useLocalStorage                 | `packages/core/src/useLocalStorage.ts`                 | ✅ ported                     |
+| `useLocalStorage`                 | packages/core/useLocalStorage                 | `packages/core/src/useLocalStorage.ts`                 | ✅ ported                     |
+| `useLocalStorage`                 | packages/core/useLocalStorage                 | `packages/core/src/useLocalStorage.ts`                 | ✅ ported                     |
+| `useLocalStorage`                 | packages/core/useLocalStorage                 | `packages/core/src/useLocalStorage.ts`                 | ✅ ported                     |
 | `useMediaQuery`                   | packages/core/useMediaQuery                   | `packages/core/src/useMediaQuery.ts`                   | ✅ ported                     |
 | `useMemoize`                      | packages/core/useMemoize                      | `packages/core/src/useMemoize.ts`                      | ✅ ported                     |
 | `useMemory`                       | packages/core/useMemory                       | `packages/core/src/useMemory.ts`                       | ✅ ported                     |
@@ -88,6 +96,10 @@
 | `useNavigatorLanguage`            | packages/core/useNavigatorLanguage            | `packages/core/src/useNavigatorLanguage.ts`            | ✅ ported                     |
 | `useNetwork`                      | packages/core/useNetwork                      | `packages/core/src/useNetwork.ts`                      | ✅ ported                     |
 | `useNow`                          | packages/core/useNow                          | `packages/core/src/useNow.ts`                          | ✅ ported                     |
+| `useObjectUrl`                    | packages/core/useObjectUrl                    | `packages/core/src/useObjectUrl.ts`                    | ✅ ported                     |
+| `useOffsetPagination`             | packages/core/useOffsetPagination             | `packages/core/src/useOffsetPagination.ts`             | ✅ ported                     |
+| `useOffsetPagination`             | packages/core/useOffsetPagination             | `packages/core/src/useOffsetPagination.ts`             | ✅ ported                     |
+| `useOffsetPagination`             | packages/core/useOffsetPagination             | `packages/core/src/useOffsetPagination.ts`             | ✅ ported                     |
 | `useOnline`                       | packages/core/useOnline                       | `packages/core/src/useOnline.ts`                       | ✅ ported                     |
 | `usePageLeave`                    | packages/core/usePageLeave                    | `packages/core/src/usePageLeave.ts`                    | ✅ ported                     |
 | `useParallax`                     | packages/core/useParallax                     | `packages/core/src/useParallax.ts`                     | ✅ ported                     |
