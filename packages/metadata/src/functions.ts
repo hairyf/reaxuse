@@ -351,6 +351,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useListener',
+    file: 'packages/shared/src/useListener.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useMount',
     file: 'packages/shared/src/useMount.ts',
     pkg: 'shared',
@@ -368,6 +373,11 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useOnline',
     file: 'packages/core/src/useOnline.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'usePageLeave',
+    file: 'packages/core/src/usePageLeave.ts',
     pkg: 'core',
   },
   {
@@ -411,6 +421,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'usePrecision',
+    file: 'packages/math/src/usePrecision.ts',
+    pkg: 'math',
+  },
+  {
     name: 'usePreferredColorScheme',
     file: 'packages/core/src/usePreferredColorScheme.ts',
     pkg: 'core',
@@ -443,6 +458,16 @@ export const functions: FunctionInfo[] = [
   {
     name: 'usePrevious',
     file: 'packages/core/src/usePrevious.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useProjection',
+    file: 'packages/math/src/useProjection.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'useRafFn',
+    file: 'packages/core/src/useRafFn.ts',
     pkg: 'core',
   },
   {
@@ -936,8 +961,8 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
-    name: 'useWebWorker',
-    file: 'packages/core/src/useWebWorker.ts',
+    name: 'useWebSocket',
+    file: 'packages/core/src/useWebSocket.ts',
     pkg: 'core',
   },
   {
@@ -948,6 +973,16 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useWebWorker',
     file: 'packages/core/src/useWebWorker.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useWebWorker',
+    file: 'packages/core/src/useWebWorker.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useWebWorkerFn',
+    file: 'packages/core/src/useWebWorkerFn.ts',
     pkg: 'core',
   },
   {
