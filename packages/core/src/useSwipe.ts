@@ -93,6 +93,7 @@ function getSwipeDirection(start: Position, end: Position, threshold: number): U
  * Reactive swipe detection based on
  * [`TouchEvents`](https://developer.mozilla.org/en-US/docs/Web/API/TouchEvent).
  *
+ * Map from @vueuse/core `useSwipe`
  * React port of VueUse's `useSwipe` (`source/vueuse/packages/core/useSwipe/`),
  * which tracks `touchstart` / `touchmove` / `touchend` + `touchcancel` on the
  * target and derives the swipe `direction` once `max(|dx|, |dy|)` crosses

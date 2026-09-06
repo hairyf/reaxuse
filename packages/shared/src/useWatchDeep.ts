@@ -69,6 +69,7 @@ function deepEqual(a: unknown, b: unknown): boolean {
  * React port of VueUse's `watchDeep` — shorthand for watching a value with
  * `{ deep: true }`. Built on top of {@link useWatch}.
  *
+ * Map from @vueuse/shared `watchDeep`
  * Mapping: Vue's deep watcher traverses reactive proxies and fires on in-place
  * mutation of any nested property. React state is immutable — a nested change
  * always arrives as a new top-level value — so `useWatchDeep` deep-compares

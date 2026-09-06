@@ -20,6 +20,7 @@ function toValue(value: MaybeRef<number> | (() => number) | undefined): number |
  * Especially useful for rate limiting execution of handlers on events like
  * resize and scroll.
  *
+ * Map from @vueuse/shared `useThrottleFn`
  * Mapping: upstream builds `createFilterWrapper(throttleFilter(ms, trailing,
  * leading, rejectOnCancel), fn)` and returns a plain `PromisifyFn<T>` — the
  * throttled wrapper carries no `cancel` / `flush` / `isPending` (unlike the

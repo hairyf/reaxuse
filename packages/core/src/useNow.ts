@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 /**
  * React port of VueUse's `useNow`.
  *
+ * Map from @vueuse/core `useNow`
  * Mapping: `ref(Date.now())` + `watch(now, interval)` → `useState` +
  * `useEffect` with `setInterval`, cleaned up on unmount.
  *

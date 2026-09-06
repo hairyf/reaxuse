@@ -54,6 +54,7 @@ export type UseIntervalReturn = number | UseIntervalControls
 /**
  * React port of VueUse's `useInterval`.
  *
+ * Map from @vueuse/shared `useInterval`
  * Mapping: upstream wraps `useIntervalFn` and returns a readonly
  * `ShallowRef<number>`; since `useIntervalFn` is mapped in its own module,
  * this port inlines the interval logic to stay self-contained — the counter

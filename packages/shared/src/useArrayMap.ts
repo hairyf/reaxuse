@@ -11,6 +11,7 @@ function unref<T>(value: MaybeRef<T>): T {
 /**
  * Reactive `Array.map`
  *
+ * Map from @vueuse/shared `useArrayMap`
  * React port of VueUse's `useArrayMap`.
  *
  * Mapping: Vue's `computed` → recompute per render and return a plain array

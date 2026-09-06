@@ -25,6 +25,7 @@ export interface UseWatchDebouncedOptions extends DebounceFilterOptions {
  * Debounced watch — the callback fires only after the source stops changing
  * for the specified duration — React port of VueUse's `watchDebounced`.
  *
+ * Map from @vueuse/shared `watchDebounced`
  * Mapping: upstream is a shorthand for
  * `watchWithFilter(source, cb, { eventFilter: debounceFilter(debounce, { maxWait }) })`.
  * This port composes the same pieces from house primitives: `useWatch` tracks

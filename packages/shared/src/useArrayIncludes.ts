@@ -37,6 +37,7 @@ function toValue<T>(value: MaybeRef<T>): T {
 /**
  * React port of VueUse's `useArrayIncludes`.
  *
+ * Map from @vueuse/shared `useArrayIncludes`
  * Mapping: upstream wraps `toValue(list).slice(fromIndex).some(...)` in
  * `computed(() => ...)` and returns a `ComputedRef`; React has no reactive
  * value tracking, so this is a plain function recomputed on every render.

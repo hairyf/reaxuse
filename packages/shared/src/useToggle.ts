@@ -8,6 +8,7 @@ export type UseToggleReturn<T extends boolean | number | string = boolean> = [
 /**
  * React port of VueUse's `useToggle`.
  *
+ * Map from @vueuse/shared `useToggle`
  * Mapping: `ref(initialValue)` → `useState(initialValue)`,
  * `toggle()` → stable `useCallback`.
  *

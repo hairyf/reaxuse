@@ -13,6 +13,7 @@ function toValue<T>(value: MaybeRef<T>): T {
 /**
  * React port of VueUse's `useArrayEvery`.
  *
+ * Map from @vueuse/shared `useArrayEvery`
  * Mapping: upstream wraps `toValue(list).every(...)` in `computed(() => ...)`
  * and returns a `ComputedRef`; React has no reactive value tracking, so this
  * is a plain function recomputed on every render. Vue refs map to the repo's

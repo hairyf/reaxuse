@@ -3,6 +3,7 @@ export type UseArrayJoinReturn = string
 /**
  * React port of VueUse's `useArrayJoin`.
  *
+ * Map from @vueuse/shared `useArrayJoin`
  * Mapping: upstream wraps `toValue(list).map(i => toValue(i)).join(toValue(separator))`
  * in `computed(...)` and accepts a `MaybeRefOrGetter`; React has no reactive
  * value tracking, so this is a plain function that recomputes the join on
