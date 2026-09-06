@@ -66,7 +66,7 @@
 // export * from './useKeyModifier'
 // export * from './useLiveAnnouncer'
 // export * from './useLocalStorage'
-// export * from './useMagicKeys'
+export * from './useMagicKeys'
 // export * from './useMediaControls'
 // export * from './useMediaQuery'
 // export * from './useMemoize'
