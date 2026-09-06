@@ -21,6 +21,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'createFetch',
+    file: 'packages/core/src/useFetch.ts',
+    pkg: 'core',
+  },
+  {
     name: 'createSingletonPromise',
     file: 'packages/shared/src/utils.ts',
     pkg: 'shared',
@@ -53,6 +58,11 @@ export const functions: FunctionInfo[] = [
   {
     name: 'formatTimeAgoIntlParts',
     file: 'packages/core/src/useTimeAgoIntl.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'guessSerializerType',
+    file: 'packages/core/src/useStorage.ts',
     pkg: 'core',
   },
   {
@@ -106,6 +116,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'isRefLike',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'noop',
     file: 'packages/shared/src/utils.ts',
     pkg: 'shared',
@@ -136,6 +151,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'pxValue',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'rand',
     file: 'packages/shared/src/utils.ts',
     pkg: 'shared',
@@ -162,6 +182,21 @@ export const functions: FunctionInfo[] = [
   },
   {
     name: 'toArray',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'toValue',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'toValue',
+    file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'toValue',
     file: 'packages/shared/src/utils.ts',
     pkg: 'shared',
   },
@@ -281,6 +316,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useCssVar',
+    file: 'packages/core/src/useCssVar.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useDateFormat',
     file: 'packages/shared/src/useDateFormat.ts',
     pkg: 'shared',
@@ -289,6 +329,86 @@ export const functions: FunctionInfo[] = [
     name: 'useDebounceFn',
     file: 'packages/shared/src/useDebounceFn.ts',
     pkg: 'shared',
+  },
+  {
+    name: 'useEventListener',
+    file: 'packages/core/src/useEventListener.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEventListener',
+    file: 'packages/core/src/useEventListener.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEventListener',
+    file: 'packages/core/src/useEventListener.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEventListener',
+    file: 'packages/core/src/useEventListener.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEventListener',
+    file: 'packages/core/src/useEventListener.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEventListener',
+    file: 'packages/core/src/useEventListener.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEventListener',
+    file: 'packages/core/src/useEventListener.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEventListener',
+    file: 'packages/core/src/useEventListener.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFetch',
+    file: 'packages/core/src/useFetch.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFetch',
+    file: 'packages/core/src/useFetch.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFetch',
+    file: 'packages/core/src/useFetch.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFetch',
+    file: 'packages/core/src/useFetch.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFileDialog',
+    file: 'packages/core/src/useFileDialog.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useIdle',
+    file: 'packages/core/src/useIdle.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useImage',
+    file: 'packages/core/src/useImage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useIntersectionObserver',
+    file: 'packages/core/src/useIntersectionObserver.ts',
+    pkg: 'core',
   },
   {
     name: 'useInterval',
@@ -311,9 +431,9 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
-    name: 'useLastChanged',
-    file: 'packages/shared/src/useLastChanged.ts',
-    pkg: 'shared',
+    name: 'useKeyModifier',
+    file: 'packages/core/src/useKeyModifier.ts',
+    pkg: 'core',
   },
   {
     name: 'useLastChanged',
@@ -324,6 +444,66 @@ export const functions: FunctionInfo[] = [
     name: 'useLastChanged',
     file: 'packages/shared/src/useLastChanged.ts',
     pkg: 'shared',
+  },
+  {
+    name: 'useLastChanged',
+    file: 'packages/shared/src/useLastChanged.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useListener',
+    file: 'packages/shared/src/useListener.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useLocalStorage',
+    file: 'packages/core/src/useLocalStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useLocalStorage',
+    file: 'packages/core/src/useLocalStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useLocalStorage',
+    file: 'packages/core/src/useLocalStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useLocalStorage',
+    file: 'packages/core/src/useLocalStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useLocalStorage',
+    file: 'packages/core/src/useLocalStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useLocalStorage',
+    file: 'packages/core/src/useLocalStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useMagicKeys',
+    file: 'packages/core/src/useMagicKeys.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useMediaQuery',
+    file: 'packages/core/src/useMediaQuery.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useMemoize',
+    file: 'packages/core/src/useMemoize.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useMemory',
+    file: 'packages/core/src/useMemory.ts',
+    pkg: 'core',
   },
   {
     name: 'useMount',
@@ -336,13 +516,73 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useMouse',
+    file: 'packages/core/src/useMouse.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useMouseInElement',
+    file: 'packages/core/src/useMouseInElement.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useMousePressed',
+    file: 'packages/core/src/useMousePressed.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useMutationObserver',
+    file: 'packages/core/src/useMutationObserver.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useNavigatorLanguage',
+    file: 'packages/core/src/useNavigatorLanguage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useNetwork',
+    file: 'packages/core/src/useNetwork.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useNow',
     file: 'packages/core/src/useNow.ts',
     pkg: 'core',
   },
   {
+    name: 'useObjectUrl',
+    file: 'packages/core/src/useObjectUrl.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useOffsetPagination',
+    file: 'packages/core/src/useOffsetPagination.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useOffsetPagination',
+    file: 'packages/core/src/useOffsetPagination.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useOffsetPagination',
+    file: 'packages/core/src/useOffsetPagination.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useOnline',
     file: 'packages/core/src/useOnline.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'usePageLeave',
+    file: 'packages/core/src/usePageLeave.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useParallax',
+    file: 'packages/core/src/useParallax.ts',
     pkg: 'core',
   },
   {
@@ -381,6 +621,16 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'usePointerSwipe',
+    file: 'packages/core/src/usePointerSwipe.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'usePrecision',
+    file: 'packages/math/src/usePrecision.ts',
+    pkg: 'math',
+  },
+  {
     name: 'usePreferredColorScheme',
     file: 'packages/core/src/usePreferredColorScheme.ts',
     pkg: 'core',
@@ -416,6 +666,16 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useProjection',
+    file: 'packages/math/src/useProjection.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'useRafFn',
+    file: 'packages/core/src/useRafFn.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useResizeObserver',
     file: 'packages/core/src/useResizeObserver.ts',
     pkg: 'core',
@@ -433,6 +693,11 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useScriptTag',
     file: 'packages/core/src/useScriptTag.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useScroll',
+    file: 'packages/core/src/useScroll.ts',
     pkg: 'core',
   },
   {
@@ -491,6 +756,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useStateDebouncedHistory',
+    file: 'packages/core/src/useStateDebouncedHistory.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useStateHistory',
     file: 'packages/core/src/useStateHistory.ts',
     pkg: 'core',
@@ -538,6 +808,36 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useStorage',
     file: 'packages/core/src/useStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStorageAsync',
+    file: 'packages/core/src/useStorageAsync.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStorageAsync',
+    file: 'packages/core/src/useStorageAsync.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStorageAsync',
+    file: 'packages/core/src/useStorageAsync.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStorageAsync',
+    file: 'packages/core/src/useStorageAsync.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStorageAsync',
+    file: 'packages/core/src/useStorageAsync.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStorageAsync',
+    file: 'packages/core/src/useStorageAsync.ts',
     pkg: 'core',
   },
   {
@@ -871,8 +1171,8 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
-    name: 'useWebWorker',
-    file: 'packages/core/src/useWebWorker.ts',
+    name: 'useWebSocket',
+    file: 'packages/core/src/useWebSocket.ts',
     pkg: 'core',
   },
   {
@@ -883,6 +1183,16 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useWebWorker',
     file: 'packages/core/src/useWebWorker.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useWebWorker',
+    file: 'packages/core/src/useWebWorker.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useWebWorkerFn',
+    file: 'packages/core/src/useWebWorkerFn.ts',
     pkg: 'core',
   },
   {
