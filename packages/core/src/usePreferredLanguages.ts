@@ -1,16 +1,5 @@
+import type { ConfigurableWindow } from '@reaxuse/shared'
 import { useEffect, useState } from 'react'
-
-/**
- * Specify a custom `window` instance, e.g. working with iframes or in
- * testing environments.
- *
- * Declared locally and intentionally not exported — `useOnline` already
- * exports its own `ConfigurableWindow` and the barrel re-exports both
- * modules, so a second export would collide (TS2308).
- */
-interface ConfigurableWindow {
-  window?: Window
-}
 
 /**
  * Reactive Navigator Languages.

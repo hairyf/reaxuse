@@ -1,5 +1,7 @@
 import type { MaybeRef } from './index'
 import { useEffect, useMemo, useRef } from 'react'
+import { noop } from './index'
+import { toValue } from './utils'
 
 export type FunctionArgs<Args extends any[] = any[], Return = unknown> = (...args: Args) => Return
 
@@ -37,18 +39,6 @@ export interface UseDebounceFnReturn<T extends FunctionArgs> {
    * re-renders.
    */
   readonly isPending: boolean
-}
-
-function noop(): void {}
-
-function toValue(value: MaybeRef<number> | (() => number) | undefined): number | undefined {
-  if (value === undefined)
-    return undefined
-  if (typeof value === 'function')
-    return value()
-  if (typeof value === 'object')
-    return value.current
-  return value
 }
 
 /**
