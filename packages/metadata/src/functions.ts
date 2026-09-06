@@ -351,6 +351,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useUserMedia',
+    file: 'packages/core/src/useUserMedia.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useWatch',
     file: 'packages/shared/src/useWatch.ts',
     pkg: 'shared',
@@ -429,6 +434,21 @@ export const functions: FunctionInfo[] = [
     name: 'useWatchThrottled',
     file: 'packages/shared/src/useWatchThrottled.ts',
     pkg: 'shared',
+  },
+  {
+    name: 'useWebWorker',
+    file: 'packages/core/src/useWebWorker.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useWebWorker',
+    file: 'packages/core/src/useWebWorker.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useWebWorker',
+    file: 'packages/core/src/useWebWorker.ts',
+    pkg: 'core',
   },
   {
     name: 'useWhenever',
