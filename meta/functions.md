@@ -138,6 +138,7 @@
 | `useTransition`                   | packages/core/useTransition                   | `packages/core/src/useTransition.ts`                   | ✅ ported                     |
 | `useUnmount`                      | —                                             | `packages/shared/src/useUnmount.ts`                    | 🚧 ported (no upstream match) |
 | `useUpdate`                       | —                                             | `packages/shared/src/useUpdate.ts`                     | 🚧 ported (no upstream match) |
+| `useUrlSearchParams`              | packages/core/useUrlSearchParams              | `packages/core/src/useUrlSearchParams.ts`              | ✅ ported                     |
 | `useUserMedia`                    | packages/core/useUserMedia                    | `packages/core/src/useUserMedia.ts`                    | ✅ ported                     |
 | `useVibrate`                      | packages/core/useVibrate                      | `packages/core/src/useVibrate.ts`                      | ✅ ported                     |
 | `useWakeLock`                     | packages/core/useWakeLock                     | `packages/core/src/useWakeLock.ts`                     | ✅ ported                     |
@@ -163,6 +164,9 @@
 | `useWatchOnce`                    | —                                             | `packages/shared/src/useWatchOnce.ts`                  | 🚧 ported (no upstream match) |
 | `useWatchOnce`                    | —                                             | `packages/shared/src/useWatchOnce.ts`                  | 🚧 ported (no upstream match) |
 | `useWatchOnce`                    | —                                             | `packages/shared/src/useWatchOnce.ts`                  | 🚧 ported (no upstream match) |
+| `useWatchPausable`                | —                                             | `packages/shared/src/useWatchPausable.ts`              | 🚧 ported (no upstream match) |
+| `useWatchPausable`                | —                                             | `packages/shared/src/useWatchPausable.ts`              | 🚧 ported (no upstream match) |
+| `useWatchPausable`                | —                                             | `packages/shared/src/useWatchPausable.ts`              | 🚧 ported (no upstream match) |
 | `useWatchThrottled`               | —                                             | `packages/shared/src/useWatchThrottled.ts`             | 🚧 ported (no upstream match) |
 | `useWatchThrottled`               | —                                             | `packages/shared/src/useWatchThrottled.ts`             | 🚧 ported (no upstream match) |
 | `useWatchThrottled`               | —                                             | `packages/shared/src/useWatchThrottled.ts`             | 🚧 ported (no upstream match) |

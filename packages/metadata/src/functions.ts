@@ -676,6 +676,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useUrlSearchParams',
+    file: 'packages/core/src/useUrlSearchParams.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useUserMedia',
     file: 'packages/core/src/useUserMedia.ts',
     pkg: 'core',
@@ -798,6 +803,21 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useWatchOnce',
     file: 'packages/shared/src/useWatchOnce.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchPausable',
+    file: 'packages/shared/src/useWatchPausable.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchPausable',
+    file: 'packages/shared/src/useWatchPausable.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useWatchPausable',
+    file: 'packages/shared/src/useWatchPausable.ts',
     pkg: 'shared',
   },
   {
