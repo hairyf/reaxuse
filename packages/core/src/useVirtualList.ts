@@ -1,11 +1,7 @@
+import type { MaybeRef } from '@reaxuse/shared'
 import type { CSSProperties } from 'react'
+import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
-
-/**
- * Accepts a plain value or a ref-like object (`{ current }`) — the React
- * equivalent of VueUse's `MaybeRef`.
- */
-export type MaybeRef<T> = T | { current: T }
 
 type UseVirtualListItemSize = number | ((index: number) => number)
 
@@ -79,12 +75,6 @@ export interface UseVirtualListReturn<T> {
 }
 
 const defaultScrollToOptions: UseVirtualListScrollToOptions = { behavior: 'auto', block: 'start', inline: 'nearest' }
-
-function toValue<T>(value: MaybeRef<T>): T | undefined {
-  if (value !== null && typeof value === 'object' && 'current' in value)
-    return (value as { current: T }).current
-  return value as T
-}
 
 /**
  * Returns the first index whose item "starts" at or after `scrollDirection`,
