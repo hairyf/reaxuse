@@ -137,9 +137,9 @@ export type UseStorageReturn<T> = [
   setValue: Dispatch<SetStateAction<T | null>>,
 ]
 
-type SerializerType = 'boolean' | 'object' | 'number' | 'any' | 'string' | 'map' | 'set' | 'date'
+export type SerializerType = 'boolean' | 'object' | 'number' | 'any' | 'string' | 'map' | 'set' | 'date'
 
-function guessSerializerType<T extends (string | number | boolean | object | null)>(rawInit: T): SerializerType {
+export function guessSerializerType<T extends (string | number | boolean | object | null)>(rawInit: T): SerializerType {
   return rawInit == null
     ? 'any'
     : rawInit instanceof Set
