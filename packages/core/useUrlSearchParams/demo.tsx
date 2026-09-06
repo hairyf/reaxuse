@@ -2,16 +2,19 @@ import { useUrlSearchParams } from '@reaxuse/core'
 import { useEffect } from 'react'
 
 export default function UseUrlSearchParamsDemo() {
-  const params = useUrlSearchParams('history')
+  const [params, setParams] = useUrlSearchParams('history')
 
   useEffect(() => {
     // upstream demo.vue mutates these during setup
-    params.foo = 'bar'
-    params.vueuse = 'awesome'
-  }, [params])
+    setParams(prev => ({ ...prev, foo: 'bar', vueuse: 'awesome' }))
+  }, [setParams])
 
   function handleAddParams() {
-    params.biz = 'biz'
+    setParams(prev => ({ ...prev, biz: 'biz' }))
+  }
+
+  function handleChange(key: string, value: string) {
+    setParams(prev => ({ ...prev, [key]: value }))
   }
 
   return (
@@ -25,9 +28,7 @@ export default function UseUrlSearchParamsDemo() {
               {String(value)}
               <input
                 value={Array.isArray(value) ? value.join(',') : value}
-                onChange={(event) => {
-                  params[key] = event.target.value
-                }}
+                onChange={event => handleChange(key, event.target.value)}
                 placeholder={key}
                 type="text"
               />

@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { Dispatch, SetStateAction } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
  * Specify a custom `window` instance, e.g. working with iframes or in
@@ -116,33 +117,34 @@ function paramsToRecord(params: URLSearchParams): Record<string, any> {
  * `hash` or `hash-params` mode.
  *
  * React divergences:
- * - the Vue deep-reactive record becomes a stable proxy backed by
- *   `useState` — property reads, writes, `delete`, `Object.keys` and spread
- *   all behave like upstream, but every mutation applies a NEW record
- *   object (immutable React state) so the component re-renders;
+ * - the Vue deep-reactive record becomes an immutable React state record
+ *   returned as the React array tuple `[params, setParams]` — read the
+ *   current record from `params` (a plain snapshot object), update it with
+ *   `setParams(record)` or `setParams(prev => next)` (React `SetStateAction`
+ *   forms);
  * - upstream's deep `watchPausable` write-back becomes a commit effect that
  *   serializes the record into `window.history` (`replaceState`/`pushState`
  *   per `writeMode`); state updates that come from `popstate`/`hashchange`
  *   skip the write-back since the URL already matches (upstream re-writes
  *   the same URL / skips the push there);
  * - upstream's `nextTick` coalescing becomes React's automatic batching —
- *   several mutations in one tick produce a single history write;
+ *   several `setParams` calls in one tick produce a single history write;
  * - SSR-safe: no `window`/`location` access during render. The record
  *   hydrates from the URL in a mount effect; without a window it stays a
  *   shallow copy of `initialValue` (upstream returns `reactive(initialValue)`).
  *
  * @example
- * const params = useUrlSearchParams('history')
+ * const [params, setParams] = useUrlSearchParams('history')
  *
  * console.log(params.foo) // 'bar'
  *
- * params.foo = 'bar'
+ * setParams({ ...params, foo: 'bar' })
  * // url updated to `?foo=bar`
  */
 export function useUrlSearchParams<T extends Record<string, any> = UrlParams>(
   mode: 'history' | 'hash' | 'hash-params' = 'history',
   options: UseUrlSearchParamsOptions<T> = {},
-): T {
+): [T, Dispatch<SetStateAction<T>>] {
   const {
     initialValue = {},
     removeNullishValues = true,
@@ -166,7 +168,7 @@ export function useUrlSearchParams<T extends Record<string, any> = UrlParams>(
 
   // SSR-safe initial state: empty on the client (hydrated from the URL in a
   // mount effect), `initialValue` when there is no window to read from
-  const [params, setParams] = useState<Record<string, any>>(() =>
+  const [params, setParamsState] = useState<Record<string, any>>(() =>
     win ? {} : { ...initialValue },
   )
   const paramsRef = useRef(params)
@@ -182,19 +184,16 @@ export function useUrlSearchParams<T extends Record<string, any> = UrlParams>(
   const applyRecord = useCallback((record: Record<string, any>, skipWrite: boolean) => {
     paramsRef.current = record
     skipNextWriteRef.current = skipWrite
-    setParams(record)
+    setParamsState(record)
   }, [])
 
-  const setParam = useCallback((key: string, value: any) => {
-    applyRecord({ ...paramsRef.current, [key]: value }, false)
-  }, [applyRecord])
-
-  const deleteParam = useCallback((key: string) => {
-    if (!(key in paramsRef.current))
-      return
-    const record = { ...paramsRef.current }
-    delete record[key]
-    applyRecord(record, false)
+  // public setter — React `SetStateAction` forms (plain record or updater
+  // function); the commit effect writes the new record back to the URL
+  const setParams = useCallback((updater: SetStateAction<T>) => {
+    const record = typeof updater === 'function'
+      ? (updater as (prev: T) => T)(paramsRef.current as T)
+      : updater
+    applyRecord(record as Record<string, any>, false)
   }, [applyRecord])
 
   // hydrate from the current URL once (upstream's `const initial = read()`
@@ -280,30 +279,7 @@ export function useUrlSearchParams<T extends Record<string, any> = UrlParams>(
       win.history.pushState(win.history.state, win.document.title, url)
   })
 
-  // stable reactive handle: reads mirror the latest record, writes apply a
-  // new record through setState (React port of upstream's reactive object)
-  return useMemo(() => new Proxy({} as T, {
-    get: (_target, key) => Reflect.get(paramsRef.current, key, paramsRef.current),
-    has: (_target, key) => Reflect.has(paramsRef.current, key),
-    ownKeys: () => Reflect.ownKeys(paramsRef.current),
-    getOwnPropertyDescriptor: (_target, key) => {
-      const record = paramsRef.current
-      if (!Object.hasOwn(record, key))
-        return undefined
-      return {
-        configurable: true,
-        enumerable: true,
-        value: Reflect.get(record, key, record),
-        writable: true,
-      }
-    },
-    set: (_target, key, value) => {
-      setParam(key as string, value)
-      return true
-    },
-    deleteProperty: (_target, key) => {
-      deleteParam(key as string)
-      return true
-    },
-  }), [setParam, deleteParam])
+  // tuple return: the current record snapshot + React setter — the commit
+  // effect above writes `params` back to the URL whenever it changes
+  return [params as T, setParams]
 }

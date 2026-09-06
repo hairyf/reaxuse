@@ -6,21 +6,25 @@ category: Browser
 
 Reactive [URLSearchParams](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) — React port of VueUse's [`useUrlSearchParams`](https://vueuse.org/core/useUrlSearchParams/).
 
-**Mapping:** upstream returns a deep-reactive params record backed by a Vue `reactive` object; here the record is a stable proxy over `useState` — property reads, writes, `delete`, `Object.keys` and spread behave like upstream, and every mutation applies a new record object so the component re-renders. Upstream's deep `watchPausable` write-back becomes a commit effect that serializes the record into `window.history` (`replaceState` by default, `pushState` with `writeMode: 'push'`); updates arriving from `popstate`/`hashchange` skip the write-back since the URL already matches, and several mutations in one tick are batched into a single history write. SSR-safe: no `window`/`location` access during render — the record hydrates from the URL in a mount effect, and without a window it stays a shallow copy of `initialValue` (upstream returns `reactive(initialValue)`).
+**Mapping:** upstream returns a deep-reactive params record backed by a Vue `reactive` object; here the record is immutable React state returned as the React tuple `[params, setParams]` — `params` is the current record snapshot, and `setParams` accepts a plain record or an updater function. Upstream's deep `watchPausable` write-back becomes a commit effect that serializes the record into `window.history` (`replaceState` by default, `pushState` with `writeMode: 'push'`); updates arriving from `popstate`/`hashchange` skip the write-back since the URL already matches, and several `setParams` calls in one tick are batched into a single history write. SSR-safe: no `window`/`location` access during render — the record hydrates from the URL in a mount effect, and without a window it stays a shallow copy of `initialValue` (upstream returns `reactive(initialValue)`).
 
 ## Usage
 
 ```tsx
 import { useUrlSearchParams } from '@reaxuse/core'
 
-const params = useUrlSearchParams('history')
+const [params, setParams] = useUrlSearchParams('history')
 
 console.log(params.foo) // 'bar'
 
-params.foo = 'bar'
+setParams({ ...params, foo: 'bar' })
 // url updated to `?foo=bar`
 
-delete params.foo
+setParams((prev) => {
+  const next = { ...prev }
+  delete next.foo
+  return next
+})
 // url updated to remove `foo`
 ```
 
@@ -82,7 +86,7 @@ export interface UseUrlSearchParamsOptions<T> extends ConfigurableWindow {
 export function useUrlSearchParams<T extends Record<string, any> = UrlParams>(
   mode: 'history' | 'hash' | 'hash-params' = 'history',
   options: UseUrlSearchParamsOptions<T> = {},
-): T
+): [T, Dispatch<SetStateAction<T>>]
 ```
 
 ## Source
