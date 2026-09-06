@@ -1,0 +1,94 @@
+import { useCallback, useEffect, useState } from 'react'
+
+const topVarName = '--vueuse-safe-area-top'
+const rightVarName = '--vueuse-safe-area-right'
+const bottomVarName = '--vueuse-safe-area-bottom'
+const leftVarName = '--vueuse-safe-area-left'
+
+type VarName
+  = | '--vueuse-safe-area-top'
+    | '--vueuse-safe-area-right'
+    | '--vueuse-safe-area-bottom'
+    | '--vueuse-safe-area-left'
+
+export interface UseScreenSafeAreaReturn {
+  top: string
+  right: string
+  bottom: string
+  left: string
+  update: () => void
+}
+
+/**
+ * React port of VueUse's `useScreenSafeArea`.
+ *
+ * Map from @vueuse/core `useScreenSafeArea`
+ * (`source/vueuse/packages/core/useScreenSafeArea/`), which writes the
+ * `--vueuse-safe-area-*` custom properties with `env(safe-area-inset-*, 0px)`
+ * fallbacks onto `document.documentElement` (via `useCssVar`), reads their
+ * computed values back through `getComputedStyle(...).getPropertyValue(...)`
+ * and re-reads on a debounced passive `resize` listener (via
+ * `useEventListener` + `useDebounceFn`).
+ *
+ * React divergences:
+ * - the four `shallowRef` string values become a single state object
+ *   `{ top, right, bottom, left }` (computed style strings, e.g. `0px`)
+ *   plus a stable `update()` callback;
+ * - the custom-property setup and the 200ms-debounced passive `resize`
+ *   listener live in one self-contained mount `useEffect` (upstream composes
+ *   `useCssVar` / `useEventListener` / `useDebounceFn`, which are not ported
+ *   here) and the listener is removed on unmount;
+ * - SSR-safe: nothing touches the DOM during render — the state stays `''`
+ *   on the server, the custom properties are set and first-read in the mount
+ *   effect, and `update` is a no-op without `document` (upstream guards only
+ *   the setup with `isClient`).
+ *
+ * @example
+ * const { top, right, bottom, left, update } = useScreenSafeArea()
+ */
+export function useScreenSafeArea(): UseScreenSafeAreaReturn {
+  const [safeArea, setSafeArea] = useState({ top: '', right: '', bottom: '', left: '' })
+
+  const update = useCallback(() => {
+    if (typeof document === 'undefined')
+      return
+
+    setSafeArea({
+      top: getValue(topVarName),
+      right: getValue(rightVarName),
+      bottom: getValue(bottomVarName),
+      left: getValue(leftVarName),
+    })
+  }, [])
+
+  useEffect(() => {
+    const style = document.documentElement.style
+    style.setProperty(topVarName, 'env(safe-area-inset-top, 0px)')
+    style.setProperty(rightVarName, 'env(safe-area-inset-right, 0px)')
+    style.setProperty(bottomVarName, 'env(safe-area-inset-bottom, 0px)')
+    style.setProperty(leftVarName, 'env(safe-area-inset-left, 0px)')
+
+    update()
+
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const onResize = () => {
+      clearTimeout(timer)
+      timer = setTimeout(update, 200)
+    }
+    window.addEventListener('resize', onResize, { passive: true })
+
+    return () => {
+      clearTimeout(timer)
+      window.removeEventListener('resize', onResize)
+    }
+  }, [update])
+
+  return {
+    ...safeArea,
+    update,
+  }
+}
+
+function getValue(position: VarName) {
+  return getComputedStyle(document.documentElement).getPropertyValue(position)
+}
