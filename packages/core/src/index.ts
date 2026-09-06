@@ -50,7 +50,7 @@
 // export * from './useEventSource'
 // export * from './useEyeDropper'
 // export * from './useFavicon'
-// export * from './useFetch'
+export * from './useFetch'
 // export * from './useFileDialog'
 // export * from './useFileSystemAccess'
 // export * from './useFocus'
