@@ -1,6 +1,7 @@
 export * from './useMounted'
 export * from './useNow'
 export * from './useOnline'
+export * from './usePermission'
 export * from './usePreferredColorScheme'
 export * from './usePreferredContrast'
 export * from './usePreferredDark'
