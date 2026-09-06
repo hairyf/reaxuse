@@ -1,9 +1,7 @@
 import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { UseMouseCoordType, UseMouseSourceType } from './useMouse'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
-
-export type UseMouseCoordType = 'page' | 'client' | 'screen' | 'movement'
-export type UseMouseSourceType = 'mouse' | 'touch' | null
 
 export interface MouseInElementOptions extends ConfigurableWindow {
   /**

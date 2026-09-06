@@ -21,6 +21,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'createFetch',
+    file: 'packages/core/src/useFetch.ts',
+    pkg: 'core',
+  },
+  {
     name: 'createSingletonPromise',
     file: 'packages/shared/src/utils.ts',
     pkg: 'shared',
@@ -326,6 +331,66 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useEventListener',
+    file: 'packages/core/src/useEventListener.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEventListener',
+    file: 'packages/core/src/useEventListener.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEventListener',
+    file: 'packages/core/src/useEventListener.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEventListener',
+    file: 'packages/core/src/useEventListener.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEventListener',
+    file: 'packages/core/src/useEventListener.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEventListener',
+    file: 'packages/core/src/useEventListener.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEventListener',
+    file: 'packages/core/src/useEventListener.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEventListener',
+    file: 'packages/core/src/useEventListener.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFetch',
+    file: 'packages/core/src/useFetch.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFetch',
+    file: 'packages/core/src/useFetch.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFetch',
+    file: 'packages/core/src/useFetch.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFetch',
+    file: 'packages/core/src/useFetch.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useFileDialog',
     file: 'packages/core/src/useFileDialog.ts',
     pkg: 'core',
@@ -354,6 +419,11 @@ export const functions: FunctionInfo[] = [
     name: 'useIntervalFn',
     file: 'packages/shared/src/useIntervalFn.ts',
     pkg: 'shared',
+  },
+  {
+    name: 'useKeyModifier',
+    file: 'packages/core/src/useKeyModifier.ts',
+    pkg: 'core',
   },
   {
     name: 'useLastChanged',
@@ -403,6 +473,11 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useLocalStorage',
     file: 'packages/core/src/useLocalStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useMagicKeys',
+    file: 'packages/core/src/useMagicKeys.ts',
     pkg: 'core',
   },
   {
