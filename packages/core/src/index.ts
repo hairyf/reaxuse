@@ -74,7 +74,7 @@
 export * from './useMounted'
 // export * from './useMouse'
 // export * from './useMouseInElement'
-// export * from './useMousePressed'
+export * from './useMousePressed'
 // export * from './useMutationObserver'
 // export * from './useNavigatorLanguage'
 // export * from './useNetwork'
