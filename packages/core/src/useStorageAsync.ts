@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react'
 import type { UseStorageOptions } from './useStorage'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { StorageSerializers } from './useStorage'
+import { guessSerializerType, StorageSerializers } from './useStorage'
 
 type Awaitable<T> = T | Promise<T>
 
@@ -42,28 +42,6 @@ export type UseStorageAsyncReturn<T> = [
   value: T | null,
   setValue: Dispatch<SetStateAction<T | null>>,
 ]
-
-type SerializerType = 'boolean' | 'object' | 'number' | 'any' | 'string' | 'map' | 'set' | 'date'
-
-function guessSerializerType<T extends (string | number | boolean | object | null)>(rawInit: T): SerializerType {
-  return rawInit == null
-    ? 'any'
-    : rawInit instanceof Set
-      ? 'set'
-      : rawInit instanceof Map
-        ? 'map'
-        : rawInit instanceof Date
-          ? 'date'
-          : typeof rawInit === 'boolean'
-            ? 'boolean'
-            : typeof rawInit === 'string'
-              ? 'string'
-              : typeof rawInit === 'object'
-                ? 'object'
-                : !Number.isNaN(rawInit)
-                    ? 'number'
-                    : 'any'
-}
 
 function resolveWindow<T>(options: UseStorageAsyncOptions<T>): Window | undefined {
   return options.window ?? (typeof window === 'undefined' ? undefined : window)
