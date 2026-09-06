@@ -73,6 +73,7 @@
 | `useToString`            | packages/shared/useToString        | `packages/shared/src/useToString.ts`         | ✅ ported                     |
 | `useUnmount`             | —                                  | `packages/shared/src/useUnmount.ts`          | 🚧 ported (no upstream match) |
 | `useUpdate`              | —                                  | `packages/shared/src/useUpdate.ts`           | 🚧 ported (no upstream match) |
+| `useUserMedia`           | packages/core/useUserMedia         | `packages/core/src/useUserMedia.ts`          | ✅ ported                     |
 | `useWatch`               | —                                  | `packages/shared/src/useWatch.ts`            | 🚧 ported (no upstream match) |
 | `useWatch`               | —                                  | `packages/shared/src/useWatch.ts`            | 🚧 ported (no upstream match) |
 | `useWatch`               | —                                  | `packages/shared/src/useWatch.ts`            | 🚧 ported (no upstream match) |
@@ -89,4 +90,7 @@
 | `useWatchThrottled`      | —                                  | `packages/shared/src/useWatchThrottled.ts`   | 🚧 ported (no upstream match) |
 | `useWatchThrottled`      | —                                  | `packages/shared/src/useWatchThrottled.ts`   | 🚧 ported (no upstream match) |
 | `useWatchThrottled`      | —                                  | `packages/shared/src/useWatchThrottled.ts`   | 🚧 ported (no upstream match) |
+| `useWebWorker`           | packages/core/useWebWorker         | `packages/core/src/useWebWorker.ts`          | ✅ ported                     |
+| `useWebWorker`           | packages/core/useWebWorker         | `packages/core/src/useWebWorker.ts`          | ✅ ported                     |
+| `useWebWorker`           | packages/core/useWebWorker         | `packages/core/src/useWebWorker.ts`          | ✅ ported                     |
 | `useWhenever`            | —                                  | `packages/shared/src/useWhenever.ts`         | 🚧 ported (no upstream match) |
