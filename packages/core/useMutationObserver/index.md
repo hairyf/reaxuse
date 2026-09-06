@@ -1,5 +1,5 @@
 ---
-category: DOM
+category: Elements
 ---
 
 # useMutationObserver
