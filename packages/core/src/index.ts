@@ -13,7 +13,7 @@
 // export * from './useAnimate'
 // export * from './useAsyncQueue'
 // export * from './useAsyncState'
-// export * from './useBase64'
+export * from './useBase64'
 // export * from './useBattery'
 // export * from './useBluetooth'
 // export * from './useBreakpoints'
