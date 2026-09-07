@@ -1,11 +1,9 @@
 import type { ConfigurableWindow } from '@reaxuse/shared'
+import type { BasicColorSchema } from './useColorMode'
 import type { StorageLike } from './useStorage'
 import { useCallback, useEffect, useRef } from 'react'
 import { usePreferredDark } from './usePreferredDark'
 import { useStorage } from './useStorage'
-
-export type BasicColorMode = 'light' | 'dark'
-export type BasicColorSchema = BasicColorMode | 'auto'
 
 export interface UseDarkOptions extends ConfigurableWindow {
   /**
