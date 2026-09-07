@@ -18,7 +18,7 @@
 // export * from './useBluetooth'
 // export * from './useBreakpoints'
 // export * from './useBroadcastChannel'
-// export * from './useBrowserLocation'
+export * from './useBrowserLocation'
 // export * from './useCached'
 // export * from './useClipboard'
 // export * from './useClipboardItems'
