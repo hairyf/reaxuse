@@ -321,13 +321,43 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useCountdown',
+    file: 'packages/core/src/useCountdown.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useCounter',
     file: 'packages/shared/src/useCounter.ts',
     pkg: 'shared',
   },
   {
+    name: 'useCssSupports',
+    file: 'packages/core/src/useCssSupports.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useCssSupports',
+    file: 'packages/core/src/useCssSupports.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useCssSupports',
+    file: 'packages/core/src/useCssSupports.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useCssVar',
     file: 'packages/core/src/useCssVar.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useCycleList',
+    file: 'packages/core/src/useCycleList.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useDark',
+    file: 'packages/core/src/useDark.ts',
     pkg: 'core',
   },
   {
@@ -341,8 +371,43 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useDeviceMotion',
+    file: 'packages/core/src/useDeviceMotion.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useDevicePixelRatio',
+    file: 'packages/core/src/useDevicePixelRatio.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useDevicesList',
+    file: 'packages/core/src/useDevicesList.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useDocumentVisibility',
+    file: 'packages/core/src/useDocumentVisibility.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useDraggable',
+    file: 'packages/core/src/useDraggable.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useDropZone',
+    file: 'packages/core/src/useDropZone.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useElementBounding',
     file: 'packages/core/src/useElementBounding.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useElementByPoint',
+    file: 'packages/core/src/useElementByPoint.ts',
     pkg: 'core',
   },
   {
