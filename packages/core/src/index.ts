@@ -23,7 +23,7 @@
 // export * from './useClipboard'
 // export * from './useClipboardItems'
 // export * from './useCloned'
-// export * from './useColorMode'
+export * from './useColorMode'
 // export * from './useConfirmDialog'
 // export * from './useCountdown'
 // export * from './useCssSupports'
