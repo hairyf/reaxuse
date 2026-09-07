@@ -21,6 +21,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'cloneFnJSON',
+    file: 'packages/core/src/useCloned.ts',
+    pkg: 'core',
+  },
+  {
     name: 'createFetch',
     file: 'packages/core/src/useFetch.ts',
     pkg: 'core',
@@ -319,6 +324,21 @@ export const functions: FunctionInfo[] = [
     name: 'useArrayUnique',
     file: 'packages/shared/src/useArrayUnique.ts',
     pkg: 'shared',
+  },
+  {
+    name: 'useCloned',
+    file: 'packages/core/src/useCloned.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useColorMode',
+    file: 'packages/core/src/useColorMode.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useConfirmDialog',
+    file: 'packages/core/src/useConfirmDialog.ts',
+    pkg: 'core',
   },
   {
     name: 'useCountdown',

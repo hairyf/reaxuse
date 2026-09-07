@@ -7,6 +7,7 @@
 | --------------------------------- | --------------------------------------------- | ------------------------------------------------------ | ----------------------------- |
 | `assert`                          | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `clamp`                           | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
+| `cloneFnJSON`                     | —                                             | `packages/core/src/useCloned.ts`                       | 🚧 ported (no upstream match) |
 | `createFetch`                     | —                                             | `packages/core/src/useFetch.ts`                        | 🚧 ported (no upstream match) |
 | `createSingletonPromise`          | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `customStorageEventName`          | —                                             | `packages/core/src/useStorage.ts`                      | 🚧 ported (no upstream match) |
@@ -67,6 +68,9 @@
 | `useArrayReduce`                  | packages/shared/useArrayReduce                | `packages/shared/src/useArrayReduce.ts`                | ✅ ported                     |
 | `useArraySome`                    | packages/shared/useArraySome                  | `packages/shared/src/useArraySome.ts`                  | ✅ ported                     |
 | `useArrayUnique`                  | packages/shared/useArrayUnique                | `packages/shared/src/useArrayUnique.ts`                | ✅ ported                     |
+| `useCloned`                       | packages/core/useCloned                       | `packages/core/src/useCloned.ts`                       | ✅ ported                     |
+| `useColorMode`                    | packages/core/useColorMode                    | `packages/core/src/useColorMode.ts`                    | ✅ ported                     |
+| `useConfirmDialog`                | packages/core/useConfirmDialog                | `packages/core/src/useConfirmDialog.ts`                | ✅ ported                     |
 | `useCountdown`                    | packages/core/useCountdown                    | `packages/core/src/useCountdown.ts`                    | ✅ ported                     |
 | `useCounter`                      | packages/shared/useCounter                    | `packages/shared/src/useCounter.ts`                    | ✅ ported                     |
 | `useCssSupports`                  | packages/core/useCssSupports                  | `packages/core/src/useCssSupports.ts`                  | ✅ ported                     |
