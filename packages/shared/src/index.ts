@@ -19,7 +19,7 @@ export type MaybeRef<T> = T | { current: T }
 // export * from './createSharedComposable'
 // export * from './injectLocal'
 // export * from './isDefined'
-// export * from './makeDestructurable'
+export * from './makeDestructurable'
 // export * from './provideLocal'
 // export * from './syncRef'
 // export * from './syncRefs'
