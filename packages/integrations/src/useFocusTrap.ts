@@ -1,5 +1,8 @@
 import type { MaybeRefOrGetter } from '@reaxuse/shared'
-import type { FocusTrap, Options } from 'focus-trap'
+// focus-trap ships an ambient `declare module` d.ts; named type imports from
+// it break the tsdown d.ts bundling step (MISSING_EXPORT), so use the
+// namespace form — resolves to the same types and emits clean d.ts.
+import type * as FocusTrap from 'focus-trap'
 import { isRefLike, toArray, toValue } from '@reaxuse/shared'
 import { createFocusTrap } from 'focus-trap'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -8,15 +11,15 @@ import { useCallback, useEffect, useRef, useState } from 'react'
  * Activate options accepted by `useFocusTrap().activate()` — mirrors
  * focus-trap's non-exported `ActivateOptions`.
  */
-type ActivateOptions = NonNullable<Parameters<FocusTrap['activate']>[0]>
+type ActivateOptions = NonNullable<Parameters<FocusTrap.FocusTrap['activate']>[0]>
 
 /**
  * Deactivate options accepted by `useFocusTrap().deactivate()` — mirrors
  * focus-trap's non-exported `DeactivateOptions`.
  */
-type DeactivateOptions = NonNullable<Parameters<FocusTrap['deactivate']>[0]>
+type DeactivateOptions = NonNullable<Parameters<FocusTrap.FocusTrap['deactivate']>[0]>
 
-export interface UseFocusTrapOptions extends Options {
+export interface UseFocusTrapOptions extends FocusTrap.Options {
   /**
    * Immediately activate the trap
    */
@@ -141,7 +144,7 @@ export function useFocusTrap(
 ): UseFocusTrapReturn {
   const [hasFocus, setHasFocus] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
-  const trapRef = useRef<FocusTrap | null>(null)
+  const trapRef = useRef<FocusTrap.FocusTrap | null>(null)
 
   // Keep the latest target / options for the effect and the stable callbacks
   // (upstream reads both from the composable closure at call time).
