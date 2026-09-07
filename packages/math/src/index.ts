@@ -17,7 +17,7 @@
 // export * from './useClamp'
 // export * from './useFloor'
 // export * from './useMath'
-// export * from './useMax'
+export * from './useMax'
 // export * from './useMin'
 export * from './usePrecision'
 export * from './useProjection'
