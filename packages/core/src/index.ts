@@ -12,7 +12,7 @@
 // export * from './useActiveElement'
 // export * from './useAnimate'
 export * from './useAsyncQueue'
-// export * from './useAsyncState'
+export * from './useAsyncState'
 // export * from './useBase64'
 // export * from './useBattery'
 // export * from './useBluetooth'
