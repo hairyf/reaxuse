@@ -16,8 +16,8 @@ describe('useMutationObserver', () => {
     expect(useMutationObserver).toBeDefined()
   })
 
-  it('accepts an array template ref bound to v-for as target', () => {
-    expectTypeOf<Readonly<RefObject<HTMLElement[] | null>>>()
+  it('accepts an array of element refs as target', () => {
+    expectTypeOf<RefObject<HTMLElement | null>[]>()
       .toExtend<Parameters<typeof useMutationObserver>[0]>()
   })
 

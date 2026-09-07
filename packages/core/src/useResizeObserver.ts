@@ -1,4 +1,5 @@
 import type { ConfigurableWindow } from '@reaxuse/shared'
+import type { RefObject } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -9,12 +10,14 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 export type MaybeElement = HTMLElement | SVGElement | undefined | null
 
 /**
- * A plain element, a React ref object (`{ current }`), or a getter returning
- * one — the React equivalent of Vue's `MaybeRefOrGetter<T>`.
+ * A plain element, a React ref object, or a getter returning one — the
+ * React-native replacement for upstream's `MaybeComputedElementRef` (in Vue
+ * semantics a `{ current }` union). React refs hold DOM nodes directly, so
+ * only a `RefObject` (or an explicit getter for lazy reads) is accepted.
  */
 export type MaybeComputedElementRef<T extends MaybeElement = MaybeElement>
   = | T
-    | { readonly current: T }
+    | RefObject<T | null>
     | (() => T)
 
 /**

@@ -51,13 +51,13 @@ export type MaybeElement = HTMLElement | SVGElement | undefined | null
 
 export type MaybeComputedElementRef<T extends MaybeElement = MaybeElement>
   = | T
-    | { readonly current: T }
+    | RefObject<T | null>
     | (() => T)
 
 export type MaybeComputedElementRefOrArray<T extends MaybeElement = MaybeElement>
   = | MaybeComputedElementRef<T>
     | MaybeComputedElementRef<T>[]
-    | MaybeRefOrGetter<T[] | null>
+    | (() => T[] | null)
 
 export function useMutationObserver(
   target: MaybeComputedElementRefOrArray,
