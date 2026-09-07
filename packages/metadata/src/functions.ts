@@ -326,6 +326,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useAsyncQueue',
+    file: 'packages/core/src/useAsyncQueue.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useCloned',
     file: 'packages/core/src/useCloned.ts',
     pkg: 'core',

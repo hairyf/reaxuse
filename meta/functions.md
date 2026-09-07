@@ -68,6 +68,7 @@
 | `useArrayReduce`                  | packages/shared/useArrayReduce                | `packages/shared/src/useArrayReduce.ts`                | ✅ ported                     |
 | `useArraySome`                    | packages/shared/useArraySome                  | `packages/shared/src/useArraySome.ts`                  | ✅ ported                     |
 | `useArrayUnique`                  | packages/shared/useArrayUnique                | `packages/shared/src/useArrayUnique.ts`                | ✅ ported                     |
+| `useAsyncQueue`                   | packages/core/useAsyncQueue                   | `packages/core/src/useAsyncQueue.ts`                   | ✅ ported                     |
 | `useCloned`                       | packages/core/useCloned                       | `packages/core/src/useCloned.ts`                       | ✅ ported                     |
 | `useColorMode`                    | packages/core/useColorMode                    | `packages/core/src/useColorMode.ts`                    | ✅ ported                     |
 | `useConfirmDialog`                | packages/core/useConfirmDialog                | `packages/core/src/useConfirmDialog.ts`                | ✅ ported                     |
