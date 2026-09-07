@@ -7,6 +7,7 @@
 | --------------------------------- | --------------------------------------------- | ------------------------------------------------------ | ----------------------------- |
 | `assert`                          | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `clamp`                           | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
+| `cloneFnJSON`                     | —                                             | `packages/core/src/useCloned.ts`                       | 🚧 ported (no upstream match) |
 | `createFetch`                     | —                                             | `packages/core/src/useFetch.ts`                        | 🚧 ported (no upstream match) |
 | `createSingletonPromise`          | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `customStorageEventName`          | —                                             | `packages/core/src/useStorage.ts`                      | 🚧 ported (no upstream match) |
@@ -67,11 +68,27 @@
 | `useArrayReduce`                  | packages/shared/useArrayReduce                | `packages/shared/src/useArrayReduce.ts`                | ✅ ported                     |
 | `useArraySome`                    | packages/shared/useArraySome                  | `packages/shared/src/useArraySome.ts`                  | ✅ ported                     |
 | `useArrayUnique`                  | packages/shared/useArrayUnique                | `packages/shared/src/useArrayUnique.ts`                | ✅ ported                     |
+| `useCloned`                       | packages/core/useCloned                       | `packages/core/src/useCloned.ts`                       | ✅ ported                     |
+| `useColorMode`                    | packages/core/useColorMode                    | `packages/core/src/useColorMode.ts`                    | ✅ ported                     |
+| `useConfirmDialog`                | packages/core/useConfirmDialog                | `packages/core/src/useConfirmDialog.ts`                | ✅ ported                     |
+| `useCountdown`                    | packages/core/useCountdown                    | `packages/core/src/useCountdown.ts`                    | ✅ ported                     |
 | `useCounter`                      | packages/shared/useCounter                    | `packages/shared/src/useCounter.ts`                    | ✅ ported                     |
+| `useCssSupports`                  | packages/core/useCssSupports                  | `packages/core/src/useCssSupports.ts`                  | ✅ ported                     |
+| `useCssSupports`                  | packages/core/useCssSupports                  | `packages/core/src/useCssSupports.ts`                  | ✅ ported                     |
+| `useCssSupports`                  | packages/core/useCssSupports                  | `packages/core/src/useCssSupports.ts`                  | ✅ ported                     |
 | `useCssVar`                       | packages/core/useCssVar                       | `packages/core/src/useCssVar.ts`                       | ✅ ported                     |
+| `useCycleList`                    | packages/core/useCycleList                    | `packages/core/src/useCycleList.ts`                    | ✅ ported                     |
+| `useDark`                         | packages/core/useDark                         | `packages/core/src/useDark.ts`                         | ✅ ported                     |
 | `useDateFormat`                   | packages/shared/useDateFormat                 | `packages/shared/src/useDateFormat.ts`                 | ✅ ported                     |
 | `useDebounceFn`                   | packages/shared/useDebounceFn                 | `packages/shared/src/useDebounceFn.ts`                 | ✅ ported                     |
+| `useDeviceMotion`                 | packages/core/useDeviceMotion                 | `packages/core/src/useDeviceMotion.ts`                 | ✅ ported                     |
+| `useDevicePixelRatio`             | packages/core/useDevicePixelRatio             | `packages/core/src/useDevicePixelRatio.ts`             | ✅ ported                     |
+| `useDevicesList`                  | packages/core/useDevicesList                  | `packages/core/src/useDevicesList.ts`                  | ✅ ported                     |
+| `useDocumentVisibility`           | packages/core/useDocumentVisibility           | `packages/core/src/useDocumentVisibility.ts`           | ✅ ported                     |
+| `useDraggable`                    | packages/core/useDraggable                    | `packages/core/src/useDraggable.ts`                    | ✅ ported                     |
+| `useDropZone`                     | packages/core/useDropZone                     | `packages/core/src/useDropZone.ts`                     | ✅ ported                     |
 | `useElementBounding`              | packages/core/useElementBounding              | `packages/core/src/useElementBounding.ts`              | ✅ ported                     |
+| `useElementByPoint`               | packages/core/useElementByPoint               | `packages/core/src/useElementByPoint.ts`               | ✅ ported                     |
 | `useElementHover`                 | packages/core/useElementHover                 | `packages/core/src/useElementHover.ts`                 | ✅ ported                     |
 | `useElementOverflow`              | packages/core/useElementOverflow              | `packages/core/src/useElementOverflow.ts`              | ✅ ported                     |
 | `useElementSize`                  | packages/core/useElementSize                  | `packages/core/src/useElementSize.ts`                  | ✅ ported                     |
