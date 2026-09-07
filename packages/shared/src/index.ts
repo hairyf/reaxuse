@@ -23,7 +23,7 @@ export type MaybeRef<T> = T | { current: T }
 // export * from './provideLocal'
 // export * from './syncRef'
 // export * from './syncRefs'
-// export * from './until'
+export * from './until'
 export * from './useArrayDifference'
 export * from './useArrayEvery'
 export * from './useArrayFilter'
