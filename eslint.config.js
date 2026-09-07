@@ -18,6 +18,8 @@ export default antfu(
   {
     formatters: true,
     ignores: [
+      'MONITORING-HANDOFF.md',
+      'PR-MERGE-WORKFLOW.md',
       'source/**',
       'playgrounds/**',
       '**/skills/**',
