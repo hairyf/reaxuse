@@ -11,7 +11,7 @@
 // export * from './useChangeCase'
 // export * from './useCookies'
 // export * from './useDrauu'
-// export * from './useFocusTrap'
+export * from './useFocusTrap'
 // export * from './useFuse'
 // export * from './useIDBKeyval'
 // export * from './useJwt'
