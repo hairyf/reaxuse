@@ -20,7 +20,7 @@
 // export * from './useBroadcastChannel'
 // export * from './useBrowserLocation'
 // export * from './useCached'
-// export * from './useClipboard'
+export * from './useClipboard'
 // export * from './useClipboardItems'
 export * from './useCloned'
 export * from './useColorMode'
