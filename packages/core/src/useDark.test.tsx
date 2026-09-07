@@ -1,4 +1,4 @@
-import type { BasicColorSchema } from './useDark'
+import type { BasicColorSchema } from './useColorMode'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
 import { useDark } from './useDark'

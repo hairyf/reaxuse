@@ -95,9 +95,6 @@ const [isDark, toggleDark] = useDark({
 ## Type Declarations
 
 ```ts
-export type BasicColorMode = 'light' | 'dark'
-export type BasicColorSchema = BasicColorMode | 'auto'
-
 export interface UseDarkOptions extends ConfigurableWindow {
   /**
    * Value applying to the target element when isDark=true
