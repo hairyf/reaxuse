@@ -13,7 +13,7 @@
 // export * from './logicOr'
 // export * from './useAbs'
 // export * from './useAverage'
-// export * from './useCeil'
+export * from './useCeil'
 // export * from './useClamp'
 // export * from './useFloor'
 // export * from './useMath'
