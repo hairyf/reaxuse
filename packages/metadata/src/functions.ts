@@ -41,6 +41,16 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'deepClone',
+    file: 'packages/shared/src/useWatchDeep.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'deepEqual',
+    file: 'packages/shared/src/useWatchDeep.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'formatDate',
     file: 'packages/shared/src/useDateFormat.ts',
     pkg: 'shared',
@@ -331,8 +341,28 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
-    name: 'useEventListener',
-    file: 'packages/core/src/useEventListener.ts',
+    name: 'useElementBounding',
+    file: 'packages/core/src/useElementBounding.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useElementHover',
+    file: 'packages/core/src/useElementHover.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useElementOverflow',
+    file: 'packages/core/src/useElementOverflow.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useElementSize',
+    file: 'packages/core/src/useElementSize.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useElementVisibility',
+    file: 'packages/core/src/useElementVisibility.ts',
     pkg: 'core',
   },
   {
@@ -368,6 +398,26 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useEventListener',
     file: 'packages/core/src/useEventListener.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEventListener',
+    file: 'packages/core/src/useEventListener.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEventSource',
+    file: 'packages/core/src/useEventSource.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEyeDropper',
+    file: 'packages/core/src/useEyeDropper.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFavicon',
+    file: 'packages/core/src/useFavicon.ts',
     pkg: 'core',
   },
   {
@@ -393,6 +443,36 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useFileDialog',
     file: 'packages/core/src/useFileDialog.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFocus',
+    file: 'packages/core/src/useFocus.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFocusWithin',
+    file: 'packages/core/src/useFocusWithin.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFps',
+    file: 'packages/core/src/useFps.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFullscreen',
+    file: 'packages/core/src/useFullscreen.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useGamepad',
+    file: 'packages/core/src/useGamepad.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useGeolocation',
+    file: 'packages/core/src/useGeolocation.ts',
     pkg: 'core',
   },
   {
@@ -988,6 +1068,11 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useVibrate',
     file: 'packages/core/src/useVibrate.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useVirtualList',
+    file: 'packages/core/src/useVirtualList.ts',
     pkg: 'core',
   },
   {
