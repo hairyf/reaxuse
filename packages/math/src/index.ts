@@ -9,7 +9,7 @@
 // export * from './createGenericProjection'
 // export * from './createProjection'
 // export * from './logicAnd'
-// export * from './logicNot'
+export * from './logicNot'
 // export * from './logicOr'
 // export * from './useAbs'
 // export * from './useAverage'
