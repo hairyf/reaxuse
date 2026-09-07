@@ -7,10 +7,13 @@
 | --------------------------------- | --------------------------------------------- | ------------------------------------------------------ | ----------------------------- |
 | `assert`                          | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `clamp`                           | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
+| `cloneFnJSON`                     | —                                             | `packages/core/src/useCloned.ts`                       | 🚧 ported (no upstream match) |
 | `createFetch`                     | —                                             | `packages/core/src/useFetch.ts`                        | 🚧 ported (no upstream match) |
 | `createSingletonPromise`          | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `customStorageEventName`          | —                                             | `packages/core/src/useStorage.ts`                      | 🚧 ported (no upstream match) |
 | `debounceFilter`                  | —                                             | `packages/shared/src/useWatchWithFilter.ts`            | 🚧 ported (no upstream match) |
+| `deepClone`                       | —                                             | `packages/shared/src/useWatchDeep.ts`                  | 🚧 ported (no upstream match) |
+| `deepEqual`                       | —                                             | `packages/shared/src/useWatchDeep.ts`                  | 🚧 ported (no upstream match) |
 | `formatDate`                      | —                                             | `packages/shared/src/useDateFormat.ts`                 | 🚧 ported (no upstream match) |
 | `formatTimeAgo`                   | —                                             | `packages/core/src/useTimeAgo.ts`                      | 🚧 ported (no upstream match) |
 | `formatTimeAgoIntl`               | —                                             | `packages/core/src/useTimeAgoIntl.ts`                  | 🚧 ported (no upstream match) |
@@ -65,10 +68,31 @@
 | `useArrayReduce`                  | packages/shared/useArrayReduce                | `packages/shared/src/useArrayReduce.ts`                | ✅ ported                     |
 | `useArraySome`                    | packages/shared/useArraySome                  | `packages/shared/src/useArraySome.ts`                  | ✅ ported                     |
 | `useArrayUnique`                  | packages/shared/useArrayUnique                | `packages/shared/src/useArrayUnique.ts`                | ✅ ported                     |
+| `useCloned`                       | packages/core/useCloned                       | `packages/core/src/useCloned.ts`                       | ✅ ported                     |
+| `useColorMode`                    | packages/core/useColorMode                    | `packages/core/src/useColorMode.ts`                    | ✅ ported                     |
+| `useConfirmDialog`                | packages/core/useConfirmDialog                | `packages/core/src/useConfirmDialog.ts`                | ✅ ported                     |
+| `useCountdown`                    | packages/core/useCountdown                    | `packages/core/src/useCountdown.ts`                    | ✅ ported                     |
 | `useCounter`                      | packages/shared/useCounter                    | `packages/shared/src/useCounter.ts`                    | ✅ ported                     |
+| `useCssSupports`                  | packages/core/useCssSupports                  | `packages/core/src/useCssSupports.ts`                  | ✅ ported                     |
+| `useCssSupports`                  | packages/core/useCssSupports                  | `packages/core/src/useCssSupports.ts`                  | ✅ ported                     |
+| `useCssSupports`                  | packages/core/useCssSupports                  | `packages/core/src/useCssSupports.ts`                  | ✅ ported                     |
 | `useCssVar`                       | packages/core/useCssVar                       | `packages/core/src/useCssVar.ts`                       | ✅ ported                     |
+| `useCycleList`                    | packages/core/useCycleList                    | `packages/core/src/useCycleList.ts`                    | ✅ ported                     |
+| `useDark`                         | packages/core/useDark                         | `packages/core/src/useDark.ts`                         | ✅ ported                     |
 | `useDateFormat`                   | packages/shared/useDateFormat                 | `packages/shared/src/useDateFormat.ts`                 | ✅ ported                     |
 | `useDebounceFn`                   | packages/shared/useDebounceFn                 | `packages/shared/src/useDebounceFn.ts`                 | ✅ ported                     |
+| `useDeviceMotion`                 | packages/core/useDeviceMotion                 | `packages/core/src/useDeviceMotion.ts`                 | ✅ ported                     |
+| `useDevicePixelRatio`             | packages/core/useDevicePixelRatio             | `packages/core/src/useDevicePixelRatio.ts`             | ✅ ported                     |
+| `useDevicesList`                  | packages/core/useDevicesList                  | `packages/core/src/useDevicesList.ts`                  | ✅ ported                     |
+| `useDocumentVisibility`           | packages/core/useDocumentVisibility           | `packages/core/src/useDocumentVisibility.ts`           | ✅ ported                     |
+| `useDraggable`                    | packages/core/useDraggable                    | `packages/core/src/useDraggable.ts`                    | ✅ ported                     |
+| `useDropZone`                     | packages/core/useDropZone                     | `packages/core/src/useDropZone.ts`                     | ✅ ported                     |
+| `useElementBounding`              | packages/core/useElementBounding              | `packages/core/src/useElementBounding.ts`              | ✅ ported                     |
+| `useElementByPoint`               | packages/core/useElementByPoint               | `packages/core/src/useElementByPoint.ts`               | ✅ ported                     |
+| `useElementHover`                 | packages/core/useElementHover                 | `packages/core/src/useElementHover.ts`                 | ✅ ported                     |
+| `useElementOverflow`              | packages/core/useElementOverflow              | `packages/core/src/useElementOverflow.ts`              | ✅ ported                     |
+| `useElementSize`                  | packages/core/useElementSize                  | `packages/core/src/useElementSize.ts`                  | ✅ ported                     |
+| `useElementVisibility`            | packages/core/useElementVisibility            | `packages/core/src/useElementVisibility.ts`            | ✅ ported                     |
 | `useEventListener`                | packages/core/useEventListener                | `packages/core/src/useEventListener.ts`                | ✅ ported                     |
 | `useEventListener`                | packages/core/useEventListener                | `packages/core/src/useEventListener.ts`                | ✅ ported                     |
 | `useEventListener`                | packages/core/useEventListener                | `packages/core/src/useEventListener.ts`                | ✅ ported                     |
@@ -77,11 +101,20 @@
 | `useEventListener`                | packages/core/useEventListener                | `packages/core/src/useEventListener.ts`                | ✅ ported                     |
 | `useEventListener`                | packages/core/useEventListener                | `packages/core/src/useEventListener.ts`                | ✅ ported                     |
 | `useEventListener`                | packages/core/useEventListener                | `packages/core/src/useEventListener.ts`                | ✅ ported                     |
+| `useEventSource`                  | packages/core/useEventSource                  | `packages/core/src/useEventSource.ts`                  | ✅ ported                     |
+| `useEyeDropper`                   | packages/core/useEyeDropper                   | `packages/core/src/useEyeDropper.ts`                   | ✅ ported                     |
+| `useFavicon`                      | packages/core/useFavicon                      | `packages/core/src/useFavicon.ts`                      | ✅ ported                     |
 | `useFetch`                        | packages/core/useFetch                        | `packages/core/src/useFetch.ts`                        | ✅ ported                     |
 | `useFetch`                        | packages/core/useFetch                        | `packages/core/src/useFetch.ts`                        | ✅ ported                     |
 | `useFetch`                        | packages/core/useFetch                        | `packages/core/src/useFetch.ts`                        | ✅ ported                     |
 | `useFetch`                        | packages/core/useFetch                        | `packages/core/src/useFetch.ts`                        | ✅ ported                     |
 | `useFileDialog`                   | packages/core/useFileDialog                   | `packages/core/src/useFileDialog.ts`                   | ✅ ported                     |
+| `useFocus`                        | packages/core/useFocus                        | `packages/core/src/useFocus.ts`                        | ✅ ported                     |
+| `useFocusWithin`                  | packages/core/useFocusWithin                  | `packages/core/src/useFocusWithin.ts`                  | ✅ ported                     |
+| `useFps`                          | packages/core/useFps                          | `packages/core/src/useFps.ts`                          | ✅ ported                     |
+| `useFullscreen`                   | packages/core/useFullscreen                   | `packages/core/src/useFullscreen.ts`                   | ✅ ported                     |
+| `useGamepad`                      | packages/core/useGamepad                      | `packages/core/src/useGamepad.ts`                      | ✅ ported                     |
+| `useGeolocation`                  | packages/core/useGeolocation                  | `packages/core/src/useGeolocation.ts`                  | ✅ ported                     |
 | `useIdle`                         | packages/core/useIdle                         | `packages/core/src/useIdle.ts`                         | ✅ ported                     |
 | `useImage`                        | packages/core/useImage                        | `packages/core/src/useImage.ts`                        | ✅ ported                     |
 | `useIntersectionObserver`         | packages/core/useIntersectionObserver         | `packages/core/src/useIntersectionObserver.ts`         | ✅ ported                     |
@@ -201,6 +234,7 @@
 | `useUrlSearchParams`              | packages/core/useUrlSearchParams              | `packages/core/src/useUrlSearchParams.ts`              | ✅ ported                     |
 | `useUserMedia`                    | packages/core/useUserMedia                    | `packages/core/src/useUserMedia.ts`                    | ✅ ported                     |
 | `useVibrate`                      | packages/core/useVibrate                      | `packages/core/src/useVibrate.ts`                      | ✅ ported                     |
+| `useVirtualList`                  | packages/core/useVirtualList                  | `packages/core/src/useVirtualList.ts`                  | ✅ ported                     |
 | `useWakeLock`                     | packages/core/useWakeLock                     | `packages/core/src/useWakeLock.ts`                     | ✅ ported                     |
 | `useWatch`                        | —                                             | `packages/shared/src/useWatch.ts`                      | 🚧 ported (no upstream match) |
 | `useWatch`                        | —                                             | `packages/shared/src/useWatch.ts`                      | 🚧 ported (no upstream match) |
