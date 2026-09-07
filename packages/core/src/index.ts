@@ -10,7 +10,7 @@
 // export * from './onStartTyping'
 // export * from './unrefElement'
 // export * from './useActiveElement'
-// export * from './useAnimate'
+export * from './useAnimate'
 export * from './useAsyncQueue'
 // export * from './useAsyncState'
 // export * from './useBase64'
