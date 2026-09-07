@@ -1,0 +1,386 @@
+import type { MaybeRef } from '@reaxuse/shared'
+import type { CSSProperties } from 'react'
+import { toValue } from '@reaxuse/shared'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
+type UseVirtualListItemSize = number | ((index: number) => number)
+
+export interface UseHorizontalVirtualListOptions extends UseVirtualListOptionsBase {
+
+  /**
+   * item width, accept a pixel value or a function that returns the width
+   *
+   * @default 0
+   */
+  itemWidth: UseVirtualListItemSize
+
+}
+
+export interface UseVerticalVirtualListOptions extends UseVirtualListOptionsBase {
+  /**
+   * item height, accept a pixel value or a function that returns the height
+   *
+   * @default 0
+   */
+  itemHeight: UseVirtualListItemSize
+}
+
+export interface UseVirtualListOptionsBase {
+  /**
+   * the extra buffer items outside of the view area
+   *
+   * @default 5
+   */
+  overscan?: number
+}
+
+export type UseVirtualListOptions = UseHorizontalVirtualListOptions | UseVerticalVirtualListOptions
+
+export interface UseVirtualListItem<T> {
+  data: T
+  index: number
+}
+
+export interface UseVirtualListScrollToOptions {
+  behavior?: ScrollBehavior
+  block?: ScrollLogicalPosition
+  inline?: ScrollLogicalPosition
+}
+
+export interface UseVirtualListReturn<T> {
+  /**
+   * The currently visible window of items (plus `overscan`), each with its
+   * original `data` and its absolute `index` into the source list. A plain
+   * array — there is no `.value` wrapper.
+   */
+  list: UseVirtualListItem<T>[]
+  /**
+   * Scroll the container so the item at `index` becomes visible.
+   */
+  scrollTo: (index: number, options?: UseVirtualListScrollToOptions) => void
+
+  containerProps: {
+    /**
+     * Ref callback to attach to the scroll container element. Spread
+     * `containerProps` onto the container `<div>` (or a ref-like object is
+     * exposed through `containerProps.ref`).
+     */
+    ref: (element: HTMLElement | null) => void
+    onScroll: () => void
+    style: CSSProperties
+  }
+  wrapperProps: {
+    style: CSSProperties
+  }
+}
+
+const defaultScrollToOptions: UseVirtualListScrollToOptions = { behavior: 'auto', block: 'start', inline: 'nearest' }
+
+/**
+ * Returns the first index whose item "starts" at or after `scrollDirection`,
+ * plus one — mirrors upstream's `createGetOffset`. The `+ 1` keeps the
+ * formula identical to VueUse; it is compensated by the overscan below.
+ */
+function getOffset<T>(source: readonly T[], itemSize: UseVirtualListItemSize, scrollDirection: number): number {
+  if (typeof itemSize === 'number')
+    return Math.floor(scrollDirection / itemSize) + 1
+
+  let sum = 0
+  let offset = 0
+
+  for (let i = 0; i < source.length; i++) {
+    const size = itemSize(i)
+    sum += size
+    if (sum >= scrollDirection) {
+      offset = i
+      break
+    }
+  }
+  return offset + 1
+}
+
+/**
+ * How many items fit in `containerSize`, counted from `start` — mirrors
+ * upstream's `createGetViewCapacity` (which reads the current range `start`).
+ */
+function getViewCapacity<T>(
+  start: number,
+  source: readonly T[],
+  itemSize: UseVirtualListItemSize,
+  containerSize: number,
+): number {
+  if (typeof itemSize === 'number')
+    return Math.ceil(containerSize / itemSize)
+
+  let sum = 0
+  let capacity = 0
+  for (let i = start; i < source.length; i++) {
+    const size = itemSize(i)
+    sum += size
+    capacity = i
+    if (sum > containerSize)
+      break
+  }
+  return capacity - start
+}
+
+/**
+ * The pixel offset at which the item at `index` starts — mirrors upstream's
+ * `createGetDistance`.
+ */
+function getDistance<T>(source: readonly T[], itemSize: UseVirtualListItemSize, index: number): number {
+  if (typeof itemSize === 'number')
+    return index * itemSize
+
+  return source
+    .slice(0, index)
+    .reduce((sum, _, i) => sum + itemSize(i), 0)
+}
+
+/**
+ * Total size of every item — mirrors upstream's `createComputedTotalSize`.
+ */
+function getTotalSize<T>(source: readonly T[], itemSize: UseVirtualListItemSize): number {
+  if (typeof itemSize === 'number')
+    return source.length * itemSize
+
+  return source.reduce((sum, _, index) => sum + itemSize(index), 0)
+}
+
+/**
+ * Create virtual lists with ease. Virtual lists (sometimes called
+ * [_virtual scrollers_](https://vue-virtual-scroller-demo.netlify.app/)) allow
+ * you to render a large number of items performantly. They only render the
+ * minimum number of DOM nodes necessary to show the items within the
+ * `container` element by using the `wrapper` element to emulate the container
+ * element's full height.
+ *
+ * Map from @vueuse/core `useVirtualList`
+ * (`source/vueuse/packages/core/useVirtualList/`), which renders a sliding
+ * window of `source` based on the container's scroll offset and size.
+ *
+ * React divergences:
+ *
+ * - the upstream return object is preserved 1:1, with the Vue reactivity
+ *   removed: `list` is a plain array (no `.value`), and `containerProps` /
+ *   `wrapperProps` are plain objects meant to be spread onto JSX;
+ * - the visible window is derived during render from the container's scroll
+ *   offset and size (kept in state, updated by `onScroll` / `scrollTo` / the
+ *   container ref callback / a `ResizeObserver`), so the source list, the
+ *   item-size function and the options are re-read every render — no `watch`
+ *   setup needed; upstream's `MaybeRef<readonly T[]>` input accepts a plain
+ *   array or a ref-like `{ current }` object;
+ * - upstream's `watch` over the container size (via `useElementSize`) becomes
+ *   the `ResizeObserver` attached to the container element, and the item-size
+ *   recomputation that upstream's `totalSize` computed drives is simply a
+ *   re-render;
+ * - `scrollTo` reads the container element synchronously (same math as
+ *   upstream: `block` / `inline` alignment options included) and then mirrors
+ *   the element's new scroll position into state.
+ *
+ * The upstream component variant `UseVirtualList` is not ported — React has no
+ * directive/component-slot equivalent; the same capability is expressed with
+ * the hook and a function-as-children renderer (see the docs page).
+ *
+ * SSR-safe: nothing touches `window` or the DOM during render.
+ *
+ * @param list - the source array, or a ref-like `{ current }` object holding
+ *   it (the latest value is read on every render)
+ * @param options - `itemHeight` (vertical) or `itemWidth` (horizontal) as a
+ *   fixed pixel size or an `(index) => size` function, plus the `overscan`
+ *   buffer (`@default 5`)
+ *
+ * @example
+ * const { list, containerProps, wrapperProps } = useVirtualList(
+ *   Array.from(Array.from({ length: 99999 }).keys()),
+ *   {
+ *     // Keep `itemHeight` in sync with the item's row.
+ *     itemHeight: 22,
+ *   },
+ * )
+ *
+ * // <div {...containerProps} style={{ height: '300px' }}>
+ * //   <div {...wrapperProps}>
+ * //     {list.map(item => <div key={item.index} style={{ height: 22 }}>Row: {item.data}</div>)}
+ * //   </div>
+ * // </div>
+ */
+export function useVirtualList<T = any>(list: MaybeRef<readonly T[]>, options: UseVirtualListOptions): UseVirtualListReturn<T> {
+  const isVertical = 'itemHeight' in options
+  const itemSize: UseVirtualListItemSize = isVertical ? options.itemHeight : options.itemWidth
+  const overscan = options.overscan ?? 5
+
+  const containerRef = useRef<HTMLElement | null>(null)
+  const observerRef = useRef<ResizeObserver | null>(null)
+  const observedRef = useRef<HTMLElement | null>(null)
+
+  const [containerSize, setContainerSize] = useState(0)
+  const [scrollPosition, setScrollPosition] = useState(0)
+
+  // latest-value refs, re-synced on every render so the stable callbacks
+  // below always read the newest source / item-size / orientation
+  const sourceRef = useRef<readonly T[]>([])
+  const itemSizeRef = useRef<UseVirtualListItemSize>(itemSize)
+  const overscanRef = useRef(overscan)
+  const isVerticalRef = useRef(isVertical)
+  const rangeRef = useRef({ start: 0, end: 0 })
+  isVerticalRef.current = isVertical
+  sourceRef.current = toValue(list) ?? []
+  itemSizeRef.current = itemSize
+  overscanRef.current = overscan
+
+  /**
+   * Mirrors upstream's `useWatchForSizes` + `useElementSize`: whenever the
+   * container element is replaced (attach / detach / swap), (re-)attach a
+   * `ResizeObserver` so size changes recalc the window. The recalculation
+   * itself is derived during render from `containerSize` / `scrollPosition`
+   * state, so this effect only needs to keep the observer in sync.
+   */
+  useEffect(() => {
+    const element = containerRef.current
+    if (element === observedRef.current)
+      return
+    observerRef.current?.disconnect()
+    observerRef.current = null
+    observedRef.current = element
+    if (element && typeof ResizeObserver !== 'undefined' && element instanceof Element) {
+      try {
+        const observer = new ResizeObserver(() => {
+          const el = containerRef.current
+          if (el)
+            setContainerSize(isVerticalRef.current ? el.clientHeight : el.clientWidth)
+        })
+        observer.observe(element)
+        observerRef.current = observer
+      }
+      catch {
+        // not an observable element (e.g. a test double) — keep measuring on
+        // demand through scrollTo / the ref callback
+      }
+    }
+  })
+
+  // Disconnect on unmount (upstream: `tryOnScopeDispose(stop)`).
+  useEffect(() => () => {
+    observerRef.current?.disconnect()
+    observerRef.current = null
+  }, [])
+
+  /**
+   * Ref callback spread onto the container element. Stores the element and
+   * mirrors its current size / offset into state so the render-derived window
+   * updates as soon as the element attaches (upstream: the `containerRef`
+   * watch in `useWatchForSizes`).
+   */
+  const setContainerRef = useCallback((element: HTMLElement | null): void => {
+    containerRef.current = element
+    if (element) {
+      const vertical = isVerticalRef.current
+      setContainerSize(vertical ? element.clientHeight : element.clientWidth)
+      setScrollPosition((vertical ? element.scrollTop : element.scrollLeft) ?? 0)
+    }
+    else {
+      setContainerSize(0)
+    }
+  }, [])
+
+  const scrollTo = useCallback((index: number, options: UseVirtualListScrollToOptions = defaultScrollToOptions): void => {
+    const element = containerRef.current
+    if (!element)
+      return
+
+    const merged = { ...defaultScrollToOptions, ...options }
+    const source = sourceRef.current
+    const size = itemSizeRef.current
+    const vertical = isVerticalRef.current
+
+    let offset = 0
+    const axisToCheck = merged[vertical ? 'block' : 'inline']
+    if (axisToCheck) {
+      const containerSize = vertical ? element.clientHeight : element.clientWidth
+      const fullItemSize = typeof size === 'number' ? size : size(index)
+
+      if (axisToCheck === 'center') {
+        offset = (containerSize / 2) - (fullItemSize / 2)
+      }
+      else if (axisToCheck === 'end') {
+        offset = containerSize - fullItemSize
+      }
+      else if (axisToCheck === 'nearest') {
+        const containerScrollPosition = vertical ? element.scrollTop : element.scrollLeft
+        if (getDistance(source, size, index) > containerScrollPosition + (containerSize / 2))
+          offset = containerSize - fullItemSize
+      }
+    }
+
+    const distance = getDistance(source, size, index) - offset
+    if (vertical)
+      element.scrollTo({ top: distance, behavior: merged.behavior })
+    else
+      element.scrollTo({ left: distance, behavior: merged.behavior })
+
+    // Mirror the element's (post-scroll) position into state so the
+    // render-derived window updates (upstream: `calculateRange()` right after
+    // `scrollTo`). Reading back keeps `smooth` behavior faithful.
+    setScrollPosition((vertical ? element.scrollTop : element.scrollLeft) ?? 0)
+    setContainerSize(vertical ? element.clientHeight : element.clientWidth)
+  }, [])
+
+  // -- render-derived window (upstream: computed refs + `state`) -------------
+  const source = toValue(list) ?? []
+  const offset = getOffset(source, itemSize, scrollPosition)
+  const viewCapacity = getViewCapacity(rangeRef.current.start, source, itemSize, containerSize)
+
+  const from = offset - overscan
+  const to = offset + viewCapacity + overscan
+  const start = from < 0 ? 0 : from
+  const end = to > source.length ? source.length : to
+  rangeRef.current = { start, end }
+
+  const currentList = source
+    .slice(start, end)
+    .map((ele, index) => ({
+      data: ele,
+      index: index + start,
+    }))
+
+  const offsetDistance = getDistance(source, itemSize, start)
+  const totalSize = getTotalSize(source, itemSize)
+
+  const containerProps = {
+    ref: setContainerRef,
+    onScroll: () => {
+      const element = containerRef.current
+      if (!element)
+        return
+      const vertical = isVerticalRef.current
+      setScrollPosition((vertical ? element.scrollTop : element.scrollLeft) ?? 0)
+      setContainerSize(vertical ? element.clientHeight : element.clientWidth)
+    },
+    style: isVertical ? { overflowY: 'auto' as const } : { overflowX: 'auto' as const },
+  }
+
+  const wrapperProps = isVertical
+    ? {
+        style: {
+          width: '100%',
+          height: `${totalSize - offsetDistance}px`,
+          marginTop: `${offsetDistance}px`,
+        },
+      }
+    : {
+        style: {
+          height: '100%',
+          width: `${totalSize - offsetDistance}px`,
+          marginLeft: `${offsetDistance}px`,
+          display: 'flex',
+        },
+      }
+
+  return {
+    list: currentList,
+    scrollTo,
+    containerProps,
+    wrapperProps,
+  }
+}
