@@ -18,7 +18,7 @@
 // export * from './useFloor'
 // export * from './useMath'
 // export * from './useMax'
-// export * from './useMin'
+export * from './useMin'
 export * from './usePrecision'
 export * from './useProjection'
 // export * from './useRound'
