@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "skills": {
+    "anime": {
+      "source": "hairyf/skills",
+      "sourceType": "github",
+      "skillPath": "skills/anime/SKILL.md",
+      "computedHash": "0f750fe1c5d78d3a6184e7928af5454ba5272c75f9890335fa3c4688bbb5e039"
+    },
+    "antfu": {
+      "source": "hairyf/skills",
+      "sourceType": "github",
+      "skillPath": "skills/antfu/SKILL.md",
+      "computedHash": "36eef78a205ff2618a6916a76cfb593a2fa5cb9dd428b321c5a73790e439b8bd"
+    },
+    "hairy": {
+      "source": "hairyf/skills",
+      "sourceType": "github",
+      "skillPath": "skills/hairy/SKILL.md",
+      "computedHash": "1c5a80c0415c510fc22d84d6319c34aba4f090b08cb5f488ad0e9377d3ac1aab"
+    },
+    "react": {
+      "source": "hairyf/skills",
+      "sourceType": "github",
+      "skillPath": "skills/react/SKILL.md",
+      "computedHash": "c24ffe9c59e25ebdd7ad835d1032ec4abda7d0bf6a3c14ca371854e5ce6c2b3e"
+    }
+  }
+}
