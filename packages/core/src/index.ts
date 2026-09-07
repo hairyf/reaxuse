@@ -26,7 +26,7 @@
 // export * from './useColorMode'
 // export * from './useConfirmDialog'
 export * from './useCountdown'
-// export * from './useCssSupports'
+export * from './useCssSupports'
 export * from './useCssVar'
 // export * from './useCurrentElement'
 export * from './useCycleList'
