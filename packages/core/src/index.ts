@@ -16,7 +16,7 @@
 // export * from './useBase64'
 // export * from './useBattery'
 // export * from './useBluetooth'
-// export * from './useBreakpoints'
+export * from './useBreakpoints'
 // export * from './useBroadcastChannel'
 // export * from './useBrowserLocation'
 // export * from './useCached'
