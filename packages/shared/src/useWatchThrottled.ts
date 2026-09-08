@@ -1,4 +1,4 @@
-import type { MaybeRef } from './index'
+import type { RefOrValue } from './index'
 import type { UseWatchCallback } from './useWatch'
 import { useThrottleFn } from './useThrottleFn'
 import { useWatch } from './useWatch'
@@ -10,7 +10,7 @@ export interface UseWatchThrottledOptions {
    *
    * @default 0
    */
-  throttle?: MaybeRef<number> | (() => number)
+  throttle?: RefOrValue<number>
 
   /**
    * Invoke the callback on the trailing edge of the throttle window.

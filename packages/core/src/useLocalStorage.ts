@@ -37,7 +37,7 @@ export function useLocalStorage<T = unknown>(key: string, initialValue: null, op
  *   replaces it after hydration;
  * - `key` is a plain React string that can change between renders — a key
  *   change re-reads the new key (upstream takes a reactive
- *   `MaybeRefOrGetter` key). Writes always go to the key of the current
+ *   `RefOrValue` key). Writes always go to the key of the current
  *   render, and when `writeDefaults` is on, a new key with no stored value is
  *   seeded with the initial value;
  * - Vue reactivity options have no React equivalent and are omitted:

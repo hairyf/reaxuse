@@ -1,4 +1,4 @@
-import type { MaybeComputedElementRef, MaybeElement, UseResizeObserverOptions } from './useResizeObserver'
+import type { ElementTarget, TargetElement, UseResizeObserverOptions } from './useResizeObserver'
 import { toArray, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useResizeObserver } from './useResizeObserver'
@@ -49,7 +49,7 @@ export interface UseElementSizeReturn {
  * const { width, height, stop } = useElementSize(el)
  */
 export function useElementSize(
-  target: MaybeComputedElementRef,
+  target: ElementTarget,
   initialSize: ElementSize = { width: 0, height: 0 },
   options: UseElementSizeOptions = {},
 ): UseElementSizeReturn {
@@ -124,7 +124,7 @@ export function useElementSize(
   // `initialSize` (or `0` when detached) only when the resolved element
   // actually changed — the observer then re-delivers the real size.
   const stoppedRef = useRef(false)
-  const previousElementRef = useRef<MaybeElement>(undefined)
+  const previousElementRef = useRef<TargetElement>(undefined)
   const firstRunRef = useRef(true)
 
   useEffect(() => {
