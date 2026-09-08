@@ -124,7 +124,6 @@ describe('useChangeCase', () => {
 
       expect(result.current[0]).toBe(obj[key].delimiterVueuse)
     })
-
   })
 
   it('camelCase base usage', async () => {
