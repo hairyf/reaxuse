@@ -30,8 +30,8 @@ list[0].current = 1 // allEven === false on the next render
 export type UseArrayEveryReturn = boolean
 
 export function useArrayEvery<T>(
-  list: MaybeRef<MaybeRef<T>[]>,
-  fn: (element: T, index: number, array: MaybeRef<T>[]) => unknown,
+  list: RefOrValue<RefOrValue<T>[]>,
+  fn: (element: T, index: number, array: RefOrValue<T>[]) => unknown,
 ): UseArrayEveryReturn
 ```
 

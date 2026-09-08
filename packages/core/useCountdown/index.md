@@ -13,8 +13,8 @@ Reactive countdown timer in seconds — React port of VueUse's
 interval composes shared `useIntervalFn` (upstream's default scheduler ticks
 every `1000` ms), driven by an `interval` option — upstream's
 `ConfigurableScheduler` `scheduler` option has no React equivalent and is not
-ported. `start(countdown?)`/`reset(countdown?)` accept a number, a ref-like
-`{ current }` or a getter for the next countdown; `stop()` pauses and resets to
+ported. `start(countdown?)`/`reset(countdown?)` accept a number or a React
+ref for the next countdown; `stop()` pauses and resets to
 the initial value, `pause()`/`resume()` freeze/thaw in place (resume is a no-op
 once the countdown has reached 0). SSR-safe — timers only ever run inside
 effects, never during render.
@@ -37,7 +37,7 @@ const { remaining, start, stop, pause, resume } = useCountdown(countdownSeconds,
 start() // begins counting down from 5
 ```
 
-The initial countdown can also be a ref-like object (`{ current }`) or a getter,
+The initial countdown can also be a React ref,
 and `start()`/`reset()` accept a new countdown value for the next countdown.
 
 ```tsx
@@ -89,7 +89,7 @@ export interface UseCountdownReturn {
   /**
    * Resets the countdown to its initial value.
    */
-  reset: (countdown?: MaybeRefOrGetter<number>) => void
+  reset: (countdown?: RefOrValue<number>) => void
   /**
    * Stops the countdown and resets its state.
    */
@@ -97,7 +97,7 @@ export interface UseCountdownReturn {
   /**
    * Resets the countdown and starts it again.
    */
-  start: (countdown?: MaybeRefOrGetter<number>) => void
+  start: (countdown?: RefOrValue<number>) => void
   /**
    * Pauses the countdown — the interval is cleared, `remaining` stays put.
    */
@@ -113,7 +113,7 @@ export interface UseCountdownReturn {
 }
 
 export function useCountdown(
-  initialCountdown: MaybeRefOrGetter<number>,
+  initialCountdown: RefOrValue<number>,
   options?: UseCountdownOptions,
 ): UseCountdownReturn
 ```

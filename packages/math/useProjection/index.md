@@ -8,8 +8,7 @@ Reactive numeric projection from one domain to another — React port of VueUse'
 [`useProjection`](https://vueuse.org/math/useProjection/).
 
 **Mapping:** `ComputedRef<number>` → plain number recomputed on every render
-(pure derived value, no reactive `.value`); input accepts a ref-like
-`{ current }` object or a getter.
+(pure derived value, no reactive `.value`); input accepts a React ref or a plain value.
 
 ## Usage
 
@@ -29,9 +28,9 @@ input.current = 10 // projected === 100 on the next render
 
 ```ts
 export function useProjection(
-  input: MaybeRefOrGetter<number>,
-  fromDomain: MaybeRefOrGetter<readonly [number, number]>,
-  toDomain: MaybeRefOrGetter<readonly [number, number]>,
+  input: RefOrValue<number>,
+  fromDomain: RefOrValue<readonly [number, number]>,
+  toDomain: RefOrValue<readonly [number, number]>,
   projector?: ProjectorFunction<number, number>,
 ): number
 ```

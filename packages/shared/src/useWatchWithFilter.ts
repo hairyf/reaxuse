@@ -1,4 +1,4 @@
-import type { FunctionArgs, MaybeRef } from './index'
+import type { FunctionArgs, RefOrValue } from './index'
 import type { DebounceFilterOptions } from './useDebounceFn'
 import type { UseWatchCallback } from './useWatch'
 import { useCallback, useEffect, useRef } from 'react'
@@ -75,7 +75,7 @@ function bypassFilter(invoke: FunctionArgs): void {
  * contract returns `void` and the watch path consumes no promise, so
  * `rejectOnCancel` has no observable effect — and `isPending` is a plain
  * getter instead of a reactive ref. `ms` accepts a number, a ref-like
- * `{ current }` or a getter (upstream: `MaybeRefOrGetter<number>`) and is
+ * `{ current }` or a getter (upstream: `RefOrValue<number>`) and is
  * re-read on every call. Pending timers are cleared by `cancel()` — the
  * `useWatchWithFilter` hook calls it on stop / unmount.
  *
@@ -84,7 +84,7 @@ function bypassFilter(invoke: FunctionArgs): void {
  * useWatchWithFilter(input, callback, { eventFilter: debounceFilter(300, { maxWait: 1000 }) })
  * ```
  */
-export function debounceFilter(ms: MaybeRef<number> | (() => number) = 200, options: DebounceFilterOptions = {}): CancelableEventFilter {
+export function debounceFilter(ms: RefOrValue<number> = 200, options: DebounceFilterOptions = {}): CancelableEventFilter {
   let timer: ReturnType<typeof setTimeout> | undefined
   let maxTimer: ReturnType<typeof setTimeout> | undefined
   let pending = false
@@ -187,14 +187,14 @@ export function debounceFilter(ms: MaybeRef<number> | (() => number) = 200, opti
  * and the object options form is not ported (positional
  * `throttleFilter(ms, trailing, leading)` like the house `useThrottleFn`).
  * `ms` accepts a number, a ref-like `{ current }` or a getter
- * (upstream: `MaybeRefOrGetter<number>`) and is re-read on every call.
+ * (upstream: `RefOrValue<number>`) and is re-read on every call.
  *
  * @example
  * ```ts
  * useWatchWithFilter(scrollY, callback, { eventFilter: throttleFilter(100, true, false) })
  * ```
  */
-export function throttleFilter(ms: MaybeRef<number> | (() => number) = 200, trailing = true, leading = true): EventFilter {
+export function throttleFilter(ms: RefOrValue<number> = 200, trailing = true, leading = true): EventFilter {
   let lastExec = 0
   let timer: ReturnType<typeof setTimeout> | undefined
   let isLeading = true

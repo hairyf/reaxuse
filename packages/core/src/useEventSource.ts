@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -132,7 +132,7 @@ const DEFAULT_EVENT = 'message'
  *   through a latest-value ref (upstream: closures over the same refs), and
  *   `close()` runs on unmount (upstream: `tryOnScopeDispose`);
  * - `url` accepts a plain value, a ref-like `{ current }` object or a getter
- *   function (upstream: `MaybeRefOrGetter`); when `autoConnect` is on, a URL
+ *   function (upstream: `RefOrValue`); when `autoConnect` is on, a URL
  *   change between renders reconnects, mirroring upstream's `watch(urlRef,
  *   open)` — the initial connection is still only opened once by `immediate`;
  * - the per-event message listeners are registered with the raw
@@ -146,7 +146,7 @@ const DEFAULT_EVENT = 'message'
  * @see https://vueuse.org/core/useEventSource/
  */
 export function useEventSource<Events extends string[], Data = any>(
-  url: MaybeRefOrGetter<string | URL | undefined>,
+  url: RefOrValue<string | URL | undefined>,
   events: Events = [] as unknown as Events,
   options: UseEventSourceOptions<Data> = {},
 ): UseEventSourceReturn<Events, Data> {

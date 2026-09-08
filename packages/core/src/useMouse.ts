@@ -1,4 +1,4 @@
-import type { ConfigurableWindow, EventFilter, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { ConfigurableWindow, EventFilter, RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 import { useEffect, useRef, useState } from 'react'
 
@@ -24,7 +24,7 @@ export interface UseMouseOptions extends ConfigurableWindow {
    *
    * @default 'Window'
    */
-  target?: MaybeRefOrGetter<Window | EventTarget | null | undefined>
+  target?: RefOrValue<Window | EventTarget | null | undefined>
 
   /**
    * Listen to `touchmove` events
@@ -96,7 +96,7 @@ const UseMouseBuiltinExtractors: Record<UseMouseCoordType, UseMouseEventExtracto
  *   `touch` / `scroll` / `resetOnTouchEnds` flags change and removes all
  *   listeners on unmount;
  * - `target` accepts a plain element, a ref-like `{ current }` object or a
- *   getter (upstream: `MaybeRefOrGetter`); it is re-resolved on every render
+ *   getter (upstream: `RefOrValue`); it is re-resolved on every render
  *   and the listeners re-bind when the resolved element changes. Not passing
  *   `target` listens on the `window` option (default the global `window`),
  *   while an explicit `null` attaches nothing — exactly like upstream;
