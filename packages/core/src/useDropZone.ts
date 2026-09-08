@@ -1,4 +1,4 @@
-import type { MaybeRef, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -14,7 +14,7 @@ export interface UseDropZoneOptions {
    * Allowed data types, if not set, all data types are allowed.
    * Also can be a function to check the data types.
    */
-  dataTypes?: MaybeRef<readonly string[]> | ((types: readonly string[]) => boolean)
+  dataTypes?: RefOrValue<readonly string[]> | ((types: readonly string[]) => boolean)
   /**
    * Similar to dataTypes, but exposes the DataTransferItemList for custom validation.
    * If provided, this function takes precedence over dataTypes.
@@ -39,11 +39,11 @@ export interface UseDropZoneOptions {
   /**
    * Allow multiple files to be dropped. Defaults to true.
    */
-  multiple?: MaybeRefOrGetter<boolean>
+  multiple?: RefOrValue<boolean>
   /**
    * Prevent default behavior for unhandled events. Defaults to false.
    */
-  preventDefaultForUnhandled?: MaybeRefOrGetter<boolean>
+  preventDefaultForUnhandled?: RefOrValue<boolean>
 }
 
 export interface UseDropZoneReturn {
@@ -102,7 +102,7 @@ export interface UseDropZoneReturn {
  * })
  */
 export function useDropZone(
-  target: MaybeRefOrGetter<HTMLElement | Document | null | undefined>,
+  target: RefOrValue<HTMLElement | Document | null | undefined>,
   options: UseDropZoneOptions | UseDropZoneOptions['onDrop'] = {},
 ): UseDropZoneReturn {
   const [isOverDropZone, setIsOverDropZone] = useState(false)
@@ -181,10 +181,7 @@ export function useDropZone(
       if (typeof dataTypes === 'function')
         return dataTypes(types)
 
-      // VueUse `unref` — unwrap a ref-like `{ current }` source
-      const unwrapped = dataTypes != null && 'current' in dataTypes
-        ? dataTypes.current
-        : dataTypes
+      const unwrapped = toValue(dataTypes)
 
       if (!unwrapped?.length)
         return true

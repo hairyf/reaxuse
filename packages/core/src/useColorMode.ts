@@ -1,4 +1,5 @@
-import type { MaybeRef, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
+import type { RefObject } from 'react'
 import type { StorageLike, UseStorageOptions } from './useStorage'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -14,7 +15,7 @@ export interface UseColorModeOptions<T extends string = BasicColorMode> extends 
    *
    * @default 'html'
    */
-  selector?: string | MaybeRef<HTMLElement | null>
+  selector?: string | RefOrValue<HTMLElement | null>
 
   /**
    * HTML attribute applying the target element
@@ -28,7 +29,7 @@ export interface UseColorModeOptions<T extends string = BasicColorMode> extends 
    *
    * @default 'auto'
    */
-  initialValue?: MaybeRefOrGetter<T | BasicColorSchema>
+  initialValue?: RefOrValue<T | BasicColorSchema>
 
   /**
    * Prefix when adding value to the attribute
@@ -48,7 +49,7 @@ export interface UseColorModeOptions<T extends string = BasicColorMode> extends 
    *
    * When provided, `useStorage` will be skipped
    */
-  storageRef?: { current: T | BasicColorSchema }
+  storageRef?: RefObject<T | BasicColorSchema>
 
   /**
    * Key to persist the data into localStorage/sessionStorage.
@@ -136,7 +137,7 @@ const inertStorage: StorageLike = {
  *   `Ref` — writes go to `storageRef.current` and trigger a re-render through
  *   internal state, and the current value is re-read on every render;
  * - `selector` accepts a string (queried on every update) or a plain element
- *   / ref-like `{ current }` object (upstream's `MaybeElementRef`).
+ *   / ref-like `{ current }` object (upstream's `ElementRef`).
  *
  * @example
  * const [mode, setMode] = useColorMode()
@@ -220,7 +221,7 @@ export function useColorMode<T extends string = BasicColorMode>(
 
     const el = typeof selector === 'string'
       ? win.document.querySelector(selector)
-      : toValue(selector as MaybeRef<HTMLElement | null>)
+      : toValue(selector as RefOrValue<HTMLElement | null>)
     if (!el)
       return
 

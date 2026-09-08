@@ -1,4 +1,4 @@
-import type { MaybeRef } from './index'
+import type { RefOrValue } from './index'
 import { toValue } from './utils'
 
 export type UseArrayUniqueReturn<T = any> = T[]
@@ -12,8 +12,8 @@ export type UseArrayUniqueReturn<T = any> = T[]
  * Mapping: upstream wraps `toValue(list)` in `computed(() => ...)` and returns
  * a `ComputedRef`; React has no reactive value tracking, so this is a plain
  * function recomputed on every render — the result is a deduped plain array
- * (no `.value`, no caching). Vue refs map to the repo's `MaybeRef`
- * (`T | { current: T }`): the list itself may be ref-like and every element is
+ * (no `.value`, no caching). Vue refs map to the repo's `RefOrValue`
+ * (`T | Ref<T>`): the list itself may be a ref and every element is
  * unwrapped before the dedupe runs. Duplicate detection uses a `Set` of the
  * unwrapped values (reference identity for objects) unless a custom
  * `compareFn` is given — same as upstream. Mutating a ref element or the
@@ -29,7 +29,7 @@ export type UseArrayUniqueReturn<T = any> = T[]
  * setList([0, 2, 4, 6, 6]) // result === [0, 2, 4, 6] on the next render
  */
 export function useArrayUnique<T>(
-  list: MaybeRef<MaybeRef<T>[]>,
+  list: RefOrValue<RefOrValue<T>[]>,
   compareFn?: (a: T, b: T, array: T[]) => boolean,
 ): UseArrayUniqueReturn<T> {
   const resolvedList = toValue(list).map(element => toValue(element))

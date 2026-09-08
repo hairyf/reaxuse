@@ -73,14 +73,14 @@ const targetIsVisible = useElementVisibility(target, {
 ```ts
 interface UseElementVisibilityOptions extends ConfigurableWindow {
   initialValue?: boolean
-  scrollTarget?: MaybeComputedElementRef | Document
+  scrollTarget?: ElementTarget | Document
   threshold?: number | number[]
-  rootMargin?: MaybeRefOrGetter<string>
+  rootMargin?: RefOrValue<string>
   once?: boolean
 }
 
 export function useElementVisibility(
-  element: MaybeComputedElementRef,
+  element: ElementTarget,
   options?: UseElementVisibilityOptions,
 ): boolean
 ```

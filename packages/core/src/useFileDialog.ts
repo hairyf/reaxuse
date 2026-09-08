@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { hasOwn, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -13,27 +13,27 @@ export interface UseFileDialogOptions {
   /**
    * @default true
    */
-  multiple?: MaybeRefOrGetter<boolean>
+  multiple?: RefOrValue<boolean>
   /**
    * @default '*'
    */
-  accept?: MaybeRefOrGetter<string>
+  accept?: RefOrValue<string>
   /**
    * Select the input source for the capture file.
    * @see [HTMLInputElement Capture](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/capture)
    */
-  capture?: MaybeRefOrGetter<string>
+  capture?: RefOrValue<string>
   /**
    * Reset when open file dialog.
    * @default false
    */
-  reset?: MaybeRefOrGetter<boolean>
+  reset?: RefOrValue<boolean>
   /**
    * Select directories instead of files.
    * @see [HTMLInputElement webkitdirectory](https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/webkitdirectory)
    * @default false
    */
-  directory?: MaybeRefOrGetter<boolean>
+  directory?: RefOrValue<boolean>
 
   /**
    * Initial files to set.
@@ -45,7 +45,7 @@ export interface UseFileDialogOptions {
    * The input element to use for file dialog.
    * @default document.createElement('input')
    */
-  input?: MaybeRefOrGetter<HTMLInputElement | null>
+  input?: RefOrValue<HTMLInputElement | null>
 }
 
 const DEFAULT_OPTIONS = {

@@ -112,12 +112,12 @@ describe('useDateFormat', () => {
       expect(result.current).toBe('2023-06-15 08:30:45')
     })
 
-    it('re-reads a getter formatStr on every render', async () => {
-      let format = 'YYYY'
-      const { result, rerender } = await renderHook(() => useDateFormat(new Date('2022-01-01 10:24:00'), () => format))
+    it('re-reads a ref formatStr on every render', async () => {
+      const format = { current: 'YYYY' }
+      const { result, rerender } = await renderHook(() => useDateFormat(new Date('2022-01-01 10:24:00'), format))
       expect(result.current).toBe('2022')
 
-      format = 'HH:mm:ss'
+      format.current = 'HH:mm:ss'
       await rerender()
       expect(result.current).toBe('10:24:00')
     })

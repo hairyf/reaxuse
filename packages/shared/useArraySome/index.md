@@ -7,7 +7,7 @@ category: Array
 Reactive `Array.some` — React port of VueUse's [`useArraySome`](https://vueuse.org/shared/useArraySome/).
 
 **Mapping:** `computed(...)` → recompute on every render (the result is a plain `boolean` — no `.value`, no caching);
-`MaybeRefOrGetter` → the repo's `MaybeRef` (`T | { current: T }`), unwrapped on read — ref-like elements are re-read on
+`RefOrValue` → the repo's the repo's `RefOrValue` (`T | Ref<T>`), unwrapped on read — ref elements are re-read on
 each render, so mutate `ref.current` and re-render to update the result.
 
 ## Usage
@@ -32,8 +32,8 @@ setList([...list, 11])
 export type UseArraySomeReturn = boolean
 
 export function useArraySome<T>(
-  list: MaybeRef<MaybeRef<T>[]>,
-  fn: (element: T, index: number, array: MaybeRef<T>[]) => unknown,
+  list: RefOrValue<RefOrValue<T>[]>,
+  fn: (element: T, index: number, array: RefOrValue<T>[]) => unknown,
 ): UseArraySomeReturn
 ```
 
