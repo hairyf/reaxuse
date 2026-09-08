@@ -14,8 +14,8 @@ options.
 React port of VueUse's [`useFetch`](https://vueuse.org/core/useFetch/) — a reactive
 wrapper around `fetch` returning an **object mirror** (`UseFetchReturn`) instead of
 upstream's shallow-ref object: the members are live values, not refs. The request is
-fired from a mount effect, any in-flight request is aborted on unmount, and a ref-like
-(`{ current }`) url/payload/`refetch` flag is watched by polling at a small interval
+fired from a mount effect, any in-flight request is aborted on unmount, and a React
+ref url/payload/`refetch` flag is watched by polling at a small interval
 (the React analog of upstream's `watch` over reactive refs) — a plain `url` value
 (e.g. driven by `useState`) refetches when the render value changes.
 
@@ -29,9 +29,9 @@ fired from a mount effect, any in-flight request is aborted on unmount, and a re
   finishes;
 - upstream fires the initial request during setup; in React the first request is fired
   from a mount effect (respecting `immediate`, default `true`);
-- `refetch` re-runs the request when the url, a ref-like payload, or the refetch flag
-  itself changes (upstream watches `[refetch, toRef(url)]`); ref-like and getter
-  sources are polled, plain render values are diffed across renders;
+- `refetch` re-runs the request when the url, a ref payload, or the refetch flag
+  itself changes (upstream watches `[refetch, toRef(url)]`); React refs are polled,
+  plain render values are diffed across renders;
 - `beforeFetch`, `afterFetch`, `onFetchError`, `updateDataOnError`, `initialData`,
   `timeout` (via `useTimeoutFn`), the chain methods (`.get()` / `.post()` / `.json()` /
   …) and the `createFetch` factory (with `chain`/`overwrite` combination) all mirror
@@ -41,8 +41,8 @@ fired from a mount effect, any in-flight request is aborted on unmount, and a re
 
 ### Basic Usage
 
-The `useFetch` function can be used by simply providing a url. The url can be a string,
-a `{ current }` ref-like object, or a getter function. The `data` value will contain the
+The `useFetch` function can be used by simply providing a url. The url can be a string
+or a React ref object. The `data` value will contain the
 result of the request, the `error` value will contain any errors, and the `isFetching`
 value will indicate if the request is loading.
 
@@ -64,7 +64,7 @@ const { isFetching, error, data } = await useFetch(url)
 
 ### Refetching on URL change
 
-Using a `{ current }` object (or a getter) for the url parameter will allow the
+Using a React ref object for the url parameter will allow the
 `useFetch` function to automatically trigger another request when the url changes.
 A plain string url re-fetches when the render value changes.
 
@@ -311,12 +311,12 @@ export interface UseFetchReturn<T> {
 
   // methods
   get: () => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-  post: (payload?: MaybeRefOrGetter<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-  put: (payload?: MaybeRefOrGetter<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-  delete: (payload?: MaybeRefOrGetter<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-  patch: (payload?: MaybeRefOrGetter<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-  head: (payload?: MaybeRefOrGetter<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-  options: (payload?: MaybeRefOrGetter<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+  post: (payload?: RefOrValue<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+  put: (payload?: RefOrValue<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+  delete: (payload?: RefOrValue<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+  patch: (payload?: RefOrValue<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+  head: (payload?: RefOrValue<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+  options: (payload?: RefOrValue<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
 
   // type
   json: <JSON = any>() => UseFetchReturn<JSON> & PromiseLike<UseFetchReturn<JSON>>
@@ -350,7 +350,7 @@ export interface OnFetchErrorContext<T = any, E = any> {
 export interface UseFetchOptions {
   fetch?: typeof window.fetch
   immediate?: boolean
-  refetch?: MaybeRefOrGetter<boolean>
+  refetch?: RefOrValue<boolean>
   initialData?: any
   timeout?: number
   updateDataOnError?: boolean
@@ -360,15 +360,15 @@ export interface UseFetchOptions {
 }
 
 export interface CreateFetchOptions {
-  baseUrl?: MaybeRefOrGetter<string>
+  baseUrl?: RefOrValue<string>
   combination?: 'overwrite' | 'chain'
   options?: UseFetchOptions
   fetchOptions?: RequestInit
 }
 
-export function useFetch<T>(url: MaybeRefOrGetter<string>): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-export function useFetch<T>(url: MaybeRefOrGetter<string>, useFetchOptions: UseFetchOptions): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-export function useFetch<T>(url: MaybeRefOrGetter<string>, options: RequestInit, useFetchOptions?: UseFetchOptions): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+export function useFetch<T>(url: RefOrValue<string>): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+export function useFetch<T>(url: RefOrValue<string>, useFetchOptions: UseFetchOptions): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+export function useFetch<T>(url: RefOrValue<string>, options: RequestInit, useFetchOptions?: UseFetchOptions): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
 export function createFetch(config?: CreateFetchOptions): typeof useFetch
 ```
 

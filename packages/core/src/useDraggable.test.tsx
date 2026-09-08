@@ -134,8 +134,8 @@ describe('useDraggable', () => {
       expect(result.current.y).toBe(7)
     })
 
-    it('should accept a getter target', async () => {
-      const { result, act } = await renderHook(() => useDraggable(() => el))
+    it('should accept a plain element target', async () => {
+      const { result, act } = await renderHook(() => useDraggable(el))
 
       await act(() => {
         el.dispatchEvent(new PointerEvent('pointerdown', { clientX: 0, clientY: 0 }))

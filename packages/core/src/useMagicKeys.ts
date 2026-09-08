@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { noop, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -34,7 +34,7 @@ export interface UseMagicKeysOptions<Reactive extends boolean> {
    *
    * @default window
    */
-  target?: MaybeRefOrGetter<EventTarget>
+  target?: RefOrValue<EventTarget>
 
   /**
    * Alias map for keys, all the keys should be lowercase

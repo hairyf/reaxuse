@@ -122,7 +122,7 @@ function getDefaultWindow(): Window | undefined {
  *    `recognition.stop()` from a `watch(isListening)`; here an effect does,
  *    skipping its initial run to mirror the watcher (which never fires for
  *    the initial `false`).
- * 3. `lang` is a plain option (upstream accepts a `MaybeRefOrGetter`). A
+ * 3. `lang` is a plain option (upstream accepts a `RefOrValue`). A
  *    changed language is re-applied while not listening, and `onend`
  *    re-applies the latest value for the next run — same as upstream's
  *    `watch(lang)` + `onend` reset.

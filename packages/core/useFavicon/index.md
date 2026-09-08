@@ -14,9 +14,9 @@ backed by `useState` and the DOM write happens in a `useEffect` on the state
 (so rendering is SSR-safe — nothing touches the DOM until the mount effect).
 The options keep their upstream semantics: `baseUrl` is prepended to the icon
 path and `rel` selects which `<link rel>` attribute to manage (defaulting to
-`icon`). Passing a ref-like (`{ current }`) or getter source keeps it in sync
+`icon`). Passing a React ref source keeps it in sync
 — the source is re-read after every render and any change is applied; for a
-ref-like source the setter also writes through to its `.current`, mirroring
+ref source the setter also writes through to its `.current`, mirroring
 upstream's "the return ref is the source ref" behavior.
 
 ## Usage
@@ -31,7 +31,7 @@ setIcon('dark.png') // change current icon
 
 ### Passing a source
 
-You can pass a getter to it — changes to the underlying value will be
+You can pass a React ref to it — changes to the underlying value will be
 reflected in your favicon automatically on re-render.
 
 ```tsx
@@ -43,7 +43,7 @@ const favicon = () => (isDark ? 'dark.png' : 'light.png')
 useFavicon(favicon)
 ```
 
-For a ref-like source the returned setter writes through to the source's
+For a ref source the returned setter writes through to the source's
 `.current`, just like upstream's "the return ref is identical to the source
 ref".
 
@@ -88,7 +88,7 @@ export type UseFaviconReturn = [
 ]
 
 export function useFavicon(
-  newIcon?: MaybeRefOrGetter<string | null | undefined>,
+  newIcon?: RefOrValue<string | null | undefined>,
   options?: UseFaviconOptions,
 ): UseFaviconReturn
 ```

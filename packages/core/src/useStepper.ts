@@ -50,7 +50,7 @@ export interface UseStepperReturn<StepName, Steps, Step> {
  *
  * React divergences:
  *
- * - upstream's `MaybeRef<T[]>` steps argument becomes a plain `T[]` — pass a
+ * - upstream's `RefOrValue<T[]>` steps argument becomes a plain `T[]` — pass a
  *   new array to react to steps changes; only `index` is stateful
  *   (`useState`), every other member (`current`, `next`, `previous`,
  *   `isFirst`, `isLast`, `stepNames`) is recomputed from the latest `steps`

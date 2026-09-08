@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { isClient, isRefLike, toValue, useTimeoutFn } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -71,12 +71,12 @@ export interface UseFetchReturn<T> {
 
   // methods
   get: () => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-  post: (payload?: MaybeRefOrGetter<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-  put: (payload?: MaybeRefOrGetter<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-  delete: (payload?: MaybeRefOrGetter<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-  patch: (payload?: MaybeRefOrGetter<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-  head: (payload?: MaybeRefOrGetter<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-  options: (payload?: MaybeRefOrGetter<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+  post: (payload?: RefOrValue<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+  put: (payload?: RefOrValue<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+  delete: (payload?: RefOrValue<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+  patch: (payload?: RefOrValue<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+  head: (payload?: RefOrValue<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+  options: (payload?: RefOrValue<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
 
   // type
   json: <JSON = any>() => UseFetchReturn<JSON> & PromiseLike<UseFetchReturn<JSON>>
@@ -154,7 +154,7 @@ export interface UseFetchOptions {
    *
    * @default false
    */
-  refetch?: MaybeRefOrGetter<boolean>
+  refetch?: RefOrValue<boolean>
 
   /**
    * Initial data before the request finished
@@ -200,7 +200,7 @@ export interface CreateFetchOptions {
   /**
    * The base URL that will be prefixed to all urls unless urls are absolute
    */
-  baseUrl?: MaybeRefOrGetter<string>
+  baseUrl?: RefOrValue<string>
 
   /**
    * Determine the inherit behavior for beforeFetch, afterFetch, onFetchError
@@ -326,15 +326,12 @@ export function createFetch(config: CreateFetchOptions = {}) {
   const _options = config.options || {}
   const _fetchOptions = config.fetchOptions || {}
 
-  function useFactoryFetch(url: MaybeRefOrGetter<string>, ...args: any[]): UseFetchReturn<any> & PromiseLike<UseFetchReturn<any>> {
-    const computedUrl: MaybeRefOrGetter<string> = () => {
-      const baseUrl = toValue(config.baseUrl)
-      const targetUrl = toValue(url)
-
-      return (baseUrl && !isAbsoluteURL(targetUrl))
-        ? joinPaths(baseUrl, targetUrl)
-        : targetUrl
-    }
+  function useFactoryFetch(url: RefOrValue<string>, ...args: any[]): UseFetchReturn<any> & PromiseLike<UseFetchReturn<any>> {
+    const baseUrl = toValue(config.baseUrl)
+    const targetUrl = toValue(url)
+    const computedUrl = (baseUrl && !isAbsoluteURL(targetUrl))
+      ? joinPaths(baseUrl, targetUrl)
+      : targetUrl
 
     let options = _options
     let fetchOptions = _fetchOptions
@@ -422,11 +419,11 @@ export function createFetch(config: CreateFetchOptions = {}) {
  *
  * @see https://vueuse.org/core/useFetch/
  */
-export function useFetch<T>(url: MaybeRefOrGetter<string>): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-export function useFetch<T>(url: MaybeRefOrGetter<string>, useFetchOptions: UseFetchOptions): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-export function useFetch<T>(url: MaybeRefOrGetter<string>, options: RequestInit, useFetchOptions?: UseFetchOptions): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+export function useFetch<T>(url: RefOrValue<string>): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+export function useFetch<T>(url: RefOrValue<string>, useFetchOptions: UseFetchOptions): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+export function useFetch<T>(url: RefOrValue<string>, options: RequestInit, useFetchOptions?: UseFetchOptions): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
 
-export function useFetch<T>(url: MaybeRefOrGetter<string>, ...args: any[]): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>> {
+export function useFetch<T>(url: RefOrValue<string>, ...args: any[]): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>> {
   const supportsAbort = typeof AbortController === 'function'
 
   let fetchOptions: RequestInit = {}
@@ -440,7 +437,7 @@ export function useFetch<T>(url: MaybeRefOrGetter<string>, ...args: any[]): UseF
   interface InternalConfig {
     method: HttpMethod
     type: DataType
-    payload: MaybeRefOrGetter<unknown> | undefined
+    payload: RefOrValue<unknown> | undefined
     payloadType?: string
   }
 
@@ -723,7 +720,7 @@ export function useFetch<T>(url: MaybeRefOrGetter<string>, ...args: any[]): UseF
   }, [supportsAbort])
 
   function setMethod(method: HttpMethod) {
-    return (payload?: MaybeRefOrGetter<unknown>, payloadType?: string) => {
+    return (payload?: RefOrValue<unknown>, payloadType?: string) => {
       if (!executingRef.current) {
         configRef.current.method = method
         configRef.current.payload = payload

@@ -9,7 +9,7 @@ Reactive [Web Share API](https://developer.mozilla.org/en-US/docs/Web/API/Naviga
 **Mapping:** upstream derives `isSupported` through its shared supported-check helper (a computed
 re-evaluated on mount); here it is plain boolean state resolved in a mount effect — `false` during
 render and on the server (SSR-safe), `true` when the navigator exposes `canShare` (upstream's exact
-check). Upstream's `MaybeRefOrGetter` options become plain values read through a latest-value ref,
+check). Upstream's `RefOrValue` options become plain values read through a latest-value ref,
 so the `share` callback stays stable across renders and always shares the newest options. Call-time
 overrides merge over the hook options (overrides win), `canShare` still gates the call, and the
 browser promise passes through untouched — a user-cancelled share (AbortError) rejects to the caller.
