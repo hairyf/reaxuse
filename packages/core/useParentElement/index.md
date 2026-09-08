@@ -9,19 +9,19 @@ Get parent element of the given element — React port of VueUse's [`useParentEl
 **Mapping:** upstream returns a read-only `ShallowRef` set on mount and re-set by
 `watch(() => toValue(element))` whenever the source element changes → `useState` + a
 `useEffect` keyed on the unwrapped element identity. The Vue ref return becomes a plain
-value (no `.value`). The source accepts a plain element, a ref-like `{ current }` object
-or a getter (upstream: `MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>`).
+value (no `.value`). The source accepts a plain element or a React ref
+(upstream: `RefOrValue<HTMLElement | SVGElement | null | undefined>`).
 
 Divergences:
 
 - Upstream's no-argument form defaults to `useCurrentElement()` (the current component's
   root element). React has no implicit "current component element" — pass an explicit
-  element, ref-like object or getter; without one the value stays `undefined`.
+  element or ref; without one the value stays `undefined`.
 - Like upstream's `if (el)` guard, a `null` / `undefined` source keeps the previously
   captured parent instead of resetting it.
 - The parent is captured in an effect, so the value stays `undefined` during render and
   on the server (SSR-safe — no DOM access while rendering).
-- Mutating a ref-like source's `.current` does not re-render in React — re-render (e.g.
+- Mutating a ref source's `.current` does not re-render in React — re-render (e.g.
   with your own state) for the new element to be re-captured, mirroring upstream's
   `watch` re-firing on ref change.
 
@@ -34,8 +34,8 @@ import { useRef } from 'react'
 const childRef = useRef<HTMLDivElement>(null)
 const parent = useParentElement(childRef) // HTMLElement | SVGElement | null | undefined
 
-// with a getter — re-captured whenever it returns a different element
-const parentOfChild = useParentElement(() => document.querySelector<HTMLElement>('#child'))
+// with a plain element
+const parentOfChild = useParentElement(document.querySelector<HTMLElement>('#child'))
 ```
 
 <DemoContainer name="UseParentElement" />

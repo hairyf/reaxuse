@@ -1,4 +1,6 @@
+import type { RefOrValue } from './index'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { toValue } from './utils'
 
 export interface UseTimeoutOptions<Controls extends boolean = false> {
   /**
@@ -56,7 +58,7 @@ export interface UseTimeoutReturn {
  * the effect cleanup. Unlike upstream's `!isPending` derivation, `ready` only
  * becomes `true` when the timeout actually fires — so `stop()` keeps it `false`
  * and `immediate: false` starts with `ready === false`. `interval` accepts a
- * number or a getter (upstream: `MaybeRefOrGetter<number>`); `start` / `stop`
+ * number or a React ref (upstream: `RefOrValue<number>`); `start` / `stop`
  * are stable `useCallback`s.
  *
  * @example
@@ -64,10 +66,10 @@ export interface UseTimeoutReturn {
  *
  * const { ready, start, stop } = useTimeout(1000, { controls: true })
  */
-export function useTimeout(interval?: number | (() => number), options?: UseTimeoutOptions<false>): boolean
-export function useTimeout(interval: number | (() => number), options: UseTimeoutOptions<true>): UseTimeoutReturn
+export function useTimeout(interval?: RefOrValue<number>, options?: UseTimeoutOptions<false>): boolean
+export function useTimeout(interval: RefOrValue<number>, options: UseTimeoutOptions<true>): UseTimeoutReturn
 export function useTimeout(
-  interval: number | (() => number) = 1000,
+  interval: RefOrValue<number> = 1000,
   options: UseTimeoutOptions<boolean> = {},
 ): boolean | UseTimeoutReturn {
   const {
@@ -108,7 +110,7 @@ export function useTimeout(
     }
     setReady(false)
     setIsPending(true)
-    const delay = typeof intervalRef.current === 'function' ? intervalRef.current() : intervalRef.current
+    const delay = toValue(intervalRef.current)
     timerRef.current = setTimeout(() => {
       timerRef.current = null
       setIsPending(false)

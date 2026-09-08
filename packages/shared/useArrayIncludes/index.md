@@ -8,7 +8,7 @@ Reactive `Array.includes` — React port of VueUse's [`useArrayIncludes`](https:
 
 **Mapping:** upstream wraps `toValue(list).slice(fromIndex).some(...)` in `computed(() => ...)` and returns a
 `ComputedRef`; React has no implicit reactivity, so `useArrayIncludes` is a plain function recomputed on every
-render. Refs map to `{ current }` objects: the list itself may be ref-like, elements and the search value are
+render. Refs map to React ref objects: the list itself may be a ref, elements and the search value are
 unwrapped before the comparator runs, and mutations show up on the next render.
 
 ## Usage
@@ -32,7 +32,7 @@ useArrayIncludes(objects, { id: 1 }, { fromIndex: 1, comparator: (element, value
 ## Type Declarations
 
 ```ts
-export type UseArrayIncludesComparatorFn<T, V> = (element: T, value: V, index: number, array: MaybeRef<T>[]) => boolean
+export type UseArrayIncludesComparatorFn<T, V> = (element: T, value: V, index: number, array: RefOrValue<T>[]) => boolean
 
 export interface UseArrayIncludesOptions<T, V> {
   fromIndex?: number
@@ -42,18 +42,18 @@ export interface UseArrayIncludesOptions<T, V> {
 export type UseArrayIncludesReturn = boolean
 
 export function useArrayIncludes<T, V = any>(
-  list: MaybeRef<MaybeRef<T>[]>,
-  value: MaybeRef<V>,
+  list: RefOrValue<RefOrValue<T>[]>,
+  value: RefOrValue<V>,
   comparator?: UseArrayIncludesComparatorFn<T, V>,
 ): UseArrayIncludesReturn
 export function useArrayIncludes<T, V = any>(
-  list: MaybeRef<MaybeRef<T>[]>,
-  value: MaybeRef<V>,
+  list: RefOrValue<RefOrValue<T>[]>,
+  value: RefOrValue<V>,
   comparator?: keyof T,
 ): UseArrayIncludesReturn
 export function useArrayIncludes<T, V = any>(
-  list: MaybeRef<MaybeRef<T>[]>,
-  value: MaybeRef<V>,
+  list: RefOrValue<RefOrValue<T>[]>,
+  value: RefOrValue<V>,
   options?: UseArrayIncludesOptions<T, V>,
 ): UseArrayIncludesReturn
 ```

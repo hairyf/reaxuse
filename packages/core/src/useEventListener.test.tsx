@@ -241,7 +241,7 @@ describe('useEventListener', () => {
       const listener = vi.fn()
       const el1 = document.createElement('button')
       const el2 = document.createElement('button')
-      const arrayRef = () => [el1, el2]
+      const arrayRef = { current: [el1, el2] }
 
       await renderHook(() => useEventListener(arrayRef, 'click', listener))
 
@@ -250,20 +250,20 @@ describe('useEventListener', () => {
       expect(listener).toHaveBeenCalledTimes(2)
     })
 
-    it('should accept a getter returning multiple targets', async () => {
+    it('should accept a ref of multiple targets', async () => {
       const listener = vi.fn()
       const el1 = document.createElement('div')
       const el2 = document.createElement('div')
-      const active = { current: true }
+      const targetsRef: { current: HTMLElement[] } = { current: [el1, el2] }
 
-      const { rerender } = await renderHook(() => useEventListener(() => active.current ? [el1, el2] : [], 'mousedown', listener))
+      const { rerender } = await renderHook(() => useEventListener(targetsRef, 'mousedown', listener))
 
       el1.dispatchEvent(new Event('mousedown'))
       el2.dispatchEvent(new Event('mousedown'))
       expect(listener).toHaveBeenCalledTimes(2)
 
       // disable
-      active.current = false
+      targetsRef.current = []
       await rerender()
       el1.dispatchEvent(new Event('mousedown'))
       el2.dispatchEvent(new Event('mousedown'))
@@ -275,7 +275,7 @@ describe('useEventListener', () => {
       const listener = vi.fn()
       const el1 = document.createElement('button')
       const el2 = document.createElement('button')
-      const arrayRef = () => [el1, el2]
+      const arrayRef = { current: [el1, el2] }
 
       await renderHook(() => useEventListener(arrayRef, ['click', 'hover'], listener))
 
@@ -286,13 +286,13 @@ describe('useEventListener', () => {
       expect(listener).toHaveBeenCalledTimes(4)
     })
 
-    it('should accept a getter returning multiple targets + multiple events', async () => {
+    it('should accept a ref of multiple targets + multiple events', async () => {
       const listener = vi.fn()
       const el1 = document.createElement('div')
       const el2 = document.createElement('div')
-      const active = { current: true }
+      const targetsRef: { current: HTMLElement[] } = { current: [el1, el2] }
 
-      const { rerender } = await renderHook(() => useEventListener(() => active.current ? [el1, el2] : [], ['mousedown', 'click'], listener))
+      const { rerender } = await renderHook(() => useEventListener(targetsRef, ['mousedown', 'click'], listener))
 
       el1.dispatchEvent(new Event('mousedown'))
       el2.dispatchEvent(new Event('mousedown'))
@@ -301,7 +301,7 @@ describe('useEventListener', () => {
       expect(listener).toHaveBeenCalledTimes(4)
 
       // disable
-      active.current = false
+      targetsRef.current = []
       await rerender()
       el1.dispatchEvent(new Event('mousedown'))
       el2.dispatchEvent(new Event('mousedown'))
