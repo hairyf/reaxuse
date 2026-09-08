@@ -66,22 +66,22 @@ describe('useDebounceFn', () => {
     expect(await pending).toBe('c')
   })
 
-  it('re-reads a getter ms on every call', async () => {
+  it('re-reads a ref ms on every call', async () => {
     const calls: number[] = []
-    let delay = 100
+    const delay = { current: 100 }
     let first!: Promise<unknown>
     let pending!: Promise<unknown>
     const { result, act } = await renderHook(() =>
       useDebounceFn((n: number) => {
         calls.push(n)
         return n
-      }, () => delay))
+      }, delay))
 
     await act(async () => {
       first = result.current(1)
     })
     await act(async () => {
-      delay = 300
+      delay.current = 300
       pending = result.current(2)
     })
 

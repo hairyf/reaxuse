@@ -2,7 +2,7 @@ import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export type WebSocketStatus = 'OPEN' | 'CONNECTING' | 'CLOSED'
-export type WebSocketHeartbeatMessage = string | ArrayBuffer | Blob
+export type WebSocketHeartbeatMessage = string | ArrayBuffer | Blob | (() => string | ArrayBuffer | Blob | Promise<string | ArrayBuffer | Blob>)
 
 const DEFAULT_PING_MESSAGE = 'ping'
 const DEFAULT_HEARTBEAT_INTERVAL = 1000
@@ -25,12 +25,12 @@ export interface UseWebSocketOptions {
      *
      * @default 'ping'
      */
-    message?: WebSocketHeartbeatMessage | (() => WebSocketHeartbeatMessage)
+    message?: WebSocketHeartbeatMessage
 
     /**
      * Response message for the heartbeat, if undefined the message will be used
      */
-    responseMessage?: WebSocketHeartbeatMessage | (() => WebSocketHeartbeatMessage)
+    responseMessage?: WebSocketHeartbeatMessage
 
     /**
      * Heartbeat response timeout, in milliseconds
@@ -201,11 +201,12 @@ function defaultScheduler(fn: () => void): { pause: () => void, resume: () => vo
  *   refs), and `close()` runs on unmount when `autoClose` is on (upstream:
  *   `tryOnScopeDispose`), including the `beforeunload` listener;
  * - `url` accepts a plain value or a getter function (upstream:
- *   `MaybeRefOrGetter`); when `autoConnect` is on, a URL change between
+ *   `RefOrValue`); when `autoConnect` is on, a URL change between
  *   renders reconnects, mirroring upstream's `watch(urlRef, open)` — the
  *   initial connection is still only opened once by `immediate`;
- * - `heartbeat.message` / `responseMessage` accept a plain value or a getter
- *   resolved on every tick (upstream: `MaybeRefOrGetter`); the default
+ * - `heartbeat.message` / `responseMessage` accept a plain value or a message
+ *   factory function (upstream parity)
+ *   resolved on every tick (upstream: `RefOrValue`); the default
  *   scheduler is a local `setInterval`-based `{ pause, resume }` pair instead
  *   of upstream's `useIntervalFn` default (which is a hook and cannot be
  *   created lazily), and a custom `scheduler` option returns the same
@@ -217,7 +218,7 @@ function defaultScheduler(fn: () => void): { pause: () => void, resume: () => vo
  * @see https://vueuse.org/core/useWebSocket/
  */
 export function useWebSocket<Data = any>(
-  url: WebSocketUrl | (() => WebSocketUrl),
+  url: WebSocketUrl,
   options: UseWebSocketOptions = {},
 ): UseWebSocketReturn<Data> {
   // captured once at mount — mirrors upstream's one-time options destructuring
@@ -358,7 +359,7 @@ export function useWebSocket<Data = any>(
           message = DEFAULT_PING_MESSAGE,
           responseMessage = message,
         } = resolveNestedOptions(optionsRef.current.heartbeat)
-        if (e.data === toValue(responseMessage))
+        if (e.data === (typeof responseMessage === 'function' ? responseMessage() : responseMessage))
           return
       }
 
@@ -390,7 +391,7 @@ export function useWebSocket<Data = any>(
     } = resolveNestedOptions(optionsRef.current.heartbeat)
 
     const { pause, resume } = (scheduler ?? defaultScheduler)(() => {
-      send(toValue(message), false)
+      send(typeof message === 'function' ? (message() as string | ArrayBuffer | Blob) : message, false)
       if (pongTimeoutWaitRef.current != null)
         return
       pongTimeoutWaitRef.current = setTimeout(() => {

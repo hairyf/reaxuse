@@ -31,13 +31,13 @@ export type UseArrayReducer<PV, CV, R> = (previousValue: PV, currentValue: CV, c
 export type UseArrayReduceReturn<T = any> = T
 
 export function useArrayReduce<T>(
-  list: MaybeRef<MaybeRef<T>[]>,
+  list: RefOrValue<RefOrValue<T>[]>,
   reducer: UseArrayReducer<T, T, T>,
 ): UseArrayReduceReturn<T>
 export function useArrayReduce<T, U>(
-  list: MaybeRef<MaybeRef<T>[]>,
+  list: RefOrValue<RefOrValue<T>[]>,
   reducer: UseArrayReducer<U, T, U>,
-  initialValue: MaybeRef<U>,
+  initialValue: RefOrValue<U>,
 ): UseArrayReduceReturn<U>
 ```
 

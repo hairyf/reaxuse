@@ -40,7 +40,7 @@ const { focused } = useFocus(input, { initialValue: true })
 
 ## Change focus state
 
-Changes of the `focused` ref-like value will automatically trigger `focus` and `blur` events for
+Changes of the `focused` ref value will automatically trigger `focus` and `blur` events for
 `true` and `false` values respectively. You can utilize this behavior to focus the target element as
 a result of another action (e.g. when a button click as shown below).
 
@@ -84,7 +84,7 @@ export interface UseFocusReturn {
 }
 
 export function useFocus(
-  target: MaybeRefOrGetter<HTMLElement | null | undefined>,
+  target: RefOrValue<HTMLElement | null | undefined>,
   options?: UseFocusOptions,
 ): UseFocusReturn
 ```

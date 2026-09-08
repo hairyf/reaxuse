@@ -18,8 +18,7 @@ const { pressed, sourceType } = useMousePressed()
 // only detect mouse changes
 const mouse = useMousePressed({ touch: false })
 
-// only capture presses on a specific element (accepts an element, a ref-like
-// `{ current }` object or a getter)
+// only capture presses on a specific element (accepts an element or a React ref)
 const el = useRef<HTMLDivElement>(null)
 const { pressed } = useMousePressed({ target: el })
 ```
@@ -63,7 +62,7 @@ export interface UseMousePressedOptions extends ConfigurableWindow {
   /**
    * Element target to be capture the click
    */
-  target?: MaybeRefOrGetter<EventTarget | null | undefined>
+  target?: RefOrValue<EventTarget | null | undefined>
 
   /**
    * Callback to be called when the mouse is pressed
