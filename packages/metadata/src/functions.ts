@@ -81,6 +81,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'createEventHook',
+    file: 'packages/shared/src/createEventHook.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'createFetch',
     file: 'packages/core/src/useFetch.ts',
     pkg: 'core',
@@ -178,6 +183,21 @@ export const functions: FunctionInfo[] = [
   {
     name: 'isDef',
     file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'isDefined',
+    file: 'packages/shared/src/isDefined.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'isDefined',
+    file: 'packages/shared/src/isDefined.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'isDefined',
+    file: 'packages/shared/src/isDefined.ts',
     pkg: 'shared',
   },
   {

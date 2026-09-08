@@ -19,6 +19,7 @@
 | `breakpointsVuetifyV3`            | —                                             | `packages/core/src/useBreakpoints.ts`                  | 🚧 ported (no upstream match) |
 | `clamp`                           | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `cloneFnJSON`                     | —                                             | `packages/core/src/useCloned.ts`                       | 🚧 ported (no upstream match) |
+| `createEventHook`                 | packages/shared/createEventHook               | `packages/shared/src/createEventHook.ts`               | ✅ ported                     |
 | `createFetch`                     | —                                             | `packages/core/src/useFetch.ts`                        | 🚧 ported (no upstream match) |
 | `createSingletonPromise`          | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `customStorageEventName`          | —                                             | `packages/core/src/useStorage.ts`                      | 🚧 ported (no upstream match) |
@@ -39,6 +40,9 @@
 | `increaseWithUnit`                | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `isClient`                        | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `isDef`                           | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
+| `isDefined`                       | packages/shared/isDefined                     | `packages/shared/src/isDefined.ts`                     | ✅ ported                     |
+| `isDefined`                       | packages/shared/isDefined                     | `packages/shared/src/isDefined.ts`                     | ✅ ported                     |
+| `isDefined`                       | packages/shared/isDefined                     | `packages/shared/src/isDefined.ts`                     | ✅ ported                     |
 | `isFocusedElementEditable`        | —                                             | `packages/core/src/useStartTyping.ts`                  | 🚧 ported (no upstream match) |
 | `isIOS`                           | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `isObject`                        | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
