@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react'
-import type { MaybeRefOrGetter } from './index'
+import type { RefOrValue } from './index'
 import { useCallback, useRef, useState } from 'react'
 import { toValue } from './utils'
 
@@ -111,7 +111,7 @@ export type UseStateWithControlReturn<T> = [
  * control.peek() // get the value without tracking
  */
 export function useStateWithControl<T>(
-  value: MaybeRefOrGetter<T>,
+  value: RefOrValue<T>,
   options: UseStateWithControlOptions<T> = {},
 ): UseStateWithControlReturn<T> {
   const { onBeforeChange, onChanged } = options

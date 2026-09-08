@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import type { PointerType } from './usePointer'
 import type { UseSwipeDirection } from './useSwipe'
 import { toValue } from '@reaxuse/shared'
@@ -91,7 +91,7 @@ function getSwipeDirection(start: Position, end: Position, threshold: number): U
  *   pointer listeners live in a self-contained `useEffect` (upstream composes
  *   `useEventListener`) and are removed on unmount;
  * - `target` accepts an element, a ref-like `{ current }` object or a getter
- *   (React equivalent of `MaybeRefOrGetter`). It is re-resolved on every
+ *   (React equivalent of `RefOrValue`). It is re-resolved on every
  *   render and the listeners re-bind when the resolved element changes;
  *   ref-likes are re-read at bind time, so a `useRef` target that is `null`
  *   during first render still binds once React attaches the element;
@@ -121,7 +121,7 @@ function getSwipeDirection(start: Position, end: Position, threshold: number): U
  * })
  */
 export function usePointerSwipe(
-  target: MaybeRefOrGetter<HTMLElement | null | undefined>,
+  target: RefOrValue<HTMLElement | null | undefined>,
   options: UsePointerSwipeOptions = {},
 ): UsePointerSwipeReturn {
   const { threshold = 50, disableTextSelect = false } = options

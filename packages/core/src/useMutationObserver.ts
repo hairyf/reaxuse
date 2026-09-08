@@ -1,11 +1,11 @@
 import type { ConfigurableWindow } from '@reaxuse/shared'
-import type { MaybeComputedElementRefOrArray } from './useResizeObserver'
+import type { ElementTargetOrArray } from './useResizeObserver'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
- * Target types accepted by `useMutationObserver` (`MaybeComputedElementRef`
- * / `MaybeComputedElementRefOrArray`, backed by `MaybeElement`) are the
+ * Target types accepted by `useMutationObserver` (`ElementTarget`
+ * / `ElementTargetOrArray`, backed by `TargetElement`) are the
  * canonical React-native definitions shared from `./useResizeObserver`
  * (single source of truth; the previous duplicate local copies were
  * consolidated in the #462 audit).
@@ -60,7 +60,7 @@ function unrefElement(value: unknown): Element | undefined {
  * of resolved elements, dropping empty slots (upstream filters at observe
  * time with `if (_el)`).
  */
-function resolveTargets(target: MaybeComputedElementRefOrArray): Element[] {
+function resolveTargets(target: ElementTargetOrArray): Element[] {
   const value = toValue(target)
   const items = Array.isArray(value) ? value : [value]
 
@@ -115,7 +115,7 @@ function resolveTargets(target: MaybeComputedElementRefOrArray): Element[] {
  * }, { attributes: true })
  */
 export function useMutationObserver(
-  target: MaybeComputedElementRefOrArray,
+  target: ElementTargetOrArray,
   callback: MutationCallback,
   options: UseMutationObserverOptions = {},
 ): UseMutationObserverReturn {

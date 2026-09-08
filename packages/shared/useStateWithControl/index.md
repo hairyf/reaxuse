@@ -141,7 +141,7 @@ export type UseStateWithControlReturn<T> = [
 ]
 
 export function useStateWithControl<T>(
-  value: MaybeRefOrGetter<T>,
+  value: RefOrValue<T>,
   options?: UseStateWithControlOptions<T>,
 ): UseStateWithControlReturn<T>
 ```

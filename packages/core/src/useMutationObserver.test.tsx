@@ -87,7 +87,7 @@ describe('useMutationObserver', () => {
     const target = document.createTextNode('123')
     const cb = vi.fn()
     const { unmount } = await renderHook(() =>
-      // @ts-expect-error — upstream accepts Text nodes even though the type says MaybeElement
+      // @ts-expect-error — upstream accepts Text nodes even though the type says TargetElement
       useMutationObserver(target, cb, {
         characterData: true,
       }),
@@ -154,7 +154,7 @@ describe('useMutationObserver', () => {
     const target = document.createTextNode('123')
     const cb = vi.fn()
     const { unmount } = await renderHook(() =>
-      // @ts-expect-error — upstream accepts Text nodes even though the type says MaybeElement
+      // @ts-expect-error — upstream accepts Text nodes even though the type says TargetElement
       useMutationObserver(target, cb, {
         characterData: true,
         characterDataOldValue: true,

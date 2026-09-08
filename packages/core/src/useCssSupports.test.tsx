@@ -172,21 +172,21 @@ describe('useCssSupports', () => {
     expect(result.current.isSupported).toBe(false)
   })
 
-  it('should re-evaluate when getter property / value change', async () => {
-    let prop = 'transform-origin'
-    let value = '5%'
+  it('should re-evaluate when ref property / value change', async () => {
+    const prop = { current: 'transform-origin' }
+    const value = { current: '5%' }
     const { result, rerender } = await renderHook(
-      (_props?: { force: number }) => useCssSupports(() => prop, () => value),
+      (_props?: { force: number }) => useCssSupports(prop, value),
       { initialProps: { force: 0 } },
     )
     expect(result.current.isSupported).toBe(true)
 
-    value = 'e18e'
+    value.current = 'e18e'
     await rerender({ force: 1 })
     expect(result.current.isSupported).toBe(false)
 
-    prop = 'display'
-    value = 'flex'
+    prop.current = 'display'
+    value.current = 'flex'
     await rerender({ force: 2 })
     expect(result.current.isSupported).toBe(true)
   })

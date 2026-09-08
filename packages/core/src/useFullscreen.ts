@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useEventListener } from './useEventListener'
@@ -7,9 +7,9 @@ import { useEventListener } from './useEventListener'
  * Element on which fullscreen is requested — a plain element (or `null` /
  * `undefined` while it is not available yet), a ref-like `{ current }` object
  * (e.g. the result of `useRef`), or a getter returning one of those — the
- * React equivalent of upstream's `MaybeElementRef`.
+ * React equivalent of upstream's `ElementRef`.
  */
-export type FullscreenTarget = MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>
+export type FullscreenTarget = RefOrValue<HTMLElement | SVGElement | null | undefined>
 
 export interface UseFullscreenOptions {
   /**
@@ -269,11 +269,10 @@ export function useFullscreen(
   }, [applyFullscreenState])
 
   // fullscreenchange listeners on the document and the resolved element
-  // (upstream `useEventListener(document, ...)` + `useEventListener(() =>
-  // unrefElement(targetRef), ...)`); the getters re-resolve every render so
-  // the bindings follow element / `document` changes.
-  useEventListener(() => doc, eventHandlers, handler, listenerOptions)
-  useEventListener(() => resolvedTarget ?? undefined, eventHandlers, handler, listenerOptions)
+  // (upstream `useEventListener(document, ...)` + a reactive element target);
+  // the listener effect re-binds whenever the element / `document` changes.
+  useEventListener(doc, eventHandlers, handler, listenerOptions)
+  useEventListener(resolvedTarget ?? undefined, eventHandlers, handler, listenerOptions)
 
   const exit = useCallback(async () => {
     const state = stateRef.current

@@ -152,8 +152,8 @@ describe('useScrollLock', () => {
     expect(targetEl.style.overflow).toBe('')
   })
 
-  it('accepts a getter source', async () => {
-    const { result, act } = await renderHook(() => useScrollLock(() => targetEl))
+  it('accepts a plain element source', async () => {
+    const { result, act } = await renderHook(() => useScrollLock(targetEl))
 
     await act(() => {
       result.current[1](true)

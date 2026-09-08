@@ -2,12 +2,9 @@ import { useFavicon } from '@reaxuse/core'
 import { useState } from 'react'
 
 export default function UseFaviconDemo() {
-  const [type, setType] = useState<'vue' | 'vueuse'>('vueuse')
+  const [url, setUrl] = useState('favicon-32x32.png')
 
-  // mirroring the upstream `computed` source: a getter re-read on re-render
-  const favicon = () => (type === 'vue' ? 'vue.png' : 'favicon-32x32.png')
-
-  useFavicon(favicon, {
+  useFavicon(url, {
     baseUrl: '/',
     rel: 'icon',
   })
@@ -17,10 +14,10 @@ export default function UseFaviconDemo() {
       <div>
         Change favicon to
       </div>
-      <button onClick={() => setType('vue')}>
+      <button onClick={() => setUrl('vue.png')}>
         Vue
       </button>
-      <button onClick={() => setType('vueuse')}>
+      <button onClick={() => setUrl('favicon-32x32.png')}>
         VueUse
       </button>
     </div>

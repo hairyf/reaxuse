@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { deepClone, deepEqual, isRefLike, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -90,7 +90,7 @@ export function cloneFnJSON<T>(source: T): T {
  * sync() // re-clone from the source, isModified back to false
  */
 export function useCloned<T>(
-  source: MaybeRefOrGetter<T>,
+  source: RefOrValue<T>,
   options: UseClonedOptions<T> = {},
 ): UseClonedReturn<T> {
   // upstream destructures its options once at setup — captured here the same

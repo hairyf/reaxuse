@@ -6,7 +6,7 @@ category: Sensors
 
 Reactive swipe detection based on [PointerEvents](https://developer.mozilla.org/en-US/docs/Web/API/PointerEvent) — React port of VueUse's [`usePointerSwipe`](https://vueuse.org/core/usePointerSwipe/).
 
-**Mapping:** the Vue return object (`isSwiping` shallow ref, `direction` computed, reactive `posStart` / `posEnd`, `distanceX` / `distanceY` computeds) becomes a plain object of plain values backed by React state, derived during render. The `pointerdown` / `pointermove` / `pointerup` / `pointercancel` listeners attach in a self-contained `useEffect` (upstream composes `useEventListener`) and are removed on unmount, so nothing touches the DOM during render (SSR-safe). The `target` accepts an element, a ref-like `{ current }` object or a getter — it is re-resolved on every render and the listeners re-bind when the resolved element changes, so a `useRef` target that is `null` during first render still binds once React attaches the element. Below the threshold (default `50`) the direction stays `'none'`; `onSwipeEnd` only fires for swipes that actually crossed it.
+**Mapping:** the Vue return object (`isSwiping` shallow ref, `direction` computed, reactive `posStart` / `posEnd`, `distanceX` / `distanceY` computeds) becomes a plain object of plain values backed by React state, derived during render. The `pointerdown` / `pointermove` / `pointerup` / `pointercancel` listeners attach in a self-contained `useEffect` (upstream composes `useEventListener`) and are removed on unmount, so nothing touches the DOM during render (SSR-safe). The `target` accepts an element, a React ref — it is re-resolved on every render and the listeners re-bind when the resolved element changes, so a `useRef` target that is `null` during first render still binds once React attaches the element. Below the threshold (default `50`) the direction stays `'none'`; `onSwipeEnd` only fires for swipes that actually crossed it.
 
 ## Usage
 
@@ -27,7 +27,7 @@ const { isSwiping, direction } = usePointerSwipe(el, {
 ## Type Declarations
 
 ```ts
-export type MaybeRefOrGetter<T> = T | { current: T } | (() => T)
+export type RefOrValue<T> = T | { current: T } | (() => T)
 
 export type UseSwipeDirection = 'up' | 'down' | 'left' | 'right' | 'none'
 
@@ -73,7 +73,7 @@ export interface UsePointerSwipeReturn {
 }
 
 export function usePointerSwipe(
-  target: MaybeRefOrGetter<HTMLElement | null | undefined>,
+  target: RefOrValue<HTMLElement | null | undefined>,
   options?: UsePointerSwipeOptions,
 ): UsePointerSwipeReturn
 ```
