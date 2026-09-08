@@ -56,6 +56,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'events',
+    file: 'packages/core/src/useEventBus.ts',
+    pkg: 'core',
+  },
+  {
     name: 'formatDate',
     file: 'packages/shared/src/useDateFormat.ts',
     pkg: 'shared',
@@ -133,6 +138,11 @@ export const functions: FunctionInfo[] = [
   {
     name: 'isRefLike',
     file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'makeDestructurable',
+    file: 'packages/shared/src/makeDestructurable.ts',
     pkg: 'shared',
   },
   {
@@ -218,6 +228,11 @@ export const functions: FunctionInfo[] = [
   {
     name: 'TransitionPresets',
     file: 'packages/core/src/useTransition.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useActiveElement',
+    file: 'packages/core/src/useActiveElement.ts',
     pkg: 'core',
   },
   {
@@ -324,6 +339,16 @@ export const functions: FunctionInfo[] = [
     name: 'useArrayUnique',
     file: 'packages/shared/src/useArrayUnique.ts',
     pkg: 'shared',
+  },
+  {
+    name: 'useAsyncQueue',
+    file: 'packages/core/src/useAsyncQueue.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useBrowserLocation',
+    file: 'packages/core/src/useBrowserLocation.ts',
+    pkg: 'core',
   },
   {
     name: 'useCloned',
@@ -448,6 +473,11 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useElementVisibility',
     file: 'packages/core/src/useElementVisibility.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEventBus',
+    file: 'packages/core/src/useEventBus.ts',
     pkg: 'core',
   },
   {
@@ -921,6 +951,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useStateDebounced',
+    file: 'packages/shared/src/useStateDebounced.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useStateDebouncedHistory',
     file: 'packages/core/src/useStateDebouncedHistory.ts',
     pkg: 'core',
@@ -939,6 +974,11 @@ export const functions: FunctionInfo[] = [
     name: 'useStateThrottledHistory',
     file: 'packages/core/src/useStateThrottledHistory.ts',
     pkg: 'core',
+  },
+  {
+    name: 'useStateWithControl',
+    file: 'packages/shared/src/useStateWithControl.ts',
+    pkg: 'shared',
   },
   {
     name: 'useStepper',

@@ -6,7 +6,7 @@ category: Sensors
 
 Reactive element's hover state — React port of VueUse's [`useElementHover`](https://vueuse.org/core/useElementHover/).
 
-**Mapping:** upstream's `ShallowRef<boolean>` return becomes a plain boolean backed by React state — `const isHovered = useElementHover(el)`. The `mouseenter` / `mouseleave` listeners attach to the target element in a mount `useEffect` (upstream's `useEventListener` composition is inlined) and are removed on unmount; any pending delay timer is cleared as well. `delayEnter` / `delayLeave` defer the state flip with a debounced timer (a new event cancels the pending one) and `triggerOnRemoval` forces the state back to `false` when the element is removed from the DOM (upstream's `onElementRemoval`, inlined as a `MutationObserver`). The `target` accepts an element, a ref-like `{ current }` object or a getter — it is re-resolved on every render and re-bound whenever the resolved element changes, so a `useRef` target that is `null` on the first render still starts tracking once React attaches the element. The upstream `v-element-hover` directive variant is not ported. SSR-safe — nothing touches `window` or the DOM during render and the initial state is always `false`.
+**Mapping:** upstream's `ShallowRef<boolean>` return becomes a plain boolean backed by React state — `const isHovered = useElementHover(el)`. The `mouseenter` / `mouseleave` listeners attach to the target element in a mount `useEffect` (upstream's `useEventListener` composition is inlined) and are removed on unmount; any pending delay timer is cleared as well. `delayEnter` / `delayLeave` defer the state flip with a debounced timer (a new event cancels the pending one) and `triggerOnRemoval` forces the state back to `false` when the element is removed from the DOM (upstream's `onElementRemoval`, inlined as a `MutationObserver`). The `target` accepts an element, a React ref — it is re-resolved on every render and re-bound whenever the resolved element changes, so a `useRef` target that is `null` on the first render still starts tracking once React attaches the element. The upstream `v-element-hover` directive variant is not ported. SSR-safe — nothing touches `window` or the DOM during render and the initial state is always `false`.
 
 ## Usage
 
@@ -70,7 +70,7 @@ export interface UseElementHoverOptions extends ConfigurableWindow {
 }
 
 export function useElementHover(
-  target: MaybeRefOrGetter<EventTarget | null | undefined>,
+  target: RefOrValue<EventTarget | null | undefined>,
   options?: UseElementHoverOptions,
 ): boolean
 ```

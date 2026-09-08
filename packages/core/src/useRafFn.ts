@@ -1,4 +1,4 @@
-import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -27,7 +27,7 @@ export interface UseRafFnOptions extends ConfigurableWindow {
    *
    * @default null
    */
-  fpsLimit?: MaybeRefOrGetter<number | null>
+  fpsLimit?: RefOrValue<number | null>
   /**
    * After the requestAnimationFrame loop executed once, it will be automatically stopped.
    *
@@ -72,7 +72,7 @@ export interface UseRafFnReturn {
  * - `fn`, `fpsLimit`, `once` and `window` are read through refs on every
  *   frame instead of from the setup closure, so the running loop always sees
  *   the latest values (upstream recomputes on watchers);
- * - `fpsLimit` is a `MaybeRefOrGetter` resolved with `toValue` per frame
+ * - `fpsLimit` is a `RefOrValue` resolved with `toValue` per frame
  *   (upstream: `computed` from `toValue` + a `watch`), so a React ref-like
  *   `{ current }` limit updates live without re-running the hook.
  *
