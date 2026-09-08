@@ -69,8 +69,8 @@ describe('useCycleList', () => {
     expect(result.current.index).toBe(2)
   })
 
-  it('should work with getter', async () => {
-    const { result, act } = await renderHook(() => useCycleList(() => ['foo', 'bar', 'fooBar']))
+  it('should work with a plain list', async () => {
+    const { result, act } = await renderHook(() => useCycleList(['foo', 'bar', 'fooBar']))
 
     expect(result.current.state).toBe('foo')
     expect(result.current.index).toBe(0)

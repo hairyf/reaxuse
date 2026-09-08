@@ -29,11 +29,11 @@ setList(list.slice(1)) // evens === [2, 4, 6, 8] on the next render
 export type UseArrayFilterReturn<T = any> = T[]
 
 export function useArrayFilter<T, S extends T>(
-  list: MaybeRef<MaybeRef<T>[]>,
+  list: RefOrValue<RefOrValue<T>[]>,
   fn: (element: T, index: number, array: T[]) => element is S,
 ): UseArrayFilterReturn<S>
 export function useArrayFilter<T>(
-  list: MaybeRef<MaybeRef<T>[]>,
+  list: RefOrValue<RefOrValue<T>[]>,
   fn: (element: T, index: number, array: T[]) => unknown,
 ): UseArrayFilterReturn<T>
 ```

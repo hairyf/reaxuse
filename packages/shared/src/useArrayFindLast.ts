@@ -1,5 +1,5 @@
-import type { MaybeRef } from './index'
-import { isRefLike, toValue } from './utils'
+import type { RefOrValue } from './index'
+import { toValue } from './utils'
 
 export type UseArrayFindLastReturn<T = any> = T | undefined
 
@@ -28,8 +28,8 @@ function findLast<T>(
  * `ComputedRef`; React has no reactive value tracking, so this is a plain
  * function recomputed on every render — the loop helper stands in for the
  * native method since the repo targets lib ES2022. Vue refs map to the
- * repo's `MaybeRef` (`{ current }`) objects: the list itself may be
- * ref-like, every element is unwrapped before the predicate runs, and the
+ * repo's `RefOrValue` refs: the list itself may be
+ * a ref, every element is unwrapped before the predicate runs, and the
  * last match is returned unwrapped. Mutating a ref element or the array
  * does not trigger anything by itself — the new result shows up on the next
  * render.
@@ -37,15 +37,15 @@ function findLast<T>(
  * @see https://vueuse.org/shared/useArrayFindLast/
  *
  * @example
- * const list = [{ current: 1 }, { current: -1 }, { current: 2 }]
+ * const list = [useRef(1), useRef(-1), useRef(2)]
  * useArrayFindLast(list, val => val > 0) // 2
  * list[2].current = -2 // 1 on the next render
  */
 export function useArrayFindLast<T>(
-  list: MaybeRef<MaybeRef<T>[]>,
-  fn: (element: T, index: number, array: MaybeRef<T>[]) => boolean,
+  list: RefOrValue<RefOrValue<T>[]>,
+  fn: (element: T, index: number, array: RefOrValue<T>[]) => boolean,
 ): UseArrayFindLastReturn<T> {
-  const array = isRefLike(list) ? list.current : list
+  const array = toValue(list)
   const found = findLast(array, (element, index, arr) => fn(toValue(element), index, arr))
   return found === undefined ? undefined : toValue(found)
 }

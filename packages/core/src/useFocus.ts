@@ -1,4 +1,4 @@
-import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -87,7 +87,7 @@ export interface UseFocusReturn {
  * focused.value = false // blur the input
  */
 export function useFocus(
-  target: MaybeRefOrGetter<HTMLElement | null | undefined>,
+  target: RefOrValue<HTMLElement | null | undefined>,
   options: UseFocusOptions = {},
 ): UseFocusReturn {
   const { initialValue = false, focusVisible = false, preventScroll = false } = options

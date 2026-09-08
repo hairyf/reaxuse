@@ -1,12 +1,7 @@
-import type { MaybeRef } from './index'
+import type { RefOrValue } from './index'
+import { toValue } from './utils'
 
 export type UseArrayMapReturn<T = any> = T[]
-
-function unref<T>(value: MaybeRef<T>): T {
-  return value !== null && typeof value === 'object' && 'current' in value
-    ? (value as { current: T }).current
-    : value
-}
 
 /**
  * Reactive `Array.map`
@@ -15,7 +10,7 @@ function unref<T>(value: MaybeRef<T>): T {
  * React port of VueUse's `useArrayMap`.
  *
  * Mapping: Vue's `computed` → recompute per render and return a plain array
- * (no `.value`); `MaybeRefOrGetter` → `MaybeRef` (`T | { current: T }`).
+ * (no `.value`); `RefOrValue` → `RefOrValue` (`T | Ref<T>`).
  * Pass a `useState` array directly — the result updates on the next render.
  *
  * @example
@@ -24,8 +19,8 @@ function unref<T>(value: MaybeRef<T>): T {
  * setList(list.slice(0, -1)) // result === [0, 2, 4, 6] on the next render
  */
 export function useArrayMap<T, U = T>(
-  list: MaybeRef<MaybeRef<T>[]>,
+  list: RefOrValue<RefOrValue<T>[]>,
   fn: (element: T, index: number, array: T[]) => U,
 ): UseArrayMapReturn<U> {
-  return unref(list).map(element => unref(element)).map(fn)
+  return toValue(list).map(element => toValue(element)).map(fn)
 }

@@ -12,7 +12,7 @@ plain object backed by React state — `x` / `y` are numbers, `position` is the 
 `pointerdown` on the `handle` (default the `target`) starts the drag; `pointermove` / `pointerup` /
 `pointercancel` listeners attach to the `draggingElement` (default `window`) in a mount `useEffect`
 and are removed on unmount. The `target` / `handle` / `draggingElement` / `containerElement` accept a
-plain element, a ref-like `{ current }` object (e.g. the result of `useRef`) or a getter. All options
+plain element or a React ref (e.g. the result of `useRef`). All options
 (`disabled`, `buttons`, `exact`, `axis`, `restrictInView`, `autoScroll`, `onStart` / `onMove` /
 `onEnd`, …) are read through a latest-value ref, so the stable listeners always see the newest
 options. SSR-safe — nothing touches `window` or the DOM during render.
@@ -125,32 +125,32 @@ export interface Position {
 
 export type PointerType = 'mouse' | 'touch' | 'pen'
 
-export type DraggableTarget = MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>
+export type DraggableTarget = RefOrValue<HTMLElement | SVGElement | null | undefined>
 
-export type DraggableElement = MaybeRefOrGetter<HTMLElement | SVGElement | Window | Document | null | undefined>
+export type DraggableElement = RefOrValue<HTMLElement | SVGElement | Window | Document | null | undefined>
 
-export type DraggableContainer = MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>
+export type DraggableContainer = RefOrValue<HTMLElement | SVGElement | null | undefined>
 
 export interface UseDraggableOptions {
-  exact?: MaybeRefOrGetter<boolean>
-  preventDefault?: MaybeRefOrGetter<boolean>
-  stopPropagation?: MaybeRefOrGetter<boolean>
+  exact?: RefOrValue<boolean>
+  preventDefault?: RefOrValue<boolean>
+  stopPropagation?: RefOrValue<boolean>
   capture?: boolean
   draggingElement?: DraggableElement
   containerElement?: DraggableContainer
   handle?: DraggableTarget
   pointerTypes?: PointerType[]
-  initialValue?: MaybeRefOrGetter<Position>
+  initialValue?: RefOrValue<Position>
   onStart?: (position: Position, event: PointerEvent) => void | false
   onMove?: (position: Position, event: PointerEvent) => void
   onEnd?: (position: Position, event: PointerEvent) => void
   axis?: 'x' | 'y' | 'both'
-  disabled?: MaybeRefOrGetter<boolean>
-  buttons?: MaybeRefOrGetter<number[]>
-  restrictInView?: MaybeRefOrGetter<boolean>
-  autoScroll?: MaybeRefOrGetter<boolean | {
-    speed?: MaybeRefOrGetter<number | Position>
-    margin?: MaybeRefOrGetter<number | Position>
+  disabled?: RefOrValue<boolean>
+  buttons?: RefOrValue<number[]>
+  restrictInView?: RefOrValue<boolean>
+  autoScroll?: RefOrValue<boolean | {
+    speed?: RefOrValue<number | Position>
+    margin?: RefOrValue<number | Position>
     direction?: 'x' | 'y' | 'both'
   }>
 }
