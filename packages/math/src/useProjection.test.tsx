@@ -40,14 +40,14 @@ describe('useProjection', () => {
     expect(result.current).toBe(23)
   })
 
-  it('works with getter functions', async () => {
-    const { result } = await renderHook(() => useProjection(() => 5, [0, 10], [0, 100]))
+  it('works with plain values', async () => {
+    const { result } = await renderHook(() => useProjection(5, [0, 10], [0, 100]))
     expect(result.current).toBe(50)
 
-    const second = await renderHook(() => useProjection(() => 3, [0, 10], [0, 100]))
+    const second = await renderHook(() => useProjection(3, [0, 10], [0, 100]))
     expect(second.result.current).toBe(30)
 
-    const third = await renderHook(() => useProjection(() => 4, [0, 44], [0, 132]))
+    const third = await renderHook(() => useProjection(4, [0, 44], [0, 132]))
     expect(third.result.current).toBe(12)
   })
 })

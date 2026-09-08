@@ -11,7 +11,7 @@ React has no implicit reactivity, so `useArrayDifference` is a plain function re
 every render — pass state arrays (upstream: reactive arrays) and the difference is re-diffed
 on the next render, no `.value` on the result. The same three call shapes as upstream are
 supported: plain diff, diff by `key`, and diff by `compareFn`, plus the `{ symmetric }`
-option. Refs map to `{ current }` objects: the lists themselves may be ref-like and elements
+option. Refs map to React ref objects: the lists themselves may be refs and elements
 are unwrapped before the comparator runs.
 
 ## Usage
@@ -49,14 +49,14 @@ export interface UseArrayDifferenceOptions {
 export type UseArrayDifferenceReturn<T = any> = T[]
 
 export function useArrayDifference<T>(
-  list: MaybeRef<MaybeRef<T>[]>,
-  values: MaybeRef<MaybeRef<T>[]>,
+  list: RefOrValue<RefOrValue<T>[]>,
+  values: RefOrValue<RefOrValue<T>[]>,
   key?: keyof T,
   options?: UseArrayDifferenceOptions,
 ): UseArrayDifferenceReturn<T>
 export function useArrayDifference<T>(
-  list: MaybeRef<MaybeRef<T>[]>,
-  values: MaybeRef<MaybeRef<T>[]>,
+  list: RefOrValue<RefOrValue<T>[]>,
+  values: RefOrValue<RefOrValue<T>[]>,
   compareFn?: (value: T, othVal: T) => boolean,
   options?: UseArrayDifferenceOptions,
 ): UseArrayDifferenceReturn<T>

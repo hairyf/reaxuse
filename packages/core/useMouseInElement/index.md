@@ -6,7 +6,7 @@ category: Elements
 
 Reactive mouse position related to an element — React port of VueUse's [`useMouseInElement`](https://vueuse.org/core/useMouseInElement/).
 
-**Mapping:** the Vue refs returned by upstream (`x`, `y`, `elementX`, `elementY`, `elementPositionX`, `elementPositionY`, `elementHeight`, `elementWidth`, `isOutside`, plus `sourceType` and `stop`) become a plain object of plain values backed by one `useState`. The `target` is an element, a React ref object (`RefObject<HTMLElement | null>`) or a getter — listeners attach in a mount `useEffect` and are cleaned up on unmount, and `stop()` detaches every listener/observer permanently. The window `mousemove`/`dragover` listeners feed `x`/`y` (upstream's `useMouse` is inlined), and the element metrics recompute on `scroll`/`resize`, on `style`/`class` mutations and on element size changes. SSR-safe — nothing touches `window` or the DOM during render.
+**Mapping:** the Vue refs returned by upstream (`x`, `y`, `elementX`, `elementY`, `elementPositionX`, `elementPositionY`, `elementHeight`, `elementWidth`, `isOutside`, plus `sourceType` and `stop`) become a plain object of plain values backed by one `useState`. The `target` is an element, a React ref object (`RefObject<HTMLElement | null>`) — listeners attach in a mount `useEffect` and are cleaned up on unmount, and `stop()` detaches every listener/observer permanently. The window `mousemove`/`dragover` listeners feed `x`/`y` (upstream's `useMouse` is inlined), and the element metrics recompute on `scroll`/`resize`, on `style`/`class` mutations and on element size changes. SSR-safe — nothing touches `window` or the DOM during render.
 
 ## Usage
 
@@ -103,7 +103,7 @@ export interface UseMouseInElementReturn {
 }
 
 export function useMouseInElement(
-  target?: MaybeRefOrGetter<HTMLElement | null | undefined>,
+  target?: RefOrValue<HTMLElement | null | undefined>,
   options?: MouseInElementOptions,
 ): UseMouseInElementReturn
 ```

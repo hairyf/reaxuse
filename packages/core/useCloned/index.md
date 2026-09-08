@@ -28,7 +28,7 @@ console.log(cloned.key) // 'some new value'
 ```
 
 `cloned` is an editable copy — changes to it do not touch the source, and changes to the source (a new
-value, a ref-like `{ current }` update or a getter) re-sync the clone on the next render.
+value or a React ref update) re-sync the clone on the next render.
 
 ## Manual cloning
 
@@ -84,7 +84,7 @@ export type CloneFn<F, T = F> = (x: F) => T
 export function cloneFnJSON<T>(source: T): T
 
 export function useCloned<T>(
-  source: MaybeRefOrGetter<T>,
+  source: RefOrValue<T>,
   options?: UseClonedOptions<T>,
 ): UseClonedReturn<T>
 ```

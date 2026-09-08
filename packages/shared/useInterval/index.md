@@ -11,8 +11,8 @@ since `useIntervalFn` is mapped in its own module, this port inlines the interva
 self-contained — the counter is a plain `number` state (no `.value`), the setup-time `resume()`
 becomes a mount `useEffect`, and `tryOnScopeDispose(pause)` becomes the effect cleanup.
 `{ controls: true }` exposes `{ counter, reset, isActive, pause, resume }` (upstream:
-`UseIntervalControls & Pausable`). `interval` accepts a number or a getter (upstream:
-`MaybeRefOrGetter<number>`) evaluated on start / `resume`; unlike upstream's reactive watch on
+`UseIntervalControls & Pausable`). `interval` accepts a number or a React ref (upstream:
+`RefOrValue<number>`) evaluated on start / `resume`; unlike upstream's reactive watch on
 the interval, a changed value takes effect on the next `resume()`. `immediateCallback` follows
 `useIntervalFn`'s semantics (upstream `useInterval` doesn't forward it).
 
