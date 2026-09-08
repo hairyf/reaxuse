@@ -1,36 +1,15 @@
-import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { ConfigurableWindow } from '@reaxuse/shared'
+import type { MaybeComputedElementRefOrArray } from './useResizeObserver'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
- * Element types accepted as observation targets. Upstream's `MaybeElement`
- * also includes Vue component instances (`VueInstance`) — React refs hold
- * DOM nodes directly, so there is no equivalent here.
- *
- * @note not re-exported: `useResizeObserver` already exports the same names
- * (`MaybeElement`, `MaybeComputedElementRef`, `MaybeComputedElementRefOrArray`)
- * from `@reaxuse/core`, so `export *` from both modules would collide.
+ * Target types accepted by `useMutationObserver` (`MaybeComputedElementRef`
+ * / `MaybeComputedElementRefOrArray`, backed by `MaybeElement`) are the
+ * canonical React-native definitions shared from `./useResizeObserver`
+ * (single source of truth; the previous duplicate local copies were
+ * consolidated in the #462 audit).
  */
-type MaybeElement = HTMLElement | SVGElement | undefined | null
-
-/**
- * A plain element, a React ref object (`{ current }`), or a getter returning
- * one — the React equivalent of Vue's `MaybeRefOrGetter<T>`.
- */
-type MaybeComputedElementRef<T extends MaybeElement = MaybeElement>
-  = | T
-    | { readonly current: T }
-    | (() => T)
-
-/**
- * A single target, an array of targets, a ref-like holding an array, or a
- * getter returning an array (or `null`) — mirrors upstream's
- * `MaybeComputedElementRefOrArray`.
- */
-type MaybeComputedElementRefOrArray<T extends MaybeElement = MaybeElement>
-  = | MaybeComputedElementRef<T>
-    | MaybeComputedElementRef<T>[]
-    | MaybeRefOrGetter<T[] | null>
 
 /**
  * Options for `useMutationObserver`: passthrough of the platform
@@ -82,7 +61,7 @@ function unrefElement(value: unknown): Element | undefined {
  * time with `if (_el)`).
  */
 function resolveTargets(target: MaybeComputedElementRefOrArray): Element[] {
-  const value = toValue(target as MaybeRefOrGetter<unknown>)
+  const value = toValue(target)
   const items = Array.isArray(value) ? value : [value]
 
   const elements: Element[] = []

@@ -8,7 +8,6 @@
 // export * from './onKeyStroke'
 // export * from './onLongPress'
 // export * from './onStartTyping'
-// export * from './unrefElement'
 export * from './useActiveElement'
 // export * from './useAnimate'
 export * from './useAsyncQueue'
