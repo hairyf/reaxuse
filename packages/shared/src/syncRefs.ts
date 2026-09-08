@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from './utils'
+import type { RefOrValue } from './utils'
 import { useEffect, useRef } from 'react'
 import { toValue } from './utils'
 
@@ -74,14 +74,14 @@ const neverObserved = Symbol('reaxuse.syncRefs.neverObserved')
  * stop()
  */
 export function syncRefs<T>(
-  source: MaybeRefOrGetter<T>,
+  source: RefOrValue<T>,
   targets: { current: T } | Array<{ current: T }>,
   options: SyncRefsOptions = {},
 ): () => void {
   const { immediate = true } = options
 
   // latest source flushed on every render — the effect always observes fresh
-  // values even when the caller swaps the ref-like / getter between renders
+  // values even when the caller swaps the ref-like object or value between renders
   const sourceRef = useRef(source)
   sourceRef.current = source
 

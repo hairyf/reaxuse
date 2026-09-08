@@ -6,8 +6,8 @@ import { useEventListener } from './useEventListener'
 /**
  * Element on which fullscreen is requested — a plain element (or `null` /
  * `undefined` while it is not available yet), a ref-like `{ current }` object
- * (e.g. the result of `useRef`), or a getter returning one of those — the
- * React equivalent of upstream's `ElementRef`.
+ * (e.g. the result of `useRef`) — the React equivalent of upstream's
+ * `ElementRef`.
  */
 export type FullscreenTarget = RefOrValue<HTMLElement | SVGElement | null | undefined>
 
@@ -210,7 +210,7 @@ function getFullscreenMethod(obj: object, name: string): (() => Promise<void>) |
  *   `tryOnScopeDispose(exit)` with `autoExit` becomes an unmount cleanup (the
  *   option is read once at mount, as upstream destructures it at setup);
  * - rendering never touches the DOM: the target unwraps to a ref-like
- *   `.current` / getter result and the global `document` is only read through
+ *   `.current` and the global `document` is only read through
  *   a guarded `typeof document === 'undefined'` check, so server rendering is
  *   safe and the state keeps its defaults until the mount effect;
  * - the component variant (`UseFullscreen` render-slot component) is not

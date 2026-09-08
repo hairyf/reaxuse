@@ -174,7 +174,7 @@ export function useColorMode<T extends string = BasicColorMode>(
     ...opts.modes || {},
   } as Record<BasicColorSchema | T, string>
 
-  // resolved once at mount (upstream resolves the getter at setup)
+  // resolved once at mount (upstream resolves the source at setup)
   const initialModeRef = useRef<T | BasicColorSchema | undefined>(undefined)
   initialModeRef.current ??= toValue(initialValue) as T | BasicColorSchema
   const initialMode = initialModeRef.current

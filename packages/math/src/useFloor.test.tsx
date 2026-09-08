@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useFloor } from './useFloor'
@@ -51,14 +52,14 @@ describe('useFloor', () => {
     expect(result.current).toBe(2)
   })
 
-  it('works with getter functions', async () => {
-    const { result } = await renderHook(() => useFloor(() => 45.95))
-    expect(result.current).toBe(45)
+  it('works with React refs', async () => {
+    const first = await renderHook(() => useFloor(useRef(45.95)))
+    expect(first.result.current).toBe(45)
 
-    const second = await renderHook(() => useFloor(() => -45.95))
+    const second = await renderHook(() => useFloor(useRef(-45.95)))
     expect(second.result.current).toBe(-46)
 
-    const third = await renderHook(() => useFloor(() => 3.1415))
+    const third = await renderHook(() => useFloor(useRef(3.1415)))
     expect(third.result.current).toBe(3)
   })
 })

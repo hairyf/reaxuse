@@ -44,8 +44,8 @@ export interface UseMutationObserverReturn {
 }
 
 /**
- * React equivalent of upstream's `unrefElement`: resolves a getter, a
- * ref-like object, or a plain value down to an element.
+ * React equivalent of upstream's `unrefElement`: resolves a ref-like object
+ * or a plain value down to an element.
  */
 function unrefElement(value: unknown): Element | undefined {
   if (typeof value === 'function')

@@ -29,18 +29,18 @@ it('useStateManualReset should be reset', async () => {
   expect(result.current[0]).toBe('default')
 })
 
-it('useStateManualReset re-reads a getter default on each reset', async () => {
-  let defaultValue = 'default'
-  const { result, act } = await renderHook(() => useStateManualReset(() => defaultValue))
+it('useStateManualReset re-reads a ref-like default on each reset', async () => {
+  const defaultValue = { current: 'default' }
+  const { result, act } = await renderHook(() => useStateManualReset(defaultValue))
 
   expect(result.current[0]).toBe('default')
 
   await act(() => result.current[1]('update'))
   expect(result.current[0]).toBe('update')
 
-  // upstream re-reads the default via `toValue` on every reset — a new getter
-  // result becomes the reset target
-  defaultValue = 'new default'
+  // upstream re-reads the default via `toValue` on every reset — a new ref
+  // value becomes the reset target
+  defaultValue.current = 'new default'
   await act(() => result.current[2]())
   expect(result.current[0]).toBe('new default')
 })

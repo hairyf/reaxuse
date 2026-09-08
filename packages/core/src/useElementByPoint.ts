@@ -83,8 +83,8 @@ type ElementByPointElement<M extends boolean> = M extends true ? HTMLElement[] :
  *   plain `element` value read directly off the result object;
  * - the Vue `ComputedRef<boolean>` `isSupported` becomes a plain boolean
  *   evaluated once in the mount effect (SSR-safe: `false` until then);
- * - `x`, `y` and `multiple` accept plain values, ref-like `{ current }`
- *   objects or getters (upstream: `RefOrValue`) and are re-resolved on
+ * - `x`, `y` and `multiple` accept plain values or ref-like `{ current }`
+ *   objects (upstream: `RefOrValue`) and are re-resolved on
  *   every tick through latest-value refs, so e.g. a `useMouse` position
  *   updates the hit element without re-running the hook;
  * - the `document` option is inlined (upstream: `ConfigurableDocument`) and

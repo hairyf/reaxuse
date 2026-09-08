@@ -145,7 +145,7 @@ export type UseAsyncStateReturn<Data, Params extends any[], Shallow extends bool
 
 export function useAsyncState<Data, Params extends any[] = any[], Shallow extends boolean = true>(
   promise: Promise<Data> | ((...args: Params) => Promise<Data>),
-  initialState: MaybeRef<Data>,
+  initialState: RefOrValue<Data>,
   options?: UseAsyncStateOptions<Shallow, Data>,
 ): UseAsyncStateReturn<Data, Params, Shallow>
 ```

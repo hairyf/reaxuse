@@ -150,8 +150,8 @@ export interface UseScrollReturn {
  * 3. The optional MutationObserver (upstream composes `useMutationObserver`)
  *    is a self-contained observer inside the same effect, disconnected on
  *    unmount.
- * 4. `element` accepts a plain element, a ref-like `{ current }` object or a
- *    getter (upstream: `RefOrValue`). It is re-resolved on every render
+ * 4. `element` accepts a plain element or a ref-like `{ current }` object
+ *    (upstream: `RefOrValue`). It is re-resolved on every render
  *    and the listeners re-bind when the resolved element changes, so a
  *    `useRef` target that is `null` during first render still binds once
  *    React attaches the element.

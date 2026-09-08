@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useTrunc } from './useTrunc'
@@ -58,11 +59,11 @@ describe('useTrunc', () => {
     expect(result.current).toBe(Number.NaN)
   })
 
-  it('should accept plain values and getters', async () => {
+  it('should accept plain values and React refs', async () => {
     const { result } = await renderHook(() => useTrunc(0.95))
     expect(result.current).toBe(0)
 
-    const { result: getterResult } = await renderHook(() => useTrunc(() => -2.34))
-    expect(getterResult.current).toBe(-2)
+    const { result: refResult } = await renderHook(() => useTrunc(useRef(-2.34)))
+    expect(refResult.current).toBe(-2)
   })
 })

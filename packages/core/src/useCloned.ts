@@ -75,13 +75,12 @@ export function cloneFnJSON<T>(source: T): T {
  *   `deep: true` re-syncs on structural change, `deep: false` only when the
  *   reference was replaced. A plain value is re-evaluated every render like
  *   any React argument, so it re-syncs when it changes between renders
- *   (upstream only watches refs and getters — plain values are static there);
+ *   (upstream only watches refs — plain values are static there);
  * - `immediate: false` skips the initial sync and `cloned` starts as `{}`
  *   (upstream initializes the clone ref to `{}` and lets the watch fill it);
  * - Vue watch options with no React equivalent are omitted (`flush`,
- *   `onTrack`, `onTrigger`). Getter sources should return a stable reference
- *   — with `deep: false` a getter producing a brand-new object every call
- *   re-syncs on every render.
+ *   `onTrack`, `onTrigger`). Ref-like sources should hold a stable reference
+ *   — with `deep: false` a new object in `.current` re-syncs on every render.
  *
  * @example
  * const { cloned, isModified, sync } = useCloned(original)

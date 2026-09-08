@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import type { UseScrollOptions, UseScrollReturn } from './useScroll'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -111,7 +111,7 @@ export interface UseInfiniteScrollReturn {
  * reset()
  */
 export function useInfiniteScroll<T extends InfiniteScrollElement>(
-  element: MaybeRefOrGetter<T>,
+  element: RefOrValue<T>,
   onLoadMore: (state: UseScrollReturn) => Awaitable<void>,
   options: UseInfiniteScrollOptions<T> = {},
 ): UseInfiniteScrollReturn {

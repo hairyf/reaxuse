@@ -55,8 +55,8 @@ export interface UseIntersectionObserverReturn {
 }
 
 /**
- * React equivalent of upstream's `unrefElement`: resolves a getter, a
- * ref-like object, or a plain value down to an element.
+ * React equivalent of upstream's `unrefElement`: resolves a ref-like object
+ * or a plain value down to an element.
  */
 function unrefElement(value: unknown): Element | undefined {
   if (typeof value === 'function')
@@ -67,8 +67,8 @@ function unrefElement(value: unknown): Element | undefined {
 }
 
 /**
- * Mirrors upstream's `targets` computed: `toValue` first (so ref-likes and
- * getters resolve, including ref-likes holding an array of elements), then
+ * Mirrors upstream's `targets` computed: `toValue` first (so ref-likes
+ * resolve, including ref-likes holding an array of elements), then
  * `toArray`, then resolve every item down to an element, dropping empty
  * slots (upstream filters with `notNullish`).
  */

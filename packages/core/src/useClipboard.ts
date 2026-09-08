@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { toValue, useTimeoutFn } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { usePermission } from './usePermission'
@@ -126,7 +126,7 @@ function createClipboardItem(
  * - the `ComputedRef<boolean>` isSupported becomes plain boolean state
  *   resolved through `useSupported` in a mount effect — `false` during the
  *   first render and on the server (SSR-safe);
- * - upstream's `MaybeRefOrGetter<string>` `source` is resolved through
+ * - the `source` option (a plain string or a React ref) is resolved through
  *   `toValue` (React has no reactive refs); the `copy` callback is stable and
  *   reads the latest `source`/`navigator`/permission state through refs;
  * - the `copy`/`cut` listeners are wired in a `useEffect` guarded by
@@ -141,8 +141,8 @@ function createClipboardItem(
  * copy('Hello') // writes to the clipboard; `copied` auto-resets after 1.5s
  */
 export function useClipboard(options?: UseClipboardOptions<undefined>): UseClipboardReturn<false>
-export function useClipboard(options: UseClipboardOptions<MaybeRefOrGetter<string>>): UseClipboardReturn<true>
-export function useClipboard(options: UseClipboardOptions<MaybeRefOrGetter<string> | undefined> = {}): UseClipboardReturn<boolean> {
+export function useClipboard(options: UseClipboardOptions<RefOrValue<string>>): UseClipboardReturn<true>
+export function useClipboard(options: UseClipboardOptions<RefOrValue<string> | undefined> = {}): UseClipboardReturn<boolean> {
   const {
     navigator: customNavigator,
     read = false,

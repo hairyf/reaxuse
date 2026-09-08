@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef } from 'react'
 import { useEventListener } from './useEventListener'
 
@@ -134,7 +134,7 @@ function matchesModifiers(evt: PointerEvent, modifiers?: UseLongPressModifiers):
  * stop()
  */
 export function useLongPress(
-  target: MaybeRefOrGetter<EventTarget | null | undefined>,
+  target: RefOrValue<EventTarget | null | undefined>,
   handler: (evt: PointerEvent) => void,
   options: UseLongPressOptions = {},
 ): () => void {

@@ -124,13 +124,6 @@ describe('useChangeCase', () => {
 
       expect(result.current[0]).toBe(obj[key].delimiterVueuse)
     })
-
-    it(`function ${key}`, async () => {
-      const input = () => helloWorld
-      const { result } = await renderHook(() => useChangeCase(input, key))
-
-      expect(result.current[0]).toBe(obj[key].helloWorld)
-    })
   })
 
   it('camelCase base usage', async () => {
@@ -170,18 +163,6 @@ describe('useChangeCase', () => {
     await rerender()
 
     expect(result.current[0]).toBe('vue-use')
-  })
-
-  it('re-evaluates getter inputs', async () => {
-    let value = 'helloWorld'
-    const { result, rerender } = await renderHook(() => useChangeCase(() => value, 'sentenceCase'))
-
-    expect(result.current[0]).toBe('Hello world')
-
-    value = 'vue use'
-    await rerender()
-
-    expect(result.current[0]).toBe('Vue use')
   })
 
   it('forwards options (locale)', async () => {

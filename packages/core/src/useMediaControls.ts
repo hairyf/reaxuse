@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { isObject, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -69,12 +69,12 @@ export interface UseMediaControlsOptions {
    * The source for the media, may either be a string, a `UseMediaSource` object, or a list
    * of `UseMediaSource` objects.
    */
-  src?: MaybeRefOrGetter<string | UseMediaSource | UseMediaSource[]>
+  src?: RefOrValue<string | UseMediaSource | UseMediaSource[]>
 
   /**
    * A list of text tracks for the media
    */
-  tracks?: MaybeRefOrGetter<UseMediaTextTrackSource[]>
+  tracks?: RefOrValue<UseMediaTextTrackSource[]>
 }
 
 export interface UseMediaTextTrack {
@@ -122,12 +122,12 @@ export interface UseMediaTextTrack {
 }
 
 /**
- * Target media element accepted by `useMediaControls` — a plain element, a
+ * Target media element accepted by `useMediaControls` — a plain element or a
  * ref-like `{ current }` object (e.g. `useRef<HTMLVideoElement>(null)`, whose
- * `current` is populated after mount) or a getter returning one of those —
- * the React analog of upstream's `MaybeRef<HTMLMediaElement | null | undefined>`.
+ * `current` is populated after mount) — the React analog of upstream's
+ * media-element target.
  */
-export type UseMediaControlsTarget = MaybeRefOrGetter<HTMLMediaElement | null | undefined>
+export type UseMediaControlsTarget = RefOrValue<HTMLMediaElement | null | undefined>
 
 export interface UseMediaControlsReturn {
   currentTime: number
@@ -374,7 +374,7 @@ export function useMediaControls(
   const doc = documentOption ?? (typeof document === 'undefined' ? undefined : document)
 
   // Resolve the target element during render so the binding effects re-run
-  // when it changes (a getter target or a re-render that re-points the ref).
+  // when it changes (a re-render that re-points the ref).
   const el = toValue(target)
 
   // Resolve the src / tracks options during render so the injection effects

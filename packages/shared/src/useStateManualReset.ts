@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react'
-import type { MaybeRefOrGetter } from './utils'
+import type { RefOrValue } from './utils'
 import { useCallback, useRef, useState } from 'react'
 import { toValue } from './utils'
 
@@ -23,8 +23,8 @@ export type UseStateManualResetReturn<T> = [
  * tuple: the second element is the plain `useState` setter (value or updater
  * form), and `reset` restores the default value.
  *
- * The default value accepts a plain value, a ref-like object (`{ current }`)
- * or a getter function (`MaybeRefOrGetter`), resolved with `toValue`. Like the
+ * The default value accepts a plain value or a ref-like object (`{ current }`)
+ * — the shared `RefOrValue` form — resolved with `toValue`. Like the
  * upstream implementation, `reset` re-reads it on every call — a dynamic
  * default always resets to the latest value.
  *
@@ -34,7 +34,7 @@ export type UseStateManualResetReturn<T> = [
  * resetMessage()
  * console.log(message) // 'default message'
  */
-export function useStateManualReset<T>(defaultValue: MaybeRefOrGetter<T>): UseStateManualResetReturn<T> {
+export function useStateManualReset<T>(defaultValue: RefOrValue<T>): UseStateManualResetReturn<T> {
   // latest default re-synced each render so `reset` stays a stable callback
   // that always re-reads the up-to-date default value on each call
   const defaultValueRef = useRef(defaultValue)

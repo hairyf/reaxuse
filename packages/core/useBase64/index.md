@@ -93,15 +93,15 @@ export interface UseBase64Return {
   execute: () => Promise<string> | undefined
 }
 
-export function useBase64(target: MaybeRefOrGetter<string | undefined>, options?: UseBase64Options): UseBase64Return
-export function useBase64(target: MaybeRefOrGetter<Blob | undefined>, options?: UseBase64Options): UseBase64Return
-export function useBase64(target: MaybeRefOrGetter<ArrayBuffer | undefined>, options?: UseBase64Options): UseBase64Return
-export function useBase64(target: MaybeRefOrGetter<HTMLCanvasElement | undefined>, options?: ToDataURLOptions): UseBase64Return
-export function useBase64(target: MaybeRefOrGetter<HTMLImageElement | undefined>, options?: ToDataURLOptions): UseBase64Return
-export function useBase64<T extends Record<string, unknown>>(target: MaybeRefOrGetter<T>, options?: UseBase64ObjectOptions<T>): UseBase64Return
-export function useBase64<T extends Map<string, unknown>>(target: MaybeRefOrGetter<T>, options?: UseBase64ObjectOptions<T>): UseBase64Return
-export function useBase64<T extends Set<unknown>>(target: MaybeRefOrGetter<T>, options?: UseBase64ObjectOptions<T>): UseBase64Return
-export function useBase64<T>(target: MaybeRefOrGetter<T[]>, options?: UseBase64ObjectOptions<T[]>): UseBase64Return
+export function useBase64(target: RefOrValue<string | undefined>, options?: UseBase64Options): UseBase64Return
+export function useBase64(target: RefOrValue<Blob | undefined>, options?: UseBase64Options): UseBase64Return
+export function useBase64(target: RefOrValue<ArrayBuffer | undefined>, options?: UseBase64Options): UseBase64Return
+export function useBase64(target: RefOrValue<HTMLCanvasElement | undefined>, options?: ToDataURLOptions): UseBase64Return
+export function useBase64(target: RefOrValue<HTMLImageElement | undefined>, options?: ToDataURLOptions): UseBase64Return
+export function useBase64<T extends Record<string, unknown>>(target: RefOrValue<T>, options?: UseBase64ObjectOptions<T>): UseBase64Return
+export function useBase64<T extends Map<string, unknown>>(target: RefOrValue<T>, options?: UseBase64ObjectOptions<T>): UseBase64Return
+export function useBase64<T extends Set<unknown>>(target: RefOrValue<T>, options?: UseBase64ObjectOptions<T>): UseBase64Return
+export function useBase64<T>(target: RefOrValue<T[]>, options?: UseBase64ObjectOptions<T[]>): UseBase64Return
 ```
 
 ## Source

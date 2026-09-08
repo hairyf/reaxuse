@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useSum } from './useSum'
@@ -22,7 +23,7 @@ describe('useSum', () => {
     const a = { current: 1 }
     const b = { current: 2 }
 
-    const { result, rerender } = await renderHook(() => useSum(a, () => b.current, 3))
+    const { result, rerender } = await renderHook(() => useSum(a, b, 3))
     expect(result.current).toBe(6)
 
     b.current = 3
@@ -42,8 +43,8 @@ describe('useSum', () => {
     expect(result.current).toBe(3010)
   })
 
-  it('should accept getters', async () => {
-    const { result } = await renderHook(() => useSum(() => 1, () => 2, () => 3))
+  it('should accept React refs', async () => {
+    const { result } = await renderHook(() => useSum(useRef(1), useRef(2), useRef(3)))
 
     expect(result.current).toBe(6)
   })

@@ -1,5 +1,5 @@
-import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
-import type { MaybeComputedElementRef } from './useResizeObserver'
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
+import type { ElementTarget } from './useResizeObserver'
 import { isObject, objectOmit, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useEventListener } from './useEventListener'
@@ -51,9 +51,9 @@ export interface UseAnimateOptions extends KeyframeAnimationOptions, Configurabl
 /**
  * Animation keyframes — an array of keyframe objects, a keyframe object, or
  * `null` (see [Keyframe Formats](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats)),
- * accepted as a plain value, a ref-like `{ current }` object or a getter.
+ * accepted as a plain value or a ref-like `{ current }` object (a React ref).
  */
-export type UseAnimateKeyframes = MaybeRefOrGetter<Keyframe[] | PropertyIndexedKeyframes | null>
+export type UseAnimateKeyframes = RefOrValue<Keyframe[] | PropertyIndexedKeyframes | null>
 
 /**
  * Store of the animation attributes kept in sync from the platform
@@ -115,8 +115,8 @@ export interface UseAnimateReturn {
 }
 
 /**
- * React equivalent of upstream's `unrefElement`: resolves a getter, a ref-like
- * object, or a plain value down to an element.
+ * React equivalent of upstream's `unrefElement`: resolves a ref-like object
+ * or a plain value down to an element.
  */
 function unrefElement(value: unknown): Element | undefined {
   if (typeof value === 'function')
@@ -155,7 +155,7 @@ function supportsElementAnimate(): boolean {
  *   values re-rendered per frame — the writable setters (e.g. seeking through
  *   `currentTime`) are dropped, use the returned `animate` object for that;
  * - `keyframes` re-resolves with `toValue` on every render, so a ref-like
- *   `{ current }` object / getter keyframes input updates live without an
+ *   `{ current }` object keyframes input updates live without an
  *   explicit subscription (upstream: a deep watcher);
  * - `isSupported` is plain `boolean` state settled in the mount effect, and
  *   internal gating reads a ref mirror so effects decide synchronously
@@ -171,7 +171,7 @@ function supportsElementAnimate(): boolean {
  *   useAnimate(el, { transform: 'rotate(360deg)' }, 1000)
  */
 export function useAnimate(
-  target: MaybeComputedElementRef,
+  target: ElementTarget,
   keyframes: UseAnimateKeyframes,
   options?: number | UseAnimateOptions,
 ): UseAnimateReturn {
@@ -366,7 +366,7 @@ export function useAnimate(
   }, [])
 
   // Resolved target element, recomputed every render so a changed `current`
-  // (or a getter's changing result) re-runs the effect below.
+  // re-runs the effect below.
   const targetEl = unrefElement(target)
 
   // upstream `watch(() => unrefElement(target))` + `tryOnMounted(() =>

@@ -141,8 +141,8 @@ const elInitialOverflow = new WeakMap<HTMLElement, CSSStyleDeclaration['overflow
  *   locks, `setIsLocked(false)` unlocks, mirroring the computed setter. The
  *   setter is stable, and the internal lock flag updates synchronously so
  *   repeated calls in one tick behave like upstream's sync ref.
- * - the element is accepted as a plain element (or `Window` / `Document`),
- *   a ref-like `{ current }` object, or a getter. Mutating a ref-like
+ * - the element is accepted as a plain element (or `Window` / `Document`) or
+ *   a ref-like `{ current }` object. Mutating a ref-like
  *   `.current` does not re-render — re-render with the new element for the
  *   lock to re-sync, mirroring upstream's `watch` re-firing on ref change.
  * - the immediate `watch(element, …)` sync becomes an effect keyed on the
@@ -182,7 +182,7 @@ export function useScrollLock(
   const stopTouchMoveRef = useRef<(() => void) | null>(null)
 
   // resolve the target during render — a pure unwrap (ref-like `.current`
-  // read or getter call), no DOM access — so SSR renders the bare state
+  // read), no DOM access — so SSR renders the bare state
   const target = resolveTargetElement(unwrapTarget(element))
   elementRef.current = target
 

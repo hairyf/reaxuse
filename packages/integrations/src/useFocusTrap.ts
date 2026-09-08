@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 // focus-trap ships an ambient `declare module` d.ts; named type imports from
 // it break the tsdown d.ts bundling step (MISSING_EXPORT), so use the
 // namespace form — resolves to the same types and emits clean d.ts.
@@ -74,19 +74,16 @@ type MaybeElement = HTMLElement | SVGElement | null | undefined
 /** A plain element or a React ref-like object (`{ current }`) — upstream `MaybeElementRef`. */
 type MaybeElementRef = MaybeElement | { readonly current: MaybeElement }
 
-/** An element, a ref-like object, or a getter returning either — upstream `MaybeComputedElementRef`. */
-type MaybeComputedElementRef = MaybeElementRef | (() => MaybeElementRef)
-
-/** One item of the focus-trap target list. */
-type FocusTrapTarget = MaybeRefOrGetter<string> | MaybeComputedElementRef
+/** One item of the focus-trap target list (upstream `MaybeComputedElementRef`, without its getter branch). */
+type FocusTrapTarget = RefOrValue<string> | MaybeElementRef
 
 /**
  * Resolve one target item to a focus-trap container: a selector string, a DOM
  * element, or `null` when it cannot be resolved. Upstream resolves elements
  * with `unrefElement` (`@vueuse/core`); the React port composes the same
  * unwrapping from `toValue` / `isRefLike` (`@reaxuse/shared`) — one pass
- * unwraps a getter or a ref-like object, a second one covers upstream's
- * `() => MaybeElementRef` (a getter that returns a ref-like object).
+ * unwraps a ref-like object, a second one covers a ref-like object holding
+ * another ref-like (`{ current: { current: element } }`).
  */
 function resolveElement(value: unknown): string | HTMLElement | SVGElement | null {
   let el: unknown = toValue(value)
@@ -139,7 +136,7 @@ function resolveElement(value: unknown): string | HTMLElement | SVGElement | nul
  * activate() // traps focus inside target
  */
 export function useFocusTrap(
-  target: MaybeRefOrGetter<FocusTrapTarget | FocusTrapTarget[]>,
+  target: RefOrValue<FocusTrapTarget | FocusTrapTarget[]>,
   options: UseFocusTrapOptions = {},
 ): UseFocusTrapReturn {
   const [hasFocus, setHasFocus] = useState(false)

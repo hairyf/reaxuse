@@ -34,8 +34,8 @@ console.log(cached) // { value: 43, extra: 1 } — significant change, cache fol
 ```
 
 By default — with no comparator — the cache only moves when the source reference itself changes
-(`===`). The source also accepts a ref-like `{ current }` object or a getter function (resolved via
-`toValue`), matching the other core hooks.
+(`===`). The source also accepts a ref-like `{ current }` object (a React ref), resolved via
+`toValue`, matching the other core hooks.
 
 <DemoContainer name="UseCached" />
 
@@ -45,7 +45,7 @@ By default — with no comparator — the cache only moves when the source refer
 export type UseCachedComparator<T> = (newSourceValue: T, cachedValue: T) => boolean
 
 export function useCached<T>(
-  source: MaybeRefOrGetter<T>,
+  source: RefOrValue<T>,
   comparator?: UseCachedComparator<T>,
 ): T
 ```

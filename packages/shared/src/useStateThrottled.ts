@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react'
-import type { MaybeRefOrGetter } from './index'
+import type { RefOrValue } from './index'
 import { useEffect, useRef, useState } from 'react'
 import { useThrottleFn } from './useThrottleFn'
 import { toValue } from './utils'
@@ -60,7 +60,7 @@ export type UseStateThrottledReturn<T = any> = [
  * setInput('hello') // input updates immediately; throttled follows on the next window edge
  */
 export function useStateThrottled<T = any>(
-  value: MaybeRefOrGetter<T>,
+  value: RefOrValue<T>,
   delay = 200,
   trailing = true,
   leading = true,
