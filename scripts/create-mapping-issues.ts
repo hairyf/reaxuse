@@ -62,6 +62,11 @@ interface FnInfo {
   size: string
 }
 
+/** reaxuse-side name: VueUse `on*` → reaxuse `use*` (upstream `on*` name is kept on the vueuse side — Target / Upstream API / Map from / vueuse code) */
+function reaxuseName(name: string): string {
+  return /^on[A-Z]/.test(name) ? `use${name.slice(2)}` : name
+}
+
 function parseFrontmatter(content: string): { data: Record<string, string>, body: string } {
   const m = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/)
   if (!m)
@@ -211,13 +216,13 @@ function titleDescription(fn: FnInfo): string {
 }
 
 function titleFor(fn: FnInfo): string {
-  return `Mapping | \`${fn.name}\` | ${titleDescription(fn)}`
+  return `Mapping | \`${reaxuseName(fn.name)}\` | ${titleDescription(fn)}`
 }
 
 function bodyFor(fn: FnInfo): string {
   const ported = PORTED[fn.name]
-  const reaxuseFile = ported?.src || `packages/${fn.pkg}/src/${fn.name}.ts`
-  const docsDir = `packages/${fn.pkg}/${fn.name}`
+  const reaxuseFile = ported?.src || `packages/${fn.pkg}/src/${reaxuseName(fn.name)}.ts`
+  const docsDir = `packages/${fn.pkg}/${reaxuseName(fn.name)}`
   const variants = [
     fn.hasComponent ? `component \`${fn.name.replace(/^use/, 'Use')}\`` : '',
     fn.hasDirective ? `directive \`v-${fn.name.replace(/^use/, '').toLowerCase()}\`` : '',
@@ -244,7 +249,7 @@ function bodyFor(fn: FnInfo): string {
     fn.deprecated ? '- **⚠️ DEPRECATED upstream** — map only if still desired' : '',
   ].filter(Boolean).join('\n')
 
-  const reaxuseUsage = ported ? stripImports(readReaxuseUsage(fn.pkg, fn.name)) : ''
+  const reaxuseUsage = ported ? stripImports(readReaxuseUsage(fn.pkg, reaxuseName(fn.name))) : ''
   const vueuseUsage = stripImports(fn.usage)
   const vueuseBlock = vueuseUsage
     ? `// vueuse — @vueuse/${fn.pkg}\n${vueuseUsage}`
@@ -263,7 +268,7 @@ function bodyFor(fn: FnInfo): string {
 
   const acceptance = [
     `- [${ported ? 'x' : ' '}] implementation \`${reaxuseFile}\` + re-export from \`packages/${fn.pkg}/src/index.ts\``,
-    `- [${ported ? 'x' : ' '}] test \`packages/${fn.pkg}/src/${fn.name}.test.tsx\` (vitest-browser-react), mirroring the upstream test files`,
+    `- [${ported ? 'x' : ' '}] test \`packages/${fn.pkg}/src/${reaxuseName(fn.name)}.test.tsx\` (vitest-browser-react), mirroring the upstream test files`,
     `- [${ported ? 'x' : ' '}] docs page \`${docsDir}/index.md\` + co-located demo \`${docsDir}/demo.tsx\``,
     `- [ ] docs page references the upstream mapping files (source + tests)`,
     `- [ ] \`npm run update\` — refresh \`meta/functions.md\`, \`packages/functions.md\`, \`packages/metadata/src/functions.ts\``,
@@ -292,7 +297,7 @@ ${mapFrom}
 Map to (reaxuse):
 
 - \`${reaxuseFile}\` — implementation
-- \`packages/${fn.pkg}/src/${fn.name}.test.tsx\` — mirrored tests (vitest-browser-react)
+- \`packages/${fn.pkg}/src/${reaxuseName(fn.name)}.test.tsx\` — mirrored tests (vitest-browser-react)
 - \`${docsDir}/index.md\` + \`${docsDir}/demo.tsx\` — docs page + demo (co-located per function, mirroring upstream)
 
 ## Expected implementation

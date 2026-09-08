@@ -87,19 +87,18 @@ describe('useFavicon', () => {
   })
 
   it('computed/readonly', async () => {
-    const onoff = { current: 1 }
-    const target = () => (onoff.current === 1 ? 'a.jpg' : 'b.jpg')
+    const target = { current: 'a.jpg' }
     const { result, rerender } = await renderHook(() => useFavicon(target))
 
     expect(result.current[0]).toBe('a.jpg')
 
-    onoff.current = 2
+    target.current = 'b.jpg'
     await rerender()
     expect(result.current[0]).toBe('b.jpg')
   })
 
-  it('function/readonly', async () => {
-    const { result } = await renderHook(() => useFavicon(() => 'a.jpg'))
+  it('plain value/readonly', async () => {
+    const { result } = await renderHook(() => useFavicon('a.jpg'))
 
     expect(result.current[0]).toBe('a.jpg')
   })

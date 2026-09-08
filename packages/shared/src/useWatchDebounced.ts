@@ -1,4 +1,4 @@
-import type { MaybeRef } from './index'
+import type { RefOrValue } from './index'
 import type { DebounceFilterOptions } from './useDebounceFn'
 import type { UseWatchCallback } from './useWatch'
 import { useDebounceFn } from './useDebounceFn'
@@ -11,7 +11,7 @@ export interface UseWatchDebouncedOptions extends DebounceFilterOptions {
    *
    * @default 0
    */
-  debounce?: MaybeRef<number> | (() => number)
+  debounce?: RefOrValue<number>
 
   /**
    * Fire the callback once on mount with the current value (still debounced).

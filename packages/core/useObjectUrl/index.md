@@ -10,7 +10,7 @@ Creates a URL for the provided `File`, `Blob`, or `MediaSource` via [URL.createO
 
 **Mapping:** upstream's readonly `shallowRef` return becomes a plain `string | undefined`
 value — `useObjectUrl` is purely derived, with no setters. The object is resolved during
-render (`toValue`, so a plain value, a `{ current }` ref-like object or a getter all work)
+render (`toValue`, so a plain value or a React ref both work)
 and a `useEffect` keyed on the resolved value creates the new URL and revokes the previous
 one; the unmount revocation lives in the effect cleanup (upstream `tryOnScopeDispose`).
 Nothing touches `URL` during render, so the hook is SSR-safe. The upstream component
@@ -56,7 +56,7 @@ const url = useObjectUrl(file) // `undefined` until a file is set
 
 ```ts
 export function useObjectUrl(
-  object: MaybeRefOrGetter<Blob | MediaSource | null | undefined>,
+  object: RefOrValue<Blob | MediaSource | null | undefined>,
 ): string | undefined
 ```
 
