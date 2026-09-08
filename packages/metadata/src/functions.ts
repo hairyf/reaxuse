@@ -341,6 +341,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'unrefElement',
+    file: 'packages/core/src/unrefElement.ts',
+    pkg: 'core',
+  },
+  {
     name: 'until',
     file: 'packages/shared/src/until.ts',
     pkg: 'shared',

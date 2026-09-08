@@ -71,6 +71,7 @@
 | `toValue`                         | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `toValue`                         | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `TransitionPresets`               | —                                             | `packages/core/src/useTransition.ts`                   | 🚧 ported (no upstream match) |
+| `unrefElement`                    | packages/core/unrefElement                    | `packages/core/src/unrefElement.ts`                    | ✅ ported                     |
 | `until`                           | packages/shared/until                         | `packages/shared/src/until.ts`                         | ✅ ported                     |
 | `until`                           | packages/shared/until                         | `packages/shared/src/until.ts`                         | ✅ ported                     |
 | `until`                           | packages/shared/until                         | `packages/shared/src/until.ts`                         | ✅ ported                     |
