@@ -30,17 +30,6 @@ describe('useCloned', () => {
     expect(result.current.cloned).toEqual(data.current)
   })
 
-  it('works with getter function', async () => {
-    const data = { current: { test: 'test' } }
-
-    const { result, rerender } = await renderHook(() => useCloned(() => data.current))
-
-    data.current.test = 'success'
-    await rerender()
-
-    expect(result.current.cloned).toEqual(data.current)
-  })
-
   it('works with refs and manual sync', async () => {
     const data = { current: { test: 'test' } }
 

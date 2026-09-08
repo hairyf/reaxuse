@@ -6,7 +6,7 @@ category: Sensors
 
 Create parallax effect easily. It uses `useDeviceOrientation` and fallback to `useMouse` if orientation is not supported.
 
-**Mapping:** the Vue `tilt`/`roll`/`source` computeds become plain values derived during render from `useState` — the returned object is `{ tilt, roll, source }`. The `deviceorientation` subscription (upstream `useDeviceOrientation`) and the cursor tracking (upstream `useMouseInElement` with `handleOutside: false`) live in self-contained mount `useEffect`s; the element rect is re-measured on window `scroll`/`resize` instead of upstream's observer wiring. `target` accepts a plain element, a ref-like `{ current }` object or a getter. SSR-safe — no `window` access during render, so the server renders `{ tilt: 0, roll: 0, source: 'mouse' }`.
+**Mapping:** the Vue `tilt`/`roll`/`source` computeds become plain values derived during render from `useState` — the returned object is `{ tilt, roll, source }`. The `deviceorientation` subscription (upstream `useDeviceOrientation`) and the cursor tracking (upstream `useMouseInElement` with `handleOutside: false`) live in self-contained mount `useEffect`s; the element rect is re-measured on window `scroll`/`resize` instead of upstream's observer wiring. `target` accepts a plain element, a React ref. SSR-safe — no `window` access during render, so the server renders `{ tilt: 0, roll: 0, source: 'mouse' }`.
 
 ## Usage
 
@@ -42,7 +42,7 @@ export interface UseParallaxReturn {
 }
 
 export function useParallax(
-  target: MaybeRefOrGetter<HTMLElement | null | undefined>,
+  target: RefOrValue<HTMLElement | null | undefined>,
   options?: UseParallaxOptions,
 ): UseParallaxReturn
 ```

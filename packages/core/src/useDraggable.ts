@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import type { PointerType } from './usePointer'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -8,11 +8,11 @@ export interface Position {
   y: number
 }
 
-export type DraggableTarget = MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>
+export type DraggableTarget = RefOrValue<HTMLElement | SVGElement | null | undefined>
 
-export type DraggableElement = MaybeRefOrGetter<HTMLElement | SVGElement | Window | Document | null | undefined>
+export type DraggableElement = RefOrValue<HTMLElement | SVGElement | Window | Document | null | undefined>
 
-export type DraggableContainer = MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>
+export type DraggableContainer = RefOrValue<HTMLElement | SVGElement | null | undefined>
 
 export interface UseDraggableOptions {
   /**
@@ -20,21 +20,21 @@ export interface UseDraggableOptions {
    *
    * @default false
    */
-  exact?: MaybeRefOrGetter<boolean>
+  exact?: RefOrValue<boolean>
 
   /**
    * Prevent events defaults
    *
    * @default false
    */
-  preventDefault?: MaybeRefOrGetter<boolean>
+  preventDefault?: RefOrValue<boolean>
 
   /**
    * Prevent events propagation
    *
    * @default false
    */
-  stopPropagation?: MaybeRefOrGetter<boolean>
+  stopPropagation?: RefOrValue<boolean>
 
   /**
    * Whether dispatch events in capturing phase
@@ -76,7 +76,7 @@ export interface UseDraggableOptions {
    *
    * @default { x: 0, y: 0 }
    */
-  initialValue?: MaybeRefOrGetter<Position>
+  initialValue?: RefOrValue<Position>
 
   /**
    * Callback when the dragging starts. Return `false` to prevent dragging.
@@ -105,7 +105,7 @@ export interface UseDraggableOptions {
    *
    * @default false
    */
-  disabled?: MaybeRefOrGetter<boolean>
+  disabled?: RefOrValue<boolean>
 
   /**
    * Mouse buttons that are allowed to trigger drag events.
@@ -119,7 +119,7 @@ export interface UseDraggableOptions {
    * @see https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button#value
    * @default [0]
    */
-  buttons?: MaybeRefOrGetter<number[]>
+  buttons?: RefOrValue<number[]>
 
   /**
    * Whether to restrict dragging within the visible area of the container.
@@ -129,27 +129,27 @@ export interface UseDraggableOptions {
    *
    * @default false
    */
-  restrictInView?: MaybeRefOrGetter<boolean>
+  restrictInView?: RefOrValue<boolean>
 
   /**
    * Whether to enable auto-scroll when dragging near the edges.
    *
    * @default false
    */
-  autoScroll?: MaybeRefOrGetter<boolean | {
+  autoScroll?: RefOrValue<boolean | {
     /**
      * Speed of auto-scroll.
      *
      * @default 2
      */
-    speed?: MaybeRefOrGetter<number | Position>
+    speed?: RefOrValue<number | Position>
 
     /**
      * Margin from the edge to trigger auto-scroll.
      *
      * @default 30
      */
-    margin?: MaybeRefOrGetter<number | Position>
+    margin?: RefOrValue<number | Position>
 
     /**
      * Direction of auto-scroll.
@@ -261,7 +261,7 @@ function isPointerNearEdge(
  * - `target`, `handle`, `draggingElement` and `containerElement` accept a
  *   plain element, a ref-like `{ current }` object (e.g. the result of
  *   `useRef`) or a getter — the React equivalent of upstream's
- *   `MaybeRefOrGetter`. They are re-resolved on every render and the
+ *   `RefOrValue`. They are re-resolved on every render and the
  *   listeners re-bind when the resolved element changes;
  * - every remaining option (`disabled`, `buttons`, `exact`, `axis`,
  *   `restrictInView`, `autoScroll`, `onStart` / `onMove` / `onEnd`, …) is

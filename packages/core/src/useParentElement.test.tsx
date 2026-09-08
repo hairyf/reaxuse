@@ -39,13 +39,13 @@ it('useParentElement accepts a ref-like { current } source', async () => {
   }
 })
 
-it('useParentElement accepts a getter source', async () => {
+it('useParentElement accepts a plain element source', async () => {
   const parent = document.createElement('div')
   const child = document.createElement('p')
   const cleanup = attach(parent, child)
 
   try {
-    const { result } = await renderHook(() => useParentElement(() => child))
+    const { result } = await renderHook(() => useParentElement(child))
     expect(result.current).toBe(parent)
   }
   finally {

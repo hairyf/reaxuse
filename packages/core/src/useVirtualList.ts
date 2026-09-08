@@ -1,4 +1,4 @@
-import type { MaybeRef } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import type { CSSProperties } from 'react'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -168,7 +168,7 @@ function getTotalSize<T>(source: readonly T[], itemSize: UseVirtualListItemSize)
  *   offset and size (kept in state, updated by `onScroll` / `scrollTo` / the
  *   container ref callback / a `ResizeObserver`), so the source list, the
  *   item-size function and the options are re-read every render — no `watch`
- *   setup needed; upstream's `MaybeRef<readonly T[]>` input accepts a plain
+ *   setup needed; upstream's `RefOrValue<readonly T[]>` input accepts a plain
  *   array or a ref-like `{ current }` object;
  * - upstream's `watch` over the container size (via `useElementSize`) becomes
  *   the `ResizeObserver` attached to the container element, and the item-size
@@ -205,7 +205,7 @@ function getTotalSize<T>(source: readonly T[], itemSize: UseVirtualListItemSize)
  * //   </div>
  * // </div>
  */
-export function useVirtualList<T = any>(list: MaybeRef<readonly T[]>, options: UseVirtualListOptions): UseVirtualListReturn<T> {
+export function useVirtualList<T = any>(list: RefOrValue<readonly T[]>, options: UseVirtualListOptions): UseVirtualListReturn<T> {
   const isVertical = 'itemHeight' in options
   const itemSize: UseVirtualListItemSize = isVertical ? options.itemHeight : options.itemWidth
   const overscan = options.overscan ?? 5

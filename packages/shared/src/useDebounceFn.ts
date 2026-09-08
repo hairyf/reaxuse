@@ -1,4 +1,4 @@
-import type { MaybeRef } from './index'
+import type { RefOrValue } from './index'
 import { useEffect, useMemo, useRef } from 'react'
 import { noop } from './index'
 import { toValue } from './utils'
@@ -10,7 +10,7 @@ export interface DebounceFilterOptions {
    * The maximum time allowed to be delayed before it's invoked.
    * In milliseconds.
    */
-  maxWait?: MaybeRef<number> | (() => number)
+  maxWait?: RefOrValue<number>
 
   /**
    * Whether to reject the last call if it's been cancelled.
@@ -50,7 +50,7 @@ export interface UseDebounceFnReturn<T extends FunctionArgs> {
  * `isPending`. This port builds the same wrapper once (`useMemo`) so its
  * identity is stable across renders; the latest `fn` / `ms` / `options` are
  * mirrored into refs so every call sees fresh values. `ms` accepts a number, a
- * ref-like `{ current }` or a getter (upstream: `MaybeRefOrGetter<number>`) and
+ * ref-like `{ current }` or a getter (upstream: `RefOrValue<number>`) and
  * is re-read on every call. `isPending` becomes a non-reactive getter (React
  * has no reactive refs), the promise settlement plumbing is simplified (the
  * pending promise always settles with the result when the call fires), and
@@ -65,7 +65,7 @@ export interface UseDebounceFnReturn<T extends FunctionArgs> {
  */
 export function useDebounceFn<T extends FunctionArgs>(
   fn: T,
-  ms: MaybeRef<number> | (() => number) = 200,
+  ms: RefOrValue<number> = 200,
   options: DebounceFilterOptions = {},
 ): UseDebounceFnReturn<T> {
   // keep the latest fn / ms / options in refs so the debounced wrapper

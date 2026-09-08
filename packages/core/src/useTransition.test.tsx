@@ -56,9 +56,9 @@ it('useTransition tweens between arrays of numbers', async () => {
     .toEqual([100, -50])
 })
 
-it('useTransition accepts a getter source', async () => {
+it('useTransition follows the current source on re-render', async () => {
   const { result, rerender } = await renderHook(
-    ({ n }: { n: number } = { n: 0 }) => useTransition(() => n, { duration: 100 }),
+    ({ n }: { n: number } = { n: 0 }) => useTransition(n, { duration: 100 }),
     { initialProps: { n: 5 } },
   )
 

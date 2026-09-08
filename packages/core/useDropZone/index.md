@@ -6,7 +6,7 @@ category: Elements
 
 Create a zone where files can be dropped — React port of VueUse's [`useDropZone`](https://vueuse.org/core/useDropZone/).
 
-The hook attaches `dragenter` / `dragover` / `dragleave` / `drop` listeners to a target element (a plain element, a ref-like `{ current }` or a getter) in a mount effect and tracks whether a valid drag is currently over the zone. Dropped files flow through the `onDrop` callback — either the `onDrop` option or the returned `onDrop` subscription.
+The hook attaches `dragenter` / `dragover` / `dragleave` / `drop` listeners to a target element (a plain element, a React ref) in a mount effect and tracks whether a valid drag is currently over the zone. Dropped files flow through the `onDrop` callback — either the `onDrop` option or the returned `onDrop` subscription.
 
 ::: warning
 
@@ -74,14 +74,14 @@ useListener(onDragLeave, () => {
 export type UseDropZoneCallback = (files: File[] | null, event: DragEvent) => void
 
 export interface UseDropZoneOptions {
-  dataTypes?: MaybeRef<readonly string[]> | ((types: readonly string[]) => boolean)
+  dataTypes?: RefOrValue<readonly string[]> | ((types: readonly string[]) => boolean)
   checkValidity?: (items: DataTransferItemList) => boolean
   onDrop?: UseDropZoneCallback
   onEnter?: UseDropZoneCallback
   onLeave?: UseDropZoneCallback
   onOver?: UseDropZoneCallback
-  multiple?: MaybeRefOrGetter<boolean>
-  preventDefaultForUnhandled?: MaybeRefOrGetter<boolean>
+  multiple?: RefOrValue<boolean>
+  preventDefaultForUnhandled?: RefOrValue<boolean>
 }
 
 export interface UseDropZoneReturn {
@@ -92,7 +92,7 @@ export interface UseDropZoneReturn {
 }
 
 export function useDropZone(
-  target: MaybeRefOrGetter<HTMLElement | Document | null | undefined>,
+  target: RefOrValue<HTMLElement | Document | null | undefined>,
   options?: UseDropZoneOptions | UseDropZoneOptions['onDrop'],
 ): UseDropZoneReturn
 ```
