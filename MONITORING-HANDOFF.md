@@ -210,7 +210,9 @@ New-Item -ItemType Junction -Path D:\reaxuse-wt\<hook>\node_modules -Target D:\r
 
 ## 7. 实时状态与任务队列
 
-> **当前基线**（2026-09-08 17:45）：`main` = `6693b5c`，CI 全绿。**开放 PR 0**（#490/#488/#489/#491/#492 均已合并）；元数据同步推送（`bedfcba` 374 functions → `6693b5c` 375 functions，+useRefsList）。
+> **当前基线**（2026-09-08 18:20）：`main` = `0884955`，CI 全绿。**开放 PR 0**（#490/#488/#489/#491/#492/#493 均已合并）；元数据同步推送（`6693b5c` 375 → `0884955` 376 functions，+computedAsync）。
+>
+> **Round 6（17:45–18:20）— #493 computedAsync 合并**：派发 #11 `computedAsync`（size:L，子代理 `ede64efa`，worktree `computedasync`，branch `feat/core-computedasync`）。中途 15 分钟无文件写入判定疑似 stall，`send_message` 状态探针后恢复（实为长读上游/前例阶段）——**探针优于中断**。commit `cc0fe33`：12/12 browser 测试、tsc 0、eslint 0 → §2 审查通过 → 5/5 CI 绿 → 合并。**设计（编排者裁定，纯派生值 → 非 §2B 元组）**：`computedAsync<T>(evaluationCallback, initialState: RefOrValue<T>, options?: AsyncComputedOptions): T`；`AsyncComputedOptions = { deps?: unknown[]; onEvaluating?: (v: boolean) => void; lazy?: boolean; onError?: (e) => void }`——React 无响应式图，`deps` 数组替代上游自动依赖追踪（默认 `[]` = 仅挂载求值）；上游 `evaluating` ref → `onEvaluating` 回调（每次求值 false 至多一次：被淘汰的求值在 invalidation 时 settle，不在其被抛弃的 Promise 迟到时重复 settle；卸载后不调用）；counter 陈旧保护 + `hasFinished` 取消注册表 + 卸载丢弃，均为上游 parity；上游被拒/取消的求值仍进 `onError`（传自定义 `onError` 静音 AbortError）；`shallow`/ref-overload 不可移植已折叠；`asyncComputed` 别名不移植；`Fn` 本地定义（shared 未导出，前例 `packages/shared/src/useIntervalFn.ts:3`）；`defaultOnError` 注意 `globalThis.reportError(e)` 必须以 globalThis 为 receiver（否则 Chromium "Illegal invocation"）。
 >
 > **Round 5（17:20–17:45）— #492 useRefsList 合并 + 维护者更名指令**：子代理 `d2a9da99` 完成 useTemplateRefsList（#223）→ PR #492（commit `c9ac91a`，9/9 测试，tsc/eslint 0）。§2 审查通过（元组协议/稳定身份/`refs.setAt === setAt`/`T | null` 卸载语义/分歧映射 JSDoc/仅取消自己占位符行）；CI `test (lts/*)` 首轮失败 = 已知抖动（useRafFn once 断言 + useWindowScroll directions + worker boom），重跑即绿。**维护者指令：reaxuse 侧更名 `useTemplateRefsList` → `useRefsList`**——在分支上执行 `git mv`×3 + 内容改名 + index.ts 旧行删除、新行按字母序插回（`useSpeechSynthesis` 与 `useSSRWidth` 之间，`user` < `uses`）→ commit `cc7dfa0` `refactor(core)!: rename useTemplateRefsList to useRefsList` → 9/9 + tsc 0 + eslint 0 → 5/5 CI 绿 → 合并（main `8a1c321`）。**AGENTS.md 落地要点：上游源名 `useTemplateRefsList` 保留在 Map from JSDoc 与上游链接/路径中**（批量改名后须人工恢复这些行）；`useRefsList` 无预置占位符 → 按 AGENTS.md 罕见情形规则直接插入真实行。设计最终态：`useRefsList<T>(): [TemplateRefsList<T>, setAt]`，`TemplateRefsList<T> = T[] & { setAt: (index, value: T | null) => void }`（函数属性形式，因 `ts/method-signature-style` 禁 shorthand），refs 惰性 `useRef` 单次创建、身份跨渲染稳定、变更不触发重渲染。
 >
@@ -252,6 +254,7 @@ New-Item -ItemType Junction -Path D:\reaxuse-wt\<hook>\node_modules -Target D:\r
 * **Adjustment 标签项**（2026-09-08 开放项）：
 * ~~#27 `isDefined`~~ → **已合并 PR #488**（2026-09-08 17:00）
 * ~~#223 `useTemplateRefsList`~~ → **已合并 PR #492**（2026-09-08 17:40，reaxuse 侧更名为 `useRefsList`，维护者指令）
+* ~~#11 `computedAsync`~~ → **已合并 PR #493**（2026-09-08 18:10，deps/onEvaluating React 映射，见 Round 6 记录）
 * #262 `useWatchExtractedObservable`（rxjs 包，⚠️ rxjs 依赖本地不可解析，暂缓）
 * #42 `toObserver`（rxjs 包，同上暂缓）
 
