@@ -16,6 +16,6 @@ export * from './useFocusTrap'
 // export * from './useIDBKeyval'
 // export * from './useJwt'
 // export * from './useNProgress'
-// export * from './useQRCode'
+export * from './useQRCode'
 // export * from './useSortable'
 export {}
