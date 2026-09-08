@@ -80,7 +80,7 @@ function supportsVibration(nav: Navigator | undefined): nav is Navigator {
  *   `useIntervalFn` yet): the loop starts when `vibrate()` is called,
  *   re-triggers the pattern every `interval` ms, and is cancelled by `stop()`
  *   or unmount — no `intervalControls` are returned;
- * - `MaybeRefOrGetter` reactivity becomes plain values: options are read at
+ * - `RefOrValue` reactivity becomes plain values: options are read at
  *   call time, so changing `pattern` affects the next `vibrate()` call or
  *   loop tick, and changing `interval` restarts the loop.
  *

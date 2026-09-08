@@ -9,8 +9,7 @@ Use EventListener with ease. Register using [`addEventListener`](https://develop
 **Mapping:** the listeners are read through a latest-value ref and bound in a `useEffect`
 (upstream composes `useEventListener` / `watchImmediate`), which re-registers whenever the resolved
 target(s), events or options change and removes them on unmount — so new inline listener identities
-never churn the subscription. The target accepts a plain element, a ref-like `{ current }` object or a
-getter (`MaybeRefOrGetter`), may be an array, and defaults to `window` when omitted. The return value
+never churn the subscription. The target accepts a plain element or a React ref (`RefOrValue`), may be an array, and defaults to `window` when omitted. The return value
 is an optional cleanup function that detaches the currently registered listeners (upstream returns a
 `Fn` that stops the internal watcher).
 
@@ -101,29 +100,29 @@ export interface GeneralEventListener<E = Event> {
   (evt: E): void
 }
 
-export type MaybeRefOrGetter<T> = T | { current: T } | (() => T)
+export type RefOrValue<T> = T | { current: T } | (() => T)
 
 // Overload 1 — omitted target defaults to window:
 export function useEventListener<E extends keyof WindowEventMap>(
-  event: MaybeRefOrGetter<Arrayable<E>>,
-  listener: MaybeRefOrGetter<Arrayable<(this: Window, ev: WindowEventMap[E]) => any>>,
-  options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
+  event: RefOrValue<Arrayable<E>>,
+  listener: RefOrValue<Arrayable<(this: Window, ev: WindowEventMap[E]) => any>>,
+  options?: RefOrValue<boolean | AddEventListenerOptions>,
 ): (() => void) | undefined
 
 // Overloads 2–5 — explicit Window / Document / ShadowRoot / HTMLElement targets:
 export function useEventListener<E extends keyof HTMLElementEventMap>(
-  target: MaybeRefOrGetter<Arrayable<HTMLElement> | null | undefined>,
-  event: MaybeRefOrGetter<Arrayable<E>>,
-  listener: MaybeRefOrGetter<(this: HTMLElement, ev: HTMLElementEventMap[E]) => any>,
-  options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
+  target: RefOrValue<Arrayable<HTMLElement> | null | undefined>,
+  event: RefOrValue<Arrayable<E>>,
+  listener: RefOrValue<(this: HTMLElement, ev: HTMLElementEventMap[E]) => any>,
+  options?: RefOrValue<boolean | AddEventListenerOptions>,
 ): (() => void) | undefined
 
 // Overloads 6–7 — custom event targets and fallback:
 export function useEventListener<EventType = Event>(
-  target: MaybeRefOrGetter<Arrayable<EventTarget> | null | undefined>,
-  event: MaybeRefOrGetter<Arrayable<string>>,
-  listener: MaybeRefOrGetter<Arrayable<GeneralEventListener<EventType>>>,
-  options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
+  target: RefOrValue<Arrayable<EventTarget> | null | undefined>,
+  event: RefOrValue<Arrayable<string>>,
+  listener: RefOrValue<Arrayable<GeneralEventListener<EventType>>>,
+  options?: RefOrValue<boolean | AddEventListenerOptions>,
 ): (() => void) | undefined
 ```
 

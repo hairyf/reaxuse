@@ -30,8 +30,8 @@ list[0].current = 3 // positive === 3 on the next render
 export type UseArrayFindReturn<T = any> = T | undefined
 
 export function useArrayFind<T>(
-  list: MaybeRef<MaybeRef<T>[]>,
-  fn: (element: T, index: number, array: MaybeRef<T>[]) => boolean,
+  list: RefOrValue<RefOrValue<T>[]>,
+  fn: (element: T, index: number, array: RefOrValue<T>[]) => boolean,
 ): UseArrayFindReturn<T>
 ```
 

@@ -71,13 +71,13 @@ function Component() {
 ```ts
 export interface UseFileDialogOptions {
   document?: Document | null
-  multiple?: MaybeRefOrGetter<boolean>
-  accept?: MaybeRefOrGetter<string>
-  capture?: MaybeRefOrGetter<string>
-  reset?: MaybeRefOrGetter<boolean>
-  directory?: MaybeRefOrGetter<boolean>
+  multiple?: RefOrValue<boolean>
+  accept?: RefOrValue<string>
+  capture?: RefOrValue<string>
+  reset?: RefOrValue<boolean>
+  directory?: RefOrValue<boolean>
   initialFiles?: Array<File> | FileList
-  input?: MaybeRefOrGetter<HTMLInputElement | null>
+  input?: RefOrValue<HTMLInputElement | null>
 }
 
 export interface UseFileDialogReturn {

@@ -12,8 +12,8 @@ Get the formatted date according to the string of tokens passed in, inspired by
 `ComputedRef<string>`. This port returns a **plain string** — call it during
 render and pass your own reactive date state (e.g. a `useState` value); it
 recomputes on every render with fresh inputs. `date`, `formatStr` and
-`options.locales` accept a plain value, a ref-like `{ current }` or a getter
-(upstream: `MaybeRefOrGetter<T>`) and are re-read on every call. The helpers
+`options.locales` accept a plain value, a React ref
+(upstream: `RefOrValue<T>`) and are re-read on every call. The helpers
 `formatDate` / `normalizeDate` are mirrored 1:1.
 
 **List of all available formats (HH:mm:ss by default):**
@@ -93,7 +93,7 @@ useDateFormat('2022-01-01 17:05:05', 'hh:mm:ss AA', { customMeridiem })
 export type DateLike = Date | number | string | undefined
 
 export interface UseDateFormatOptions {
-  locales?: MaybeRef<Intl.LocalesArgument> | (() => Intl.LocalesArgument)
+  locales?: RefOrValue<Intl.LocalesArgument> | (() => Intl.LocalesArgument)
   customMeridiem?: (hours: number, minutes: number, isLowercase?: boolean, hasPeriod?: boolean) => string
 }
 
@@ -102,8 +102,8 @@ export type UseDateFormatReturn = string
 export function formatDate(date: Date, formatStr: string, options?: UseDateFormatOptions): string
 export function normalizeDate(date: DateLike): Date
 export function useDateFormat(
-  date: MaybeRef<DateLike> | (() => DateLike),
-  formatStr?: MaybeRef<string> | (() => string),
+  date: RefOrValue<DateLike> | (() => DateLike),
+  formatStr?: RefOrValue<string> | (() => string),
   options?: UseDateFormatOptions,
 ): UseDateFormatReturn
 ```

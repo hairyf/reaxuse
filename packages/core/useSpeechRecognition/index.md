@@ -6,7 +6,7 @@ category: Sensors
 
 Reactive [SpeechRecognition](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition) — React port of VueUse's [`useSpeechRecognition`](https://vueuse.org/core/useSpeechRecognition/).
 
-**Mapping:** the Vue refs (`isListening` / `isFinal` / `result` / `confidence` / `error`) become plain state values, and the underlying `recognition` instance is created once during the first render when the API is available (`undefined` otherwise). `start()` / `stop()` / `toggle()` are stable callbacks — upstream's `watch(isListening)` that drives `recognition.start()` / `recognition.stop()` becomes an effect that skips its initial run, and the unmount cleanup stops the instance directly. `lang` is a plain option (upstream: `MaybeRefOrGetter`); a changed language is re-applied while not listening, and `onend` re-applies the latest value for the next run.
+**Mapping:** the Vue refs (`isListening` / `isFinal` / `result` / `confidence` / `error`) become plain state values, and the underlying `recognition` instance is created once during the first render when the API is available (`undefined` otherwise). `start()` / `stop()` / `toggle()` are stable callbacks — upstream's `watch(isListening)` that drives `recognition.start()` / `recognition.stop()` becomes an effect that skips its initial run, and the unmount cleanup stops the instance directly. `lang` is a plain option (upstream: `RefOrValue`); a changed language is re-applied while not listening, and `onend` re-applies the latest value for the next run.
 
 > [Can I use?](https://caniuse.com/mdn-api_speechrecognitionevent)
 
