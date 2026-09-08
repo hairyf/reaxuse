@@ -3,7 +3,7 @@
 > **文件用途**：会话无缝交接（untracked，禁止提交）。
 > **流程文档**：PR 监控/审批/合并的稳定流程见 `PR-MERGE-WORKFLOW.md`（本文件只记会话状态与队列）。
 > **目标仓库**：[reaxuse/issues](https://github.com/hairyf/reaxuse/issues)（React 版 VueUse，账号 `hairyf`）
-> **当前基线**：`main` = `2fc976a`（**242 functions**；#391 子包骨架已合入）。2026-09-06 批量合并会话（编排者代合并授权）：30 个 PR 全部合并（#371–#399 除 #374，#400–#405），元数据已同步（`9f09c60` + `2fc976a`），`npx tsc --noEmit` 全绿。**#374 useVirtualList §2C 违规已修复**（分支 `c654b3f`：toValue/MaybeRef 改从 `@reaxuse/shared` 导入，删除本地副本），CI 全绿，待维护者合并——这是当前唯一开放 PR。useListener 协议（§2D）完成闭环：#380 合入后 #382 内联兼容层已清理再合并。跨包同名类型 TS2308 已收敛：UseMouseSourceType/UseMouseCoordType 唯一导出于 useMouse.ts，useMousePressed/useMouseInElement 改 `import type`。
+> **当前基线**（2026-09-08 15:40 会话更新）：`main` = `ea039af`（370 functions，**开放 PR 0**）。本会话（Round 1–2）已完成：① 代合并 PR #482 useChangeCase（issue #90）、#483 useFocusTrap（issue #134），审查全合规、CI 5 项全绿，issue 自动关闭；② #22 `createUnrefFn` 按 `impractical` 协议 `not planned` 关闭（评论 5580640786）；③ 关闭过期 issue #2 useNow / #9 useCounter / #10 useToggle（均已实现并导出，附证据评论）；④ **元数据同步已推送**（`ea039af`，+609/-0，含 batch 435–485 缺口与 #482/#483）。**⚠️ 重要环境事实**：`source/vueuse` 是未初始化 submodule——任何会话运行 `npm run update` 前必须先 `git submodule update --init source/vueuse`，否则状态列整体降级为 "🚧 ported (no upstream match)"（上一会话的 `145a980` 即因此废弃，未入历史，reflog 可查）。旧 `D:\reaxuse` 检出已不存在，`vitest.worktree.config.ts` 已无——worktree 内直接以根 `vitest.config.ts` 运行 `npx vitest run <file>` 即可。
 
 ---
 
@@ -210,7 +210,22 @@ New-Item -ItemType Junction -Path D:\reaxuse-wt\<hook>\node_modules -Target D:\r
 
 ## 7. 实时状态与任务队列
 
-> **当前基线**：`main` = `b770b26`（**192 functions**）。占位符导出模式已落地；开放 PR 17 个：#371/#372/#374/#377/#378/#379/#380/#381/#382/#383/#384/#385/#386/#387/#388/#389/#390（均 CI 全绿，待维护者合并）。useListener 协议（§2D）已落地（PR #380）。
+> **当前基线**（2026-09-08 17:05）：`main` = `1cc9e53`，CI 全绿。**开放 PR 0**；#490（RefOrValue 迁移收尾）、#488（isDefined）、#489（createEventHook）已全部合并；元数据两次同步推送（`d0debb3` 369 functions、`1cc9e53` 373 functions）。本地 worktree 已全部清理（仅剩主树）。
+>
+> **Round 4 记录（16:00–17:05）— #462 类型债清偿**：main 因 `8fddc63`（去掉 getter 支持、改名 `RefOrValue` 系）遗留 85 个 tsc 错误 + 47 个失败测试 + shared 构建失败。编排者并行派发 2 个子代理 + 自理一个切片，三分支合一验证后开 **PR #490** 并合并（5/5 CI 绿）：
+> - math：`chore/462-math-ref-migration` `a81b1b3`（43 文件；14 源 + 14 测试 + 12 docs；`MaybeComputedRefArgs`→`RefOrValueArgs`；useMath `Reactified<T,Computed>` 折叠为 `Reactified<T>`）。
+> - core：`chore/462-core-ref-migration` `9828925`（33+36 文件；20 源/测试 + 14 docs + 36 文件 JSDoc getter 措辞清扫；两个运行时修复：`useBreakpoints.ts:275-278` media-query thunk→纯字符串（getter 到达 `trackedQuery.split` 即崩）、`useStartTyping.ts:159` target thunk→SSR 守卫纯值（旧 thunk 使监听器绑定 0 个））。
+> - shared+integrations（编排者自理）：until/syncRefs/useState{Default,AutoReset,Throttled,ManualReset} + useChangeCase/useFocusTrap + 测试迁移（getter 专属用例删除或改 ref 等价物；`useStateAutoReset` 卸载清理改用 `vi.getTimerCount()` 断言）。
+> - 集成分支 `chore/462-ref-migration`（14cca07 + 两次 merge + 1589b8a style fix）；**验证门槛全绿**：tsc 0 错误、lint 0、vitest 207 文件/2121 测试 0 失败、build 11/11。
+> - 迁移语义基线：`RefOrValue<T> = T | Ref<T>`，**getter（函数）一律不再支持**；`toValue` 只解 `{ current }`，不调函数。
+>
+> **⚠️ 事故记录（2026-09-08 15:24–15:30，16:08 复发 + 根因确认）**：主树 `packages/**` + `playgrounds/**` 磁盘文件两度批量消失、`node_modules` 两度被清空。**根因确认（16:08）**：对含 `node_modules` **junction** 的 worktree 执行 `git worktree remove --force` 会**穿透 junction 删除目标内容**——清空主树 `node_modules`（914 包仅剩 `.vite-temp`），且同窗口主树未提交编辑被重置、tracked 文件批量显示 ` D`。**铁律：删 worktree 前必须先 `cmd /c rmdir <worktree>\node_modules`（只删 reparse 点），`Test-Path` 确认 junction 已消失，再 `git worktree remove`（必要时 --force）**。恢复法：`npm ci --no-audit --no-fund`（914 包/29s）+ `git checkout -- packages playgrounds`。其他教训：主树只允许编排者做受控操作；**未提交工作随时可能丢失——切片完成立即 commit+push**（round-4 编排者切片曾因本次事故整片重做）。
+> **事故恢复（15:40、16:10 两次）**：`node_modules` 由编排者执行 `npm ci --no-audit --no-fund` 恢复（914 包 / 29s，exit 0）。主树 `packages`/`playgrounds` 用 `git checkout -- packages playgrounds` 恢复；根目录误下载的 `upstream-index.{ts,test.ts,md}`（createEventHook 上游源码）已删除。主树遗留 2 个 `lint-staged automatic backup` stash（round-2 元数据提交时产生，无内容价值，可 `git stash clear`）。
+> **worktree 验证必读（15:45 实测）**：① 主树 `vitest.config.ts` **没有** `server.fs.allow`，在 worktree 里直接跑会报 `TypeError: Failed to fetch dynamically imported module: http://localhost:PORT/@fs/D:/projects/reaxuse/node_modules/vitest-browser-react/dist/index.js`（依赖经 junction realpath 到主树之外，被 Vite 拒绝）——必须用未跟踪的 `vitest.worktree.config.ts`（= 主配置 + `server.fs.allow` 含 junction 真实路径）并 `--config` 指定，该文件**永不提交**；② 并发 browser 模式会互相污染（实测并发时一个 60s `listOnTimeout` 无测试、一个模块加载失败）——**每个 worktree 的 config 用独立 `cacheDir`**（如 `node_modules/.vite-<name>`，round-4 已实测三 worktree 并行无冲突）；③ 实测串行 + 清缓存后：isDefined 5/5、createEventHook 12/12，eslint exit 0，自身文件 tsc 0 错误；④ **worktree 内 `npx tsc --noEmit` 会把主树的未迁移文件经 `node_modules/@reaxuse/*` junction 拉进编译**（错误路径带 `../../reaxuse/` 前缀）——子代理门槛只看 `Select-String '^packages/<own>/'` 的相对路径行；跨包全量 tsc/测试只能在主树（workspace 符号链接正确的树）做。
+> **提交避坑**：`git commit` 输出**禁止**接 `Select-Object -First N`（管道提前关闭会杀掉 pre-commit hook，导致提交未落盘、文件仍 staged、lint-staged 留下 backup stash，且后续 push 会把不含提交的分支推上去）；已手工跑过 eslint 时可直接 `git commit --no-verify`。恢复法：文件仍在 index 里，`git commit --no-verify` + `git stash clear` 即可。
+> **Round 3 进展（15:50）**：PR **#488** `feat(shared-isdefined)`（isDefined #27）与 **#489** `feat(shared-createeventhook)`（createEventHook #4）已开出，等 CI。远端新分支：`chore/462-vueonly-cleanup`（= 已合并 #462 的 PR 分支残留，无需处理）、`feat/core-unrefelement`（真新实现：`unrefElement` #60，5 文件 185+ 行，尚无 PR，开 PR 后按 §2 审查）。
+>
+> **#462 类型债：已清偿（PR #490，2026-09-08 17:00 合并）**。`8fddc63` 遗留的 85 个 tsc 错误 / 47 个失败测试 / shared 构建失败已全部修复（详见 Round 4 记录）。`packages/` 下已无任何 `MaybeRefOrGetter`/`MaybeRef`/`MaybeComputedElementRef`；后续新 Hook 一律用 `RefOrValue` 系（定义见 `packages/shared/src/utils.ts`），**不得再接受 getter**，验证门槛含 `npx tsc --noEmit` 全仓 0 错误（CI 不跑 tsc，需本地自验）。
 
 ### 维护与质量管控要点
 
@@ -230,9 +245,16 @@ New-Item -ItemType Junction -Path D:\reaxuse-wt\<hook>\node_modules -Target D:\r
 * ~~#184 `usePointerSwipe`~~ → PR #375（复用 `./useSwipe`/`./usePointer` 类型）
 
 
-* **Adjustment 标签项**：
-* #192 `useProjection`
-* #185 `usePrecision`
+* **Adjustment 标签项**（2026-09-08 开放项）：
+* ~~#27 `isDefined`~~ → **已合并 PR #488**（2026-09-08 17:00）
+* #223 `useTemplateRefsList`（core，可派发）
+* #262 `useWatchExtractedObservable`（rxjs 包，⚠️ rxjs 依赖本地不可解析，暂缓）
+* #42 `toObserver`（rxjs 包，同上暂缓）
+
+* ~~派发中（本会话子代理）~~ → **全部完成**：#27 → PR #488（已合并）、#4 `createEventHook` → PR #489（已合并，`on` 返回 `{ off }` 兼容 §2D）。
+* **下一个可派发候选**：`feat/core-unrefelement` 远端分支已有 unrefElement（#60）实现（5 文件 185+ 行，尚无 PR）——开 PR 后按 §2 审查合并；或派发 #223。
+
+* **外部依赖解析现状**（2026-09-08 15:00 实测 `require.resolve`）：✅ 可解析仅 `change-case`、`focus-trap`（已被 #482/#483 消费）；❌ 不可解析：`qrcode` / `jwt-decode` / `idb-keyval` / `fuse.js` / `nprogress` / `universal-cookie` / `axios` / `async-validator` / `drauu` / `sortablejs` / `rxjs` / `firebase` / `electron`——相关 implement issue（#193/#151/#141/#138/#172/#97/#82/#79/#114/#209/#201 及 rxjs/firebase/electron 全部）**继续暂缓**，待维护者安装依赖或允许 `npm install`。无外部依赖的候选：#223（adjustment）、#5/#6/#20/#26/#36（shared，Vue DI/跨实例概念需先确认 React 映射设计）、#11 `computedAsync`（core）、#32 `useElementRemoval`（core，未打标签需维护者分流）、#19/#21/#13（Vue 模板/DI 特有，可能需 adjustment/impractical 裁定，勿擅自派发）。
 
 
 * **派发规则**：建 Worktree 前务必执行 `gh issue view <N>` 确认需求与期望实现。包目录现状：`router` / `rxjs` / `firebase` / `electron` 骨架已建（PR #391，占位符导出 + meta/packages.ts 注册，router 适配器待定不引依赖）——这 18 个 issue 恢复可派发；`math` / `integrations` 仍为空壳但可派发。
