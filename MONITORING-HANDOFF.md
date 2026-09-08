@@ -378,6 +378,7 @@ export default mergeConfig(base, {
 ## 8. 边界条件与避坑指南
 
 * **状态校验**：代理终端挂起时，优先执行 `gh pr view <N>` 校验远端 PR 状态。
+* **🔁 GitHub `mergeable` 长时间返回 `UNKNOWN` ≠ 冲突（2026-09-08 Round 15 实测）**：`mergeable`/`mergeStateStatus` 是 GitHub 惰性计算的异步结果。Round 12 只在 `gh pr list` 上偶发 `UNKNOWN`（逐个 `gh pr view` 即 `CLEAN`），但 **Round 15 逐个查询 19 个 PR 仍有 15 个停留在 `UNKNOWN/UNKNOWN`**（等待 25s 后复测依旧）——这只表示「尚未计算」，**不表示冲突**。**权威判定用本地**：`git merge-tree --write-tree main <branch>`（exit 0 = 无冲突），本轮 19 个分支 **19/19 干净**。⇒ 轮询时遇到 `UNKNOWN` 不要改代码、不要 rebase，直接本地 `merge-tree` 取证，并在报告里注明「远端 UNKNOWN 为惰性计算，本地实测 CLEAN」。
 * **超时停滞判定**：连续 15 分钟无文件修改判定为 Stall；连续两次无响应方可触发 Interrupt 重派。
 * **元数据冲突处理**：解决元数据文件冲突时，使用 `git checkout --theirs` 覆盖，并比对 `git diff origin/main --cached` 确保内容无遗漏。
 * **Commit 异常防护**：`lint-staged` 超时可能导致静默失败，Push 前需使用 `git log -1` 确认提交记录存在。
