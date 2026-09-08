@@ -9,8 +9,8 @@ SSR compatible and reactive [`CSS.supports`](https://developer.mozilla.org/docs/
 **Mapping:** upstream returns a `computed<boolean>` gated on `useMounted` that evaluates `window.CSS.supports` with the
 resolved property/value or condition text → `{ isSupported }` with `isSupported` as plain `boolean` state. The state
 starts at `options.ssrValue` (default `false`) and is recomputed in a mount `useEffect` (SSR-safe — nothing touches
-`window` during render). `property` / `value` / `conditionText` accept a plain string, a ref-like `{ current }` object or
-a getter (upstream `MaybeRefOrGetter`) — re-resolved on every render, so a changed resolved input re-evaluates
+`window` during render). `property` / `value` / `conditionText` accept a plain string or a React
+ref (upstream `RefOrValue`) — re-resolved on every render, so a changed resolved input re-evaluates
 `CSS.supports`. The two overloads (condition text vs property + value) are detected like upstream: a trailing argument
 that resolves to an object is treated as the options bag, otherwise two arguments mean property + value.
 
@@ -23,7 +23,7 @@ const { isSupported } = useCssSupports('container-type', 'scroll-state')
 ```
 
 Both the single-argument condition-text form and the property + value form are supported, and every input accepts a
-string, a ref-like `{ current }` object or a getter:
+string or a React ref:
 
 ```tsx
 import { useCssSupports } from '@reaxuse/core'
@@ -65,12 +65,12 @@ export interface UseCssSupportsReturn {
 }
 
 export function useCssSupports(
-  property: MaybeRefOrGetter<string>,
-  value: MaybeRefOrGetter<string>,
+  property: RefOrValue<string>,
+  value: RefOrValue<string>,
   options?: UseCssSupportsOptions,
 ): UseCssSupportsReturn
 export function useCssSupports(
-  conditionText: MaybeRefOrGetter<string>,
+  conditionText: RefOrValue<string>,
   options?: UseCssSupportsOptions,
 ): UseCssSupportsReturn
 ```

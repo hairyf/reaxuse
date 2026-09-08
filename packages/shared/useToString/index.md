@@ -6,7 +6,7 @@ category: Utilities
 
 Reactively convert a ref to string — React port of VueUse's [`useToString`](https://vueuse.org/shared/useToString/).
 
-**Mapping:** VueUse wraps a template literal in `computed(() => ...)` and accepts a `MaybeRefOrGetter`;
+**Mapping:** VueUse wraps a template literal in `computed(() => ...)` and accepts a `RefOrValue`;
 React has no implicit reactivity, so `useToString` is a plain function that returns the stringified value directly.
 
 ## Usage

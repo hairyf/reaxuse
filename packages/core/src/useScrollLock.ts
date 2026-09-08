@@ -1,3 +1,4 @@
+import type { Ref } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -13,15 +14,13 @@ export type ScrollLockElement
     | undefined
 
 /**
- * The scroll-lock target: a plain element (or `Window` / `Document`), a
- * ref-like `{ current }` object (e.g. the result of `useRef`), or a getter
- * returning one of those — the React equivalent of upstream's
- * `MaybeRefOrGetter<HTMLElement | SVGElement | Window | Document | null | undefined>`.
+ * The scroll-lock target: a plain element (or `Window` / `Document`) or a
+ * React ref holding one — the React equivalent of upstream's
+ * `RefOrValue<HTMLElement | SVGElement | Window | Document | null | undefined>`.
  */
 export type ScrollLockTarget
   = | ScrollLockElement
-    | { readonly current?: ScrollLockElement }
-    | (() => ScrollLockElement)
+    | Ref<ScrollLockElement>
 
 /**
  * Return of `useScrollLock`: the current lock state and its setter —
@@ -54,19 +53,16 @@ function resolveTargetElement(
 }
 
 /**
- * Unwraps the hook's target input: a getter is called, a ref-like object
- * contributes its `current`, anything else passes through.
+ * Unwraps the hook's target input: a React ref contributes its `current`,
+ * anything else passes through (callback refs are not readable and pass
+ * through unchanged, matching `toValue` semantics).
  */
 function unwrapTarget(target: ScrollLockTarget): ScrollLockElement {
-  if (typeof target === 'function')
-    return target()
+  if (target !== null && typeof target === 'object' && 'current' in target)
+    return target.current ?? undefined
 
-  if (target && typeof target === 'object' && 'current' in target)
-    return target.current
-
-  // `current` is optional on the ref-like member, so the negative branch of
-  // the `in` check cannot exclude it from the union — assert the element
-  // pass-through instead
+  // the negative branch of the `in` check cannot exclude the callback-ref
+  // member from the union — assert the element pass-through instead
   return target as ScrollLockElement
 }
 

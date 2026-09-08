@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 import { useMemo } from 'react'
 
@@ -67,9 +67,9 @@ function accurateMultiply(value: number, power: number): number {
  * @returns The value with the applied precision.
  */
 export function usePrecision(
-  value: MaybeRefOrGetter<number>,
-  digits: MaybeRefOrGetter<number>,
-  options?: MaybeRefOrGetter<UsePrecisionOptions>,
+  value: RefOrValue<number>,
+  digits: RefOrValue<number>,
+  options?: RefOrValue<UsePrecisionOptions>,
 ): number {
   const _value = toValue(value)
   const _digits = toValue(digits)

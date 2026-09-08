@@ -57,10 +57,10 @@ The `debounceFilter(ms, options)` factory returns a `CancelableEventFilter` carr
 `isPending` — the hook calls `cancel()` when the watcher is stopped or the component
 unmounts, so a pending debounced call never fires afterwards.
 
-`ms` accepts a plain number, a ref-like `{ current }` or a getter (re-read on every
+`ms` accepts a plain number or a React ref (re-read on every
 call). The filter instance is captured once on mount — like upstream, where watch
 options are evaluated once during setup — so an inline `debounceFilter(300)` is
-safe; pass a getter (`debounceFilter(() => ms)`) when the delay must change over
+safe; pass a React ref when the delay must change over
 time.
 
 ### Stopping the watcher
@@ -120,8 +120,8 @@ export type UseWatchWithFilterReturn = () => void
 export function useWatchWithFilter<T extends any[]>(source: readonly [...T], callback: UseWatchCallback<[...T]>, options?: UseWatchWithFilterOptions): UseWatchWithFilterReturn
 export function useWatchWithFilter<T>(source: T, callback: UseWatchCallback<T>, options?: UseWatchWithFilterOptions): UseWatchWithFilterReturn
 
-export function debounceFilter(ms?: MaybeRef<number> | (() => number), options?: DebounceFilterOptions): CancelableEventFilter
-export function throttleFilter(ms?: MaybeRef<number> | (() => number), trailing?: boolean, leading?: boolean): EventFilter
+export function debounceFilter(ms?: RefOrValue<number> | (() => number), options?: DebounceFilterOptions): CancelableEventFilter
+export function throttleFilter(ms?: RefOrValue<number> | (() => number), trailing?: boolean, leading?: boolean): EventFilter
 ```
 
 ## Source

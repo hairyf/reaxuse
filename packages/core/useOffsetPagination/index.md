@@ -9,8 +9,8 @@ Reactive offset pagination — React port of VueUse's [`useOffsetPagination`](ht
 **Mapping:** object-mirror hook — `currentPage`/`currentPageSize` are `useState` state (write them through the returned
 `setCurrentPage`/`setCurrentPageSize` setters; upstream assigns `currentPage.value` on a Vue ref), `pageCount`/
 `isFirstPage`/`isLastPage` are derived on every render (upstream: computed refs), and `prev`/`next` are stable callbacks.
-`total`/`pageSize` accept a value, a ref-like (`{ current }`) or a getter (`() => number`); `page` accepts a value or a
-ref-like and is kept in two-way sync with the internal state (upstream: `syncRef`). The change callbacks
+`total`/`pageSize` accept a value or a React ref; `page` accepts a value or a
+React ref and is kept in two-way sync with the internal state (upstream: `syncRef`). The change callbacks
 (`onPageChange`/`onPageSizeChange`/`onPageCountChange`) fire when the corresponding value actually changes and receive a
 snapshot of the pagination state.
 
@@ -50,9 +50,9 @@ const {
 
 ```ts
 export interface UseOffsetPaginationOptions {
-  total?: MaybeRefOrGetter<number>
-  pageSize?: MaybeRefOrGetter<number> // @default 10
-  page?: MaybeRef<number> // @default 1
+  total?: RefOrValue<number>
+  pageSize?: RefOrValue<number> // @default 10
+  page?: RefOrValue<number> // @default 1
   onPageChange?: (returnValue: UseOffsetPaginationReturn) => unknown
   onPageSizeChange?: (returnValue: UseOffsetPaginationReturn) => unknown
   onPageCountChange?: (returnValue: UseOffsetPaginationReturn) => unknown

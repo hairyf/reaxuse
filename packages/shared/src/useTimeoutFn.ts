@@ -22,7 +22,7 @@ export interface UseTimeoutFnReturn<CallbackFn extends AnyFn> {
  * controls.
  *
  * Map from @vueuse/shared `useTimeoutFn`
- * Mapping: upstream accepts `MaybeRefOrGetter<number>` for the interval — this
+ * Mapping: upstream accepts `RefOrValue<number>` for the interval — this
  * port accepts a plain `number`. `isPending` becomes a boolean state (upstream:
  * a readonly shallow ref) initialized to `immediate`; the timer is scheduled in
  * a mount effect (upstream starts synchronously during setup) and a pending
