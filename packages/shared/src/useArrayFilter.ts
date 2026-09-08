@@ -1,12 +1,7 @@
-import type { MaybeRef } from './index'
+import type { RefOrValue } from './index'
+import { toValue } from './utils'
 
 export type UseArrayFilterReturn<T = any> = T[]
-
-function unref<T>(value: MaybeRef<T>): T {
-  return value !== null && typeof value === 'object' && 'current' in value
-    ? (value as { current: T }).current
-    : value
-}
 
 /**
  * Reactive `Array.filter`
@@ -15,9 +10,9 @@ function unref<T>(value: MaybeRef<T>): T {
  * React port of VueUse's `useArrayFilter`.
  *
  * Mapping: Vue's `computed` → recompute per render and return a plain array
- * (no `.value`); `MaybeRefOrGetter` → `MaybeRef` (`T | { current: T }`).
+ * (no `.value`); `RefOrValue` → `RefOrValue` (`T | Ref<T>`).
  * Pass a `useState` array directly — the filtered result updates on the next
- * render. The list itself may be ref-like and every element is unwrapped
+ * render. The list itself may be a ref and every element is unwrapped
  * before the predicate runs.
  *
  * @see https://vueuse.org/shared/useArrayFilter/
@@ -28,16 +23,16 @@ function unref<T>(value: MaybeRef<T>): T {
  * setList([1, 2, 3]) // evens === [2] on the next render
  */
 export function useArrayFilter<T, S extends T>(
-  list: MaybeRef<MaybeRef<T>[]>,
+  list: RefOrValue<RefOrValue<T>[]>,
   fn: (element: T, index: number, array: T[]) => element is S,
 ): UseArrayFilterReturn<S>
 export function useArrayFilter<T>(
-  list: MaybeRef<MaybeRef<T>[]>,
+  list: RefOrValue<RefOrValue<T>[]>,
   fn: (element: T, index: number, array: T[]) => unknown,
 ): UseArrayFilterReturn<T>
 export function useArrayFilter<T>(
-  list: MaybeRef<MaybeRef<T>[]>,
+  list: RefOrValue<RefOrValue<T>[]>,
   fn: (element: T, index: number, array: T[]) => unknown,
 ): UseArrayFilterReturn<T> {
-  return unref(list).map(element => unref(element)).filter(fn)
+  return toValue(list).map(element => toValue(element)).filter(fn)
 }

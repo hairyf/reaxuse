@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import type { Dispatch, SetStateAction } from 'react'
 import { isRefLike, toValue } from '@reaxuse/shared'
 import { useEffect, useRef, useState } from 'react'
@@ -81,7 +81,7 @@ function resolveDocument(doc: Document | null | undefined): Document | undefined
  * setIcon('light.png') // change current icon
  */
 export function useFavicon(
-  newIcon?: MaybeRefOrGetter<string | null | undefined>,
+  newIcon?: RefOrValue<string | null | undefined>,
   options: UseFaviconOptions = {},
 ): UseFaviconReturn {
   // latest-value refs synced each render so the effects below stay stable

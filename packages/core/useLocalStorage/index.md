@@ -21,7 +21,7 @@ no logic of its own. All serialization (type-guessed `StorageSerializers` or a c
 - storage is never touched during render: the first read happens in the mount effect, so SSR renders
   the initial value and the stored value replaces it after hydration;
 - `key` is a plain React string that can change between renders — a key change re-reads the new key
-  (upstream takes a reactive `MaybeRefOrGetter` key). Writes always go to the key of the current
+  (upstream takes a reactive `RefOrValue` key). Writes always go to the key of the current
   render, and when `writeDefaults` is on, a new key with no stored value is seeded with the initial
   value;
 - Vue reactivity options have no React equivalent and are omitted: `flush`/`deep`/`eventFilter`

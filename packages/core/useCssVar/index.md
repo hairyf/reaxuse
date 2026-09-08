@@ -9,9 +9,9 @@ Manipulate CSS variables — React port of VueUse's [`useCssVar`](https://vueuse
 **Mapping:** upstream's single writable Vue `ShallowRef` return becomes the `[value, setValue]` tuple (see
 [hairyf/reaxuse#100](https://github.com/hairyf/reaxuse/issues/100)). The value is read from the target element's computed
 style (falling back to `document.documentElement`), kept in state and written back to the element's inline style;
-setting `null`/`undefined` through the setter removes the property. The prop accepts a string, a ref-like `{ current }`
-object or a getter; the target accepts a ref-like `{ current: HTMLElement | null }` object or an element. Because React
-refs are not reactive, a ref-like target/key is re-resolved on the next render (a changing key re-reads the variable via
+setting `null`/`undefined` through the setter removes the property. The prop accepts a string or a
+React ref; the target accepts a React ref or an element. Because React
+refs are not reactive, a ref target/key is re-resolved on the next render (a changing key re-reads the variable via
 an effect).
 
 ## Usage
@@ -59,8 +59,8 @@ export type UseCssVarReturn = [
 ]
 
 export function useCssVar(
-  prop: MaybeRefOrGetter<string | null | undefined>,
-  target?: MaybeRefOrGetter<UseCssVarElement>,
+  prop: RefOrValue<string | null | undefined>,
+  target?: RefOrValue<UseCssVarElement>,
   options?: UseCssVarOptions,
 ): UseCssVarReturn
 ```
