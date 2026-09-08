@@ -259,8 +259,8 @@ function isPointerNearEdge(
  *   `capture` / `preventDefault` flags change, and removes all listeners on
  *   unmount;
  * - `target`, `handle`, `draggingElement` and `containerElement` accept a
- *   plain element, a ref-like `{ current }` object (e.g. the result of
- *   `useRef`) or a getter — the React equivalent of upstream's
+ *   plain element or a ref-like `{ current }` object (e.g. the result of
+ *   `useRef`) — the React equivalent of upstream's
  *   `RefOrValue`. They are re-resolved on every render and the
  *   listeners re-bind when the resolved element changes;
  * - every remaining option (`disabled`, `buttons`, `exact`, `axis`,

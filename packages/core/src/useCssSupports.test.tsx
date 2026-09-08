@@ -5,8 +5,8 @@ import { render, renderHook } from 'vitest-browser-react'
 import { useCssSupports } from './useCssSupports'
 
 // Mirrors upstream `source/vueuse/packages/core/useCssSupports/index.browser.test.ts`.
-// Vue `shallowRef` + template bindings become React state; the ref-like /
-// getter inputs are additionally exercised with `renderHook` re-renders.
+// Vue `shallowRef` + template bindings become React state; the ref-like
+// inputs are additionally exercised with `renderHook` re-renders.
 
 function BasicComponent() {
   const { isSupported: textDecoration } = useCssSupports(

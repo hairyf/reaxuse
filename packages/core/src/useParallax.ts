@@ -81,8 +81,8 @@ interface MouseInElementState {
  * - the Vue computeds (`tilt`/`roll`/`source`) become plain values derived
  *   during render from `useState`, so no re-render happens while they stay
  *   the same; the returned object is `{ tilt, roll, source }` (not tuple);
- * - `target` accepts a plain element, a ref-like `{ current }` object or a
- *   getter (React equivalent of `ElementRef`). It is re-resolved on
+ * - `target` accepts a plain element or a ref-like `{ current }` object
+ *   (React equivalent of `ElementRef`). It is re-resolved on
  *   every render and the listeners re-bind when the resolved element
  *   changes; ref-likes are re-read at bind time, so a `useRef` target that is
  *   `null` during first render still binds once React attaches the element;
@@ -95,7 +95,7 @@ interface MouseInElementState {
  *   all listeners attach in mount effects and the initial values
  *   (`tilt: 0`, `roll: 0`, `source: 'mouse'`) render on the server.
  *
- * @param target - element, ref-like `{ current }` object or getter returning
+ * @param target - element or ref-like `{ current }` object returning
  *   the element to track the cursor over
  * @param options - tilt/roll adjust callbacks per sensor source, plus a
  *   custom `window` instance

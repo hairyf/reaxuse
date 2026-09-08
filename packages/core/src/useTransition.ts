@@ -164,9 +164,9 @@ export function useTransition(source: readonly number[], options?: UseTransition
  * - the returned `ComputedRef` becomes a plain value (`number` for a scalar
  *   source, `number[]` for an array source) backed by `useState`; the calling
  *   component re-renders on every animation frame while a transition runs;
- * - the source is a plain number, a `number[]`, or a getter returning either
- *   (upstream's `RefOrValue<number>` / `RefOrValue<number[]>`
- *   overloads map to the getter form);
+ * - the source is a plain number, a `number[]`, or a ref-like `{ current }`
+ *   object (upstream's `RefOrValue<number>` / `RefOrValue<number[]>`
+ *   overloads map to the same forms);
  * - options are plain values read when a transition starts — upstream keeps
  *   `duration` / `easing` / `delay` / `disabled` reactive via `RefOrValue`,
  *   which has no React equivalent;

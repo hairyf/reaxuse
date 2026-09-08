@@ -59,7 +59,7 @@ describe('useElementByPoint', () => {
     expect(spy).toHaveBeenCalledWith(50, 60)
   })
 
-  it('resolves x / y as getters and ref-like objects every tick', async () => {
+  it('resolves x / y as ref-like objects every tick', async () => {
     const first = createElement('div')
     const second = createElement('span')
     const spy = vi.spyOn(document, 'elementFromPoint').mockReturnValue(first)
