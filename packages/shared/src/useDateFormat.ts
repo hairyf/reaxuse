@@ -1,4 +1,4 @@
-import type { MaybeRef } from './index'
+import type { RefOrValue } from './index'
 import { toValue } from './utils'
 
 export type DateLike = Date | number | string | undefined
@@ -10,9 +10,9 @@ export interface UseDateFormatOptions {
    * [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#locales_argument).
    *
    * Accepts a plain value, a ref-like `{ current }` or a getter (upstream:
-   * `MaybeRefOrGetter<Intl.LocalesArgument>`).
+   * `RefOrValue<Intl.LocalesArgument>`).
    */
-  locales?: MaybeRef<Intl.LocalesArgument> | (() => Intl.LocalesArgument)
+  locales?: RefOrValue<Intl.LocalesArgument>
 
   /**
    * A custom function to re-modify the way to display meridiem
@@ -41,7 +41,7 @@ function formatOrdinal(num: number) {
 /**
  * Unwrap the house input convention — a plain value, a ref-like `{ current }`
  * or a getter function (house replacement for Vue's `toValue` /
- * `MaybeRefOrGetter<T>`).
+ * `RefOrValue<T>`).
  */
 export function formatDate(date: Date, formatStr: string, options: UseDateFormatOptions = {}) {
   const years = date.getFullYear()
@@ -137,7 +137,7 @@ export type UseDateFormatReturn = string
  * `.value` from it.
  *
  * Input reactivity (house convention replacing upstream's
- * `MaybeRefOrGetter<T>`): `date`, `formatStr` and `options.locales` each
+ * `RefOrValue<T>`): `date`, `formatStr` and `options.locales` each
  * accept a plain value, a ref-like `{ current }` or a getter function, and
  * are re-read on every call.
  *
@@ -159,8 +159,8 @@ export type UseDateFormatReturn = string
  * @__NO_SIDE_EFFECTS__
  */
 export function useDateFormat(
-  date: MaybeRef<DateLike> | (() => DateLike),
-  formatStr: MaybeRef<string> | (() => string) = 'HH:mm:ss',
+  date: RefOrValue<DateLike>,
+  formatStr: RefOrValue<string> = 'HH:mm:ss',
   options: UseDateFormatOptions = {},
 ): UseDateFormatReturn {
   return formatDate(normalizeDate(toValue(date)), toValue(formatStr), options)

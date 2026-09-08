@@ -39,7 +39,7 @@ export interface UseFocusWithinReturn {
 }
 
 export function useFocusWithin(
-  target: MaybeComputedElementRef,
+  target: ElementTarget,
   options?: ConfigurableWindow,
 ): UseFocusWithinReturn
 ```

@@ -22,8 +22,8 @@ server renders the initial `CONNECTING`/`null` values without ever touching `Eve
   exposes plain `useState` values (`eventSource: EventSource | null`, `data: Data | null`,
   `status: 'CONNECTING' | 'OPEN' | 'CLOSED'`, `error: Event | null`, `lastEventId: string | null`);
 - `open`/`close` are stable callbacks reading the mounted EventSource through a latest-value ref;
-- `url` accepts a plain value, a `{ current }` ref-like object or a getter function (upstream:
-  `MaybeRefOrGetter`); with `autoConnect` (default) a URL change between renders reconnects,
+- `url` accepts a plain value or a React ref (upstream:
+  `RefOrValue`); with `autoConnect` (default) a URL change between renders reconnects,
   mirroring upstream's `watch(urlRef, open)`;
 - the per-event message listeners (custom `events` array, default `['message']`) are registered
   with the raw `addEventListener` inside the connection effect and cleaned up with the
@@ -73,7 +73,7 @@ Establish the connection immediately when the hook is called.
 
 Enable by default.
 
-If the URL is provided as a ref-like object or getter, when the URL changes the hook will automatically reconnect to the new URL.
+If the URL is provided as a React ref object, when the URL changes the hook will automatically reconnect to the new URL.
 
 ### Auto Reconnection on Errors
 

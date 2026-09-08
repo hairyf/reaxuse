@@ -6,7 +6,7 @@ category: Browser
 
 Reactive [Fullscreen API](https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API) — React port of VueUse's [`useFullscreen`](https://vueuse.org/core/useFullscreen/). It adds methods to present a specific element (and its descendants) in full-screen mode, and to exit full-screen mode once it is no longer needed. This makes it possible to present desired content — such as an online game — using the user's entire screen, removing all browser user interface elements and other applications from the screen until full-screen mode is shut off.
 
-**Mapping:** upstream's `computed` / `shallowRef` returns become plain boolean states (`isSupported` resolves in a mount effect, SSR-safe, and `isFullscreen` follows the `fullscreenchange` events and the `enter` / `exit` calls). The vendor-prefixed method detection re-resolves in an effect when the resolved target or the `document` option changes, and the fullscreenchange listeners re-bind when the target changes. `enter` / `exit` / `toggle` are stable callbacks; `tryOnMounted(handlerCallback)` becomes the mount sync and `tryOnScopeDispose(exit)` (with `autoExit`) an unmount cleanup. The target is accepted as a plain element, a ref-like `{ current }` object, or a getter, defaulting to `document.documentElement`. The component variant (`UseFullscreen` render-slot component) is not ported — React uses the hook directly.
+**Mapping:** upstream's `computed` / `shallowRef` returns become plain boolean states (`isSupported` resolves in a mount effect, SSR-safe, and `isFullscreen` follows the `fullscreenchange` events and the `enter` / `exit` calls). The vendor-prefixed method detection re-resolves in an effect when the resolved target or the `document` option changes, and the fullscreenchange listeners re-bind when the target changes. `enter` / `exit` / `toggle` are stable callbacks; `tryOnMounted(handlerCallback)` becomes the mount sync and `tryOnScopeDispose(exit)` (with `autoExit`) an unmount cleanup. The target is accepted as a plain element or a React ref, defaulting to `document.documentElement`. The component variant (`UseFullscreen` render-slot component) is not ported — React uses the hook directly.
 
 ## Usage
 
@@ -37,7 +37,7 @@ Not ported — upstream ships a `UseFullscreen` component (Vue, render-slot base
 ## Type Declarations
 
 ```ts
-export type FullscreenTarget = MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>
+export type FullscreenTarget = RefOrValue<HTMLElement | SVGElement | null | undefined>
 
 export interface UseFullscreenOptions {
   /**
