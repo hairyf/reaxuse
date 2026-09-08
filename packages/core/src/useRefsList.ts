@@ -57,7 +57,7 @@ function createRefsList<T>(): TemplateRefsList<T> {
  *
  * @__NO_SIDE_EFFECTS__
  * @example
- * const [refs, setAt] = useTemplateRefsList<HTMLLIElement>()
+ * const [refs, setAt] = useRefsList<HTMLLIElement>()
  *
  * items.map((item, index) => (
  *   <li key={item} ref={el => setAt(index, el)}>{item}</li>
@@ -66,7 +66,7 @@ function createRefsList<T>(): TemplateRefsList<T> {
  * refs.length // number of collected slots
  * refs[0] // first `<li>` element, or `null` once it unmounted
  */
-export function useTemplateRefsList<T = Element>(): [TemplateRefsList<T>, (index: number, value: T | null) => void] {
+export function useRefsList<T = Element>(): [TemplateRefsList<T>, (index: number, value: T | null) => void] {
   const refsRef = useRef<TemplateRefsList<T> | null>(null)
   if (refsRef.current === null)
     refsRef.current = createRefsList<T>()

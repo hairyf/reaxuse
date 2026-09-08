@@ -1,16 +1,16 @@
-import type { TemplateRefsList } from './useTemplateRefsList'
+import type { TemplateRefsList } from './useRefsList'
 import { useState } from 'react'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
-import { useTemplateRefsList } from './useTemplateRefsList'
+import { useRefsList } from './useRefsList'
 
-describe('useTemplateRefsList', () => {
+describe('useRefsList', () => {
   it('should be defined', () => {
-    expect(useTemplateRefsList).toBeDefined()
+    expect(useRefsList).toBeDefined()
   })
 
   it('returns a `[refs, setAt]` tuple with an empty initial list (issue-specified API)', async () => {
-    const { result } = await renderHook(() => useTemplateRefsList<HTMLDivElement>())
+    const { result } = await renderHook(() => useRefsList<HTMLDivElement>())
 
     expectTypeOf(result.current).toEqualTypeOf<[TemplateRefsList<HTMLDivElement>, (index: number, value: HTMLDivElement | null) => void]>()
 
@@ -22,7 +22,7 @@ describe('useTemplateRefsList', () => {
   })
 
   it('tuple setAt and refs.setAt are the same function with the same behavior', async () => {
-    const { result } = await renderHook(() => useTemplateRefsList<HTMLDivElement>())
+    const { result } = await renderHook(() => useRefsList<HTMLDivElement>())
     const [refs, setAt] = result.current
 
     expect(setAt).toBe(refs.setAt)
@@ -40,7 +40,7 @@ describe('useTemplateRefsList', () => {
   })
 
   it('setAt writes elements into their slots', async () => {
-    const { result } = await renderHook(() => useTemplateRefsList<HTMLDivElement>())
+    const { result } = await renderHook(() => useRefsList<HTMLDivElement>())
     const [refs, setAt] = result.current
 
     const first = document.createElement('div')
@@ -61,7 +61,7 @@ describe('useTemplateRefsList', () => {
   })
 
   it('setAt accepts null to clear a slot (element unmount)', async () => {
-    const { result } = await renderHook(() => useTemplateRefsList<HTMLDivElement>())
+    const { result } = await renderHook(() => useRefsList<HTMLDivElement>())
     const [refs, setAt] = result.current
 
     const el = document.createElement('div')
@@ -77,7 +77,7 @@ describe('useTemplateRefsList', () => {
     let refs: TemplateRefsList<HTMLLIElement> | undefined
 
     function List() {
-      const [list, setAt] = useTemplateRefsList<HTMLLIElement>()
+      const [list, setAt] = useRefsList<HTMLLIElement>()
       refs = list
 
       return (
@@ -104,7 +104,7 @@ describe('useTemplateRefsList', () => {
     let refs: TemplateRefsList<HTMLDivElement> | undefined
 
     function List({ count }: { count: number }) {
-      const [list, setAt] = useTemplateRefsList<HTMLDivElement>()
+      const [list, setAt] = useRefsList<HTMLDivElement>()
       refs = list
 
       return (
@@ -132,7 +132,7 @@ describe('useTemplateRefsList', () => {
     let refs: TemplateRefsList<HTMLDivElement> | undefined
 
     function Probe({ mounted }: { mounted: boolean }) {
-      const [list, setAt] = useTemplateRefsList<HTMLDivElement>()
+      const [list, setAt] = useRefsList<HTMLDivElement>()
       refs = list
 
       return (
@@ -154,7 +154,7 @@ describe('useTemplateRefsList', () => {
     const snapshots: TemplateRefsList<HTMLLIElement>[] = []
 
     function Probe() {
-      const [refs, setAt] = useTemplateRefsList<HTMLLIElement>()
+      const [refs, setAt] = useRefsList<HTMLLIElement>()
       const [tick, setTick] = useState(0)
       snapshots.push(refs)
 

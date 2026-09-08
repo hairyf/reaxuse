@@ -1,9 +1,9 @@
-import { useTemplateRefsList } from '@reaxuse/core'
+import { useRefsList } from '@reaxuse/core'
 import { useState } from 'react'
 
-export default function UseTemplateRefsListDemo() {
+export default function UseRefsListDemo() {
   const [count, setCount] = useState(3)
-  const [refs, setAt] = useTemplateRefsList<HTMLSpanElement>()
+  const [refs, setAt] = useRefsList<HTMLSpanElement>()
   // mutating `refs` never re-renders — bump a state tick to read the slots
   // after the latest commit
   const [, setRenderTick] = useState(0)

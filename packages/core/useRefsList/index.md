@@ -2,7 +2,7 @@
 category: Component
 ---
 
-# useTemplateRefsList
+# useRefsList
 
 Shorthand for binding refs to elements rendered inside a list — React port of VueUse's [`useTemplateRefsList`](https://vueuse.org/core/useTemplateRefsList/).
 
@@ -11,10 +11,10 @@ Shorthand for binding refs to elements rendered inside a list — React port of 
 ## Usage
 
 ```tsx
-import { useTemplateRefsList } from '@reaxuse/core'
+import { useRefsList } from '@reaxuse/core'
 
 function List({ items }: { items: string[] }) {
-  const [refs, setAt] = useTemplateRefsList<HTMLLIElement>()
+  const [refs, setAt] = useRefsList<HTMLLIElement>()
 
   return (
     <ul>
@@ -30,22 +30,22 @@ function List({ items }: { items: string[] }) {
 
 Read the collected elements after the commit — `refs.length`, `refs[0]`, ... An element that unmounts leaves a `null` slot; reset manually with `refs.length = 0` if the list changed wholesale.
 
-<DemoContainer name="UseTemplateRefsList" />
+<DemoContainer name="UseRefsList" />
 
 ## Type Declarations
 
 ```ts
 export type TemplateRefsList<T> = T[] & { setAt: (index: number, value: T | null) => void }
 
-export function useTemplateRefsList<T = Element>(): [TemplateRefsList<T>, (index: number, value: T | null) => void]
+export function useRefsList<T = Element>(): [TemplateRefsList<T>, (index: number, value: T | null) => void]
 ```
 
 ## Source
 
 - VueUse upstream mapping — `source/vueuse/packages/core/useTemplateRefsList/`:
   [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useTemplateRefsList/index.ts) (implementation),
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useTemplateRefsList/index.browser.test.ts) (mirrored in `useTemplateRefsList.test.tsx`),
+  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useTemplateRefsList/index.browser.test.ts) (mirrored in `useRefsList.test.tsx`),
   [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useTemplateRefsList/demo.vue) (ported to `demo.tsx` below)
-- reaxuse: [`packages/core/src/useTemplateRefsList.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useTemplateRefsList.ts), docs + demo co-located in `packages/core/useTemplateRefsList/`
+- reaxuse: [`packages/core/src/useRefsList.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useRefsList.ts), docs + demo co-located in `packages/core/useRefsList/`
 
-<Contributors name="useTemplateRefsList" />
+<Contributors name="useRefsList" />
