@@ -60,8 +60,6 @@ const ipc = useIpcRenderer(ipcRenderer)
 - **Stabilise listeners you pass to `on`** (`useCallback`). The cleanup is identity-based, and a new listener identity registered on a later render is only removed by the next unmount, exactly like `ipcRenderer.on` itself.
 - **Missing instance throws synchronously at render** (`provide IpcRenderer module or enable nodeIntegration`) — resolution happens in the hook body, not inside an effect.
 
-<DemoContainer name="UseIpcRenderer" />
-
 ## Type Declarations
 
 ```ts
@@ -86,6 +84,7 @@ export function useIpcRenderer(ipcRenderer?: IpcRenderer): UseIpcRendererReturn
 - VueUse upstream mapping — `source/vueuse/packages/electron/useIpcRenderer/`:
   [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/electron/useIpcRenderer/index.ts) (implementation),
   [`index.md`](https://github.com/vueuse/vueuse/blob/main/packages/electron/useIpcRenderer/index.md) (docs).
-- reaxuse: [`packages/electron/src/useIpcRenderer.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/electron/src/useIpcRenderer.ts), docs + demo co-located in `packages/electron/useIpcRenderer/`
+- reaxuse: [`packages/electron/src/useIpcRenderer.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/electron/src/useIpcRenderer.ts), docs + demo co-located in `packages/electron/useIpcRenderer/`:
+  [`demo.tsx`](https://github.com/hairyf/reaxuse/blob/main/packages/electron/useIpcRenderer/demo.tsx) (runnable demo).
 
 <Contributors name="useIpcRenderer" />

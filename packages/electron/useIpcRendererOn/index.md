@@ -37,8 +37,6 @@ useIpcRendererOn(ipcRenderer, 'custom-event', (event, ...args) => {
 - **Returns the `ipcRenderer` instance** (upstream parity — chainable), not a tuple: this is a subscription, not state.
 - **Missing instance throws synchronously at render** (`please provide IpcRenderer module or enable nodeIntegration`) — resolution happens in the hook body, not inside an effect.
 
-<DemoContainer name="UseIpcRendererOn" />
-
 ## Type Declarations
 
 ```ts
@@ -52,6 +50,7 @@ export function useIpcRendererOn(channel: string, listener: IpcRendererListener)
 - VueUse upstream mapping — `source/vueuse/packages/electron/useIpcRendererOn/`:
   [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/electron/useIpcRendererOn/index.ts) (implementation),
   [`index.md`](https://github.com/vueuse/vueuse/blob/main/packages/electron/useIpcRendererOn/index.md) (docs).
-- reaxuse: [`packages/electron/src/useIpcRendererOn.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/electron/src/useIpcRendererOn.ts), docs + demo co-located in `packages/electron/useIpcRendererOn/`
+- reaxuse: [`packages/electron/src/useIpcRendererOn.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/electron/src/useIpcRendererOn.ts), docs + demo co-located in `packages/electron/useIpcRendererOn/`:
+  [`demo.tsx`](https://github.com/hairyf/reaxuse/blob/main/packages/electron/useIpcRendererOn/demo.tsx) (runnable demo).
 
 <Contributors name="useIpcRendererOn" />

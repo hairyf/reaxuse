@@ -37,8 +37,6 @@ const result = useIpcRendererInvoke<string>(ipcRenderer, 'custom-channel', 'some
 - **No `.catch`** — upstream leaves rejections unhandled and so does this port. If you need error handling, use the explicit-instance form with your own `ipcRenderer` wrapper, or `useIpcRenderer().invoke`, which returns the raw `Promise<T>` you can `await` in a `try`/`catch`.
 - **Missing instance throws synchronously at render** (`please provide IpcRenderer module or enable nodeIntegration`) — resolution happens in the hook body, not inside an effect.
 
-<DemoContainer name="UseIpcRendererInvoke" />
-
 ## Type Declarations
 
 ```ts
@@ -52,6 +50,7 @@ export function useIpcRendererInvoke<T>(channel: string, ...args: any[]): T | nu
 - VueUse upstream mapping — `source/vueuse/packages/electron/useIpcRendererInvoke/`:
   [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/electron/useIpcRendererInvoke/index.ts) (implementation),
   [`index.md`](https://github.com/vueuse/vueuse/blob/main/packages/electron/useIpcRendererInvoke/index.md) (docs).
-- reaxuse: [`packages/electron/src/useIpcRendererInvoke.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/electron/src/useIpcRendererInvoke.ts), docs + demo co-located in `packages/electron/useIpcRendererInvoke/`
+- reaxuse: [`packages/electron/src/useIpcRendererInvoke.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/electron/src/useIpcRendererInvoke.ts), docs + demo co-located in `packages/electron/useIpcRendererInvoke/`:
+  [`demo.tsx`](https://github.com/hairyf/reaxuse/blob/main/packages/electron/useIpcRendererInvoke/demo.tsx) (runnable demo).
 
 <Contributors name="useIpcRendererInvoke" />
