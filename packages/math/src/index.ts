@@ -23,5 +23,5 @@ export * from './usePrecision'
 export * from './useProjection'
 // export * from './useRound'
 // export * from './useSum'
-// export * from './useTrunc'
+export * from './useTrunc'
 export {}
