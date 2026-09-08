@@ -6,7 +6,7 @@ category: Animation
 
 Wrapper for `setInterval` with controls — React port of VueUse's [`useIntervalFn`](https://vueuse.org/shared/useIntervalFn/).
 
-**Mapping:** upstream accepts `MaybeRefOrGetter<number>` for the interval — this port accepts a
+**Mapping:** upstream accepts `RefOrValue<number>` for the interval — this port accepts a
 plain `number`. `isActive` is a boolean state (upstream: a readonly ref); the timer is scheduled
 in a mount effect (upstream starts synchronously during setup) and cleared on unmount via effect
 cleanup; changing the interval while active restarts the timer (upstream: a `watch` on the

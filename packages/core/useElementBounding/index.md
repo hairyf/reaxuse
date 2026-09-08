@@ -6,7 +6,7 @@ category: Elements
 
 Reactive [bounding box](https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect) of an HTML element
 
-**Mapping:** upstream measures the target with `getBoundingClientRect()` and re-measures on window `scroll`/`resize`, on `style`/`class` mutations (MutationObserver) and on element size changes (ResizeObserver). The React port mirrors the target contract of `useResizeObserver` — a plain element, a React ref object (`{ current }`) or a getter. The Vue `ShallowRef`s returned by upstream (`x`, `y`, `top`, `right`, `bottom`, `left`, `width`, `height`) become plain `number` state, so the return is the object `{ x, y, top, right, bottom, left, width, height, update }` — `update()` re-measures on demand. A mount-time effect performs the initial measurement (upstream `tryOnMounted` + `immediate`), and a target-change effect resets the values to `0` when the resolved element becomes detached (upstream `watch(() => unrefElement(target), ...)`), unless `reset: false`. The upstream component (`UseElementBounding`) and directive (`v-element-bounding`) variants are not ported — no React equivalent.
+**Mapping:** upstream measures the target with `getBoundingClientRect()` and re-measures on window `scroll`/`resize`, on `style`/`class` mutations (MutationObserver) and on element size changes (ResizeObserver). The React port mirrors the target contract of `useResizeObserver` — a plain element or a React ref. The Vue `ShallowRef`s returned by upstream (`x`, `y`, `top`, `right`, `bottom`, `left`, `width`, `height`) become plain `number` state, so the return is the object `{ x, y, top, right, bottom, left, width, height, update }` — `update()` re-measures on demand. A mount-time effect performs the initial measurement (upstream `tryOnMounted` + `immediate`), and a target-change effect resets the values to `0` when the resolved element becomes detached (upstream `watch(() => unrefElement(target), ...)`), unless `reset: false`. The upstream component (`UseElementBounding`) and directive (`v-element-bounding`) variants are not ported — no React equivalent.
 
 ## Usage
 
@@ -41,9 +41,9 @@ Call `update()` to re-measure on demand, e.g. after a synchronous layout change.
 ## Type Declarations
 
 The accepted target types are shared with `useResizeObserver` (see
-[`useResizeObserver`](./../useResizeObserver/) for `MaybeElement`,
-`MaybeComputedElementRef` and `MaybeComputedElementRefOrArray` — a plain
-element, a React ref object (`{ current }`), a getter, or an array of those).
+[`useResizeObserver`](./../useResizeObserver/) for `TargetElement`,
+`ElementTarget` and `ElementTargetOrArray` — a plain
+element, a React ref, or an array of those).
 
 ```ts
 export interface UseElementBoundingOptions extends ConfigurableWindow {
@@ -91,7 +91,7 @@ export interface UseElementBoundingReturn {
 }
 
 export function useElementBounding(
-  target: MaybeComputedElementRef,
+  target: ElementTarget,
   options?: UseElementBoundingOptions,
 ): UseElementBoundingReturn
 ```

@@ -14,9 +14,9 @@ socket and status through latest-value refs, and the connection opened in a moun
 (upstream opens synchronously during setup behind an `if (isClient)` check), then closed on unmount
 when `autoClose` is on (upstream: `tryOnScopeDispose`). SSR-safe — the server renders the initial
 `CLOSED`/`null`/`undefined` values without ever touching `WebSocket`. The `url` accepts a plain value
-or a getter function (upstream: `MaybeRefOrGetter`); with `autoConnect` (default) a URL change
+or a React ref (upstream: `RefOrValue`); with `autoConnect` (default) a URL change
 reconnects, mirroring upstream's `watch(urlRef, open)`. `heartbeat.message`/`responseMessage` accept
-a plain value or a getter resolved on every tick, and the default heartbeat scheduler is a local
+a plain value or a message factory function resolved on every send, and the default heartbeat scheduler is a local
 `setInterval`-based `{ pause, resume }` pair (upstream's `useIntervalFn` default is a React hook and
 cannot be created lazily) — a custom `scheduler` option returns the same controls.
 
@@ -68,7 +68,7 @@ Establish the connection immediately when the hook is called.
 
 Enable by default.
 
-If the URL changes between renders (plain value or getter), it will automatically reconnect to the new URL.
+If the URL changes between renders (plain value or React ref), it will automatically reconnect to the new URL.
 
 ### autoClose
 

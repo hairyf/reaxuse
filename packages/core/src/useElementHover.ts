@@ -1,4 +1,4 @@
-import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -41,7 +41,7 @@ export interface UseElementHoverOptions extends ConfigurableWindow {
  * - upstream's `ShallowRef<boolean>` return becomes a plain boolean backed by
  *   React state, so the hook reads as `const isHovered = useElementHover(el)`;
  * - `target` accepts an element, a ref-like `{ current }` object or a getter
- *   (the React analog of upstream's `MaybeRefOrGetter`), re-resolved on every
+ *   (the React analog of upstream's `RefOrValue`), re-resolved on every
  *   render and re-bound whenever the resolved element changes, so a `useRef`
  *   target that is `null` during the first render still starts tracking once
  *   React attaches the element;
@@ -62,7 +62,7 @@ export interface UseElementHoverOptions extends ConfigurableWindow {
  * const isHovered = useElementHover(el, { delayEnter: 200, delayLeave: 600 })
  */
 export function useElementHover(
-  target: MaybeRefOrGetter<EventTarget | null | undefined>,
+  target: RefOrValue<EventTarget | null | undefined>,
   options: UseElementHoverOptions = {},
 ): boolean {
   const {

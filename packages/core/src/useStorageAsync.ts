@@ -88,7 +88,7 @@ export function useStorageAsync<T = unknown>(key: string, initialValue: null, st
  *   storage, reading `window.localStorage` directly instead of going through
  *   upstream's `getSSRHandler('getDefaultStorageAsync')` indirection;
  * - `key` is a plain React string; changing it between renders re-reads the
- *   new key (upstream takes a reactive `MaybeRefOrGetter` key). Writes always
+ *   new key (upstream takes a reactive `RefOrValue` key). Writes always
  *   go to the key of the current render, and when `writeDefaults` is on, a
  *   new key with no stored value is seeded with the initial value;
  * - real `storage` events are listened to when `listenToStorageChanges` is on
