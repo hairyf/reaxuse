@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { isClient, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -43,15 +43,15 @@ export interface UseBase64Return {
   execute: () => Promise<string> | undefined
 }
 
-export function useBase64(target: MaybeRefOrGetter<string | undefined>, options?: UseBase64Options): UseBase64Return
-export function useBase64(target: MaybeRefOrGetter<Blob | undefined>, options?: UseBase64Options): UseBase64Return
-export function useBase64(target: MaybeRefOrGetter<ArrayBuffer | undefined>, options?: UseBase64Options): UseBase64Return
-export function useBase64(target: MaybeRefOrGetter<HTMLCanvasElement | undefined>, options?: ToDataURLOptions): UseBase64Return
-export function useBase64(target: MaybeRefOrGetter<HTMLImageElement | undefined>, options?: ToDataURLOptions): UseBase64Return
-export function useBase64<T extends Record<string, unknown>>(target: MaybeRefOrGetter<T>, options?: UseBase64ObjectOptions<T>): UseBase64Return
-export function useBase64<T extends Map<string, unknown>>(target: MaybeRefOrGetter<T>, options?: UseBase64ObjectOptions<T>): UseBase64Return
-export function useBase64<T extends Set<unknown>>(target: MaybeRefOrGetter<T>, options?: UseBase64ObjectOptions<T>): UseBase64Return
-export function useBase64<T>(target: MaybeRefOrGetter<T[]>, options?: UseBase64ObjectOptions<T[]>): UseBase64Return
+export function useBase64(target: RefOrValue<string | undefined>, options?: UseBase64Options): UseBase64Return
+export function useBase64(target: RefOrValue<Blob | undefined>, options?: UseBase64Options): UseBase64Return
+export function useBase64(target: RefOrValue<ArrayBuffer | undefined>, options?: UseBase64Options): UseBase64Return
+export function useBase64(target: RefOrValue<HTMLCanvasElement | undefined>, options?: ToDataURLOptions): UseBase64Return
+export function useBase64(target: RefOrValue<HTMLImageElement | undefined>, options?: ToDataURLOptions): UseBase64Return
+export function useBase64<T extends Record<string, unknown>>(target: RefOrValue<T>, options?: UseBase64ObjectOptions<T>): UseBase64Return
+export function useBase64<T extends Map<string, unknown>>(target: RefOrValue<T>, options?: UseBase64ObjectOptions<T>): UseBase64Return
+export function useBase64<T extends Set<unknown>>(target: RefOrValue<T>, options?: UseBase64ObjectOptions<T>): UseBase64Return
+export function useBase64<T>(target: RefOrValue<T[]>, options?: UseBase64ObjectOptions<T[]>): UseBase64Return
 /**
  * Reactive base64 transforming. Supports plain text, blobs/files, buffers,
  * canvas, images, and JSON-serializable objects/maps/sets.
@@ -71,8 +71,8 @@ export function useBase64<T>(target: MaybeRefOrGetter<T[]>, options?: UseBase64O
  *   })` for reactive sources, a single setup call for plain values); here the
  *   source is resolved during render with `toValue` and a `useEffect` keyed on
  *   the resolved value re-runs the transformation whenever it changes across
- *   renders. A getter is re-resolved each render, and a ref-like `{ current }`
- *   source re-transforms after a re-render that carries a new `current`;
+ *   renders. A ref-like `{ current }` source re-transforms after a re-render
+ *   that carries a new `current`;
  * - `execute` is a stable callback that always transforms the latest target
  *   and latest options. It is SSR-safe like upstream: it no-ops (resolving
  *   `undefined`) outside a browser, and the automatic first transform only

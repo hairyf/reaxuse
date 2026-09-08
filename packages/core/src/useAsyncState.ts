@@ -1,4 +1,4 @@
-import type { MaybeRef } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { noop, promiseTimeout, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -130,7 +130,7 @@ export interface UseAsyncStateOptions<Shallow extends boolean = true, D = any> {
  */
 export function useAsyncState<Data, Params extends any[] = any[], Shallow extends boolean = true>(
   promise: Promise<Data> | ((...args: Params) => Promise<Data>),
-  initialState: MaybeRef<Data>,
+  initialState: RefOrValue<Data>,
   options?: UseAsyncStateOptions<Shallow, Data>,
 ): UseAsyncStateReturn<Data, Params, Shallow> {
   const {

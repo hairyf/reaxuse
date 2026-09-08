@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 import { useRef } from 'react'
 
@@ -29,9 +29,8 @@ export type UseCachedComparator<T> = (newSourceValue: T, cachedValue: T) => bool
  * source and the updated cache is returned. The comparator therefore runs on
  * every render instead of only on changes — harmless, since `true` keeps the
  * cache. The source is a plain value per the mapped API, and also accepts a
- * ref-like `{ current }` object or a getter (resolved via `toValue`, like the
- * other core hooks); getters that return a brand-new reference every call
- * should use a comparator that does not rely on reference identity.
+ * ref-like `{ current }` object (a React ref), resolved via `toValue` like the
+ * other core hooks.
  *
  * @__NO_SIDE_EFFECTS__
  * @example
@@ -45,7 +44,7 @@ export type UseCachedComparator<T> = (newSourceValue: T, cachedValue: T) => bool
  * cached // { value: 43, extra: 1 } — significant change, cache follows
  */
 export function useCached<T>(
-  source: MaybeRefOrGetter<T>,
+  source: RefOrValue<T>,
   comparator: UseCachedComparator<T> = (newSourceValue, cachedValue) => newSourceValue === cachedValue,
 ): T {
   const sourceValue = toValue(source)

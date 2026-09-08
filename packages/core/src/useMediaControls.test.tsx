@@ -320,8 +320,10 @@ describe('useMediaControls', () => {
     stubNumberProperty(video, 'currentTime')
     stubNumberProperty(video2, 'currentTime')
 
-    let current: HTMLVideoElement | null = video
-    const { result, act, rerender } = await renderHook(() => useMediaControls(() => current))
+    // a ref-like `{ current }` holder: swapping `current` and re-rendering is
+    // how a changed target is signalled now that getters are gone
+    const target = { current: video as HTMLVideoElement | null }
+    const { result, act, rerender } = await renderHook(() => useMediaControls(target))
 
     video.currentTime = 10
     await act(async () => {
@@ -329,7 +331,7 @@ describe('useMediaControls', () => {
     })
     expect(result.current.currentTime).toBe(10)
 
-    current = video2
+    target.current = video2
     await rerender()
 
     video2.currentTime = 20
