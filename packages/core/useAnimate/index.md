@@ -14,7 +14,7 @@ replaceState, startTime, currentTime, timeline, playbackRate }` — the member s
 plain values. `isSupported` is `boolean` state settled in a mount effect (SSR-safe). The state members re-render every
 animation frame while the animation runs; the writable setters of upstream's `WritableComputedRef`s have no React
 equivalent, so seeking (`animate.currentTime = ...`) goes through the returned `animate` object directly. The target is
-a plain element, a React ref object (`{ current }`) or a getter; `keyframes` is re-resolved with `toValue` on every
+a plain element or a React ref object (`{ current }`); `keyframes` is re-resolved with `toValue` on every
 render, so a ref-like `{ current }` keyframes input updates live. The `finish` / `cancel` events stop the store loop,
 and the animation is cancelled on unmount.
 
@@ -55,7 +55,7 @@ return <span ref={el} style={{ display: 'inline-block' }}>useAnimate</span>
 
 ### Custom Keyframes
 
-Either an array of keyframe objects, or a keyframe object, or a ref-like `{ current }`/getter. See
+Either an array of keyframe objects, or a keyframe object, or a ref-like `{ current }` object. See
 [Keyframe Formats](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats) for more details.
 
 ```tsx
@@ -136,7 +136,7 @@ export interface UseAnimateOptions extends KeyframeAnimationOptions, Configurabl
   onError?: (e: unknown) => void
 }
 
-export type UseAnimateKeyframes = MaybeRefOrGetter<Keyframe[] | PropertyIndexedKeyframes | null>
+export type UseAnimateKeyframes = RefOrValue<Keyframe[] | PropertyIndexedKeyframes | null>
 
 export interface UseAnimateReturn {
   isSupported: boolean
@@ -156,7 +156,7 @@ export interface UseAnimateReturn {
 }
 
 export function useAnimate(
-  target: MaybeComputedElementRef,
+  target: ElementTarget,
   keyframes: UseAnimateKeyframes,
   options?: number | UseAnimateOptions,
 ): UseAnimateReturn

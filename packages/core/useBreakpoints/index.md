@@ -131,13 +131,13 @@ import { breakpointsTailwind } from '@reaxuse/core'
 ## Type Declarations
 
 ```ts
-type MaybeRefOrGetter<T> = T | { current: T } | (() => T)
+type RefOrValue<T> = T | Ref<T> // imported from '@reaxuse/shared'
 
 interface ConfigurableWindow {
   window?: Window
 }
 
-type Breakpoints<K extends string = string> = Record<K, MaybeRefOrGetter<number | string>>
+type Breakpoints<K extends string = string> = Record<K, RefOrValue<number | string>>
 
 interface UseBreakpointsOptions extends ConfigurableWindow {
   strategy?: 'min-width' | 'max-width' // default: 'min-width'
@@ -145,16 +145,16 @@ interface UseBreakpointsOptions extends ConfigurableWindow {
 }
 
 type UseBreakpointReturn<K extends string = string> = Record<K, boolean> & {
-  greaterOrEqual: (k: MaybeRefOrGetter<K>) => boolean
-  smallerOrEqual: (k: MaybeRefOrGetter<K>) => boolean
-  greater: (k: MaybeRefOrGetter<K>) => boolean
-  smaller: (k: MaybeRefOrGetter<K>) => boolean
-  between: (a: MaybeRefOrGetter<K>, b: MaybeRefOrGetter<K>) => boolean
-  isGreater: (k: MaybeRefOrGetter<K>) => boolean
-  isGreaterOrEqual: (k: MaybeRefOrGetter<K>) => boolean
-  isSmaller: (k: MaybeRefOrGetter<K>) => boolean
-  isSmallerOrEqual: (k: MaybeRefOrGetter<K>) => boolean
-  isInBetween: (a: MaybeRefOrGetter<K>, b: MaybeRefOrGetter<K>) => boolean
+  greaterOrEqual: (k: RefOrValue<K>) => boolean
+  smallerOrEqual: (k: RefOrValue<K>) => boolean
+  greater: (k: RefOrValue<K>) => boolean
+  smaller: (k: RefOrValue<K>) => boolean
+  between: (a: RefOrValue<K>, b: RefOrValue<K>) => boolean
+  isGreater: (k: RefOrValue<K>) => boolean
+  isGreaterOrEqual: (k: RefOrValue<K>) => boolean
+  isSmaller: (k: RefOrValue<K>) => boolean
+  isSmallerOrEqual: (k: RefOrValue<K>) => boolean
+  isInBetween: (a: RefOrValue<K>, b: RefOrValue<K>) => boolean
   current: () => K[]
   active: () => K | ''
 }

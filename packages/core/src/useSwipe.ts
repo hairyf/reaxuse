@@ -88,7 +88,7 @@ function getSwipeDirection(start: Position, end: Position, threshold: number): U
  *   state, derived during render — the touch listeners live in a
  *   self-contained `useEffect` (upstream composes `useEventListener`) and are
  *   removed on unmount;
- * - `target` accepts an element, a ref-like `{ current }` object or a getter
+ * - `target` accepts an element or a ref-like `{ current }` object
  *   (React equivalent of `RefOrValue`). It is re-resolved on every
  *   render and the listeners re-bind when the resolved element changes;
  *   ref-likes are re-read at bind time, so a `useRef` target that is `null`
@@ -102,7 +102,7 @@ function getSwipeDirection(start: Position, end: Position, threshold: number): U
  * - SSR-safe: nothing touches `window` or the DOM during render — listeners
  *   attach in the mount effect only.
  *
- * @param target - element, ref-like `{ current }` object or getter returning
+ * @param target - element or ref-like `{ current }` object returning
  *   the event target to listen on
  * @param options - `passive` (default `true`), `threshold` (default `50`) and
  *   the `onSwipeStart` / `onSwipe` / `onSwipeEnd` callbacks

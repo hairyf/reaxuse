@@ -9,7 +9,7 @@ Listen for clicks outside of an element. Useful for modals or dropdowns — Reac
 **Mapping:** the Vue composable becomes a React hook. `onClickOutside` attaches `click`, `pointerdown` and
 (optionally, with `detectIframe`) `blur` listeners on the `window` (or a custom `window` option) and calls
 the handler when a click lands outside the resolved `target` element. The `target` accepts a plain element,
-a ref-like `{ current }` object (e.g. a `useRef`) or a getter (`MaybeRefOrGetter`). `ignore` suppresses the
+a ref-like `{ current }` object (e.g. a `useRef`) — both are `RefOrValue` inputs. `ignore` suppresses the
 handler for matching elements (refs or CSS selectors), `capture` controls the phase of the internal `click`
 listener (default `true`), and `detectIframe` also fires the handler when focus moves to an iframe. The
 upstream `controls` option is dropped — the return is always a single stop function (`() => void`) that
@@ -87,7 +87,7 @@ useClickOutside(target, handler, { detectIframe: true })
 
 ```ts
 export interface UseClickOutsideOptions extends ConfigurableWindow {
-  ignore?: MaybeRefOrGetter<(MaybeRefOrGetter<Element | null> | string)[]>
+  ignore?: RefOrValue<(RefOrValue<Element | null> | string)[]>
   capture?: boolean
   detectIframe?: boolean
 }
@@ -95,7 +95,7 @@ export interface UseClickOutsideOptions extends ConfigurableWindow {
 export type UseClickOutsideHandler = (event: PointerEvent | FocusEvent) => void
 
 export function useClickOutside<T extends UseClickOutsideOptions>(
-  target: MaybeRefOrGetter<Element | null | undefined>,
+  target: RefOrValue<Element | null | undefined>,
   handler: UseClickOutsideHandler,
   options?: T,
 ): () => void

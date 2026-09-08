@@ -6,7 +6,7 @@ category: Browser
 
 Reactive [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API) — React port of VueUse's [`useClipboard`](https://vueuse.org/core/useClipboard/). Copy text to the system clipboard, optionally track the current clipboard text on `copy`/`cut` events, and fall back to `document.execCommand` when the native API is unavailable.
 
-**Mapping:** upstream's `ShallowRef<string>` / `ShallowRef<boolean>` returns become plain React `useState` values (`text`, `copied`, `copyPending`), and the `ComputedRef<boolean>` `isSupported` becomes plain boolean state resolved through `useSupported` in a mount effect (SSR-safe). Upstream's `MaybeRefOrGetter<string>` `source` is resolved with the shared `toValue`, and the `copy` callback is stable — it reads the latest `source`/`navigator`/permission state through refs. The `copy`/`cut` listeners are wired in a `useEffect` (guarded by `isSupported && read`) with cleanup, instead of upstream's synchronous `useEventListener` call.
+**Mapping:** upstream's `ShallowRef<string>` / `ShallowRef<boolean>` returns become plain React `useState` values (`text`, `copied`, `copyPending`), and the `ComputedRef<boolean>` `isSupported` becomes plain boolean state resolved through `useSupported` in a mount effect (SSR-safe). Upstream's maybe-ref `source` is resolved with the shared `toValue`, and the `copy` callback is stable — it reads the latest `source`/`navigator`/permission state through refs. The `copy`/`cut` listeners are wired in a `useEffect` (guarded by `isSupported && read`) with cleanup, instead of upstream's synchronous `useEventListener` call.
 
 ## Usage
 
@@ -54,7 +54,7 @@ export interface UseClipboardReturn<Optional> {
 }
 
 export function useClipboard(options?: UseClipboardOptions<undefined>): UseClipboardReturn<false>
-export function useClipboard(options: UseClipboardOptions<MaybeRefOrGetter<string>>): UseClipboardReturn<true>
+export function useClipboard(options: UseClipboardOptions<RefOrValue<string>>): UseClipboardReturn<true>
 ```
 
 ## Source

@@ -84,20 +84,18 @@ describe('useStateDefault', () => {
     expect(raw.current).toBe(1)
   })
 
-  it('resolves getters and plain values for the source input', async () => {
-    let external: string | undefined = 'initial'
-    const { result, act } = await renderHook(() => useStateDefault(() => external, 'default'))
+  it('resolves plain values for the source input', async () => {
+    const { result, act } = await renderHook(() => useStateDefault('initial' as string | undefined, 'default'))
 
     expect(result.current[0]).toBe('initial')
 
-    // a getter source is read-only — setValue cannot write back to it, so
-    // `value` keeps deriving from the getter (upstream derives from the ref it
+    // a plain-value source is read-only — setValue cannot write back to it, so
+    // `value` keeps deriving from the source (upstream derives from the ref it
     // receives; only ref-like sources support the write-through)
-    external = 'outside'
     await act(async () => {
       result.current[1]('set')
     })
-    expect(result.current[0]).toBe('outside')
+    expect(result.current[0]).toBe('initial')
   })
 
   it('reflects external writes to the ref-like source on re-render', async () => {

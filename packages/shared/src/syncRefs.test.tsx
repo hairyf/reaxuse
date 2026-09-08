@@ -67,21 +67,6 @@ describe('syncRefs', () => {
     expect(target.current).toBe('bar')
   })
 
-  it('accepts a getter as the source', async () => {
-    let value = 'foo'
-    const source = () => value
-    const target = { current: 'bar' }
-
-    const { rerender } = await renderHook(() => syncRefs(source, target))
-
-    expect(target.current).toBe('foo')
-
-    value = 'foo2'
-    await rerender()
-
-    expect(target.current).toBe('foo2')
-  })
-
   it('does not clobber targets when an unrelated re-render happens', async () => {
     const source = { current: 'foo' }
     const target = { current: 'foo' }

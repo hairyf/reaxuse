@@ -90,7 +90,7 @@ export interface UseInfiniteScrollReturn {
 }
 
 export function useInfiniteScroll<T extends InfiniteScrollElement>(
-  element: MaybeRefOrGetter<T>,
+  element: RefOrValue<T>,
   onLoadMore: (state: UseScrollReturn) => Awaitable<void>,
   options?: UseInfiniteScrollOptions<T>,
 ): UseInfiniteScrollReturn

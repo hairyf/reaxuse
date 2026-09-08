@@ -88,8 +88,8 @@ export type UseOffsetPaginationInfinityPageReturn = Omit<UseOffsetPaginationCont
  *    assigns `currentPage.value` / `currentPageSize.value` directly), while
  *    `pageCount` / `isFirstPage` / `isLastPage` are derived on every render
  *    (upstream: computed refs).
- * 2. `total` / `pageSize` accept a plain value, a ref-like (`{ current }`) or
- *    a getter (`() => number`), and `page` accepts a plain value or a
+ * 2. `total` / `pageSize` accept a plain value or a ref-like (`{ current }`),
+ *    and `page` accepts a plain value or a
  *    ref-like — all resolved with `toValue` (upstream: `RefOrValue`).
  *    A ref-like `page` / `pageSize` is kept in two-way sync with the internal
  *    state, mirroring upstream's `syncRef` (including writing the clamped

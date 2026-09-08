@@ -18,8 +18,8 @@ import { useEffect, useState } from 'react'
  * - the `matchMedia` query and its `change` listener attach inside a
  *   self-contained `useEffect` (upstream binds through `useEventListener`)
  *   and are removed on unmount;
- * - `query` accepts a plain string, a ref-like `{ current }` object or a
- *   getter (upstream `RefOrValue`); it is re-resolved on every render
+ * - `query` accepts a plain string or a ref-like `{ current }` object (a
+ *   React ref, `RefOrValue`); it is re-resolved on every render
  *   and the media query re-binds when the resolved string changes;
  * - the initial `matches` sync happens in the mount effect instead of during
  *   setup, so SSR renders the `false` default without touching `window`;
@@ -40,7 +40,7 @@ export function useMediaQuery(
   const { window: windowOption, ssrWidth } = options
   const [matches, setMatches] = useState(false)
 
-  // re-resolved on every render so ref-like `{ current }` / getter queries
+  // re-resolved on every render so ref-like `{ current }` queries
   // re-bind whenever the resolved query string changes (upstream reactivity)
   const trackedQuery = toValue(query)
   const trackedWindow = windowOption === undefined

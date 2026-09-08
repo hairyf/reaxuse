@@ -1,4 +1,4 @@
-import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
 import { isIOS, noop, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef } from 'react'
 import { useEventListener } from './useEventListener'
@@ -6,9 +6,10 @@ import { useEventListener } from './useEventListener'
 export interface UseClickOutsideOptions extends ConfigurableWindow {
   /**
    * List of elements that should not trigger the event,
-   * provided as elements (ref-like `{ current }` objects or getters) or CSS Selectors.
+   * provided as elements (plain elements or ref-like `{ current }` objects)
+   * or CSS Selectors.
    */
-  ignore?: MaybeRefOrGetter<(MaybeRefOrGetter<Element | null> | string)[]>
+  ignore?: RefOrValue<(RefOrValue<Element | null> | string)[]>
   /**
    * Use capturing phase for the internal event listener.
    *
@@ -43,8 +44,8 @@ let _iOSWorkaround = false
  * - React has no composable-function API, so this is a hook (upstream's
  *   `onClickOutside` is a plain function): the listeners bind in effects and
  *   are removed on unmount;
- * - the target resolves through `toValue` — a plain element, a ref-like
- *   `{ current }` object (e.g. a `useRef`) or a getter are all accepted;
+ * - the target resolves through `toValue` — a plain element or a ref-like
+ *   `{ current }` object (e.g. a `useRef`) are both accepted;
  * - the `controls` option is dropped, so the return is always a single stop
  *   function (`() => void`) that removes all registered listeners (upstream
  *   also returns a `{ stop, cancel, trigger }` controls object);
@@ -66,7 +67,7 @@ let _iOSWorkaround = false
  * stop()
  */
 export function useClickOutside<T extends UseClickOutsideOptions>(
-  target: MaybeRefOrGetter<Element | null | undefined>,
+  target: RefOrValue<Element | null | undefined>,
   handler: UseClickOutsideHandler,
   options: T = {} as T,
 ): () => void {

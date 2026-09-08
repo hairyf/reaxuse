@@ -53,7 +53,7 @@ function resolveDocument(doc: Document | null | undefined): Document | undefined
  *
  * Return tuple follows this repo's React idiom:
  * `const [icon, setIcon] = useFavicon()` (upstream returns a single Vue ref —
- * a readonly `ComputedRef` when the source is a ref/getter).
+ * a readonly `ComputedRef` when the source is a ref).
  *
  * React divergences:
  * - upstream adopts the value at setup and applies it synchronously via a
@@ -61,14 +61,13 @@ function resolveDocument(doc: Document | null | undefined): Document | undefined
  *   render (SSR-safe), so the DOM write happens in an effect — the initial
  *   icon is applied on mount instead;
  * - the icon write is a `useEffect` on the state instead of a Vue watcher;
- * - a ref-like (`{ current }`) or getter source is re-read after every render
+ * - a ref-like (`{ current }`) source is re-read after every render
  *   and written back into the state when it changed (React has no reactive
- *   refs; upstream only watches ref/getter sources) — a plain
+ *   refs; upstream only watches ref sources) — a plain
  *   `string`/`null`/`undefined` argument is never re-synced, so the setter
  *   stays authoritative there;
  * - for ref-like sources the setter also writes through to the source's
- *   `.current` (upstream returns the very ref it was given), while getter
- *   sources behave readonly, mirroring upstream's `ComputedRef` return;
+ *   `.current` (upstream returns the very ref it was given);
  * - setting `null`/`undefined` through the setter updates the state but
  *   leaves the existing `<link>` untouched (upstream would leave it stale
  *   too, since the watcher only applies string values).
@@ -113,7 +112,7 @@ export function useFavicon(
     setIcon(next)
   }
 
-  // Re-sync ref-like / getter sources (upstream `watch` on the passed ref /
+  // Re-sync ref-like sources (upstream `watch` on the passed ref /
   // computed). React has no reactive refs, so the source is re-read after
   // every render and any change is written into the state. A plain-value
   // argument is never re-synced, keeping the setter authoritative.

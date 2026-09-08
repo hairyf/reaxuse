@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useRound } from './useRound'
@@ -51,14 +52,14 @@ describe('useRound', () => {
     expect(result.current).toBe(2)
   })
 
-  it('works with getter functions', async () => {
-    const { result } = await renderHook(() => useRound(() => 20.49))
-    expect(result.current).toBe(20)
+  it('works with React refs', async () => {
+    const first = await renderHook(() => useRound(useRef(20.49)))
+    expect(first.result.current).toBe(20)
 
-    const second = await renderHook(() => useRound(() => -20.51))
+    const second = await renderHook(() => useRound(useRef(-20.51)))
     expect(second.result.current).toBe(-21)
 
-    const third = await renderHook(() => useRound(() => 3.1415))
+    const third = await renderHook(() => useRound(useRef(3.1415)))
     expect(third.result.current).toBe(3)
   })
 })

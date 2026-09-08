@@ -8,7 +8,7 @@ Reactive `Math.round` — React port of VueUse's
 [`useRound`](https://vueuse.org/math/useRound/).
 
 **Mapping:** `ComputedRef<number>` → pure derived hook. `value` is resolved at
-render time (plain number, `{ current }` ref-like object or getter) and the
+render time (a plain number or a React ref) and the
 rounded number is returned directly — no effects, no `.value` wrapper
 (SSR-safe).
 
@@ -29,7 +29,7 @@ value.current = -20.51 // result === -21 on the next render
 
 ```ts
 export function useRound(
-  value: MaybeRefOrGetter<number>,
+  value: RefOrValue<number>,
 ): number
 ```
 

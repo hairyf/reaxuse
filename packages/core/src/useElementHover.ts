@@ -40,7 +40,7 @@ export interface UseElementHoverOptions extends ConfigurableWindow {
  * React divergences:
  * - upstream's `ShallowRef<boolean>` return becomes a plain boolean backed by
  *   React state, so the hook reads as `const isHovered = useElementHover(el)`;
- * - `target` accepts an element, a ref-like `{ current }` object or a getter
+ * - `target` accepts an element or a ref-like `{ current }` object
  *   (the React analog of upstream's `RefOrValue`), re-resolved on every
  *   render and re-bound whenever the resolved element changes, so a `useRef`
  *   target that is `null` during the first render still starts tracking once
@@ -52,7 +52,7 @@ export interface UseElementHoverOptions extends ConfigurableWindow {
  * - SSR-safe: nothing touches `window` or the DOM during render — listeners
  *   attach in the mount effect only and the initial state is always `false`.
  *
- * @param target - element, ref-like `{ current }` object or getter resolving
+ * @param target - element or ref-like `{ current }` object resolving
  *   to the element whose hover state is tracked
  * @param options - `delayEnter` / `delayLeave` (default `0`),
  *   `triggerOnRemoval` (default `false`) and a custom `window` instance

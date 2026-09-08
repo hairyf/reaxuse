@@ -10,7 +10,7 @@ Listen for keyboard keystrokes. By default, listens on `keydown` events on `wind
 is registered in a mount effect and removed on unmount (upstream is a plain function). The key filter
 accepts a single key, an array of keys, `true` (any key) or a custom predicate, and the
 `eventName` / `target` / `passive` / `dedupe` options are supported — `dedupe` may also be a ref-like
-`{ current }` object or a getter, read on every received event. Like upstream, calling the hook returns
+`{ current }` object, read on every received event. Like upstream, calling the hook returns
 a stop function (`() => void`) that removes the currently registered listener. The upstream directive
 variant (`v-on-key-stroke`) and the `onKeyDown` / `onKeyPressed` / `onKeyUp` shorthands are not part of
 this port.
@@ -78,7 +78,7 @@ useKeyStroke('A', (e) => {
 ### Ignore Repeated Events
 
 The callback will trigger only once when pressing `A` and **holding down**. The `dedupe` option can also
-be a ref-like `{ current }` object or a getter — it is read on every received event.
+be a ref-like `{ current }` object — it is read on every received event.
 
 ```tsx
 useKeyStroke('A', (e) => {
@@ -115,14 +115,14 @@ export type KeyStrokeEventName = 'keydown' | 'keypress' | 'keyup'
 
 export interface UseKeyStrokeOptions {
   eventName?: KeyStrokeEventName
-  target?: MaybeRefOrGetter<EventTarget | null | undefined>
+  target?: RefOrValue<EventTarget | null | undefined>
   passive?: boolean
   /**
    * Set to `true` to ignore repeated events when the key is being held down.
    *
    * @default false
    */
-  dedupe?: MaybeRefOrGetter<boolean>
+  dedupe?: RefOrValue<boolean>
 }
 
 // Listen for keyboard keystrokes. Returns a stop function (`() => void`).

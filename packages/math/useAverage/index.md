@@ -8,8 +8,8 @@ Get the average of an array reactively — React port of VueUse's
 [`useAverage`](https://vueuse.org/math/useAverage/).
 
 **Mapping:** `ComputedRef<number>` → pure derived hook returning a plain
-`number`. Values are resolved at render time (plain numbers, `{ current }`
-ref-like objects or getters) and the average is computed directly — no effects,
+`number`. Values are resolved at render time (plain numbers or React refs)
+and the average is computed directly — no effects,
 no `.value` wrapper (SSR-safe). An empty input yields `0`.
 
 ## Usage
@@ -35,8 +35,8 @@ const averageValue = useAverage(a, b) // 2
 ## Type Declarations
 
 ```ts
-export function useAverage(array: MaybeRefOrGetter<MaybeRefOrGetter<number>[]>): number
-export function useAverage(...args: MaybeRefOrGetter<number>[]): number
+export function useAverage(array: RefOrValue<RefOrValue<number>[]>): number
+export function useAverage(...args: RefOrValue<number>[]): number
 ```
 
 ## Source

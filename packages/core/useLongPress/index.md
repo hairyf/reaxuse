@@ -136,7 +136,7 @@ export interface UseLongPressOptions {
 
 // Listen for a long press on an element. Returns a stop function (`() => void`).
 export function useLongPress(
-  target: MaybeRefOrGetter<EventTarget | null | undefined>,
+  target: RefOrValue<EventTarget | null | undefined>,
   handler: (evt: PointerEvent) => void,
   options?: UseLongPressOptions,
 ): () => void

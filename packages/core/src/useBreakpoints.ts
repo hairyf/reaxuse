@@ -1,4 +1,4 @@
-import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
 import { increaseWithUnit, pxValue, toValue } from '@reaxuse/shared'
 import { useEffect, useRef } from 'react'
 import { useMediaQuery } from './useMediaQuery'
@@ -148,7 +148,7 @@ export const breakpointsElement = {
   xl: 1920,
 }
 
-export type Breakpoints<K extends string = string> = Record<K, MaybeRefOrGetter<number | string>>
+export type Breakpoints<K extends string = string> = Record<K, RefOrValue<number | string>>
 
 export interface UseBreakpointsOptions extends ConfigurableWindow {
   /**
@@ -164,16 +164,16 @@ export interface UseBreakpointsOptions extends ConfigurableWindow {
 }
 
 export type UseBreakpointReturn<K extends string = string> = Record<K, boolean> & {
-  greaterOrEqual: (k: MaybeRefOrGetter<K>) => boolean
-  smallerOrEqual: (k: MaybeRefOrGetter<K>) => boolean
-  greater: (k: MaybeRefOrGetter<K>) => boolean
-  smaller: (k: MaybeRefOrGetter<K>) => boolean
-  between: (a: MaybeRefOrGetter<K>, b: MaybeRefOrGetter<K>) => boolean
-  isGreater: (k: MaybeRefOrGetter<K>) => boolean
-  isGreaterOrEqual: (k: MaybeRefOrGetter<K>) => boolean
-  isSmaller: (k: MaybeRefOrGetter<K>) => boolean
-  isSmallerOrEqual: (k: MaybeRefOrGetter<K>) => boolean
-  isInBetween: (a: MaybeRefOrGetter<K>, b: MaybeRefOrGetter<K>) => boolean
+  greaterOrEqual: (k: RefOrValue<K>) => boolean
+  smallerOrEqual: (k: RefOrValue<K>) => boolean
+  greater: (k: RefOrValue<K>) => boolean
+  smaller: (k: RefOrValue<K>) => boolean
+  between: (a: RefOrValue<K>, b: RefOrValue<K>) => boolean
+  isGreater: (k: RefOrValue<K>) => boolean
+  isGreaterOrEqual: (k: RefOrValue<K>) => boolean
+  isSmaller: (k: RefOrValue<K>) => boolean
+  isSmallerOrEqual: (k: RefOrValue<K>) => boolean
+  isInBetween: (a: RefOrValue<K>, b: RefOrValue<K>) => boolean
   current: () => K[]
   active: () => K | ''
 }
@@ -223,7 +223,7 @@ export function useBreakpoints<K extends string>(
   breakpoints: Breakpoints<K>,
   options: UseBreakpointsOptions = {},
 ): UseBreakpointReturn<K> {
-  function getValue(k: MaybeRefOrGetter<K>, delta?: number) {
+  function getValue(k: RefOrValue<K>, delta?: number) {
     let v = toValue(breakpoints[toValue(k)])
 
     if (delta != null)
@@ -271,18 +271,22 @@ export function useBreakpoints<K extends string>(
   const maxMinusWidths: Record<string, boolean> = {}
   const mediaOptions = { window: windowOption, ssrWidth }
 
+  // the query strings are plain values (recomputed from the current render's
+  // breakpoints) — `useMediaQuery` re-resolves its query every render and
+  // re-binds whenever the resolved string changes, so passing a value keeps
+  // the same reactivity without a getter
   for (const k of keys) {
-    minWidths[k] = useMediaQuery(() => `(min-width: ${getValue(k)})`, mediaOptions)
-    minPlusWidths[k] = useMediaQuery(() => `(min-width: ${getValue(k, 0.1)})`, mediaOptions)
-    maxWidths[k] = useMediaQuery(() => `(max-width: ${getValue(k)})`, mediaOptions)
-    maxMinusWidths[k] = useMediaQuery(() => `(max-width: ${getValue(k, -0.1)})`, mediaOptions)
+    minWidths[k] = useMediaQuery(`(min-width: ${getValue(k)})`, mediaOptions)
+    minPlusWidths[k] = useMediaQuery(`(min-width: ${getValue(k, 0.1)})`, mediaOptions)
+    maxWidths[k] = useMediaQuery(`(max-width: ${getValue(k)})`, mediaOptions)
+    maxMinusWidths[k] = useMediaQuery(`(max-width: ${getValue(k, -0.1)})`, mediaOptions)
   }
 
-  const greaterOrEqual = (k: MaybeRefOrGetter<K>) => minWidths[toValue(k)]
-  const smallerOrEqual = (k: MaybeRefOrGetter<K>) => maxWidths[toValue(k)]
-  const greater = (k: MaybeRefOrGetter<K>) => minPlusWidths[toValue(k)]
-  const smaller = (k: MaybeRefOrGetter<K>) => maxMinusWidths[toValue(k)]
-  const between = (a: MaybeRefOrGetter<K>, b: MaybeRefOrGetter<K>) =>
+  const greaterOrEqual = (k: RefOrValue<K>) => minWidths[toValue(k)]
+  const smallerOrEqual = (k: RefOrValue<K>) => maxWidths[toValue(k)]
+  const greater = (k: RefOrValue<K>) => minPlusWidths[toValue(k)]
+  const smaller = (k: RefOrValue<K>) => maxMinusWidths[toValue(k)]
+  const between = (a: RefOrValue<K>, b: RefOrValue<K>) =>
     minWidths[toValue(a)] && maxMinusWidths[toValue(b)]
 
   const shortcutMethods = {} as Record<K, boolean>
@@ -304,11 +308,11 @@ export function useBreakpoints<K extends string>(
     greater,
     smaller,
     between,
-    isGreater: (k: MaybeRefOrGetter<K>) => match('min', getValue(k, 0.1)),
-    isGreaterOrEqual: (k: MaybeRefOrGetter<K>) => match('min', getValue(k)),
-    isSmaller: (k: MaybeRefOrGetter<K>) => match('max', getValue(k, -0.1)),
-    isSmallerOrEqual: (k: MaybeRefOrGetter<K>) => match('max', getValue(k)),
-    isInBetween: (a: MaybeRefOrGetter<K>, b: MaybeRefOrGetter<K>) =>
+    isGreater: (k: RefOrValue<K>) => match('min', getValue(k, 0.1)),
+    isGreaterOrEqual: (k: RefOrValue<K>) => match('min', getValue(k)),
+    isSmaller: (k: RefOrValue<K>) => match('max', getValue(k, -0.1)),
+    isSmallerOrEqual: (k: RefOrValue<K>) => match('max', getValue(k)),
+    isInBetween: (a: RefOrValue<K>, b: RefOrValue<K>) =>
       match('min', getValue(a)) && match('max', getValue(b, -0.1)),
     current,
     active() {

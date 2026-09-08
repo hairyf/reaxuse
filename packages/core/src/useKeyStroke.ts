@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 import { useCallback } from 'react'
 import { useEventListener } from './useEventListener'
@@ -15,12 +15,12 @@ export interface UseKeyStrokeOptions {
    */
   eventName?: KeyStrokeEventName
   /**
-   * Event target to listen on. A plain element, a ref-like `{ current }`
-   * object or a getter (`MaybeRefOrGetter`).
+   * Event target to listen on. A plain element or a ref-like `{ current }`
+   * object (`RefOrValue`).
    *
    * @default window
    */
-  target?: MaybeRefOrGetter<EventTarget | null | undefined>
+  target?: RefOrValue<EventTarget | null | undefined>
   /**
    * Set to `true` to use a passive event listener.
    *
@@ -32,7 +32,7 @@ export interface UseKeyStrokeOptions {
    *
    * @default false
    */
-  dedupe?: MaybeRefOrGetter<boolean>
+  dedupe?: RefOrValue<boolean>
 }
 
 function createKeyPredicate(keyFilter: KeyFilter): KeyPredicate {

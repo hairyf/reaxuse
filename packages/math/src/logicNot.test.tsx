@@ -1,4 +1,6 @@
+import { useRef } from 'react'
 import { describe, expect, it } from 'vitest'
+import { renderHook } from 'vitest-browser-react'
 import { logicNot } from './logicNot'
 
 describe('logicNot', () => {
@@ -25,12 +27,17 @@ describe('logicNot', () => {
     expect(logicNot(0)).toBe(true)
   })
 
-  it('returns the logical complement of the given getter function', () => {
-    expect(logicNot(() => true)).toBe(false)
-    expect(logicNot(() => 'foo')).toBe(false)
+  it('returns the logical complement of the given React ref', async () => {
+    const { result: truthy } = await renderHook(() => useRef(true))
+    const { result: str } = await renderHook(() => useRef('foo'))
+    const { result: falsy } = await renderHook(() => useRef(false))
+    const { result: zero } = await renderHook(() => useRef(0))
 
-    expect(logicNot(() => false)).toBe(true)
-    expect(logicNot(() => 0)).toBe(true)
+    expect(logicNot(truthy.current)).toBe(false)
+    expect(logicNot(str.current)).toBe(false)
+
+    expect(logicNot(falsy.current)).toBe(true)
+    expect(logicNot(zero.current)).toBe(true)
   })
 
   it('re-evaluates ref-like values on every call', () => {
