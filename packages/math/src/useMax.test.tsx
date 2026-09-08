@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useMax } from './useMax'
@@ -65,8 +66,8 @@ describe('useMax', () => {
     expect(result.current).toBe(2000)
   })
 
-  it('should accept getters', async () => {
-    const { result } = await renderHook(() => useMax(() => 1, () => 50, () => 5))
+  it('should accept React refs', async () => {
+    const { result } = await renderHook(() => useMax(useRef(1), useRef(50), useRef(5)))
 
     expect(result.current).toBe(50)
   })

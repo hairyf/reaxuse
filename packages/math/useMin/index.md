@@ -7,8 +7,8 @@ category: '@Math'
 Reactive `Math.min` — React port of VueUse's
 [`useMin`](https://vueuse.org/math/useMin/).
 
-**Mapping:** `ComputedRef<number>` → pure derived hook. Arguments (plain values,
-`{ current }` ref-like objects or getters) are resolved and flattened at render
+**Mapping:** `ComputedRef<number>` → pure derived hook. Arguments (plain values
+or React refs) are resolved and flattened at render
 time and the minimum is returned directly — no effects, no `.value` wrapper
 (SSR-safe).
 
@@ -35,8 +35,8 @@ const min = useMin(a, b, 2) // 1
 ## Type Declarations
 
 ```ts
-export function useMin(array: MaybeRefOrGetter<MaybeRefOrGetter<number>[]>): number
-export function useMin(...args: MaybeRefOrGetter<number>[]): number
+export function useMin(array: RefOrValue<RefOrValue<number>[]>): number
+export function useMin(...args: RefOrValue<number>[]): number
 ```
 
 ## Source

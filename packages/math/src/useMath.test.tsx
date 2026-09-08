@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useMath } from './useMath'
@@ -30,12 +31,12 @@ describe('useMath', () => {
     expect(rootResult.current).toBe(4)
   })
 
-  it('should accept getters', async () => {
-    const { result } = await renderHook(() => useMath('pow', () => 2, () => 3))
+  it('should accept React refs', async () => {
+    const { result } = await renderHook(() => useMath('pow', useRef(2), useRef(3)))
 
     expect(result.current).toBe(8)
 
-    const { result: rootResult } = await renderHook(() => useMath('sqrt', () => 4))
+    const { result: rootResult } = await renderHook(() => useMath('sqrt', useRef(4)))
 
     expect(rootResult.current).toBe(2)
   })

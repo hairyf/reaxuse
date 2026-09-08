@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useMin } from './useMin'
@@ -60,8 +61,8 @@ describe('useMin', () => {
     expect(result.current).toBe(7)
   })
 
-  it('should accept getters', async () => {
-    const { result } = await renderHook(() => useMin(() => 10, () => 100))
+  it('should accept React refs', async () => {
+    const { result } = await renderHook(() => useMin(useRef(10), useRef(100)))
 
     expect(result.current).toBe(10)
   })

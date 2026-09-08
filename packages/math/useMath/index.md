@@ -8,8 +8,8 @@ Reactive `Math` methods — React port of VueUse's
 [`useMath`](https://vueuse.org/math/useMath/).
 
 **Mapping:** `ComputedRef<number>` → pure derived hook. Pass a `Math` method
-name as the key and its arguments (plain numbers, `{ current }` ref-like
-objects or getters); the result is recomputed on every render and returned
+name as the key and its arguments (plain numbers or React refs); the result is
+recomputed on every render and returned
 directly — no effects, no `.value` wrapper (SSR-safe).
 
 ## Usage
@@ -29,7 +29,7 @@ setNum(4) // triggers a re-render
 // root === 2
 ```
 
-Plain values, `{ current }` ref-like objects and getters are all accepted:
+Plain values and React refs are both accepted:
 
 ```tsx
 import { useMath } from '@reaxuse/math'
@@ -40,7 +40,7 @@ const base = { current: 2 }
 const exponent = { current: 3 }
 const refPower = useMath('pow', base, exponent) // 8
 
-const getterPower = useMath('pow', () => 2, () => 3) // 8
+const rounded = useMath('round', { current: 2.5 }) // 3
 ```
 
 <DemoContainer name="UseMath" />
@@ -50,11 +50,11 @@ const getterPower = useMath('pow', () => 2, () => 3) // 8
 ```ts
 export type UseMathKeys = keyof { [K in keyof Math as Math[K] extends (...args: any) => any ? K : never]: unknown }
 
-export type UseMathReturn<K extends keyof Math> = ReturnType<Reactified<Math[K], true>>
+export type UseMathReturn<K extends keyof Math> = ReturnType<Reactified<Math[K]>>
 
 export function useMath<K extends keyof Math>(
   key: K,
-  ...args: ArgumentsType<Reactified<Math[K], true>>
+  ...args: ArgumentsType<Reactified<Math[K]>>
 ): UseMathReturn<K>
 ```
 
