@@ -167,6 +167,14 @@ New-Item -ItemType Junction -Path D:\reaxuse-wt\<hook>\node_modules -Target D:\r
 
 ```
 
+**一键建 worktree（推荐，编排者脚本，未跟踪）**：
+
+```powershell
+pwsh -File D:\reaxuse\.agents\new-worktree.ps1 -Name <hook> -Branch feat/<scope>-<hook>
+```
+
+脚本 `D:\reaxuse\.agents\new-worktree.ps1`（未跟踪，勿提交）等价于上面 3 步 + 写 `vitest.worktree.config.ts`：先 `cmd /c rmdir` 清 junction（防 `worktree remove --force` 穿透）、`git fetch origin main`、删同名旧分支、`worktree add`、挂 junction、写 config（`cacheDir .vite-cache-<Name>`），最后打印 worktree/branch/junction 三行供核对。2026-09-08 Round 7 实测通过（`useidbkeyval`/`usecookies`）。
+
 **单测与校验流程**：
 
 * `vitest.worktree.config.ts` 不在版本库内，每个新 worktree 必须自行创建（`cacheDir` 每个 worktree 唯一，避免并发 browser 测试互相污染）：
