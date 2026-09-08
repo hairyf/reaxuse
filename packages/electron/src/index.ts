@@ -5,9 +5,9 @@
  * dependency — keep it external to the bundle.
  */
 
-// export * from './useIpcRenderer'
-// export * from './useIpcRendererInvoke'
-// export * from './useIpcRendererOn'
+export * from './useIpcRenderer'
+export * from './useIpcRendererInvoke'
+export * from './useIpcRendererOn'
 // export * from './useZoomFactor'
 // export * from './useZoomLevel'
 export {}
