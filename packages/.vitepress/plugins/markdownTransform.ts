@@ -12,10 +12,28 @@ import type { Plugin } from 'vite'
 export interface FunctionRef {
   name: string
   pkg: string
+  /** Source file from the registry (`packages/<pkg>/src/<module>.ts`). */
+  file?: string
+}
+
+/**
+ * Docs route of a function: the page lives next to the module that exports it,
+ * named after that module — not after the function. For one-hook-per-file
+ * modules the two coincide (`useToggle` -> `/core/useToggle/index`), but helper
+ * modules export several functions from one page (`toValue` lives in
+ * `packages/shared/src/utils.ts` -> `/shared/utils/index`).
+ */
+function functionRoute(fn: FunctionRef): string {
+  const module = fn.file
+    ?.replace(/\\/g, '/')
+    .split('/')
+    .pop()
+    ?.replace(/\.ts$/, '')
+  return `/${fn.pkg}/${module || fn.name}/index`
 }
 
 export function MarkdownTransform(functions: FunctionRef[]): Plugin {
-  const registered = new Map(functions.map(fn => [fn.name, `/${fn.pkg}/${fn.name}/index`]))
+  const registered = new Map(functions.map(fn => [fn.name, functionRoute(fn)]))
 
   return {
     name: 'reaxuse-markdown-transform',
