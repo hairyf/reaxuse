@@ -9,8 +9,7 @@ VueUse's [`useResizeObserver`](https://vueuse.org/core/useResizeObserver/).
 
 **Mapping:** upstream observes every resolved target with a platform `ResizeObserver` and tracks
 target changes with `watch(computed(() => ...), ..., { immediate: true, flush: 'post' })` → accepted
-targets become a plain element, a React ref object (`{ current }`), a getter, or an array of those
-(a getter returning an array also works). An effect re-resolves the targets after every render and
+targets become a plain element, a React ref, or an array of those. An effect re-resolves the targets after every render and
 re-observes only when the resolved element set or the `window` option actually changed — a
 re-render that swaps `target.current` re-observes, while unchanged renders never do (every
 `observe()` re-delivers the current sizes). The callback is read through a ref, so changing it does
@@ -45,20 +44,20 @@ export interface UseResizeObserverReturn {
   stop: () => void
 }
 
-export type MaybeElement = HTMLElement | SVGElement | undefined | null
+export type TargetElement = HTMLElement | SVGElement | undefined | null
 
-export type MaybeComputedElementRef<T extends MaybeElement = MaybeElement>
+export type ElementTarget<T extends TargetElement = TargetElement>
   = | T
     | RefObject<T | null>
     | (() => T)
 
-export type MaybeComputedElementRefOrArray<T extends MaybeElement = MaybeElement>
-  = | MaybeComputedElementRef<T>
-    | MaybeComputedElementRef<T>[]
+export type ElementTargetOrArray<T extends TargetElement = TargetElement>
+  = | ElementTarget<T>
+    | ElementTarget<T>[]
     | (() => T[] | null)
 
 export function useResizeObserver(
-  target: MaybeComputedElementRefOrArray,
+  target: ElementTargetOrArray,
   callback: ResizeObserverCallback,
   options?: UseResizeObserverOptions,
 ): UseResizeObserverReturn

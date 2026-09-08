@@ -29,7 +29,7 @@ setList(list.slice(0, -1)) // result === [0, 2, 4, 6] on the next render
 export type UseArrayMapReturn<T = any> = T[]
 
 export function useArrayMap<T, U = T>(
-  list: MaybeRef<MaybeRef<T>[]>,
+  list: RefOrValue<RefOrValue<T>[]>,
   fn: (element: T, index: number, array: T[]) => U,
 ): UseArrayMapReturn<U>
 ```

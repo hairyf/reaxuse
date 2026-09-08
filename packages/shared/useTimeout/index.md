@@ -10,7 +10,7 @@ A reactive value that becomes `true` after a given time — React port of VueUse
 since `useTimeoutFn` is mapped in its own module, this port inlines the timer logic to stay
 self-contained — `ref` → `useState`, the setup-time `start()` becomes a mount `useEffect`,
 and `tryOnScopeDispose(stop)` becomes the effect cleanup. `interval` accepts a number or a
-getter (upstream: `MaybeRefOrGetter<number>`); `start` / `stop` are stable callbacks.
+React ref (upstream: `RefOrValue<number>`); `start` / `stop` are stable callbacks.
 
 ## Usage
 

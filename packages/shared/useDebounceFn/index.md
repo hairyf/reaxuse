@@ -6,7 +6,7 @@ category: Utilities
 
 Debounce execution of a function — React port of VueUse's [`useDebounceFn`](https://vueuse.org/shared/useDebounceFn/).
 
-**Mapping:** upstream wraps the function with `createFilterWrapper(debounceFilter(ms, options), fn)`, so every call returns a promise and the wrapper carries `cancel` / `flush` / `isPending`. In React the wrapper is built once (`useMemo`) so its identity is stable across renders; the latest `fn` / `ms` / `options` are kept in refs so every call sees fresh values. `ms` accepts a number, a ref-like `{ current }` or a getter (upstream: `MaybeRefOrGetter<number>`) and is re-read on every call. `isPending` becomes a non-reactive getter (React has no reactive refs), and pending timers are cleared when the component unmounts.
+**Mapping:** upstream wraps the function with `createFilterWrapper(debounceFilter(ms, options), fn)`, so every call returns a promise and the wrapper carries `cancel` / `flush` / `isPending`. In React the wrapper is built once (`useMemo`) so its identity is stable across renders; the latest `fn` / `ms` / `options` are kept in refs so every call sees fresh values. `ms` accepts a number, a React ref (upstream: `RefOrValue<number>`) and is re-read on every call. `isPending` becomes a non-reactive getter (React has no reactive refs), and pending timers are cleared when the component unmounts.
 
 ## Usage
 
@@ -28,7 +28,7 @@ debouncedFn.flush()
 
 ```ts
 export interface DebounceFilterOptions {
-  maxWait?: MaybeRef<number> | (() => number)
+  maxWait?: RefOrValue<number> | (() => number)
   rejectOnCancel?: boolean
 }
 
@@ -41,7 +41,7 @@ export interface UseDebounceFnReturn<T extends FunctionArgs> {
 
 export function useDebounceFn<T extends FunctionArgs>(
   fn: T,
-  ms?: MaybeRef<number> | (() => number),
+  ms?: RefOrValue<number> | (() => number),
   options?: DebounceFilterOptions,
 ): UseDebounceFnReturn<T>
 ```

@@ -11,8 +11,6 @@ export const isClient = typeof window !== 'undefined'
 
 export function noop(): void {}
 
-export type MaybeRef<T> = T | { current: T }
-
 // export * from './createEventHook'
 // export * from './createGlobalState'
 // export * from './createInjectionState'

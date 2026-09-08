@@ -1,5 +1,5 @@
 import type { ConfigurableWindow } from '@reaxuse/shared'
-import type { MaybeComputedElementRef } from './useResizeObserver'
+import type { ElementTarget } from './useResizeObserver'
 import { toValue } from '@reaxuse/shared'
 import { useEffect, useRef, useState } from 'react'
 
@@ -56,7 +56,7 @@ const PSEUDO_CLASS_FOCUS_WITHIN = ':focus-within'
  * // `focused` is true while the form or any input inside it has focus
  */
 export function useFocusWithin(
-  target: MaybeComputedElementRef,
+  target: ElementTarget,
   options: ConfigurableWindow = {},
 ): UseFocusWithinReturn {
   const [focused, setFocused] = useState(false)

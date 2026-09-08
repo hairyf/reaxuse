@@ -183,13 +183,13 @@ describe('useThrottleFn', () => {
     expect(await pending).toBe(3)
   })
 
-  it('re-reads a getter ms on every call', async () => {
+  it('re-reads a ref ms on every call', async () => {
     const calls: number[] = []
-    let delay = 100
+    const delay = { current: 100 }
     const { result, act } = await renderHook(() =>
       useThrottleFn((n: number) => {
         calls.push(n)
-      }, () => delay))
+      }, delay))
 
     await act(async () => {
       result.current(1)
@@ -204,7 +204,7 @@ describe('useThrottleFn', () => {
     })
     expect(calls).toEqual([1, 2])
 
-    delay = 300
+    delay.current = 300
     await act(async () => {
       vi.advanceTimersByTime(400)
     })
