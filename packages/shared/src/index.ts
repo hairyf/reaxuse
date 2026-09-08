@@ -19,7 +19,7 @@ export function noop(): void {}
 // export * from './isDefined'
 export * from './makeDestructurable'
 // export * from './provideLocal'
-// export * from './syncRef'
+export * from './syncRef'
 export * from './syncRefs'
 export * from './until'
 export * from './useArrayDifference'
