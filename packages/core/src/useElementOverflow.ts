@@ -75,8 +75,8 @@ export interface UseElementOverflowReturn {
  * - the Vue `shallowRef`/`shallowReadonly` overflow flags become plain
  *   `boolean` state read off the returned object; `stop`/`update` keep the
  *   upstream member structure;
- * - `target` accepts an element, a React ref object (`{ current }`) or a
- *   getter returning one — the React analog of upstream's
+ * - `target` accepts an element or a React ref object (`{ current }`) —
+ *   the React analog of upstream's
  *   `ElementTarget`. SVG elements are ignored;
  * - upstream's `useResizeObserver`/`useMutationObserver` composition becomes a
  *   self-contained observer effect that re-resolves the target plus its
@@ -90,8 +90,8 @@ export interface UseElementOverflowReturn {
  * - SSR-safe: nothing touches `window` during render, and `update()` no-ops
  *   without an element or a window.
  *
- * @param target - element, React ref object (`{ current }`) or getter
- *   returning the element to watch for overflow
+ * @param target - element or React ref object (`{ current }`) returning
+ *   the element to watch for overflow
  * @param option - `observeMutation` (default `false`, or a
  *   `MutationObserverInit` object) and `onUpdated`, plus a custom `window`
  *   instance

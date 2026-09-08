@@ -8,8 +8,8 @@ Reactive `Math.max` — React port of VueUse's
 [`useMax`](https://vueuse.org/math/useMax/).
 
 **Mapping:** `ComputedRef<number>` → pure derived hook returning a plain
-`number`. Values are resolved at render time (plain numbers, `{ current }`
-ref-like objects or getters) and the maximum is computed directly — no effects,
+`number`. Values are resolved at render time (plain numbers or React refs)
+and the maximum is computed directly — no effects,
 no `.value` wrapper (SSR-safe).
 
 ## Usage
@@ -35,8 +35,8 @@ const max = useMax(a, b, 2) // 3
 ## Type Declarations
 
 ```ts
-export function useMax(array: MaybeRefOrGetter<MaybeRefOrGetter<number>[]>): number
-export function useMax(...args: MaybeRefOrGetter<number>[]): number
+export function useMax(array: RefOrValue<RefOrValue<number>[]>): number
+export function useMax(...args: RefOrValue<number>[]): number
 ```
 
 ## Source

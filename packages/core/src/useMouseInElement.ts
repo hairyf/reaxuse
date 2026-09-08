@@ -158,8 +158,8 @@ function extractCoords(type: UseMouseCoordType, event: MouseEvent | Touch): [num
  *   read `x`, `y`, `elementX`, `elementY`, `elementPositionX`,
  *   `elementPositionY`, `elementHeight`, `elementWidth`, `isOutside`
  *   (plus `sourceType` and `stop`) directly off the result;
- * - `target` accepts an element, a React ref object (`RefObject<HTMLElement |
- *   null>`) or a getter — the React analog of upstream's `ElementRef`.
+ * - `target` accepts an element or a React ref object (`RefObject<HTMLElement |
+ *   null>`) — the React analog of upstream's `ElementRef`.
  *   The window/document listeners attach in a mount `useEffect` and are
  *   removed on unmount; the element metrics recompute whenever the resolved
  *   element changes, so a `useRef` target that is `null` during the first
@@ -172,8 +172,8 @@ function extractCoords(type: UseMouseCoordType, event: MouseEvent | Touch): [num
  * - SSR-safe: nothing touches `window` or the DOM during render — listeners
  *   attach and the initial metrics compute in effects only.
  *
- * @param target - element, React ref object (`{ current }`) or getter
- *   returning the element to measure the mouse position against
+ * @param target - element or React ref object (`{ current }`) returning
+ *   the element to measure the mouse position against
  * @param options - `handleOutside` (default `true`), `windowScroll` /
  *   `windowResize` (default `true`), `type` (default `'page'`), `touch`
  *   (default `true`), `scroll` (default `true`), `resetOnTouchEnds` (default

@@ -400,7 +400,7 @@ export function createFetch(config: CreateFetchOptions = {}) {
  *   any in-flight request is aborted on unmount;
  * - `refetch` watches the url/payload the React way: a plain `url` value
  *   (e.g. driven by `useState`) re-fetches when the render value changes,
- *   while a ref-like (`{ current }`) url or getter url, and a ref-like
+ *   while a ref-like (`{ current }`) url, and a ref-like
  *   payload/`refetch` flag, are polled at a small interval — the React analog
  *   of upstream's `watch` over reactive refs;
  * - `updateDataOnError`, `initialData`, `timeout` (via shared
@@ -814,8 +814,8 @@ export function useFetch<T>(url: RefOrValue<string>, ...args: any[]): UseFetchRe
 
   // mirror upstream `watch([refetch, toRef(url)])` — re-fetch when the url
   // (or a ref-like payload, or the refetch flag) changes and refetch is on.
-  // A plain `url` value re-fires when the render value changes; ref-like and
-  // getter sources are polled since React cannot observe their mutations.
+  // A plain `url` value re-fires when the render value changes; ref-like
+  // sources are polled since React cannot observe their mutations.
   useEffect(() => {
     const needsPolling = isRefLike(url) || typeof url === 'function'
       || isRefLike(refetchOption) || typeof refetchOption === 'function'

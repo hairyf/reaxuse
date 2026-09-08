@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 
 /**
@@ -10,8 +10,8 @@ import { toValue } from '@reaxuse/shared'
  *
  * Adjustment for React: upstream wraps the computation in `computed(() => ...)`
  * and returns a `ComputedRef<boolean>`; the reaxuse version is a pure utility
- * function — all arguments are resolved via `toValue` (plain values,
- * `{ current }` ref-like objects or getters) on every call and the plain
+ * function — all arguments are resolved via `toValue` (plain values or React
+ * refs) on every call and the plain
  * boolean result is returned directly, with no effects and no `.value` wrapper
  * (SSR-safe). The caller re-invokes it to react to changing values.
  *
@@ -25,11 +25,11 @@ import { toValue } from '@reaxuse/shared'
  *
  * logicOr(a, b) // true
  *
- * logicOr(() => a.current, () => b.current) // true
+ * logicOr(true, false) // true
  *
- * @param args - Values to evaluate.
+ * @param args - Values or React refs to evaluate.
  * @returns `true` if any argument is truthy, `false` otherwise.
  */
-export function logicOr(...args: MaybeRefOrGetter<any>[]): boolean {
+export function logicOr(...args: RefOrValue<any>[]): boolean {
   return args.some(i => toValue(i))
 }

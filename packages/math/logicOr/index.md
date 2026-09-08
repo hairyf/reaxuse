@@ -10,8 +10,8 @@ related: logicAnd, logicNot
 [`logicOr`](https://vueuse.org/math/logicOr/).
 
 **Mapping:** `ComputedRef<boolean>` → plain boolean. Every call resolves each
-argument with `toValue` (plain values, `{ current }` ref-like objects or
-getters) and returns `true` when any of them is truthy — a pure utility, no
+argument with `toValue` (plain values or React refs) and returns `true` when
+any of them is truthy — a pure utility, no
 effects, no `.value` wrapper (SSR-safe). The caller re-invokes it to react to
 changing values.
 
@@ -35,7 +35,7 @@ logicOr(a, b) // false
 ## Type Declarations
 
 ```ts
-export function logicOr(...args: MaybeRefOrGetter<any>[]): boolean
+export function logicOr(...args: RefOrValue<any>[]): boolean
 ```
 
 ## Source

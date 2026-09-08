@@ -8,10 +8,10 @@ Reactively clamp a value between two other values — React port of VueUse's
 [`useClamp`](https://vueuse.org/math/useClamp/).
 
 **Mapping:** `Ref<number>` / `ComputedRef<number>` → `[value, setValue]` tuple.
-`value`, `min` and `max` accept plain numbers, `{ current }` ref-like objects
-or getters, resolved on every render. `setValue` clamps into `[min, max]` on
-write, mirroring upstream's writable computed; getter value inputs stay
-read-only (pure derivation, like upstream's read-only `computed` branch).
+`value`, `min` and `max` accept plain numbers or React refs, resolved on every
+render. `setValue` clamps into `[min, max]` on
+write, mirroring upstream's writable computed; ref-like value inputs are
+written back to when clamped (upstream's writable `computed` branch).
 
 ## Usage
 
@@ -29,7 +29,7 @@ setValue(-5) // value is 0
 
 ### Writable Value
 
-When you pass a plain number or a `{ current }` ref-like value, the returned
+When you pass a plain number or a React ref, the returned
 setter clamps on write and keeps the source in sync:
 
 ```tsx
@@ -44,7 +44,7 @@ setClamped(-5) // clamped is 0, number.current is 0
 
 ### Reactive Bounds
 
-All arguments (value, min, max) can be ref-like objects or getters. Bounds are
+All arguments (value, min, max) can be plain numbers or React refs. Bounds are
 re-resolved on every render, so shrinking `max` re-clamps the current value:
 
 ```tsx
@@ -65,9 +65,9 @@ max.current = 3 // clamped is 3 on the next render
 
 ```ts
 export function useClamp(
-  value: MaybeRefOrGetter<number>,
-  min: MaybeRefOrGetter<number>,
-  max: MaybeRefOrGetter<number>,
+  value: RefOrValue<number>,
+  min: RefOrValue<number>,
+  max: RefOrValue<number>,
 ): [number, (value: number) => void]
 ```
 

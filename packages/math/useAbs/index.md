@@ -8,8 +8,8 @@ Reactive `Math.abs` — React port of VueUse's
 [`useAbs`](https://vueuse.org/math/useAbs/).
 
 **Mapping:** `ComputedRef<number>` → plain number recomputed on every render
-(pure derived value, no reactive `.value`); input accepts a plain number, a
-ref-like `{ current }` object or a getter.
+(pure derived value, no reactive `.value`); input accepts a plain number or
+a React ref.
 
 ## Usage
 
@@ -27,7 +27,7 @@ value.current = 23 // result === 23 on the next render
 ## Type Declarations
 
 ```ts
-export function useAbs(value: MaybeRefOrGetter<number>): number
+export function useAbs(value: RefOrValue<number>): number
 ```
 
 ## Source

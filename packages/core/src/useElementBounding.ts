@@ -82,8 +82,8 @@ export interface UseElementBoundingReturn {
  * - the Vue `ShallowRef`s returned by upstream become a plain object of plain
  *   `number` state read off the result — `x`, `y`, `top`, `right`, `bottom`,
  *   `left`, `width`, `height` — plus `update()`, which re-measures on demand;
- * - `target` accepts a plain element, a React ref object (`{ current }`) or a
- *   getter — the React analog of upstream's `ElementTarget`;
+ * - `target` accepts a plain element or a React ref object (`{ current }`) —
+ *   the React analog of upstream's `ElementTarget`;
  * - upstream's `watch(() => unrefElement(target), ele => !ele && update())`
  *   (reset the values whenever the resolved target element becomes detached)
  *   becomes an effect that re-resolves the target after every render and
@@ -98,8 +98,8 @@ export interface UseElementBoundingReturn {
  * - SSR-safe: nothing touches `window` or the DOM during render — all
  *   measurements happen in effects.
  *
- * @param target - element, React ref object (`{ current }`) or getter
- *   returning the element to measure the bounding box of
+ * @param target - element or React ref object (`{ current }`) returning
+ *   the element to measure the bounding box of
  * @param options - `reset` (default `true`), `windowResize` (default `true`),
  *   `windowScroll` (default `true`), `immediate` (default `true`),
  *   `updateTiming` (default `'sync'`), and a custom `window` instance

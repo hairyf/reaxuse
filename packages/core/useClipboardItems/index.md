@@ -45,7 +45,7 @@ export interface UseClipboardItemsReturn<Optional> {
 }
 
 export function useClipboardItems(options?: UseClipboardItemsOptions<undefined>): UseClipboardItemsReturn<false>
-export function useClipboardItems(options: UseClipboardItemsOptions<MaybeRefOrGetter<ClipboardItems>>): UseClipboardItemsReturn<true>
+export function useClipboardItems(options: UseClipboardItemsOptions<RefOrValue<ClipboardItems>>): UseClipboardItemsReturn<true>
 ```
 
 ## Source

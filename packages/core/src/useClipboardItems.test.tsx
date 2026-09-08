@@ -74,12 +74,17 @@ it('copy() falls back to the source option', async () => {
   expect(result.current.content).toEqual(source)
 })
 
-it('copy() resolves a getter source at call time', async () => {
+it('copy() resolves a ref source at call time', async () => {
   const { writeSpy } = installClipboard()
-  const source = createItems('from getter')
-  const { result, act } = await renderHook(() => useClipboardItems({ source: () => source }))
+  const source = createItems('from ref')
+  // a ref-like `{ current }` holder: the source is only read when `copy()`
+  // runs, so a mutation after mount must still be picked up
+  const sourceRef = { current: createItems('stale') }
+  const { result, act } = await renderHook(() => useClipboardItems({ source: sourceRef }))
 
   await expect.poll(() => result.current.isSupported).toBe(true)
+
+  sourceRef.current = source
 
   await act(async () => {
     await result.current.copy()

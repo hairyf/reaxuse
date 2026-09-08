@@ -8,7 +8,7 @@ Reactive `Math.ceil` — React port of VueUse's
 [`useCeil`](https://vueuse.org/math/useCeil/).
 
 **Mapping:** `ComputedRef<number>` → pure derived hook. `value` is resolved at
-render time (plain number, `{ current }` ref-like object or getter) and the
+render time (a plain number or a React ref) and the
 ceiled number is returned directly — no effects, no `.value` wrapper
 (SSR-safe).
 
@@ -30,7 +30,7 @@ const result2 = useCeil(value) // -7
 
 ```ts
 export function useCeil(
-  value: MaybeRefOrGetter<number>,
+  value: RefOrValue<number>,
 ): number
 ```
 

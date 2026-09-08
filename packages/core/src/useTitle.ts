@@ -67,7 +67,7 @@ function formatTitle(raw: string, template: string | ((title: string) => string)
  *
  * Return tuple follows this repo's React idiom:
  * `const [title, setTitle] = useTitle()` (upstream returns a single Vue ref
- * — a readonly `ComputedRef` when the source is a ref/getter).
+ * — a readonly `ComputedRef` when the source is a ref).
  *
  * React divergences:
  * - upstream adopts the current title synchronously at setup
@@ -79,7 +79,7 @@ function formatTitle(raw: string, template: string | ((title: string) => string)
  *   and setting `null`/`undefined` through the setter clears the state but
  *   leaves `document.title` untouched (upstream would write `format('')`);
  * - a plain `newTitle` argument is re-synced when it changes across renders
- *   (React has no reactive refs; upstream only propagates ref/getter sources
+ *   (React has no reactive refs; upstream only propagates ref sources
  *   and then returns a readonly computed — here the setter stays writable);
  * - `observe` registers a raw `MutationObserver` on the `<title>` element in
  *   an effect (upstream composes `useMutationObserver`); as upstream it is
@@ -129,7 +129,7 @@ export function useTitle(
   }, [])
 
   // a plain `newTitle` argument is re-synced when it changes across renders
-  // (React equivalent of upstream's reactive ref/getter sources)
+  // (React equivalent of upstream's reactive ref sources)
   useEffect(() => {
     if (newTitle == null || newTitle === titleRef.current)
       return

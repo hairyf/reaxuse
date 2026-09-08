@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useCeil } from './useCeil'
@@ -51,14 +52,14 @@ describe('useCeil', () => {
     expect(result.current).toBe(3)
   })
 
-  it('works with getter functions', async () => {
-    const { result } = await renderHook(() => useCeil(() => 0.95))
-    expect(result.current).toBe(1)
+  it('works with React refs', async () => {
+    const first = await renderHook(() => useCeil(useRef(0.95)))
+    expect(first.result.current).toBe(1)
 
-    const second = await renderHook(() => useCeil(() => -7.004))
+    const second = await renderHook(() => useCeil(useRef(-7.004)))
     expect(second.result.current).toBe(-7)
 
-    const third = await renderHook(() => useCeil(() => 3.1415))
+    const third = await renderHook(() => useCeil(useRef(3.1415)))
     expect(third.result.current).toBe(4)
   })
 })

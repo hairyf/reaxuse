@@ -67,12 +67,12 @@ describe('useClamp', () => {
     expect(result.current[0]).toBe(0)
   })
 
-  it('should work with getter value (read-only)', async () => {
+  it('should work with a ref value (writable)', async () => {
     const base = { current: 10 }
     const min = { current: 0 }
     const max = { current: 100 }
 
-    const { result, rerender, act } = await renderHook(() => useClamp(() => base.current, min, max))
+    const { result, rerender, act } = await renderHook(() => useClamp(base, min, max))
 
     expect(result.current[0]).toBe(10)
 
@@ -84,8 +84,8 @@ describe('useClamp', () => {
     await rerender()
     expect(result.current[0]).toBe(100)
 
-    // getter-backed values are read-only: the setter cannot change the derived value
+    // ref-backed values are writable: the setter writes the clamped value back into the ref
     await act(() => result.current[1](50))
-    expect(result.current[0]).toBe(100)
+    expect(result.current[0]).toBe(50)
   })
 })

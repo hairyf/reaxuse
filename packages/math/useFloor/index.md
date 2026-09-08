@@ -8,8 +8,8 @@ Reactive `Math.floor` — React port of VueUse's
 [`useFloor`](https://vueuse.org/math/useFloor/).
 
 **Mapping:** `ComputedRef<number>` → plain number recomputed on every render
-(pure derived value, no reactive `.value`); input accepts a ref-like
-`{ current }` object or a getter.
+(pure derived value, no reactive `.value`); input accepts a plain number or
+a React ref.
 
 ## Usage
 
@@ -27,7 +27,7 @@ value.current = -45.05 // result === -46 on the next render
 ## Type Declarations
 
 ```ts
-export function useFloor(value: MaybeRefOrGetter<number>): number
+export function useFloor(value: RefOrValue<number>): number
 ```
 
 ## Source

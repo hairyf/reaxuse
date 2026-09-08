@@ -39,8 +39,8 @@ export interface UseElementVisibilityOptions extends ConfigurableWindow {
 }
 
 /**
- * React equivalent of upstream's `unrefElement`: resolves a getter, a ref-like
- * object, or a plain value down to an element (or, for a scroll target, a
+ * React equivalent of upstream's `unrefElement`: resolves a ref-like object
+ * or a plain value down to an element (or, for a scroll target, a
  * `Document`). Built on the shared `toValue`.
  */
 function resolveTarget(value: unknown): Element | Document | undefined {

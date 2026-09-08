@@ -1,4 +1,4 @@
-import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -82,7 +82,7 @@ export type UseFileSystemAccessOptions = ConfigurableWindow & UseFileSystemAcces
   /**
    * file data type
    */
-  dataType?: MaybeRefOrGetter<'Text' | 'ArrayBuffer' | 'Blob'>
+  dataType?: RefOrValue<'Text' | 'ArrayBuffer' | 'Blob'>
 }
 
 export interface UseFileSystemAccessReturn<T = string> {

@@ -1,15 +1,20 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render } from 'vitest-browser-react'
 import { userEvent } from 'vitest/browser'
 import { useClickOutside } from './useClickOutside'
 
-function getComplexComponent(useGetter = false) {
+function getComplexComponent(usePlainElement = false) {
   return function ComplexComponent() {
     const target = useRef<HTMLDivElement>(null)
     const outside = useRef<HTMLDivElement>(null)
+    // the plain-element variant keeps the resolved node in state: it is `null`
+    // on the first render and appears after the ref callback runs, so the hook
+    // must read the latest target at event time (a getter used to read it the
+    // same way)
+    const [element, setElement] = useState<HTMLDivElement | null>(null)
     useClickOutside(
-      useGetter ? () => target.current : target,
+      usePlainElement ? element : target,
       (event) => {
         // Mirrors the upstream test which spies on `console.log`
         // eslint-disable-next-line no-console
@@ -22,7 +27,7 @@ function getComplexComponent(useGetter = false) {
 
     return (
       <div>
-        <div ref={target}>
+        <div ref={usePlainElement ? setElement : target}>
           Inside
         </div>
 
@@ -132,7 +137,7 @@ describe('useClickOutside', () => {
     })
   })
 
-  it('allow the value of target to be a getter', async () => {
+  it('allow the value of target to be a plain element', async () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     const ComplexComponent = getComplexComponent(true)
     const screen = await render(<ComplexComponent />)

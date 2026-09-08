@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react'
-import type { MaybeRefOrGetter } from './index'
+import type { RefOrValue } from './utils'
 import { useCallback, useRef, useState } from 'react'
 import { isRefLike, toValue } from './utils'
 
@@ -55,7 +55,7 @@ export type UseStateDefaultReturn<T = any> = [
  * console.log(value) // 'default'
  */
 export function useStateDefault<T = any>(
-  source: MaybeRefOrGetter<T | undefined | null>,
+  source: RefOrValue<T | undefined | null>,
   defaultValue: T,
 ): UseStateDefaultReturn<T> {
   // keep the latest source behind the stable setter — the source object may be

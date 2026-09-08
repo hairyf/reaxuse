@@ -1,12 +1,13 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 
 /**
  * Composable argument types — a variadic list of resolvable numbers, or a
  * single resolvable array of resolvable numbers. Mirrors VueUse math's
- * `MaybeComputedRefArgs` (`source/vueuse/packages/math/utils.ts`).
+ * `MaybeComputedRefArgs` (`source/vueuse/packages/math/utils.ts`), migrated to
+ * `RefOrValue` (plain values or React refs).
  */
-type MaybeComputedRefArgs<T> = MaybeRefOrGetter<T>[] | [MaybeRefOrGetter<MaybeRefOrGetter<T>[]>]
+type RefOrValueArgs<T> = RefOrValue<T>[] | [RefOrValue<RefOrValue<T>[]>]
 
 /**
  * Flatten the composable arguments into a plain resolved value array.
@@ -14,7 +15,7 @@ type MaybeComputedRefArgs<T> = MaybeRefOrGetter<T>[] | [MaybeRefOrGetter<MaybeRe
  *
  * @__NO_SIDE_EFFECTS__
  */
-function toValueArgsFlat<T>(args: MaybeComputedRefArgs<T>): T[] {
+function toValueArgsFlat<T>(args: RefOrValueArgs<T>): T[] {
   return args.flatMap((item: any): T[] => {
     const value = toValue(item)
     if (Array.isArray(value))
@@ -32,8 +33,8 @@ function toValueArgsFlat<T>(args: MaybeComputedRefArgs<T>): T[] {
  *
  * Adjustment for React: upstream wraps the computation in `computed(() => ...)`
  * and returns a `ComputedRef<number>`; the reaxuse version is a pure derived
- * hook — arguments (plain values, `{ current }` ref-like objects or getters)
- * are resolved and flattened at render time and the minimum is returned
+ * hook — arguments (plain values or React refs) are resolved and flattened at
+ * render time and the minimum is returned
  * directly, with no effects and no `.value` wrapper (SSR-safe).
  *
  * @see https://vueuse.org/math/useMin/
@@ -52,9 +53,9 @@ function toValueArgsFlat<T>(args: MaybeComputedRefArgs<T>): T[] {
  * @returns The minimum of the given numbers, or `Number.POSITIVE_INFINITY` when
  * no arguments are passed (matching `Math.min()` semantics).
  */
-export function useMin(array: MaybeRefOrGetter<MaybeRefOrGetter<number>[]>): number
-export function useMin(...args: MaybeRefOrGetter<number>[]): number
+export function useMin(array: RefOrValue<RefOrValue<number>[]>): number
+export function useMin(...args: RefOrValue<number>[]): number
 
-export function useMin(...args: MaybeComputedRefArgs<number>): number {
+export function useMin(...args: RefOrValueArgs<number>): number {
   return Math.min(...toValueArgsFlat(args))
 }

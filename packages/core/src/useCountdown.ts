@@ -59,8 +59,8 @@ export interface UseCountdownReturn {
  * the upstream members: `{ remaining, reset, stop, start, pause, resume,
  * isActive }`. `remaining` is a plain number state (upstream: a shallow ref)
  * that counts down one step per `interval` (default `1000` ms) after
- * `start()` — call `start(countdown?)`/`reset(countdown?)` with a number, a
- * ref-like `{ current }` or a getter to feed a new value. `stop()` pauses and
+ * `start()` — call `start(countdown?)`/`reset(countdown?)` with a number or a
+ * ref-like `{ current }` to feed a new value. `stop()` pauses and
  * resets to the initial value, `pause()`/`resume()` freeze/thaw in place
  * (resume is a no-op at 0), and `onTick` fires every tick with `onComplete`
  * once the countdown reaches 0.

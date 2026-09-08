@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import type { Options } from 'change-case'
 import type { Dispatch, SetStateAction } from 'react'
 import { isRefLike, toValue } from '@reaxuse/shared'
@@ -71,20 +71,20 @@ const changeCaseTransforms = /* @__PURE__ */ Object.entries(changeCase)
  * changeCase // 'vueUse'
  */
 export function useChangeCase(
-  input: MaybeRefOrGetter<string>,
-  type: MaybeRefOrGetter<ChangeCaseType>,
-  options?: MaybeRefOrGetter<Options> | undefined,
+  input: RefOrValue<string>,
+  type: RefOrValue<ChangeCaseType>,
+  options?: RefOrValue<Options> | undefined,
 ): UseChangeCaseReturn {
   // internal input state — the writable half of the upstream computed
   const [text, setText] = useState<string>(() => toValue(input))
 
-  // keep ref-like / getter inputs live (upstream index.md: "the returned
+  // keep ref-like inputs live (upstream index.md: "the returned
   // computed will change along with the source ref's changes"); the baseline
   // records the last value synced FROM the external source, so a `setValue`
   // write is only superseded by a genuine external change
   const lastExternalRef = useRef<string>(toValue(input))
   useEffect(() => {
-    if (!isRefLike(input) && typeof input !== 'function')
+    if (!isRefLike(input))
       return
     const resolved = toValue(input)
     if (!Object.is(resolved, lastExternalRef.current)) {
