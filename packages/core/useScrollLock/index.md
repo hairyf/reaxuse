@@ -12,7 +12,7 @@ element's inline `overflow` style. The immediate `watch(element, …)` sync beco
 the resolved element identity (it records the initial overflow, adopts an already-`hidden` element as
 locked, and applies `hidden` while locked); `tryOnScopeDispose(unlock)` becomes an unmount cleanup
 restoring the initial overflow. The element is accepted as a plain element (or `Window` /
-`Document`, resolved to `documentElement`), a ref-like `{ current }` object, or a getter.
+`Document`, resolved to `documentElement`), a React ref.
 
 ## Usage
 

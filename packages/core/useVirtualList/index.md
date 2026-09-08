@@ -142,7 +142,7 @@ export interface UseVirtualListReturn<T> {
 }
 
 export function useVirtualList<T = any>(
-  list: MaybeRef<readonly T[]>,
+  list: RefOrValue<readonly T[]>,
   options: UseVirtualListOptions,
 ): UseVirtualListReturn<T>
 ```

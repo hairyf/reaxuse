@@ -13,8 +13,7 @@ state values that update on re-render (scroll events are batched by React). Prog
 `scrollend` listeners are registered in a `useEffect` with cleanup (upstream composes
 `useEventListener`), the idle reset is a shared `useDebounceFn` and the scroll handler a shared
 `useThrottleFn` when `throttle > 0`, and the optional MutationObserver (upstream `useMutationObserver`)
-is self-contained in the same effect. `element` accepts an element, a ref-like `{ current }` object or
-a getter — the listeners re-bind when the resolved element changes, so a `useRef` target that is
+is self-contained in the same effect. `element` accepts an element or a React ref — the listeners re-bind when the resolved element changes, so a `useRef` target that is
 `null` during first render still binds once React attaches it. The upstream `v-scroll` directive is a
 Vue feature and is not ported; use the hook inside a `useEffect` for equivalent per-element behavior.
 
@@ -83,7 +82,7 @@ useEffect(() => {
 ## Type Declarations
 
 ```ts
-export type MaybeRefOrGetter<T> = T | { current: T } | (() => T)
+export type RefOrValue<T> = T | { current: T } | (() => T)
 
 export type UseScrollElement = HTMLElement | SVGElement | Window | Document | null | undefined
 
@@ -102,7 +101,7 @@ export interface UseScrollOptions extends ConfigurableWindow {
   onScroll?: (e: Event) => void
   onStop?: (e: Event) => void
   eventListenerOptions?: boolean | AddEventListenerOptions
-  behavior?: MaybeRefOrGetter<ScrollBehavior>
+  behavior?: RefOrValue<ScrollBehavior>
   onError?: (error: unknown) => void
 }
 
@@ -128,7 +127,7 @@ export interface UseScrollReturn {
 }
 
 export function useScroll(
-  element: MaybeRefOrGetter<UseScrollElement>,
+  element: RefOrValue<UseScrollElement>,
   options?: UseScrollOptions,
 ): UseScrollReturn
 ```

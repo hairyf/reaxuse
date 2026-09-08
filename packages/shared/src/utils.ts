@@ -1,5 +1,6 @@
 /* eslint-disable antfu/top-level-function */
 // Ported from VueUse @vueuse/shared utils (source/vueuse/packages/shared/utils)
+import type { Ref, RefObject } from 'react'
 
 // ---------------------------------------------------------------------------
 // general.ts
@@ -176,11 +177,8 @@ export const hyphenate = cacheStringFunction((str: string) => str.replace(hyphen
 // these from @reaxuse/shared, never re-implement; see MONITORING-HANDOFF §2C)
 // ---------------------------------------------------------------------------
 
-/**
- * Value, React ref-like object (`{ current }`) or getter — the React analog of
- * VueUse's `MaybeRefOrGetter`.
- */
-export type MaybeRefOrGetter<T> = T | { current: T } | (() => T)
+/** A plain value or a React ref. Zero-argument getter values are not supported. */
+export type RefOrValue<T> = T | Ref<T>
 
 /**
  * Allow a custom `window` instance, e.g. working with iframes or in testing
@@ -191,22 +189,23 @@ export interface ConfigurableWindow {
 }
 
 /**
- * Type guard for React-style ref-like objects (`{ current }`).
+ * Type guard for React ref objects (`RefObject` — `{ current }` holders).
+ * Callback refs are functions and cannot be read synchronously, so they are
+ * not ref-like.
  */
-export function isRefLike<T>(value: MaybeRefOrGetter<T>): value is { current: T } {
-  return value !== null && typeof value === 'object' && 'current' in value
+export function isRefLike<T>(value: RefOrValue<T> | undefined | null): value is RefObject<T | null> {
+  return value !== null && value !== undefined && typeof value === 'object' && 'current' in value
 }
 
 /**
- * Resolve a plain value, a React ref-like object (`{ current }`) or a getter
- * function to its current value — the React analog of VueUse's `toValue`.
+ * Resolve a plain value or a React ref to its current value — the React
+ * replacement for VueUse's `toValue`. Getters are not supported: pass a
+ * React ref (`useRef`) when the latest value must be read lazily.
  */
-export function toValue<T>(value: MaybeRefOrGetter<T>): T
-export function toValue<T>(value: MaybeRefOrGetter<T> | undefined): T | undefined
-export function toValue<T>(value: MaybeRefOrGetter<T> | undefined): T | undefined {
-  if (typeof value === 'function')
-    return (value as () => T)()
-  if (value !== null && typeof value === 'object' && 'current' in value)
-    return (value as { current: T }).current
-  return value
+export function toValue<T>(value: RefOrValue<T>): T
+export function toValue<T>(value: RefOrValue<T> | undefined | null): T | undefined | null
+export function toValue<T>(value: RefOrValue<T> | undefined | null): T | undefined | null {
+  if (isRefLike(value))
+    return value.current
+  return value as T | undefined | null
 }
