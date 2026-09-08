@@ -3,7 +3,9 @@
 > **文件用途**：会话无缝交接（untracked，禁止提交）。
 > **流程文档**：PR 监控/审批/合并的稳定流程见 `PR-MERGE-WORKFLOW.md`（本文件只记会话状态与队列）。
 > **目标仓库**：[reaxuse/issues](https://github.com/hairyf/reaxuse/issues)（React 版 VueUse，账号 `hairyf`）
-> **当前基线**（2026-09-08 15:40 会话更新）：`main` = `ea039af`（370 functions，**开放 PR 0**）。本会话（Round 1–2）已完成：① 代合并 PR #482 useChangeCase（issue #90）、#483 useFocusTrap（issue #134），审查全合规、CI 5 项全绿，issue 自动关闭；② #22 `createUnrefFn` 按 `impractical` 协议 `not planned` 关闭（评论 5580640786）；③ 关闭过期 issue #2 useNow / #9 useCounter / #10 useToggle（均已实现并导出，附证据评论）；④ **元数据同步已推送**（`ea039af`，+609/-0，含 batch 435–485 缺口与 #482/#483）。**⚠️ 重要环境事实**：`source/vueuse` 是未初始化 submodule——任何会话运行 `npm run update` 前必须先 `git submodule update --init source/vueuse`，否则状态列整体降级为 "🚧 ported (no upstream match)"（上一会话的 `145a980` 即因此废弃，未入历史，reflog 可查）。旧 `D:\reaxuse` 检出已不存在，`vitest.worktree.config.ts` 已无——worktree 内直接以根 `vitest.config.ts` 运行 `npx vitest run <file>` 即可。
+> **历史基线**（2026-09-08 15:40 会话更新）：`main` = `ea039af`（370 functions，**开放 PR 0**）。本会话（Round 1–2）已完成：① 代合并 PR #482 useChangeCase（issue #90）、#483 useFocusTrap（issue #134），审查全合规、CI 5 项全绿，issue 自动关闭；② #22 `createUnrefFn` 按 `impractical` 协议 `not planned` 关闭（评论 5580640786）；③ 关闭过期 issue #2 useNow / #9 useCounter / #10 useToggle（均已实现并导出，附证据评论）；④ **元数据同步已推送**（`ea039af`，+609/-0，含 batch 435–485 缺口与 #482/#483）。**⚠️ 重要环境事实**：`source/vueuse` 现已初始化（`97fd09c3`，v14.3.0-78-g97fd09c3，Round 7 复核）；运行 `npm run update` 前仍应先 `git submodule update --init source/vueuse`，否则状态列整体降级为 "🚧 ported (no upstream match)"（上一会话的 `145a980` 即因此废弃，未入历史，reflog 可查）。`D:\projects\reaxuse` 检出已不存在；本会话运行在 `D:\reaxuse`（主检出），worktree 位于 `D:\reaxuse-wt\*`。`vitest.worktree.config.ts` 不在版本库内（`.git/info/exclude:8` 忽略），新建 worktree 时必须自行创建，内容见 §4。**Round 7（2026-09-08 18:5x）**：本地 `main` 已 `--ff-only` 至 `0b22ca5`（370 functions，开放 PR 0，40 open issues）；主树 `node_modules/@reaxuse/*` junction 污染已修复并复验（事故与恢复法见 §8）；已派发 #5 与 #16+#17（见 §7 Round 7）。
+
+> **⚠️ 当前基线（2026-09-08 18:5x，本会话 Round 1）**：`main` = `0b22ca5`（370 functions，**开放 PR 0**，**开放 issue 40**）。本轮动作：① 本地检出落后 154 提交 → `git merge --ff-only origin/main` 同步至 `0b22ca5`；② **发现并修复主树 node_modules 污染**：`node_modules/@reaxuse/*` 7 个 junction 全指向陈旧 worktree `D:\reaxuse-wt\issue462`（8fddc63，缺 `createEventHook`/`isDefined`/`syncRef`/`syncRefs`/`until`/`useState{AutoReset,Default,ManualReset,Throttled}`）——已全部重指向 `D:\reaxuse\packages\*`、`D:\reaxuse\playgrounds\*`（见 §8）；③ 健康基线复验：`npx tsc --noEmit` = **0**、`npx vitest run --project exports` = **11/11 pass**；④ 派发 2 个子代理（并发 2）：**#16+#17** → 子代理 `f9fd492a-07fe-4e06-8872-192521511691`（worktree `D:\reaxuse-wt\projection`、分支 `feat/math-createprojection`）、**#5 `createGlobalState`** → 子代理 `45a1c666-ffeb-4cbf-823f-6999bd7e5a06`（worktree `D:\reaxuse-wt\createglobalstate`、分支 `feat/shared-createglobalstate`）。
 
 ---
 
@@ -100,7 +102,7 @@
 > **硬性约束**：通用方法/类型**唯一实现于 `packages/shared`**，其他包一律从 `@reaxuse/shared` 引用，**绝不重复实现 / 内联副本**（VueUse 设计理念：共享工具集中 @vueuse/shared）。靠派发 prompt + PR 审查纪律执行，不由程序强制。
 ### 唯一实现源（当前）
 
-* `packages/shared/src/utils.ts`：`toValue` / `isRefLike` / `MaybeRefOrGetter` / `ConfigurableWindow` / `noop` / `isClient` 等通用工具。
+* `packages/shared/src/utils.ts`：`toValue` / `isRefLike` / `RefOrValue<T> = T | Ref<T>` / `noop` / `isClient` / `promiseTimeout` / `toArray` / `pxValue` 等通用工具。**⚠️ `MaybeRef`/`MaybeRefOrGetter`/`MaybeComputedElementRef` 已由 #462 + #490 全部删除，新代码一律用 `RefOrValue` 系且不得接受 getter（`toValue` 只解 `{ current }`）。**
 * 复用方式：shared 内 `import { toValue } from './utils'`；core 内 `import { toValue } from '@reaxuse/shared'`。
 
 ### 规则
@@ -167,9 +169,23 @@ New-Item -ItemType Junction -Path D:\reaxuse-wt\<hook>\node_modules -Target D:\r
 
 **单测与校验流程**：
 
-* 复制 `vitest.worktree.config.ts` 至 Worktree 根目录。
+* `vitest.worktree.config.ts` 不在版本库内，每个新 worktree 必须自行创建（`cacheDir` 每个 worktree 唯一，避免并发 browser 测试互相污染）：
+
+```ts
+import { resolve } from 'node:path'
+import { mergeConfig } from 'vitest/config'
+import base from './vitest.config'
+
+export default mergeConfig(base, {
+  cacheDir: resolve(import.meta.dirname, '.vite-cache-<unique>'),
+  server: { fs: { allow: [resolve(import.meta.dirname), 'D:/reaxuse'] } },
+})
+```
+
 * 运行 Vitest 时必须携带 `--config vitest.worktree.config.ts` 参数。
 * 标准校验步骤：Scoped Vitest $\rightarrow$ Scoped ESLint $\rightarrow$ `npx tsc --noEmit`。
+* **demo 导入**：worktree 内 `@reaxuse/<pkg>` 经 node_modules junction 解析到主树包，新 hook 尚未合入时 demo 必须走相对导入 `../src/<hook>` + 一行注释（先例 `packages/shared/isDefined/demo.tsx:1-3`、`packages/integrations/useChangeCase/demo.tsx:1-3`）。
+* **删除 worktree 前**：必须先 `cmd /c rmdir <wt>\node_modules`（只删 reparse 点），确认 junction 消失后再 `git worktree remove`（见 §8 事故铁律）。
 
 ---
 
@@ -211,6 +227,12 @@ New-Item -ItemType Junction -Path D:\reaxuse-wt\<hook>\node_modules -Target D:\r
 ## 7. 实时状态与任务队列
 
 > **当前基线**（2026-09-08 18:20）：`main` = `0884955`，CI 全绿。**开放 PR 0**（#490/#488/#489/#491/#492/#493 均已合并）；元数据同步推送（`6693b5c` 375 → `0884955` 376 functions，+computedAsync）。
+>
+> **Round 7（18:45–，本会话，`D:\reaxuse` 检出）— 基线同步 + 主树 node_modules 修复 + 2 项派发**：① 检出同步：本地 `main` 落后 154 提交（`8c54810`）→ `git merge --ff-only origin/main` → `0b22ca5`；② **主树污染修复**：`node_modules/@reaxuse/*` 7 个 junction 指向陈旧 worktree `issue462`（8fddc63）→ 全部重指向主树 `packages|playgrounds`（根因/恢复法见 §8）；修复后复验 `npx tsc --noEmit` = **0**、`npx vitest run --project exports` = **11/11**；③ 派发（并发 2，零外部依赖 + `implement` 标签 + 从未有 PR）：**#16 `createGenericProjection` + #17 `createProjection`** → 子代理 `f9fd492a-07fe-4e06-8872-192521511691`（worktree `D:\reaxuse-wt\projection`、分支 `feat/math-createprojection`；**一个 PR 关闭两 issue**，#17 委托 #16 故不可拆）；**#5 `createGlobalState`** → 子代理 `45a1c666-ffeb-4cbf-823f-6999bd7e5a06`（worktree `D:\reaxuse-wt\createglobalstate`、分支 `feat/shared-createglobalstate`）。
+>
+> **#5 设计裁定（编排者，写入子代理 prompt）**：issue 的 Expected 片段把 `useState` 写进 factory = Rules-of-Hooks 违规（首次渲染后 hook 数 1→0，React 抛 "Rendered fewer hooks than expected"），React 也无 `effectScope`/响应式 ref。故实现为**模块级外部 store + `useSyncExternalStore`**，返回 §2B state-like 元组 `[state, setState]`（setter 支持值/函数式更新，`useCallback` 稳定），store 永不 dispose（对齐上游 detached `effectScope(true)` 的 unmount 存活语义），factory 仅首次调用并接收首次调用参数（上游 parity）；deviation 写入 JSDoc + docs + PR body。
+> **#16/#17 设计裁定**：`ProjectorFunction` 已由 `packages/math/src/useProjection.ts:8` 导出 → `createGenericProjection.ts` 只 `import type { ProjectorFunction } from './useProjection'`，**禁止再导出**（防 math barrel TS2308）；`createProjection.ts` 按上游自带私有 `defaultNumericProjector` 并委托 `createGenericProjection`；`RefOrValue`/`toValue` 自 `@reaxuse/shared`；两文件均带 `@__NO_SIDE_EFFECTS__`；测试为 `.test.tsx`（browser project 只收 `.tsx`）。
+> **本轮剩余队列（40 open issues 拆解）**：`implement` 且零外部依赖仅 4 个（#5/#6/#16/#17），已派 3 个，**#6 `createInjectionState` 为下一轮首选**（需 React Context 设计裁定：`useProvidingState` 是 hook 无法 render Provider，API 需调整）；其余 **36 个**：16 个 `implement` 但缺外部依赖（#79/#82/#97/#114/#138/#141/#148/#149/#150/#151/#172/#193/#201/#209/#256/#257）、18 个未打标签需维护者分流（#13/#19/#20/#21/#24/#26/#32/#36/#80/#125/#131/#174/#199/#200/#210/#218/#219/#226）、2 个 `adjustment` 且 rxjs 阻塞（#42/#262）。
 >
 > **Round 6（17:45–18:20）— #493 computedAsync 合并**：派发 #11 `computedAsync`（size:L，子代理 `ede64efa`，worktree `computedasync`，branch `feat/core-computedasync`）。中途 15 分钟无文件写入判定疑似 stall，`send_message` 状态探针后恢复（实为长读上游/前例阶段）——**探针优于中断**。commit `cc0fe33`：12/12 browser 测试、tsc 0、eslint 0 → §2 审查通过 → 5/5 CI 绿 → 合并。**设计（编排者裁定，纯派生值 → 非 §2B 元组）**：`computedAsync<T>(evaluationCallback, initialState: RefOrValue<T>, options?: AsyncComputedOptions): T`；`AsyncComputedOptions = { deps?: unknown[]; onEvaluating?: (v: boolean) => void; lazy?: boolean; onError?: (e) => void }`——React 无响应式图，`deps` 数组替代上游自动依赖追踪（默认 `[]` = 仅挂载求值）；上游 `evaluating` ref → `onEvaluating` 回调（每次求值 false 至多一次：被淘汰的求值在 invalidation 时 settle，不在其被抛弃的 Promise 迟到时重复 settle；卸载后不调用）；counter 陈旧保护 + `hasFinished` 取消注册表 + 卸载丢弃，均为上游 parity；上游被拒/取消的求值仍进 `onError`（传自定义 `onError` 静音 AbortError）；`shallow`/ref-overload 不可移植已折叠；`asyncComputed` 别名不移植；`Fn` 本地定义（shared 未导出，前例 `packages/shared/src/useIntervalFn.ts:3`）；`defaultOnError` 注意 `globalThis.reportError(e)` 必须以 globalThis 为 receiver（否则 Chromium "Illegal invocation"）。
 >
@@ -277,3 +299,8 @@ New-Item -ItemType Junction -Path D:\reaxuse-wt\<hook>\node_modules -Target D:\r
 * **元数据冲突处理**：解决元数据文件冲突时，使用 `git checkout --theirs` 覆盖，并比对 `git diff origin/main --cached` 确保内容无遗漏。
 * **Commit 异常防护**：`lint-staged` 超时可能导致静默失败，Push 前需使用 `git log -1` 确认提交记录存在。
 * **Worktree 清理**：异常中断导致残留时，利用 `scripts/update-branch.sh` 内置的 `git merge --abort` 与 `git reset --hard HEAD` 进行状态重置。
+* **🔴 node_modules junction 污染（2026-09-08 Round 7 实测事故，铁律）**：主树 `D:\reaxuse\node_modules\@reaxuse\{core,integrations,math,metadata,shared,playground-next,playground-vite}` 是 **junction**；worktree 的 `node_modules` 又是指向 `D:\reaxuse\node_modules` 的 junction，因此在 worktree 内跑 `npm install` / `npm ci` **会重写主树的链接**，把 7 个包全部指向该 worktree 自己的 `packages/*`（本次指向陈旧 `D:\reaxuse-wt\issue462`，commit `8fddc63`，缺失 `createEventHook.ts`/`isDefined.ts`/`syncRef.ts`/`syncRefs.ts`/`until.ts`/`useStateAutoReset.ts`/`useStateDefault.ts`/`useStateManualReset.ts`/`useStateThrottled.ts`）。**后果**：`npx tsc --noEmit` 仍可能 exit 0（陈旧链接被静默容忍），但主树实际编译/测试的是旧代码，判断全部失真。
+  * **自查**：`Get-ChildItem D:\reaxuse\node_modules -Recurse -Depth 1 -Directory | ? LinkType`，任何 `@reaxuse\*` 的 `Target` 不在 `D:\reaxuse\packages|playgrounds` 下即为污染。
+  * **恢复**：逐个 `cmd /c rmdir D:\reaxuse\node_modules\@reaxuse\<k>`（只删 reparse 点，勿用 `Remove-Item -Recurse`）后 `New-Item -ItemType Junction -Path <link> -Target D:\reaxuse\<packages|playgrounds>\<dir>`。
+  * **预防**：worktree 内**永不**执行 `npm install` / `npm ci`（本仓库本就用 junction 共享依赖）；删除 worktree 前先 `cmd /c rmdir <wt>\node_modules`。
+  * **复验基线**（修复后实测）：`npx tsc --noEmit` = 0；`npx vitest run --project exports` = 2 files / 11 tests passed。
