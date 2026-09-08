@@ -3,6 +3,7 @@
 // export * from './createReusableTemplate'
 // export * from './createTemplatePromise'
 // export * from './createUnrefFn'
+export * from './unrefElement'
 export * from './useActiveElement'
 export * from './useAnimate'
 export * from './useAsyncQueue'
