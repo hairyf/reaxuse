@@ -1,30 +1,29 @@
 import type { ConfigurableWindow } from '@reaxuse/shared'
+import type { Ref } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
- * Element types accepted as observation targets. Upstream's `MaybeElement`
+ * Element types accepted as observation targets. Upstream's `TargetElement`
  * also includes Vue component instances (`VueInstance`) — React refs hold
  * DOM nodes directly, so there is no equivalent here.
  */
-export type MaybeElement = HTMLElement | SVGElement | undefined | null
+export type TargetElement = HTMLElement | SVGElement | undefined | null
 
 /**
- * A plain element, a React ref object (`{ current }`), or a getter returning
- * one — the React equivalent of Vue's `MaybeRefOrGetter<T>`.
+ * A plain element, a React ref object, or a getter returning one — the
+ * React-native replacement for upstream's `ElementTarget` (in Vue
+ * semantics a `{ current }` union). React refs hold DOM nodes directly, so
+ * only a `RefObject` (or an explicit getter for lazy reads) is accepted.
  */
-export type MaybeComputedElementRef<T extends MaybeElement = MaybeElement>
-  = | T
-    | { readonly current: T }
-    | (() => T)
+export type ElementTarget<T extends TargetElement = TargetElement>
+  = T | Ref<T>
 
 /**
  * A single target, an array of targets, or a getter returning an array (or
- * `null`) — mirrors upstream's `MaybeComputedElementRefOrArray`.
+ * `null`) — mirrors upstream's `ElementTargetOrArray`.
  */
-export type MaybeComputedElementRefOrArray<T extends MaybeElement = MaybeElement>
-  = | MaybeComputedElementRef<T>
-    | MaybeComputedElementRef<T>[]
-    | (() => T[] | null)
+export type ElementTargetOrArray<T extends TargetElement = TargetElement>
+  = ElementTarget<T> | ElementTarget<T>[]
 
 /**
  * Options for `useResizeObserver`: passthrough of the platform
@@ -67,7 +66,7 @@ function unrefElement(value: unknown): Element | undefined {
  * of resolved elements, dropping empty slots (upstream filters at observe
  * time with `if (_el)`).
  */
-function resolveTargets(target: MaybeComputedElementRefOrArray): Element[] {
+function resolveTargets(target: ElementTargetOrArray): Element[] {
   const value = typeof target === 'function' ? (target as () => unknown)() : target
   const items = Array.isArray(value) ? value : [value]
 
@@ -120,7 +119,7 @@ function resolveTargets(target: MaybeComputedElementRefOrArray): Element[] {
  * })
  */
 export function useResizeObserver(
-  target: MaybeComputedElementRefOrArray,
+  target: ElementTargetOrArray,
   callback: ResizeObserverCallback,
   options: UseResizeObserverOptions = {},
 ): UseResizeObserverReturn {

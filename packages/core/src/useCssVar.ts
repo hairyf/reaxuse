@@ -1,4 +1,4 @@
-import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
 import type { Dispatch, SetStateAction } from 'react'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -26,7 +26,7 @@ export interface UseCssVarOptions extends ConfigurableWindow {
 
 /**
  * Elements accepted as the CSS variable target — a plain element, a ref-like
- * `{ current }` object or a getter (upstream: `MaybeElementRef`).
+ * `{ current }` object or a getter (upstream: `ElementRef`).
  */
 export type UseCssVarElement = HTMLElement | SVGElement | null | undefined
 
@@ -78,8 +78,8 @@ export type UseCssVarReturn = [
  * setColor('#df8543') // writes style="--color: #df8543" on the element
  */
 export function useCssVar(
-  prop: MaybeRefOrGetter<string | null | undefined>,
-  target?: MaybeRefOrGetter<UseCssVarElement>,
+  prop: RefOrValue<string | null | undefined>,
+  target?: RefOrValue<UseCssVarElement>,
   options: UseCssVarOptions = {},
 ): UseCssVarReturn {
   const {
