@@ -16,7 +16,7 @@ export function noop(): void {}
 // export * from './createInjectionState'
 // export * from './createSharedComposable'
 // export * from './injectLocal'
-// export * from './isDefined'
+export * from './isDefined'
 export * from './makeDestructurable'
 // export * from './provideLocal'
 export * from './syncRef'
