@@ -10,7 +10,7 @@ Reactive size of an HTML element. [ResizeObserver MDN](https://developer.mozilla
 size of the box selected by the `box` option (`border-box`, `content-box` or
 `device-pixel-content-box`), falling back to `getBoundingClientRect` for SVG elements and to
 `contentRect` when the box sizes are unavailable. The React port mirrors `useResizeObserver`'s
-target contract — a plain element, a React ref object (`{ current }`), or a getter. `width`/`height`
+target contract — a plain element, or a React ref. `width`/`height`
 are plain `number` state (upstream: `ShallowRef`s), so the return is the object `{ width, height,
 stop }`. A mount-time prefill reads `offsetWidth`/`offsetHeight` (padding/border subtracted for
 `content-box`) so the size is correct before the first async observer delivery, and a
@@ -49,9 +49,9 @@ The observer is disconnected automatically on unmount. Call `stop()` to disconne
 ## Type Declarations
 
 The accepted target types are shared with `useResizeObserver` (see
-[`useResizeObserver`](./../useResizeObserver/) for `MaybeElement`,
-`MaybeComputedElementRef` and `MaybeComputedElementRefOrArray` — a plain
-element, a React ref object (`{ current }`), a getter, or an array of those).
+[`useResizeObserver`](./../useResizeObserver/) for `TargetElement`,
+`ElementTarget` and `ElementTargetOrArray` — a plain
+element, a React ref, or an array of those).
 
 ```ts
 export interface ElementSize {
@@ -68,7 +68,7 @@ export interface UseElementSizeReturn {
 }
 
 export function useElementSize(
-  target: MaybeComputedElementRef,
+  target: ElementTarget,
   initialSize?: ElementSize,
   options?: UseElementSizeOptions,
 ): UseElementSizeReturn

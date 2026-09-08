@@ -10,8 +10,8 @@ Reactive element by point — React port of VueUse's [`useElementByPoint`](https
 (`document.elementsFromPoint` when `multiple` is enabled) on every scheduler tick (upstream default
 `useRafFn`); here the `ShallowRef<HTMLElement | HTMLElement[] | null>` return becomes a plain `element`
 value refreshed on the same rAF loop, and the `ComputedRef<boolean>` `isSupported` becomes a plain
-boolean computed in the mount effect. `x` / `y` / `multiple` accept plain values, ref-like `{ current }`
-objects or getters (upstream `MaybeRefOrGetter`) and are re-resolved on every tick, so a moving `useMouse`
+boolean computed in the mount effect. `x` / `y` / `multiple` accept plain values or React
+refs (upstream `RefOrValue`) and are re-resolved on every tick, so a moving `useMouse`
 position updates the hit element automatically. `isActive` / `pause` / `resume` come from the scheduler
 (default `useRafFn`, overridable via the `scheduler` option, composed during render — Rules of Hooks).
 SSR-safe — no `window` / `document` access during render.
@@ -25,7 +25,7 @@ const { x, y } = useMouse({ type: 'client' })
 const { element } = useElementByPoint({ x, y })
 ```
 
-`x` and `y` accept plain numbers, ref-like objects (`{ current: 0 }`) or getters. When `multiple` is
+`x` and `y` accept plain numbers, React refs. When `multiple` is
 enabled, `element` is an `HTMLElement[]` with every element under the point (`document.elementsFromPoint`):
 
 ```tsx
@@ -38,9 +38,9 @@ const { element } = useElementByPoint({ x, y, multiple: true })
 
 ```ts
 export interface UseElementByPointOptions<Multiple extends boolean = false> {
-  x: MaybeRefOrGetter<number>
-  y: MaybeRefOrGetter<number>
-  multiple?: MaybeRefOrGetter<Multiple>
+  x: RefOrValue<number>
+  y: RefOrValue<number>
+  multiple?: RefOrValue<Multiple>
   document?: Document
   scheduler?: (cb: () => void) => Pausable
 }

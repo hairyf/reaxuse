@@ -33,11 +33,11 @@ useWatchThrottled(
 
 ### Options
 
-| Option     | Type                                 | Default | Description                               |
-| ---------- | ------------------------------------ | ------- | ----------------------------------------- |
-| `throttle` | `MaybeRef<number> \| (() => number)` | `0`     | Throttle interval in ms (can be reactive) |
-| `trailing` | `boolean`                            | `true`  | Invoke on the trailing edge               |
-| `leading`  | `boolean`                            | `true`  | Invoke on the leading edge                |
+| Option     | Type                                   | Default | Description                               |
+| ---------- | -------------------------------------- | ------- | ----------------------------------------- |
+| `throttle` | `RefOrValue<number> \| (() => number)` | `0`     | Throttle interval in ms (can be reactive) |
+| `trailing` | `boolean`                              | `true`  | Invoke on the trailing edge               |
+| `leading`  | `boolean`                              | `true`  | Invoke on the leading edge                |
 
 ### Leading and Trailing
 
@@ -75,7 +75,7 @@ useWatchThrottled(input, () => console.log('changed!'), { immediate: true })
 
 ```ts
 export interface UseWatchThrottledOptions {
-  throttle?: MaybeRef<number> | (() => number)
+  throttle?: RefOrValue<number> | (() => number)
   trailing?: boolean
   leading?: boolean
   immediate?: boolean
