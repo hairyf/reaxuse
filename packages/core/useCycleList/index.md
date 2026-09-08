@@ -9,8 +9,8 @@ Cycle through a list of items — React port of VueUse's [`useCycleList`](https:
 **Mapping:** object-mirror hook — `state` is the current item (React state, written through the returned `setState`
 setter; upstream assigns `state.value` on a Vue ref), `index` the position of the current item (derived on every render
 from `getIndexOf ?? list.indexOf`, falling back to `fallbackIndex`/`0`; writable through `setIndex`, same as `go`), and
-`next`/`prev`/`go` are stable callbacks returning the would-be value. `list` accepts a plain array, a ref-like
-(`{ current }`) or a getter (`() => T[]`); when a ref-like list's `current` is replaced, the current index is
+`next`/`prev`/`go` are stable callbacks returning the would-be value. `list` accepts a plain array or a React
+ref; when a ref list's `current` is replaced, the current index is
 re-applied to the new list (upstream: `watch(listRef, ...)`).
 
 ## Usage
@@ -47,7 +47,7 @@ console.log(state) // 'Shark'
 ```ts
 export interface UseCycleListOptions<T> {
   /** The initial value of the state. A ref can be provided to reuse. */
-  initialValue?: MaybeRef<T>
+  initialValue?: RefOrValue<T>
   /** The default index when the current value is not found in the list. */
   fallbackIndex?: number
   /** Custom function to get the index of the current value. */
@@ -64,7 +64,7 @@ export interface UseCycleListReturn<T> {
   setIndex: Dispatch<SetStateAction<number>>
 }
 
-export function useCycleList<T>(list: MaybeRefOrGetter<T[]>, options?: UseCycleListOptions<T>): UseCycleListReturn<T>
+export function useCycleList<T>(list: RefOrValue<T[]>, options?: UseCycleListOptions<T>): UseCycleListReturn<T>
 ```
 
 ## Source

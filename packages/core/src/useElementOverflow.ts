@@ -1,4 +1,4 @@
-import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -77,7 +77,7 @@ export interface UseElementOverflowReturn {
  *   upstream member structure;
  * - `target` accepts an element, a React ref object (`{ current }`) or a
  *   getter returning one — the React analog of upstream's
- *   `MaybeComputedElementRef`. SVG elements are ignored;
+ *   `ElementTarget`. SVG elements are ignored;
  * - upstream's `useResizeObserver`/`useMutationObserver` composition becomes a
  *   self-contained observer effect that re-resolves the target plus its
  *   `HTMLElement` children after every render and reconciles the observers —
@@ -100,7 +100,7 @@ export interface UseElementOverflowReturn {
  * const { isXOverflowed } = useElementOverflow(el)
  */
 export function useElementOverflow(
-  target: MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>,
+  target: RefOrValue<HTMLElement | SVGElement | null | undefined>,
   option: UseElementOverflowOptions = {},
 ): UseElementOverflowReturn {
   // Latest-value refs synced each render, so the observer effect always

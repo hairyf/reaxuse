@@ -196,7 +196,7 @@ export function useStorage<T = unknown>(key: string, defaults: null, storage?: S
  *   entry from storage and the state falls back to the initial value,
  *   mirroring upstream where the self storage-event echo restores the raw
  *   defaults;
- * - `key` and `defaults` are plain values (upstream takes `MaybeRefOrGetter`);
+ * - `key` and `defaults` are plain values (upstream takes `RefOrValue`);
  *   changing `key` between renders re-reads the new key, and writes always go
  *   to the key of the current render. A function `defaults` is a lazy
  *   initializer (React `useState` convention, like upstream's getter form)

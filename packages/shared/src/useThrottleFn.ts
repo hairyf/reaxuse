@@ -1,4 +1,4 @@
-import type { FunctionArgs, MaybeRef } from './index'
+import type { FunctionArgs, RefOrValue } from './index'
 import { useEffect, useMemo, useRef } from 'react'
 import { noop } from './index'
 import { toValue } from './utils'
@@ -21,7 +21,7 @@ export type PromisifyFn<T extends FunctionArgs> = (...args: Parameters<T>) => Pr
  * `trailing` / `leading` / `rejectOnCancel` are mirrored into refs so every
  * call sees fresh values (upstream captures the flags once, at filter
  * creation). `ms` accepts a number, a ref-like `{ current }` or a getter
- * (upstream: `MaybeRefOrGetter<number>`) and is re-read on every call. The
+ * (upstream: `RefOrValue<number>`) and is re-read on every call. The
  * throttle filter logic is inlined (upstream: `utils/filters.ts`
  * `throttleFilter` — leading/trailing timestamps with a trailing invoke on
  * window end) and pending timers are cleared when the component unmounts
@@ -46,7 +46,7 @@ export type PromisifyFn<T extends FunctionArgs> = (...args: Parameters<T>) => Pr
  */
 export function useThrottleFn<T extends FunctionArgs>(
   fn: T,
-  ms: MaybeRef<number> | (() => number) = 200,
+  ms: RefOrValue<number> = 200,
   trailing = true,
   leading = true,
   rejectOnCancel = false,

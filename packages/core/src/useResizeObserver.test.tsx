@@ -1,4 +1,4 @@
-import type { MaybeComputedElementRefOrArray } from './useResizeObserver'
+import type { ElementTargetOrArray } from './useResizeObserver'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useResizeObserver } from './useResizeObserver'
@@ -154,7 +154,7 @@ describe('useResizeObserver', () => {
     }
 
     const { rerender, unmount } = await renderHook(
-      (props?: { target: MaybeComputedElementRefOrArray }) =>
+      (props?: { target: ElementTargetOrArray }) =>
         useResizeObserver(props?.target ?? [], collect),
       { initialProps: { target: ref } },
     )
@@ -179,7 +179,7 @@ describe('useResizeObserver', () => {
     }
 
     const { rerender, unmount } = await renderHook(
-      (props?: { target: MaybeComputedElementRefOrArray }) =>
+      (props?: { target: ElementTargetOrArray }) =>
         useResizeObserver(props?.target ?? [], collect),
       { initialProps: { target: first } },
     )
@@ -206,24 +206,6 @@ describe('useResizeObserver', () => {
     }
 
     const { unmount } = await renderHook(() => useResizeObserver([first, second], collect))
-
-    await expect.poll(() => entries.some(entry => entry.target === first)).toBe(true)
-    await expect.poll(() => entries.some(entry => entry.target === second)).toBe(true)
-
-    await unmount()
-    first.remove()
-    second.remove()
-  })
-
-  it('observes targets returned by a getter', async () => {
-    const first = appendElement('100px', '50px')
-    const second = appendElement('120px', '60px')
-    const entries: ResizeObserverEntry[] = []
-    const collect = (list: ReadonlyArray<ResizeObserverEntry>) => {
-      entries.push(...list)
-    }
-
-    const { unmount } = await renderHook(() => useResizeObserver(() => [first, second], collect))
 
     await expect.poll(() => entries.some(entry => entry.target === first)).toBe(true)
     await expect.poll(() => entries.some(entry => entry.target === second)).toBe(true)
