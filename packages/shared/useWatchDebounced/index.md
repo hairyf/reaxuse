@@ -33,10 +33,10 @@ useWatchDebounced(
 
 ### Options
 
-| Option     | Type                                 | Default | Description                                |
-| ---------- | ------------------------------------ | ------- | ------------------------------------------ |
-| `debounce` | `MaybeRef<number> \| (() => number)` | `0`     | Debounce delay in ms (can be reactive)     |
-| `maxWait`  | `MaybeRef<number> \| (() => number)` | —       | Maximum wait time before forced invocation |
+| Option     | Type                                   | Default | Description                                |
+| ---------- | -------------------------------------- | ------- | ------------------------------------------ |
+| `debounce` | `RefOrValue<number> \| (() => number)` | `0`     | Debounce delay in ms (can be reactive)     |
+| `maxWait`  | `RefOrValue<number> \| (() => number)` | —       | Maximum wait time before forced invocation |
 
 Fire the callback once on mount with the current value (still debounced):
 
@@ -52,7 +52,7 @@ useWatchDebounced(input, () => console.log('changed!'), { immediate: true })
 
 ```ts
 export interface UseWatchDebouncedOptions extends DebounceFilterOptions {
-  debounce?: MaybeRef<number> | (() => number)
+  debounce?: RefOrValue<number> | (() => number)
   immediate?: boolean
 }
 

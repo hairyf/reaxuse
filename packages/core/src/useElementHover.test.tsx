@@ -9,7 +9,7 @@ describe('useElementHover', () => {
 
   it('should initialize with false by default', async () => {
     const el = document.createElement('button')
-    const { result } = await renderHook(() => useElementHover(() => el))
+    const { result } = await renderHook(() => useElementHover(el))
     expect(result.current).toBe(false)
   })
 
@@ -55,7 +55,7 @@ describe('useElementHover', () => {
 
   it('should toggle hover state on mouseenter / mouseleave', async () => {
     const el = document.createElement('button')
-    const { result, act } = await renderHook(() => useElementHover(() => el))
+    const { result, act } = await renderHook(() => useElementHover(el))
     expect(result.current).toBe(false)
 
     await act(() => {
@@ -72,7 +72,7 @@ describe('useElementHover', () => {
   it('should reset the hover state when the element is removed with triggerOnRemoval', async () => {
     const el = document.createElement('button')
     document.body.appendChild(el)
-    const { result, act } = await renderHook(() => useElementHover(() => el, { triggerOnRemoval: true }))
+    const { result, act } = await renderHook(() => useElementHover(el, { triggerOnRemoval: true }))
 
     await act(() => {
       el.dispatchEvent(new MouseEvent('mouseenter'))
@@ -96,7 +96,7 @@ describe('useElementHover', () => {
 
     it('should delay entering with delayEnter', async () => {
       const el = document.createElement('button')
-      const { result, act } = await renderHook(() => useElementHover(() => el, { delayEnter: 100 }))
+      const { result, act } = await renderHook(() => useElementHover(el, { delayEnter: 100 }))
 
       await act(() => {
         el.dispatchEvent(new MouseEvent('mouseenter'))
@@ -116,7 +116,7 @@ describe('useElementHover', () => {
 
     it('should delay leaving with delayLeave', async () => {
       const el = document.createElement('button')
-      const { result, act } = await renderHook(() => useElementHover(() => el, { delayLeave: 100 }))
+      const { result, act } = await renderHook(() => useElementHover(el, { delayLeave: 100 }))
 
       await act(() => {
         el.dispatchEvent(new MouseEvent('mouseenter'))
@@ -136,7 +136,7 @@ describe('useElementHover', () => {
 
     it('should cancel a pending timer on a new event', async () => {
       const el = document.createElement('button')
-      const { result, act } = await renderHook(() => useElementHover(() => el, { delayEnter: 100, delayLeave: 100 }))
+      const { result, act } = await renderHook(() => useElementHover(el, { delayEnter: 100, delayLeave: 100 }))
 
       await act(() => {
         el.dispatchEvent(new MouseEvent('mouseenter'))

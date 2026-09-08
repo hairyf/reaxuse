@@ -77,7 +77,7 @@ async function openDialog() {
 }
 ```
 
-`useConfirmDialog` accepts an optional ref-like source (`{ current: boolean }`, e.g. a React `useRef`) that the controls keep in sync — mirroring upstream's optional `shallowRef` parameter. When omitted, the revealed state is internal:
+`useConfirmDialog` accepts an optional React ref source (`RefObject<boolean>`, e.g. the result of `useRef`) that the controls keep in sync — mirroring upstream's optional `shallowRef` parameter. When omitted, the revealed state is internal:
 
 ```tsx
 import { useConfirmDialog } from '@reaxuse/core'

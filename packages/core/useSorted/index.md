@@ -36,14 +36,14 @@ const objArr = [{
 }]
 const objSorted = useSorted(objArr, (a, b) => a.age - b.age)
 
-// getter source
-const stateSorted = useSorted(() => items)
+// ref source
+const stateSorted = useSorted(itemsRef)
 ```
 
 ### React adjustments
 
 - **Plain value, not a `Ref`** — returns a sorted `T[]` (no `.value`), recomputed with `useMemo`
-  when the source array identity or `compareFn` changes. Pass a getter (`() => T[]`) to resolve the
+  when the source array identity or `compareFn` changes. Pass a React ref to resolve the
   array at render time.
 - **No `UseSortedOptions`** — the compare function is a positional argument. Upstream's `dirty`
   flag sorts the source array in place by writing back through the Vue ref, which contradicts

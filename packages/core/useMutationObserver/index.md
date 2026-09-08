@@ -10,8 +10,7 @@ VueUse's [`useMutationObserver`](https://vueuse.org/core/useMutationObserver/).
 
 **Mapping:** upstream wraps a platform `MutationObserver`, observes every resolved target and tracks
 target changes with `watch(computed(() => ...), ..., { immediate: true, flush: 'post' })` → accepted
-targets become a plain element, a React ref object (`{ current }`), a getter, an array of those, or a
-ref/getter holding an array. An effect re-resolves the targets after every render and re-observes only
+targets become a plain element, a React ref, or an array of those. An effect re-resolves the targets after every render and re-observes only
 when the resolved element set or the `window` option actually changed. The callback is read through a
 ref, so changing it does not re-observe and `stop` stays referentially stable. The upstream
 `UseMutationObserverReturn` (`{ isSupported, stop, takeRecords }`) is kept; `isSupported` is plain
@@ -47,20 +46,20 @@ export interface UseMutationObserverReturn {
   takeRecords: () => MutationRecord[] | undefined
 }
 
-export type MaybeElement = HTMLElement | SVGElement | undefined | null
+export type TargetElement = HTMLElement | SVGElement | undefined | null
 
-export type MaybeComputedElementRef<T extends MaybeElement = MaybeElement>
+export type ElementTarget<T extends TargetElement = TargetElement>
   = | T
-    | { readonly current: T }
+    | RefObject<T | null>
     | (() => T)
 
-export type MaybeComputedElementRefOrArray<T extends MaybeElement = MaybeElement>
-  = | MaybeComputedElementRef<T>
-    | MaybeComputedElementRef<T>[]
-    | MaybeRefOrGetter<T[] | null>
+export type ElementTargetOrArray<T extends TargetElement = TargetElement>
+  = | ElementTarget<T>
+    | ElementTarget<T>[]
+    | (() => T[] | null)
 
 export function useMutationObserver(
-  target: MaybeComputedElementRefOrArray,
+  target: ElementTargetOrArray,
   callback: MutationCallback,
   options?: UseMutationObserverOptions,
 ): UseMutationObserverReturn

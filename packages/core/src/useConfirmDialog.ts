@@ -1,3 +1,4 @@
+import type { RefObject } from 'react'
 import { noop } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -67,8 +68,8 @@ export interface UseConfirmDialogReturn<RevealData, ConfirmData, CancelData> {
  *
  * React divergences:
  * - upstream's `isRevealed` computed ref becomes plain boolean state; the
- *   optional external `shallowRef` parameter becomes a ref-like object
- *   (`{ current }`) that the controls keep in sync when provided;
+ *   optional external `shallowRef` parameter becomes a React ref object
+ *   (`RefObject<boolean>`) that the controls keep in sync when provided;
  * - `reveal()` still returns a promise that resolves with `{ data,
  *   isCanceled }` when `confirm()` / `cancel()` is called;
  * - upstream's `createEventHook()` on* members become stable subscribe
@@ -96,9 +97,9 @@ export function useConfirmDialog<
   ConfirmData = any,
   CancelData = any,
 >(
-  revealed?: { current: boolean },
+  revealed?: RefObject<boolean>,
 ): UseConfirmDialogReturn<RevealData, ConfirmData, CancelData> {
-  // Keep the external ref-like source in a ref so the controls stay
+  // Keep the external ref source in a ref so the controls stay
   // identity-stable regardless of when the argument object is created.
   const revealedRef = useRef(revealed)
   revealedRef.current = revealed
