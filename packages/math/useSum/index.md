@@ -8,8 +8,8 @@ Get the sum of an array reactively — React port of VueUse's
 [`useSum`](https://vueuse.org/math/useSum/).
 
 **Mapping:** `ComputedRef<number>` → pure derived hook returning a plain
-`number`. Values are resolved at render time (plain numbers, `{ current }`
-ref-like objects or getters) and the sum is computed directly — no effects,
+`number`. Values are resolved at render time (plain numbers or React refs)
+and the sum is computed directly — no effects,
 no `.value` wrapper (SSR-safe).
 
 ## Usage
@@ -35,8 +35,8 @@ const sum = useSum(a, b, 2) // 6
 ## Type Declarations
 
 ```ts
-export function useSum(array: MaybeRefOrGetter<MaybeRefOrGetter<number>[]>): number
-export function useSum(...args: MaybeRefOrGetter<number>[]): number
+export function useSum(array: RefOrValue<RefOrValue<number>[]>): number
+export function useSum(...args: RefOrValue<number>[]): number
 ```
 
 ## Source

@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useAverage } from './useAverage'
@@ -30,35 +31,41 @@ describe('useAverage', () => {
     expect(result.current).toBe(6)
   })
 
-  it('should be the average when some items are getter', async () => {
-    const a = { current: 1 }
-    const array = { current: [1, () => a.current + 1, 9] }
+  it('should be the average when some items are React refs', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const a = useRef(2)
+      return { a, value: useAverage({ current: [1, a, 9] }) }
+    })
 
-    const { result, rerender } = await renderHook(() => useAverage(array))
-    expect(result.current).toBe(4)
+    expect(result.current.value).toBe(4)
 
-    a.current = 7
+    await act(() => {
+      result.current.a.current = 8
+    })
     await rerender()
-    expect(result.current).toBe(6)
+    expect(result.current.value).toBe(6)
   })
 
-  it('should be the average when the array is a getter', async () => {
-    const array = { current: [1, 2, 3] }
-    const last = { current: 0 }
+  it('should be the average when the array is a React ref', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const array = useRef([1, 2, 3, 0])
+      return { array, value: useAverage(array) }
+    })
 
-    const { result, rerender } = await renderHook(() => useAverage(() => array.current.concat(last.current)))
-    expect(result.current).toBe(1.5)
+    expect(result.current.value).toBe(1.5)
 
-    last.current = 10
+    await act(() => {
+      result.current.array.current = [1, 2, 3, 10]
+    })
     await rerender()
-    expect(result.current).toBe(4)
+    expect(result.current.value).toBe(4)
   })
 
   it('should work with rest', async () => {
     const a = { current: 1 }
     const b = { current: 2 }
 
-    const { result, rerender } = await renderHook(() => useAverage(a, () => b.current, 3))
+    const { result, rerender } = await renderHook(() => useAverage(a, b, 3))
     expect(result.current).toBe(2)
 
     b.current = 11

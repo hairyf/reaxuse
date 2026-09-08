@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 
 /**
@@ -10,8 +10,8 @@ import { toValue } from '@reaxuse/shared'
  *
  * Adjustment for React: upstream wraps the computation in `computed(() => ...)`
  * and returns a `ComputedRef<number>`; the reaxuse version is a pure derived
- * hook — `value` is resolved (plain number, `{ current }` ref-like object or
- * getter) at render time and the truncated number is returned directly, with
+ * hook — `value` is resolved (a plain number or a React ref) at render time
+ * and the truncated number is returned directly, with
  * no effects and no `.value` wrapper (SSR-safe).
  *
  * @see https://vueuse.org/math/useTrunc/
@@ -28,6 +28,6 @@ import { toValue } from '@reaxuse/shared'
  * @param value - The value to truncate.
  * @returns The truncated number.
  */
-export function useTrunc(value: MaybeRefOrGetter<number>): number {
+export function useTrunc(value: RefOrValue<number>): number {
   return Math.trunc(toValue(value))
 }

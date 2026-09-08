@@ -8,7 +8,7 @@ Reactive `Math.trunc` — React port of VueUse's
 [`useTrunc`](https://vueuse.org/math/useTrunc/).
 
 **Mapping:** `ComputedRef<number>` → pure derived hook. `value` is resolved at
-render time (plain number, `{ current }` ref-like object or getter) and the
+render time (a plain number or a React ref) and the
 truncated number is returned directly — no effects, no `.value` wrapper
 (SSR-safe).
 
@@ -30,7 +30,7 @@ const result2 = useTrunc(value) // -2
 
 ```ts
 export function useTrunc(
-  value: MaybeRefOrGetter<number>,
+  value: RefOrValue<number>,
 ): number
 ```
 

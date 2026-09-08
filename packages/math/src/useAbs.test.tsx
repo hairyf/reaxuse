@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useAbs } from './useAbs'
@@ -45,22 +46,30 @@ describe('useAbs', () => {
     expect(result.current).toBe(23)
   })
 
-  it('works with getter functions', async () => {
-    const base = { current: -1 }
-    const { result, rerender } = await renderHook(() => useAbs(() => base.current))
+  it('works with React refs', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const base = useRef(-1)
+      return { base, value: useAbs(base) }
+    })
 
-    expect(result.current).toBe(1)
+    expect(result.current.value).toBe(1)
 
-    base.current = -23
+    await act(() => {
+      result.current.base.current = -23
+    })
     await rerender()
-    expect(result.current).toBe(23)
+    expect(result.current.value).toBe(23)
 
-    base.current = 10
+    await act(() => {
+      result.current.base.current = 10
+    })
     await rerender()
-    expect(result.current).toBe(10)
+    expect(result.current.value).toBe(10)
 
-    base.current = 0
+    await act(() => {
+      result.current.base.current = 0
+    })
     await rerender()
-    expect(result.current).toBe(0)
+    expect(result.current.value).toBe(0)
   })
 })

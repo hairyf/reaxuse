@@ -1,4 +1,6 @@
+import { useRef } from 'react'
 import { describe, expect, it } from 'vitest'
+import { renderHook } from 'vitest-browser-react'
 import { logicAnd } from './logicAnd'
 
 describe('logicAnd', () => {
@@ -27,12 +29,17 @@ describe('logicAnd', () => {
     expect(logicAnd(0)).toBe(false)
   })
 
-  it('works with getter functions', () => {
-    expect(logicAnd(() => true)).toBe(true)
-    expect(logicAnd(() => 'foo')).toBe(true)
+  it('works with React refs', async () => {
+    const { result: truthy } = await renderHook(() => useRef(true))
+    const { result: str } = await renderHook(() => useRef('foo'))
+    const { result: falsy } = await renderHook(() => useRef(false))
+    const { result: zero } = await renderHook(() => useRef(0))
 
-    expect(logicAnd(() => true, () => false)).toBe(false)
-    expect(logicAnd(() => 0)).toBe(false)
+    expect(logicAnd(truthy.current)).toBe(true)
+    expect(logicAnd(str.current)).toBe(true)
+
+    expect(logicAnd(truthy.current, falsy.current)).toBe(false)
+    expect(logicAnd(zero.current)).toBe(false)
   })
 
   it('re-evaluates ref-like values on every call', () => {

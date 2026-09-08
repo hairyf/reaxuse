@@ -4,12 +4,12 @@ category: '@Math'
 
 # logicNot
 
-`NOT` condition for values, refs and getters — React port of VueUse's
+`NOT` condition for values and refs — React port of VueUse's
 [`logicNot`](https://vueuse.org/math/logicNot/).
 
 **Mapping:** `ComputedRef<boolean>` → plain `boolean`. The argument is
-resolved at call time via `toValue` (a plain value, `{ current }` ref-like
-object or getter) and the negation is returned directly — no reactivity, no
+resolved at call time via `toValue` (a plain value or a React ref) and the
+negation is returned directly — no reactivity, no
 `.value` wrapper, so the caller re-invokes on render or inside an effect
 (SSR-safe).
 
@@ -21,7 +21,7 @@ import { logicNot } from '@reaxuse/math'
 const a = { current: true }
 
 const notA = logicNot(a) // false — re-evaluated on every call
-const notGetter = logicNot(() => a.current) // false
+const notZero = logicNot(0) // true
 ```
 
 <DemoContainer name="LogicNot" />
@@ -29,7 +29,7 @@ const notGetter = logicNot(() => a.current) // false
 ## Type Declarations
 
 ```ts
-export function logicNot(v: MaybeRefOrGetter<any>): boolean
+export function logicNot(v: RefOrValue<any>): boolean
 ```
 
 ## Source

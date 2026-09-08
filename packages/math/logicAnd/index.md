@@ -4,12 +4,12 @@ category: '@Math'
 
 # logicAnd
 
-`AND` condition for values, refs and getters — React port of VueUse's
+`AND` condition for values and refs — React port of VueUse's
 [`logicAnd`](https://vueuse.org/math/logicAnd/).
 
 **Mapping:** `ComputedRef<boolean>` → plain `boolean`. Every argument is
-resolved at call time via `toValue` (plain values, `{ current }` ref-like
-objects or getters) and the result is returned directly — no reactivity, no
+resolved at call time via `toValue` (plain values or React refs) and the
+result is returned directly — no reactivity, no
 `.value` wrapper, so the caller re-invokes on render or inside an effect
 (SSR-safe).
 
@@ -22,7 +22,7 @@ const a = { current: true }
 const b = { current: false }
 
 const both = logicAnd(a, b) // false
-const all = logicAnd(() => a.current, () => b.current, 1) // false
+const all = logicAnd(true, false, 1) // false
 ```
 
 <DemoContainer name="LogicAnd" />
@@ -30,7 +30,7 @@ const all = logicAnd(() => a.current, () => b.current, 1) // false
 ## Type Declarations
 
 ```ts
-export function logicAnd(...args: MaybeRefOrGetter<any>[]): boolean
+export function logicAnd(...args: RefOrValue<any>[]): boolean
 ```
 
 ## Source
