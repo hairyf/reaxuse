@@ -16,8 +16,8 @@ describe('useMutationObserver', () => {
     expect(useMutationObserver).toBeDefined()
   })
 
-  it('accepts an array template ref bound to v-for as target', () => {
-    expectTypeOf<Readonly<RefObject<HTMLElement[] | null>>>()
+  it('accepts an array of element refs as target', () => {
+    expectTypeOf<RefObject<HTMLElement | null>[]>()
       .toExtend<Parameters<typeof useMutationObserver>[0]>()
   })
 
@@ -87,7 +87,7 @@ describe('useMutationObserver', () => {
     const target = document.createTextNode('123')
     const cb = vi.fn()
     const { unmount } = await renderHook(() =>
-      // @ts-expect-error — upstream accepts Text nodes even though the type says MaybeElement
+      // @ts-expect-error — upstream accepts Text nodes even though the type says TargetElement
       useMutationObserver(target, cb, {
         characterData: true,
       }),
@@ -154,7 +154,7 @@ describe('useMutationObserver', () => {
     const target = document.createTextNode('123')
     const cb = vi.fn()
     const { unmount } = await renderHook(() =>
-      // @ts-expect-error — upstream accepts Text nodes even though the type says MaybeElement
+      // @ts-expect-error — upstream accepts Text nodes even though the type says TargetElement
       useMutationObserver(target, cb, {
         characterData: true,
         characterDataOldValue: true,

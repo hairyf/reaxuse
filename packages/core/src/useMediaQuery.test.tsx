@@ -1,3 +1,4 @@
+import type { RefObject } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useMediaQuery } from './useMediaQuery'
@@ -92,18 +93,17 @@ describe('useMediaQuery', () => {
     expect(result.current).toBe(true)
   })
 
-  it('should re-resolve a getter query on re-render', async () => {
-    let current = '(min-width: 500px)'
-    const getQuery = () => current
+  it('should re-resolve a ref query on re-render', async () => {
+    const query = { current: '(min-width: 500px)' }
     const { result, rerender } = await renderHook(
-      (props?: { query: () => string }) =>
+      (props?: { query: RefObject<string> }) =>
         useMediaQuery(props!.query, { window: null as unknown as undefined, ssrWidth: 500 }),
-      { initialProps: { query: getQuery } },
+      { initialProps: { query } },
     )
     expect(result.current).toBe(true)
 
-    current = '(min-width: 501px)'
-    await rerender({ query: getQuery })
+    query.current = '(min-width: 501px)'
+    await rerender({ query })
     expect(result.current).toBe(false)
   })
 

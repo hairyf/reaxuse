@@ -6,7 +6,7 @@ category: Utilities
 
 Throttle execution of a function — React port of VueUse's [`useThrottleFn`](https://vueuse.org/shared/useThrottleFn/).
 
-**Mapping:** upstream wraps the function with `createFilterWrapper(throttleFilter(ms, trailing, leading, rejectOnCancel), fn)` and returns a plain `PromisifyFn<T>` — the throttled wrapper carries no `cancel` / `flush` / `isPending` (unlike the debounce filter, upstream's `throttleFilter` is not cancelable). In React the wrapper is built once (`useMemo`) so its identity is stable across renders — safe to add/remove in effects; the latest `fn` / `ms` / flags are kept in refs so every call sees fresh values. `ms` accepts a number, a ref-like `{ current }` or a getter (upstream: `MaybeRefOrGetter<number>`) and is re-read on every call. The throttle filter logic is inlined (upstream `throttleFilter` semantics) and pending timers are cleared when the component unmounts.
+**Mapping:** upstream wraps the function with `createFilterWrapper(throttleFilter(ms, trailing, leading, rejectOnCancel), fn)` and returns a plain `PromisifyFn<T>` — the throttled wrapper carries no `cancel` / `flush` / `isPending` (unlike the debounce filter, upstream's `throttleFilter` is not cancelable). In React the wrapper is built once (`useMemo`) so its identity is stable across renders — safe to add/remove in effects; the latest `fn` / `ms` / flags are kept in refs so every call sees fresh values. `ms` accepts a number, a React ref (upstream: `RefOrValue<number>`) and is re-read on every call. The throttle filter logic is inlined (upstream `throttleFilter` semantics) and pending timers are cleared when the component unmounts.
 
 ## Usage
 
@@ -23,7 +23,7 @@ useEffect(() => {
   return () => window.removeEventListener('resize', throttledFn)
 }, [throttledFn])
 // note: returned fn is referentially stable so effects don't re-subscribe;
-// ms accepts a number, a ref-like { current } or a getter
+// ms accepts a number, a React ref
 ```
 
 <DemoContainer name="UseThrottleFn" />
@@ -35,7 +35,7 @@ export type PromisifyFn<T extends FunctionArgs> = (...args: Parameters<T>) => Pr
 
 export function useThrottleFn<T extends FunctionArgs>(
   fn: T,
-  ms?: MaybeRef<number> | (() => number),
+  ms?: RefOrValue<number> | (() => number),
   trailing?: boolean,
   leading?: boolean,
   rejectOnCancel?: boolean,
