@@ -1,4 +1,4 @@
-// export * from './computedAsync'
+export * from './computedAsync'
 // export * from './computedInject'
 // export * from './createReusableTemplate'
 // export * from './createTemplatePromise'
