@@ -6,7 +6,7 @@ category: Array
 
 Reactive `Array.join` — React port of VueUse's [`useArrayJoin`](https://vueuse.org/shared/useArrayJoin/).
 
-**Mapping:** upstream wraps `toValue(list).map(i => toValue(i)).join(toValue(separator))` in `computed(...)` and accepts a `MaybeRefOrGetter`; React has no implicit reactivity, so `useArrayJoin` is a plain function that recomputes the join on each render — pass a state array (upstream: reactive array) and re-render with new state to see the updated result. The return is a plain string, no `.value`.
+**Mapping:** upstream wraps `toValue(list).map(i => toValue(i)).join(toValue(separator))` in `computed(...)` and accepts a `RefOrValue`; React has no implicit reactivity, so `useArrayJoin` is a plain function that recomputes the join on each render — pass a state array (upstream: reactive array) and re-render with new state to see the updated result. The return is a plain string, no `.value`.
 
 ## Usage
 

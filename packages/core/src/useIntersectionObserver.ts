@@ -1,5 +1,5 @@
-import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
-import type { MaybeComputedElementRef, MaybeComputedElementRefOrArray } from './useResizeObserver'
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
+import type { ElementTarget, ElementTargetOrArray } from './useResizeObserver'
 import { toArray, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -7,8 +7,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
  * Options for `useIntersectionObserver`: the platform `IntersectionObserver`
  * options (`root`/`rootMargin`/`threshold`) plus `immediate` and a custom
  * `window` instance, e.g. working with iframes or in testing environments.
- * The accepted target types (`MaybeElement`/`MaybeComputedElementRef`/
- * `MaybeComputedElementRefOrArray`) are shared with `useResizeObserver`.
+ * The accepted target types (`TargetElement`/`ElementTarget`/
+ * `ElementTargetOrArray`) are shared with `useResizeObserver`.
  */
 export interface UseIntersectionObserverOptions extends ConfigurableWindow {
   /**
@@ -21,12 +21,12 @@ export interface UseIntersectionObserverOptions extends ConfigurableWindow {
   /**
    * The Element or Document whose bounds are used as the bounding box when testing for intersection.
    */
-  root?: MaybeComputedElementRef | Document
+  root?: ElementTarget | Document
 
   /**
    * A string which specifies a set of offsets to add to the root's bounding_box when calculating intersections.
    */
-  rootMargin?: MaybeRefOrGetter<string>
+  rootMargin?: RefOrValue<string>
 
   /**
    * Either a single number or an array of numbers between 0.0 and 1.
@@ -72,8 +72,8 @@ function unrefElement(value: unknown): Element | undefined {
  * `toArray`, then resolve every item down to an element, dropping empty
  * slots (upstream filters with `notNullish`).
  */
-function resolveTargets(target: MaybeComputedElementRefOrArray): Element[] {
-  const value = toValue(target as MaybeRefOrGetter<unknown>)
+function resolveTargets(target: ElementTargetOrArray): Element[] {
+  const value = toValue(target as RefOrValue<unknown>)
   const items = toArray(value)
 
   const elements: Element[] = []
@@ -124,7 +124,7 @@ function resolveTargets(target: MaybeComputedElementRefOrArray): Element[] {
  * })
  */
 export function useIntersectionObserver(
-  target: MaybeComputedElementRefOrArray,
+  target: ElementTargetOrArray,
   callback: IntersectionObserverCallback,
   options: UseIntersectionObserverOptions = {},
 ): UseIntersectionObserverReturn {
