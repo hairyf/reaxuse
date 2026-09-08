@@ -1276,6 +1276,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useRefsList',
+    file: 'packages/core/src/useRefsList.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useResizeObserver',
     file: 'packages/core/src/useResizeObserver.ts',
     pkg: 'core',

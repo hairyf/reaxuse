@@ -258,6 +258,7 @@
 | `usePrevious`                     | packages/core/usePrevious                     | `packages/core/src/usePrevious.ts`                     | ✅ ported                     |
 | `useProjection`                   | packages/math/useProjection                   | `packages/math/src/useProjection.ts`                   | ✅ ported                     |
 | `useRafFn`                        | packages/core/useRafFn                        | `packages/core/src/useRafFn.ts`                        | ✅ ported                     |
+| `useRefsList`                     | —                                             | `packages/core/src/useRefsList.ts`                     | 🚧 ported (no upstream match) |
 | `useResizeObserver`               | packages/core/useResizeObserver               | `packages/core/src/useResizeObserver.ts`               | ✅ ported                     |
 | `useRound`                        | packages/math/useRound                        | `packages/math/src/useRound.ts`                        | ✅ ported                     |
 | `useScreenOrientation`            | packages/core/useScreenOrientation            | `packages/core/src/useScreenOrientation.ts`            | ✅ ported                     |
