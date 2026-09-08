@@ -1,4 +1,4 @@
-import type { MaybeRef, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import type { Dispatch, SetStateAction } from 'react'
 import { isRefLike, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -8,7 +8,7 @@ export interface UseCycleListOptions<T> {
    * The initial value of the state.
    * A ref can be provided to reuse.
    */
-  initialValue?: MaybeRef<T>
+  initialValue?: RefOrValue<T>
 
   /**
    * The default index when the current value is not found in the list.
@@ -64,7 +64,7 @@ export interface UseCycleListReturn<T> {
  *    while `setState` writes the item directly and `index` re-derives from
  *    `getIndexOf ?? list.indexOf`.
  * 2. `list` accepts a plain array, a ref-like (`{ current }`) or a getter
- *    (`() => T[]`), resolved with `toValue` (upstream: `MaybeRefOrGetter`).
+ *    (`() => T[]`), resolved with `toValue` (upstream: `RefOrValue`).
  *    When a ref-like list's `current` is replaced, the current index is
  *    re-applied to the new list (upstream: `watch(listRef, ...)`) — plain
  *    arrays and getters are simply re-resolved on every render instead.
@@ -81,7 +81,7 @@ export interface UseCycleListReturn<T> {
  * next() // 'Cat'
  * go(3) // 'Shark'
  */
-export function useCycleList<T>(list: MaybeRefOrGetter<T[]>, options?: UseCycleListOptions<T>): UseCycleListReturn<T> {
+export function useCycleList<T>(list: RefOrValue<T[]>, options?: UseCycleListOptions<T>): UseCycleListReturn<T> {
   // latest-value refs synced each render so every control below is a stable
   // callback that always reads the newest list and options
   const listRef = useRef(list)

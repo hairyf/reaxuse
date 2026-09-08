@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useSorted } from './useSorted'
@@ -41,8 +42,8 @@ it('useSorted sorts objects with a custom compare function', async () => {
   expect(result.current).toEqual(objectSorted)
 })
 
-it('useSorted accepts a getter source', async () => {
-  const { result } = await renderHook(() => useSorted(() => arr))
+it('useSorted accepts a ref source', async () => {
+  const { result } = await renderHook(() => useSorted(useRef(arr)))
 
   expect(result.current).toEqual(arrSorted)
 })

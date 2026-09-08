@@ -14,7 +14,7 @@ option (default `window`), re-subscribing when the resolved `target`, the `type`
 `touch` / `scroll` / `resetOnTouchEnds` flags change and removing all listeners on unmount
 (upstream composes `useEventListener`). The `window` `scroll` listener (only effective on
 `type: 'page'`) compensates the page coordinates while scrolling. `target` accepts a plain
-element, a ref-like `{ current }` object or a getter; an explicit `null` attaches nothing, exactly
+element, a React ref; an explicit `null` attaches nothing, exactly
 like upstream. SSR-safe — no `window` access during render, so the server renders the defaults.
 
 ## Usage
@@ -74,7 +74,7 @@ export interface UseMouseOptions extends ConfigurableWindow {
    *
    * @default 'Window'
    */
-  target?: MaybeRefOrGetter<Window | EventTarget | null | undefined>
+  target?: RefOrValue<Window | EventTarget | null | undefined>
 
   /**
    * Listen to `touchmove` events
