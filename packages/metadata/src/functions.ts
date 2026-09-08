@@ -316,11 +316,6 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
-    name: 'toValueArgsFlat',
-    file: 'packages/math/src/utils.ts',
-    pkg: 'math',
-  },
-  {
     name: 'TransitionPresets',
     file: 'packages/core/src/useTransition.ts',
     pkg: 'core',
