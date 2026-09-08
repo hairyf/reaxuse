@@ -6,7 +6,7 @@ category: '@Electron'
 
 Provides [ipcRenderer](https://www.electronjs.org/docs/api/ipc-renderer) and all of its APIs — React port of VueUse's [`useIpcRenderer`](https://vueuse.org/electron/useIpcRenderer/).
 
-Upstream wraps the async results in Vue refs; a React hook cannot return a ref, so `invoke` returns the raw `Promise<T>` and `sendSync` the raw value `T`. Declarative async state belongs to [`useIpcRendererInvoke`](/useIpcRendererInvoke) — a method on a returned object cannot own component state.
+Upstream wraps the async results in Vue refs; a React hook cannot return a ref, so `invoke` returns the raw `Promise<T>` and `sendSync` the raw value `T`. Declarative async state belongs to [`useIpcRendererInvoke`](/electron/useIpcRendererInvoke/index) — a method on a returned object cannot own component state.
 
 ## Usage
 
