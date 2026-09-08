@@ -21,6 +21,7 @@
     "build": "tsdown"
   },
   "peerDependencies": {
+    "electron": ">=9.0.0",
     "react": ">=18"
   }
 }

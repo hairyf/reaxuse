@@ -21,6 +21,7 @@
     "build": "tsdown"
   },
   "peerDependencies": {
-    "react": ">=18"
+    "react": ">=18",
+    "rxjs": ">=6.0.0"
   }
 }

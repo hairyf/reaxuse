@@ -21,6 +21,32 @@
     "build": "tsdown"
   },
   "peerDependencies": {
-    "react": ">=18"
+    "async-validator": "^4",
+    "axios": "^1",
+    "change-case": "^5",
+    "drauu": "^1 || ^0.4",
+    "focus-trap": "^7 || ^8",
+    "fuse.js": "^7",
+    "idb-keyval": "^6",
+    "jwt-decode": "^4",
+    "nprogress": "^0.2",
+    "qrcode": "^1.5",
+    "react": ">=18",
+    "sortablejs": "^1",
+    "universal-cookie": "^7 || ^8"
+  },
+  "peerDependenciesMeta": {
+    "async-validator": { "optional": true },
+    "axios": { "optional": true },
+    "change-case": { "optional": true },
+    "drauu": { "optional": true },
+    "focus-trap": { "optional": true },
+    "fuse.js": { "optional": true },
+    "idb-keyval": { "optional": true },
+    "jwt-decode": { "optional": true },
+    "nprogress": { "optional": true },
+    "qrcode": { "optional": true },
+    "sortablejs": { "optional": true },
+    "universal-cookie": { "optional": true }
   }
 }
