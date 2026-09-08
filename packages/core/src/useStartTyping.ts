@@ -114,10 +114,10 @@ export interface UseStartTypingOptions {
  * - the callback and the option functions are read through latest-value
  *   refs, so re-rendering with new inline callbacks never re-subscribes and
  *   always fires the newest callback;
- * - the upstream `ConfigurableDocument` option is inlined as `document?`
- *   and the default `document` is resolved lazily through
- *   `useEventListener`'s getter target, so rendering on the server is safe
- *   (nothing touches `document` during render).
+ * - the upstream `ConfigurableDocument` option is inlined as `document?` and
+ *   the default resolves to the global `document` behind a `typeof document`
+ *   guard, so rendering on the server is safe (nothing touches `document`
+ *   during render).
  *
  * @example
  * const input = useRef<HTMLInputElement>(null)
@@ -155,8 +155,11 @@ export function useStartTyping(
       callbackRef.current(event)
   }
 
+  // a plain target (not a getter): `useEventListener` resolves it during
+  // render and re-binds whenever the resolved document changes, and the
+  // `typeof document` guard keeps SSR safe
   return useEventListener<KeyboardEvent>(
-    () => doc ?? (typeof document === 'undefined' ? undefined : document),
+    doc ?? (typeof document === 'undefined' ? undefined : document),
     'keydown',
     keydown,
     { passive: true },

@@ -88,7 +88,7 @@ export type UseFileSystemAccessShowSaveFileOptions = Pick<FileSystemAccessShowSa
 export interface UseFileSystemAccessOptions extends ConfigurableWindow {
   types?: UseFileSystemAccessCommonOptions['types']
   excludeAcceptAllOption?: boolean
-  dataType?: MaybeRefOrGetter<'Text' | 'ArrayBuffer' | 'Blob'>
+  dataType?: RefOrValue<'Text' | 'ArrayBuffer' | 'Blob'>
 }
 
 export interface UseFileSystemAccessReturn<T = string> {

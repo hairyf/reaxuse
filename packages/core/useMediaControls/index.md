@@ -6,7 +6,7 @@ category: Browser
 
 Reactive media controls for both `audio` and `video` elements — React port of VueUse's [`useMediaControls`](https://vueuse.org/core/useMediaControls/).
 
-**Mapping:** upstream's `shallowRef` returns become plain state values (`currentTime`, `duration`, `playing`, `volume`, `muted`, `rate`, `tracks`, `selectedTrack`, `buffered`, ...) returned from a single object. Mocked listeners attach in a `useEffect` to the resolved media element (a plain element, a ref-like `{ current }` object such as `useRef<HTMLVideoElement>(null)` — populated after mount and bound in the effect — or a getter), and re-bind with cleanup when the target changes or the hook unmounts. The `src` and `tracks` options are injected into the element as `<source>` / `<track>` children (upstream `watchEffect`s). Where upstream exposes writable refs (`playing.value = true`, `volume.value = 0.5`, `currentTime.value = 60`, `rate.value = 2`, `muted.value = true`), React exposes control methods instead: `play` / `pause` / `toggle`, `seek`, `setVolume`, `setRate`, `mute` / `unmute` / `toggleMute` — each writing through to the element. `enableTrack` / `disableTrack` / `togglePictureInPicture` and the `onSourceError` / `onPlaybackError` hooks are ported as-is. SSR-safe: nothing touches the element or `document` during render.
+**Mapping:** upstream's `shallowRef` returns become plain state values (`currentTime`, `duration`, `playing`, `volume`, `muted`, `rate`, `tracks`, `selectedTrack`, `buffered`, ...) returned from a single object. Mocked listeners attach in a `useEffect` to the resolved media element (a plain element, a ref-like `{ current }` object such as `useRef<HTMLVideoElement>(null)` — populated after mount and bound in the effect), and re-bind with cleanup when the target changes or the hook unmounts. The `src` and `tracks` options are injected into the element as `<source>` / `<track>` children (upstream `watchEffect`s). Where upstream exposes writable refs (`playing.value = true`, `volume.value = 0.5`, `currentTime.value = 60`, `rate.value = 2`, `muted.value = true`), React exposes control methods instead: `play` / `pause` / `toggle`, `seek`, `setVolume`, `setRate`, `mute` / `unmute` / `toggleMute` — each writing through to the element. `enableTrack` / `disableTrack` / `togglePictureInPicture` and the `onSourceError` / `onPlaybackError` hooks are ported as-is. SSR-safe: nothing touches the element or `document` during render.
 
 ## Usage
 
@@ -108,12 +108,12 @@ export interface UseMediaTextTrackSource {
   srcLang: string
 }
 
-export type UseMediaControlsTarget = MaybeRefOrGetter<HTMLMediaElement | null | undefined>
+export type UseMediaControlsTarget = RefOrValue<HTMLMediaElement | null | undefined>
 
 export interface UseMediaControlsOptions {
   document?: Document
-  src?: MaybeRefOrGetter<string | UseMediaSource | UseMediaSource[]>
-  tracks?: MaybeRefOrGetter<UseMediaTextTrackSource[]>
+  src?: RefOrValue<string | UseMediaSource | UseMediaSource[]>
+  tracks?: RefOrValue<UseMediaTextTrackSource[]>
 }
 
 export interface UseMediaTextTrack {

@@ -21,8 +21,8 @@ import { useEffect, useState } from 'react'
  * - upstream watches its `RefOrValue` source with a Vue watcher and
  *   releases the URL on every change; here the object is resolved during
  *   render (`toValue`) and a `useEffect` keyed on the resolved value creates
- *   the new URL and revokes the previous one. A getter is re-resolved on each
- *   render, and a ref-like `{ current }` object is read every render too, so
+ *   the new URL and revokes the previous one. A ref-like `{ current }` object
+ *   is read on every render, so
  *   the URL re-creates whenever the component re-renders with a new `current`;
  * - unmount revocation happens in the effect cleanup (upstream:
  *   `tryOnScopeDispose`);

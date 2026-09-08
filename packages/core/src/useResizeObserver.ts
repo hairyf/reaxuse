@@ -10,17 +10,16 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 export type TargetElement = HTMLElement | SVGElement | undefined | null
 
 /**
- * A plain element, a React ref object, or a getter returning one — the
- * React-native replacement for upstream's `ElementTarget` (in Vue
- * semantics a `{ current }` union). React refs hold DOM nodes directly, so
- * only a `RefObject` (or an explicit getter for lazy reads) is accepted.
+ * A plain element or a React ref object — the React-native replacement for
+ * upstream's `ElementTarget` (in Vue semantics a `{ current }` union). React
+ * refs hold DOM nodes directly, so only a `RefObject` is accepted.
  */
 export type ElementTarget<T extends TargetElement = TargetElement>
   = T | Ref<T>
 
 /**
- * A single target, an array of targets, or a getter returning an array (or
- * `null`) — mirrors upstream's `ElementTargetOrArray`.
+ * A single target or an array of targets — mirrors upstream's
+ * `ElementTargetOrArray`.
  */
 export type ElementTargetOrArray<T extends TargetElement = TargetElement>
   = ElementTarget<T> | ElementTarget<T>[]
@@ -50,8 +49,8 @@ export interface UseResizeObserverReturn {
 }
 
 /**
- * React equivalent of upstream's `unrefElement`: resolves a getter, a
- * ref-like object, or a plain value down to an element.
+ * React equivalent of upstream's `unrefElement`: resolves a ref-like object
+ * or a plain value down to an element.
  */
 function unrefElement(value: unknown): Element | undefined {
   if (typeof value === 'function')

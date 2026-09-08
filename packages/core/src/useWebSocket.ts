@@ -200,8 +200,8 @@ function defaultScheduler(fn: () => void): { pause: () => void, resume: () => vo
  *   and status through latest-value refs (upstream: closures over the same
  *   refs), and `close()` runs on unmount when `autoClose` is on (upstream:
  *   `tryOnScopeDispose`), including the `beforeunload` listener;
- * - `url` accepts a plain value or a getter function (upstream:
- *   `RefOrValue`); when `autoConnect` is on, a URL change between
+ * - `url` accepts a plain value or a ref-like `{ current }` object
+ *   (upstream: `RefOrValue`); when `autoConnect` is on, a URL change between
  *   renders reconnects, mirroring upstream's `watch(urlRef, open)` — the
  *   initial connection is still only opened once by `immediate`;
  * - `heartbeat.message` / `responseMessage` accept a plain value or a message

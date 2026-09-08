@@ -63,11 +63,11 @@ export interface UseCycleListReturn<T> {
  *    `state.value`/`index.value` directly): `setIndex` is the same as `go`,
  *    while `setState` writes the item directly and `index` re-derives from
  *    `getIndexOf ?? list.indexOf`.
- * 2. `list` accepts a plain array, a ref-like (`{ current }`) or a getter
- *    (`() => T[]`), resolved with `toValue` (upstream: `RefOrValue`).
+ * 2. `list` accepts a plain array or a ref-like (`{ current }`),
+ *    resolved with `toValue` (upstream: `RefOrValue`).
  *    When a ref-like list's `current` is replaced, the current index is
  *    re-applied to the new list (upstream: `watch(listRef, ...)`) — plain
- *    arrays and getters are simply re-resolved on every render instead.
+ *    arrays and ref-like objects are simply re-resolved on every render instead.
  * 3. `next`/`prev`/`go` are stable callbacks that return the would-be value
  *    synchronously (upstream returns the new state from the `set` helper);
  *    the state commit itself is asynchronous (React `setState`).

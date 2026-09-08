@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { toValue, useTimeoutFn } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSupported } from './useSupported'
@@ -103,8 +103,8 @@ export interface UseClipboardItemsReturn<Optional> {
  * const { isSupported, content, copy, copied } = useClipboardItems({ source })
  */
 export function useClipboardItems(options?: UseClipboardItemsOptions<undefined>): UseClipboardItemsReturn<false>
-export function useClipboardItems(options: UseClipboardItemsOptions<MaybeRefOrGetter<ClipboardItems>>): UseClipboardItemsReturn<true>
-export function useClipboardItems(options: UseClipboardItemsOptions<MaybeRefOrGetter<ClipboardItems> | undefined> = {}): UseClipboardItemsReturn<boolean> {
+export function useClipboardItems(options: UseClipboardItemsOptions<RefOrValue<ClipboardItems>>): UseClipboardItemsReturn<true>
+export function useClipboardItems(options: UseClipboardItemsOptions<RefOrValue<ClipboardItems> | undefined> = {}): UseClipboardItemsReturn<boolean> {
   const {
     navigator: customNavigator,
     read = false,
@@ -117,7 +117,7 @@ export function useClipboardItems(options: UseClipboardItemsOptions<MaybeRefOrGe
   // reactive refs — upstream destructures these once at setup)
   const navigatorRef = useRef<Navigator | undefined>(undefined)
   navigatorRef.current = customNavigator ?? (typeof navigator === 'undefined' ? undefined : navigator)
-  const sourceRef = useRef<MaybeRefOrGetter<ClipboardItems> | undefined>(source)
+  const sourceRef = useRef<RefOrValue<ClipboardItems> | undefined>(source)
   sourceRef.current = source
 
   const isSupported = useSupported(() => {

@@ -55,7 +55,7 @@ function sameValues<T>(a: readonly T[], b: readonly T[]): boolean {
  * listeners on one or more targets; the target defaults to `window` when
  * omitted. Events, listeners and targets may be passed as arrays (React
  * `Arrayable`), and the target accepts a plain element, a ref-like
- * `{ current }` object or a getter (`RefOrValue`).
+ * `{ current }` object or a React ref (`RefOrValue`).
  *
  * React divergences:
  * - the listeners are read through a latest-value ref, so new inline listener
