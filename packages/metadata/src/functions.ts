@@ -81,6 +81,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'computedAsync',
+    file: 'packages/core/src/computedAsync.ts',
+    pkg: 'core',
+  },
+  {
     name: 'createEventHook',
     file: 'packages/shared/src/createEventHook.ts',
     pkg: 'shared',

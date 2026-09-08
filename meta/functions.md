@@ -19,6 +19,7 @@
 | `breakpointsVuetifyV3`            | —                                             | `packages/core/src/useBreakpoints.ts`                  | 🚧 ported (no upstream match) |
 | `clamp`                           | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `cloneFnJSON`                     | —                                             | `packages/core/src/useCloned.ts`                       | 🚧 ported (no upstream match) |
+| `computedAsync`                   | packages/core/computedAsync                   | `packages/core/src/computedAsync.ts`                   | ✅ ported                     |
 | `createEventHook`                 | packages/shared/createEventHook               | `packages/shared/src/createEventHook.ts`               | ✅ ported                     |
 | `createFetch`                     | —                                             | `packages/core/src/useFetch.ts`                        | 🚧 ported (no upstream match) |
 | `createSingletonPromise`          | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
