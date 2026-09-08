@@ -1,4 +1,5 @@
-import type { RefObject, SyntheticEvent } from 'react'
+import type { Ref, SyntheticEvent } from 'react'
+import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -11,10 +12,10 @@ export interface UsePointerLockOptions {
 
 /**
  * Element, element ref, or nothing — the React analog of upstream's
- * `MaybeElementRef` (a bare element or a React ref is accepted; refs are
+ * `ElementRef` (a bare element or a React ref is accepted; refs are
  * resolved at `lock()` call time, mirroring upstream's `unrefElement`).
  */
-type MaybeElementRef = Element | RefObject<Element | null> | null | undefined
+type ElementRef = Element | Ref<Element> | null | undefined
 
 interface PointerLockWaiter {
   value: Element | null
@@ -45,7 +46,7 @@ export interface UsePointerLockReturn {
    * with the locked element once `document.pointerLockElement` reports it;
    * rejects when the lock cannot be acquired.
    */
-  lock: (e: MaybeElementRef | Event | SyntheticEvent) => Promise<Element | null>
+  lock: (e: ElementRef | Event | SyntheticEvent) => Promise<Element | null>
   /**
    * Release the current pointer lock. Resolves `true` when a lock was held
    * and released, `false` when nothing was locked.
@@ -53,17 +54,13 @@ export interface UsePointerLockReturn {
   unlock: () => Promise<boolean>
 }
 
-function isLockEvent(value: MaybeElementRef | Event | SyntheticEvent): value is Event | SyntheticEvent {
+function isLockEvent(value: ElementRef | Event | SyntheticEvent): value is Event | SyntheticEvent {
   return (typeof Event !== 'undefined' && value instanceof Event)
     || (typeof value === 'object' && value !== null && 'nativeEvent' in value)
 }
 
-function resolveMaybeRef(value: MaybeElementRef): Element | null {
-  if (!value)
-    return null
-  if (typeof value === 'object' && 'current' in value)
-    return value.current ?? null
-  return value
+function resolveRefOrValue(value: ElementRef): Element | null {
+  return toValue(value) ?? null
 }
 
 /**
@@ -102,7 +99,7 @@ function resolveMaybeRef(value: MaybeElementRef): Element | null {
  * const { isSupported, element, triggerElement, lock, unlock } = usePointerLock()
  * // <div ref={targetRef} onMouseDown={lock} onMouseUp={unlock} />
  */
-export function usePointerLock(target?: MaybeElementRef, options: UsePointerLockOptions = {}): UsePointerLockReturn {
+export function usePointerLock(target?: ElementRef, options: UsePointerLockOptions = {}): UsePointerLockReturn {
   const [element, setElement] = useState<Element | null>(null)
   const [triggerElement, setTriggerElement] = useState<Element | null>(null)
 
@@ -112,7 +109,7 @@ export function usePointerLock(target?: MaybeElementRef, options: UsePointerLock
   const elementRef = useRef<Element | null>(null)
   const targetElementRef = useRef<Element | null>(null)
   const waitersRef = useRef<PointerLockWaiter[]>([])
-  const targetRef = useRef<MaybeElementRef | undefined>(target)
+  const targetRef = useRef<ElementRef | undefined>(target)
   targetRef.current = target
 
   const doc = options.document ?? (typeof document === 'undefined' ? undefined : document)
@@ -185,7 +182,7 @@ export function usePointerLock(target?: MaybeElementRef, options: UsePointerLock
     })
   }, [])
 
-  const lock = useCallback(async (e: MaybeElementRef | Event | SyntheticEvent): Promise<Element | null> => {
+  const lock = useCallback(async (e: ElementRef | Event | SyntheticEvent): Promise<Element | null> => {
     const currentDoc = docRef.current
     if (!currentDoc || !('pointerLockElement' in currentDoc))
       throw new Error('Pointer Lock API is not supported by your browser.')
@@ -195,8 +192,8 @@ export function usePointerLock(target?: MaybeElementRef, options: UsePointerLock
     setTriggerElement(trigger)
 
     const resolved = isLockEvent(e)
-      ? resolveMaybeRef(targetRef.current) ?? trigger
-      : resolveMaybeRef(e)
+      ? resolveRefOrValue(targetRef.current) ?? trigger
+      : resolveRefOrValue(e)
     if (!resolved)
       throw new Error('Target element undefined.')
 

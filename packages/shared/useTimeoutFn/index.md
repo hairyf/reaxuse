@@ -6,7 +6,7 @@ category: Animation
 
 Wrapper for `setTimeout` with controls — React port of VueUse's [`useTimeoutFn`](https://vueuse.org/shared/useTimeoutFn/).
 
-**Mapping:** upstream accepts `MaybeRefOrGetter<number>` for the interval — this port accepts a
+**Mapping:** upstream accepts `RefOrValue<number>` for the interval — this port accepts a
 plain `number`. `isPending` becomes a boolean state (upstream: a readonly ref) initialized to
 `immediate`; the timer is scheduled in a mount effect (upstream starts synchronously during setup)
 and a pending timer is cleared on unmount via effect cleanup; the latest callback and interval are

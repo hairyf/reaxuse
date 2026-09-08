@@ -1,4 +1,6 @@
+import type { RefOrValue } from './index'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { toValue } from './utils'
 
 export interface UseIntervalOptions<Controls extends boolean = false> {
   /**
@@ -62,8 +64,8 @@ export type UseIntervalReturn = number | UseIntervalControls
  * (`immediate`) becomes an empty-dependency `useEffect` on mount, and
  * `tryOnScopeDispose(pause)` becomes the effect cleanup. `{ controls: true }`
  * exposes `counter` / `reset` plus the `Pausable` controls (`isActive` /
- * `pause` / `resume`). `interval` accepts a number or a getter (upstream:
- * `MaybeRefOrGetter<number>`) evaluated on start / `resume`; unlike
+ * `pause` / `resume`). `interval` accepts a number or a React ref (upstream:
+ * `RefOrValue<number>`) evaluated on start / `resume`; unlike
  * upstream's reactive watch on the interval, a changed value takes effect on
  * the next `resume()`. `immediateCallback` follows `useIntervalFn`'s
  * semantics (upstream `useInterval` doesn't forward it). `pause` / `resume` /
@@ -75,10 +77,10 @@ export type UseIntervalReturn = number | UseIntervalControls
  *
  * const { counter, isActive, pause, resume, reset } = useInterval(200, { controls: true })
  */
-export function useInterval(interval?: number | (() => number), options?: UseIntervalOptions<false>): number
-export function useInterval(interval: number | (() => number), options: UseIntervalOptions<true>): UseIntervalControls
+export function useInterval(interval?: RefOrValue<number>, options?: UseIntervalOptions<false>): number
+export function useInterval(interval: RefOrValue<number>, options: UseIntervalOptions<true>): UseIntervalControls
 export function useInterval(
-  interval: number | (() => number) = 1000,
+  interval: RefOrValue<number> = 1000,
   options: UseIntervalOptions<boolean> = {},
 ): number | UseIntervalControls {
   const {
@@ -102,7 +104,7 @@ export function useInterval(
   // upstream reports `isActive === true` right after setup (interval > 0);
   // initialize lazily so the first render already reflects it
   const [isActive, setIsActive] = useState(() =>
-    immediate && (typeof interval === 'function' ? interval() : interval) > 0)
+    immediate && toValue(interval) > 0)
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -126,7 +128,7 @@ export function useInterval(
   }, [])
 
   const resume = useCallback(() => {
-    const ms = typeof intervalRef.current === 'function' ? intervalRef.current() : intervalRef.current
+    const ms = toValue(intervalRef.current)
     if (ms <= 0)
       return
     setIsActive(true)

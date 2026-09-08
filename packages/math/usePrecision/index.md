@@ -8,8 +8,7 @@ Reactively set the precision of a number — React port of VueUse's
 [`usePrecision`](https://vueuse.org/math/usePrecision/).
 
 **Mapping:** `ComputedRef<number>` → pure derived hook. `value`, `digits` and
-`options` are resolved at render time (plain values, `{ current }` ref-like
-objects or getters) and the precision-adjusted number is memoized and returned
+`options` are resolved at render time (plain values or React refs) and the precision-adjusted number is memoized and returned
 directly — no effects, no `.value` wrapper (SSR-safe).
 
 ## Usage
@@ -44,9 +43,9 @@ export interface UsePrecisionOptions {
 }
 
 export function usePrecision(
-  value: MaybeRefOrGetter<number>,
-  digits: MaybeRefOrGetter<number>,
-  options?: MaybeRefOrGetter<UsePrecisionOptions>,
+  value: RefOrValue<number>,
+  digits: RefOrValue<number>,
+  options?: RefOrValue<UsePrecisionOptions>,
 ): number
 ```
 

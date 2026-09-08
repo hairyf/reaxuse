@@ -250,7 +250,7 @@ describe('useSwipe', () => {
     const elB = createTarget()
     const onSwipeEnd = vi.fn()
     const { result, act, rerender } = await renderHook<{ el: EventTarget | null }, UseSwipeReturn>(
-      ({ el } = { el: elA }) => useSwipe(() => el, { threshold: THRESHOLD, onSwipeEnd }),
+      ({ el } = { el: elA }) => useSwipe(el, { threshold: THRESHOLD, onSwipeEnd }),
       { initialProps: { el: elA } },
     )
 

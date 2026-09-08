@@ -27,10 +27,10 @@ tuple `[mode, setMode]`. `mode` is the resolved color mode, `setMode` writes it,
   the translated `initialValue` and only touches `window`/`document`/storage after mount;
 - options are captured once at mount (upstream destructures them once at setup) — changing them
   between renders has no effect; `initialValue` is resolved once at mount;
-- `storageRef` accepts a ref-like `{ current }` object as the external store (upstream's `Ref`):
+- `storageRef` accepts a React `RefObject` as the external store (upstream's `Ref`):
   writes go to `storageRef.current` and trigger a re-render through internal state;
-- `selector` accepts a string (re-queried on every update) or a plain element / ref-like
-  `{ current }` object (upstream's `MaybeElementRef`).
+- `selector` accepts a string (re-queried on every update) or a plain element / React
+  ref (upstream's `ElementRef`).
 
 ## Basic Usage
 
@@ -97,7 +97,7 @@ export interface UseColorModeOptions<T extends string = BasicColorMode> extends 
    *
    * @default 'html'
    */
-  selector?: string | MaybeRef<HTMLElement | null>
+  selector?: string | RefOrValue<HTMLElement | null>
   /**
    * HTML attribute applying the target element
    *
@@ -109,7 +109,7 @@ export interface UseColorModeOptions<T extends string = BasicColorMode> extends 
    *
    * @default 'auto'
    */
-  initialValue?: MaybeRefOrGetter<T | BasicColorSchema>
+  initialValue?: RefOrValue<T | BasicColorSchema>
   /**
    * Prefix when adding value to the attribute
    */

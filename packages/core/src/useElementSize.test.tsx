@@ -1,4 +1,4 @@
-import type { MaybeComputedElementRef } from './useResizeObserver'
+import type { ElementTarget } from './useResizeObserver'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useElementSize } from './useElementSize'
@@ -82,7 +82,7 @@ describe('useElementSize', () => {
     const ref = { current: null as HTMLDivElement | null }
 
     const { result, rerender, unmount } = await renderHook(
-      (props?: { target: MaybeComputedElementRef }) =>
+      (props?: { target: ElementTarget }) =>
         useElementSize(props?.target ?? ref),
       { initialProps: { target: ref } },
     )

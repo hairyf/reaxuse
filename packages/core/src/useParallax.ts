@@ -1,4 +1,4 @@
-import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
 import { isClient, toValue } from '@reaxuse/shared'
 import { useEffect, useRef, useState } from 'react'
 import { useScreenOrientation } from './useScreenOrientation'
@@ -82,7 +82,7 @@ interface MouseInElementState {
  *   during render from `useState`, so no re-render happens while they stay
  *   the same; the returned object is `{ tilt, roll, source }` (not tuple);
  * - `target` accepts a plain element, a ref-like `{ current }` object or a
- *   getter (React equivalent of `MaybeElementRef`). It is re-resolved on
+ *   getter (React equivalent of `ElementRef`). It is re-resolved on
  *   every render and the listeners re-bind when the resolved element
  *   changes; ref-likes are re-read at bind time, so a `useRef` target that is
  *   `null` during first render still binds once React attaches the element;
@@ -105,7 +105,7 @@ interface MouseInElementState {
  * const { tilt, roll, source } = useParallax(container)
  */
 export function useParallax(
-  target: MaybeRefOrGetter<HTMLElement | null | undefined>,
+  target: RefOrValue<HTMLElement | null | undefined>,
   options: UseParallaxOptions = {},
 ): UseParallaxReturn {
   const {
