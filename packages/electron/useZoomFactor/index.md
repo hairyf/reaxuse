@@ -69,6 +69,6 @@ Returns the tuple `[factor, setFactor]`: the current factor and the setter that 
 - VueUse upstream mapping — `source/vueuse/packages/electron/useZoomFactor/`:
   [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/electron/useZoomFactor/index.ts) (implementation),
   [`index.md`](https://github.com/vueuse/vueuse/blob/main/packages/electron/useZoomFactor/index.md) (docs)
-- reaxuse: [`packages/electron/src/useZoomFactor.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/electron/src/useZoomFactor.ts), docs + demo co-located in `packages/electron/useZoomFactor/` ([`demo.tsx`](./demo.tsx), a demo-only `webFrame` stub — a browser page has no Electron runtime)
+- reaxuse: [`packages/electron/src/useZoomFactor.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/electron/src/useZoomFactor.ts), docs + demo co-located in `packages/electron/useZoomFactor/` ([`demo.tsx`](https://github.com/hairyf/reaxuse/blob/main/packages/electron/useZoomFactor/demo.tsx), a demo-only `webFrame` stub — a browser page has no Electron runtime)
 
 <Contributors name="useZoomFactor" />

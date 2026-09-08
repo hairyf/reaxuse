@@ -69,6 +69,6 @@ Returns the tuple `[level, setLevel]`: the current level and the setter that wri
 - VueUse upstream mapping — `source/vueuse/packages/electron/useZoomLevel/`:
   [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/electron/useZoomLevel/index.ts) (implementation),
   [`index.md`](https://github.com/vueuse/vueuse/blob/main/packages/electron/useZoomLevel/index.md) (docs)
-- reaxuse: [`packages/electron/src/useZoomLevel.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/electron/src/useZoomLevel.ts), docs + demo co-located in `packages/electron/useZoomLevel/` ([`demo.tsx`](./demo.tsx), a demo-only `webFrame` stub — a browser page has no Electron runtime)
+- reaxuse: [`packages/electron/src/useZoomLevel.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/electron/src/useZoomLevel.ts), docs + demo co-located in `packages/electron/useZoomLevel/` ([`demo.tsx`](https://github.com/hairyf/reaxuse/blob/main/packages/electron/useZoomLevel/demo.tsx), a demo-only `webFrame` stub — a browser page has no Electron runtime)
 
 <Contributors name="useZoomLevel" />
