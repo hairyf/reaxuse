@@ -1,5 +1,5 @@
-import type { MaybeRef } from './index'
-import { isRefLike, toValue } from './utils'
+import type { RefOrValue } from './index'
+import { toValue } from './utils'
 
 export interface UseArrayDifferenceOptions {
   /**
@@ -18,14 +18,14 @@ function defaultComparator<T>(value: T, othVal: T) {
 }
 
 export function useArrayDifference<T>(
-  list: MaybeRef<MaybeRef<T>[]>,
-  values: MaybeRef<MaybeRef<T>[]>,
+  list: RefOrValue<RefOrValue<T>[]>,
+  values: RefOrValue<RefOrValue<T>[]>,
   key?: keyof T,
   options?: UseArrayDifferenceOptions,
 ): UseArrayDifferenceReturn<T>
 export function useArrayDifference<T>(
-  list: MaybeRef<MaybeRef<T>[]>,
-  values: MaybeRef<MaybeRef<T>[]>,
+  list: RefOrValue<RefOrValue<T>[]>,
+  values: RefOrValue<RefOrValue<T>[]>,
   compareFn?: (value: T, othVal: T) => boolean,
   options?: UseArrayDifferenceOptions,
 ): UseArrayDifferenceReturn<T>
@@ -40,8 +40,8 @@ export function useArrayDifference<T>(
  * arrays) and the difference is re-diffed on the next render, no `.value` on
  * the result. The same three call shapes as upstream are supported: plain
  * diff, diff by `key`, and diff by `compareFn`, plus the `{ symmetric }`
- * option. Vue refs map to the repo's `MaybeRef` (`{ current }`) objects: the
- * lists themselves may be ref-like and every element is unwrapped before the
+ * option. Vue refs map to the repo's `RefOrValue` refs: the
+ * lists themselves may be refs and every element is unwrapped before the
  * comparator runs.
  *
  * @see https://vueuse.org/shared/useArrayDifference/
@@ -53,8 +53,8 @@ export function useArrayDifference<T>(
  * useArrayDifference(list, [{ id: 3 }], (a, b) => a.id === b.id, { symmetric: true })
  */
 export function useArrayDifference<T>(...args: any[]): UseArrayDifferenceReturn<T> {
-  const list: MaybeRef<MaybeRef<T>[]> = args[0]
-  const values: MaybeRef<MaybeRef<T>[]> = args[1]
+  const list: RefOrValue<RefOrValue<T>[]> = args[0]
+  const values: RefOrValue<RefOrValue<T>[]> = args[1]
 
   let compareFn = args[2] ?? defaultComparator
   const {
@@ -66,8 +66,8 @@ export function useArrayDifference<T>(...args: any[]): UseArrayDifferenceReturn<
     compareFn = (value: T, othVal: T) => value[key] === othVal[key]
   }
 
-  const listArray = isRefLike(list) ? list.current : list
-  const valuesArray = isRefLike(values) ? values.current : values
+  const listArray = toValue(list)
+  const valuesArray = toValue(values)
 
   const diff1 = listArray
     .filter(x => valuesArray.findIndex(y => compareFn(toValue(x), toValue(y))) === -1)

@@ -17,7 +17,7 @@ guessing from the default's type (`StorageSerializers`), `writeDefaults`, `merge
 
 - `setValue(null)` removes the entry from storage — the state then falls back to the initial value,
   mirroring upstream where the self storage-event echo restores `rawInit`;
-- `key` and `defaults` are plain React values (upstream takes `MaybeRefOrGetter`); changing `key`
+- `key` and `defaults` are plain React values (upstream takes `RefOrValue`); changing `key`
   between renders re-reads the new key, and writes always go to the key of the current render. A
   function `defaults` is a lazy initializer (React `useState` convention, like upstream's getter
   form) and is resolved once at mount;

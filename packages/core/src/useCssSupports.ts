@@ -1,4 +1,4 @@
-import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
 import { isClient, toValue } from '@reaxuse/shared'
 import { useEffect, useState } from 'react'
 
@@ -55,7 +55,7 @@ type WindowWithCss = Window & {
  *   `{ isSupported }`, so components re-render whenever the resolved inputs
  *   change and the support result is recomputed;
  * - `property` / `value` / `conditionText` accept a plain string, a ref-like
- *   `{ current }` object or a getter (upstream `MaybeRefOrGetter`); they are
+ *   `{ current }` object or a getter (upstream `RefOrValue`); they are
  *   re-resolved on every render and `CSS.supports` is re-evaluated in an
  *   effect whenever a resolved input changes;
  * - the upstream `useMounted` gate is implicit: the evaluation lives in the
@@ -71,12 +71,12 @@ type WindowWithCss = Window & {
  * const { isSupported: flexbox } = useCssSupports('display: flex')
  */
 export function useCssSupports(
-  property: MaybeRefOrGetter<string>,
-  value: MaybeRefOrGetter<string>,
+  property: RefOrValue<string>,
+  value: RefOrValue<string>,
   options?: UseCssSupportsOptions,
 ): UseCssSupportsReturn
 export function useCssSupports(
-  conditionText: MaybeRefOrGetter<string>,
+  conditionText: RefOrValue<string>,
   options?: UseCssSupportsOptions,
 ): UseCssSupportsReturn
 export function useCssSupports(...args: any[]): UseCssSupportsReturn {

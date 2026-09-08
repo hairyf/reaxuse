@@ -90,13 +90,13 @@ describe('useStateDebounced', () => {
     expect(result.current[2]).toBe('c')
   })
 
-  it('re-reads a getter ms on every write', async () => {
-    let delay = 100
-    const { result, act } = await renderHook(() => useStateDebounced('', () => delay))
+  it('re-reads a ref ms on every write', async () => {
+    const delay = { current: 100 }
+    const { result, act } = await renderHook(() => useStateDebounced('', delay))
 
     await act(() => result.current[1]('a'))
     await act(async () => {
-      delay = 300
+      delay.current = 300
       result.current[1]('b')
     })
 

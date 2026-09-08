@@ -11,8 +11,8 @@ loop; `immediate: true` (default) starts it on mount.
 
 **Mapping:** upstream's rAF chain + `isActive` ref + `tryOnScopeDispose(pause)`
 → `useState` + a self-contained `useEffect` whose cleanup pauses the loop.
-`fpsLimit` is a `MaybeRefOrGetter` resolved with `toValue` on every frame, so
-a React ref-like `{ current }` limit updates live; the `once` option stops the
+`fpsLimit` is a `RefOrValue` resolved with `toValue` on every frame, so
+a React ref limit updates live; the `once` option stops the
 loop after the first run.
 
 ## Usage
@@ -41,7 +41,7 @@ export interface UseRafFnCallbackArguments {
 
 export interface UseRafFnOptions extends ConfigurableWindow {
   immediate?: boolean // @default true
-  fpsLimit?: MaybeRefOrGetter<number | null> // @default null
+  fpsLimit?: RefOrValue<number | null> // @default null
   once?: boolean // @default false
 }
 
