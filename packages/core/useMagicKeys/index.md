@@ -6,7 +6,7 @@ category: Sensors
 
 Reactive keys pressed state, with magical keys combination support — React port of VueUse's [`useMagicKeys`](https://vueuse.org/core/useMagicKeys/).
 
-**Mapping:** upstream returns a proxy of individual refs (or a reactive object with `reactive: true`). React has no refs — the whole key state lives in one state object updated on `keydown` / `keyup`, so the returned values are always plain booleans and `reactive` is accepted for API compatibility only. Keys can be combined with `+` / `_` to build shortcut states (`Shift+Ctrl+A`, `alt_tab`, ...), and `current` is the `Set` of all keys currently pressed. The `keydown` / `keyup` listeners attach in a self-contained `useEffect` with cleanup (upstream composes `useEventListener`); the `blur` / `focus` reset listeners stay on `window`. The `target` accepts an element, a ref-like `{ current }` object or a getter — the listeners re-bind when the resolved target changes. Nothing touches the DOM during render (SSR-safe). All key side effects go in a `useEffect`.
+**Mapping:** upstream returns a proxy of individual refs (or a reactive object with `reactive: true`). React has no refs — the whole key state lives in one state object updated on `keydown` / `keyup`, so the returned values are always plain booleans and `reactive` is accepted for API compatibility only. Keys can be combined with `+` / `_` to build shortcut states (`Shift+Ctrl+A`, `alt_tab`, ...), and `current` is the `Set` of all keys currently pressed. The `keydown` / `keyup` listeners attach in a self-contained `useEffect` with cleanup (upstream composes `useEventListener`); the `blur` / `focus` reset listeners stay on `window`. The `target` accepts an element, a React ref — the listeners re-bind when the resolved target changes. Nothing touches the DOM during render (SSR-safe). All key side effects go in a `useEffect`.
 
 ## Usage
 
@@ -118,11 +118,11 @@ const keys = useMagicKeys({ reactive: true })
 ## Type Declarations
 
 ```ts
-export type MaybeRefOrGetter<T> = T | { current: T } | (() => T)
+export type RefOrValue<T> = T | { current: T } | (() => T)
 
 export interface UseMagicKeysOptions<Reactive extends boolean> {
   reactive?: Reactive
-  target?: MaybeRefOrGetter<EventTarget>
+  target?: RefOrValue<EventTarget>
   aliasMap?: Record<string, string>
   passive?: boolean
   onEventFired?: (e: KeyboardEvent) => void | boolean

@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 import { useEffect, useState } from 'react'
 
@@ -18,7 +18,7 @@ import { useEffect, useState } from 'react'
  *   `string | undefined` value — this hook is purely derived, with no
  *   setters, so passing the object directly (React state) is the recommended
  *   usage;
- * - upstream watches its `MaybeRefOrGetter` source with a Vue watcher and
+ * - upstream watches its `RefOrValue` source with a Vue watcher and
  *   releases the URL on every change; here the object is resolved during
  *   render (`toValue`) and a `useEffect` keyed on the resolved value creates
  *   the new URL and revokes the previous one. A getter is re-resolved on each
@@ -39,7 +39,7 @@ import { useEffect, useState } from 'react'
  * // and the previous one revoked whenever `file` changes or the component
  * // unmounts
  */
-export function useObjectUrl(object: MaybeRefOrGetter<Blob | MediaSource | null | undefined>): string | undefined {
+export function useObjectUrl(object: RefOrValue<Blob | MediaSource | null | undefined>): string | undefined {
   const [url, setUrl] = useState<string | undefined>()
 
   // resolve the object during render so the effect below re-creates the URL

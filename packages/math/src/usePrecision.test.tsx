@@ -59,8 +59,8 @@ describe('usePrecision', () => {
     expect(result.current).toBe(-45.15)
   })
 
-  it('should accept plain values and getters', async () => {
-    const { result } = await renderHook(() => usePrecision(() => 3.1415, () => 2))
+  it('should accept plain values', async () => {
+    const { result } = await renderHook(() => usePrecision(3.1415, 2))
 
     expect(result.current).toBe(3.14)
   })
