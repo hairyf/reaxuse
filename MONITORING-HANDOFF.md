@@ -210,7 +210,9 @@ New-Item -ItemType Junction -Path D:\reaxuse-wt\<hook>\node_modules -Target D:\r
 
 ## 7. 实时状态与任务队列
 
-> **当前基线**（2026-09-08 17:20）：`main` = `bedfcba`，CI 全绿。**开放 PR 0**（#490/#488/#489/**#491** 均已合并）；元数据同步推送（`1cc9e53` 373 functions → `bedfcba` 374 functions，+unrefElement）。
+> **当前基线**（2026-09-08 17:45）：`main` = `6693b5c`，CI 全绿。**开放 PR 0**（#490/#488/#489/#491/#492 均已合并）；元数据同步推送（`bedfcba` 374 functions → `6693b5c` 375 functions，+useRefsList）。
+>
+> **Round 5（17:20–17:45）— #492 useRefsList 合并 + 维护者更名指令**：子代理 `d2a9da99` 完成 useTemplateRefsList（#223）→ PR #492（commit `c9ac91a`，9/9 测试，tsc/eslint 0）。§2 审查通过（元组协议/稳定身份/`refs.setAt === setAt`/`T | null` 卸载语义/分歧映射 JSDoc/仅取消自己占位符行）；CI `test (lts/*)` 首轮失败 = 已知抖动（useRafFn once 断言 + useWindowScroll directions + worker boom），重跑即绿。**维护者指令：reaxuse 侧更名 `useTemplateRefsList` → `useRefsList`**——在分支上执行 `git mv`×3 + 内容改名 + index.ts 旧行删除、新行按字母序插回（`useSpeechSynthesis` 与 `useSSRWidth` 之间，`user` < `uses`）→ commit `cc7dfa0` `refactor(core)!: rename useTemplateRefsList to useRefsList` → 9/9 + tsc 0 + eslint 0 → 5/5 CI 绿 → 合并（main `8a1c321`）。**AGENTS.md 落地要点：上游源名 `useTemplateRefsList` 保留在 Map from JSDoc 与上游链接/路径中**（批量改名后须人工恢复这些行）；`useRefsList` 无预置占位符 → 按 AGENTS.md 罕见情形规则直接插入真实行。设计最终态：`useRefsList<T>(): [TemplateRefsList<T>, setAt]`，`TemplateRefsList<T> = T[] & { setAt: (index, value: T | null) => void }`（函数属性形式，因 `ts/method-signature-style` 禁 shorthand），refs 惰性 `useRef` 单次创建、身份跨渲染稳定、变更不触发重渲染。
 >
 > **Round 4 续（17:05–17:20）— #491 unrefElement 合并 + #223 派发**：远端既有分支 `feat/core-unrefelement`（#60，早于 #462）补齐 PR 流程：worktree `D:\projects\reaxuse-wt\unrefelement` 合并 origin/main（index.ts 三方冲突手工解决：main 真实行 + `export * from './unrefElement'` 按字母序插在所有 `use*` 行之前）→ **迁移到 #462 后词汇**（`MaybeComputedElementRef`→`ElementTarget<T>`、`MaybeElement`→`TargetElement`，getter 用例删除、JSDoc/`index.md`/`demo.tsx` 措辞清扫，demo 改纯 ref）→ tsc 相对 0 错误 + eslint 0 + unrefElement 5/5 + exports 6/6 → merge commit `a864263` push → **PR #491** 5/5 CI 绿 → 合并（main `c65ede1`）。同时派发 **#223 useTemplateRefsList**（子代理 `d2a9da99-6830-4e4c-bb7c-03bdbfa2ed81`，worktree `D:\projects\reaxuse-wt\trefslist`，branch `feat/core-usetemplaterefslist`，junction + 独立 `cacheDir` `.vite-trefs` 的 `vitest.worktree.config.ts` 已由编排者预置）。设计裁定（编排者按 §2B 可写容器）：返回元组 `[refs, setAt]`，`refs` 为跨渲染稳定数组（ref-like 容器不触发重渲染），`setAt(i, v|null)` 原位赋槽且同时挂在 `TemplateRefsList<T>` 类型上（保留上游 `refs.setAt` API 保真）。
 >
@@ -249,12 +251,12 @@ New-Item -ItemType Junction -Path D:\reaxuse-wt\<hook>\node_modules -Target D:\r
 
 * **Adjustment 标签项**（2026-09-08 开放项）：
 * ~~#27 `isDefined`~~ → **已合并 PR #488**（2026-09-08 17:00）
-* #223 `useTemplateRefsList`（core，可派发）
+* ~~#223 `useTemplateRefsList`~~ → **已合并 PR #492**（2026-09-08 17:40，reaxuse 侧更名为 `useRefsList`，维护者指令）
 * #262 `useWatchExtractedObservable`（rxjs 包，⚠️ rxjs 依赖本地不可解析，暂缓）
 * #42 `toObserver`（rxjs 包，同上暂缓）
 
-* ~~派发中（本会话子代理）~~ → **全部完成**：#27 → PR #488（已合并）、#4 `createEventHook` → PR #489（已合并，`on` 返回 `{ off }` 兼容 §2D）。
-* **下一个可派发候选**：~~unrefElement #60~~ → **已合并 PR #491**（2026-09-08 17:15，含 #462 后类型迁移）；**#223 派发中**（子代理 `d2a9da99`，worktree `trefslist`）。
+* ~~派发中（本会话子代理）~~ → **全部完成**：#27 → PR #488（已合并）、#4 `createEventHook` → PR #489（已合并，`on` 返回 `{ off }` 兼容 §2D）、#223 → PR #492（已合并，更名 `useRefsList`）。
+* **下一个可派发候选**：~~unrefElement #60~~ → **已合并 PR #491**（2026-09-08 17:15，含 #462 后类型迁移）；~~#223~~ → **已合并 PR #492**。剩余候选见外部依赖解析现状（#5/#6/#20/#26/#36 shared 设计确认、#11 `computedAsync`、#32 `useElementRemoval` 需维护者分流等）。
 
 * **外部依赖解析现状**（2026-09-08 15:00 实测 `require.resolve`）：✅ 可解析仅 `change-case`、`focus-trap`（已被 #482/#483 消费）；❌ 不可解析：`qrcode` / `jwt-decode` / `idb-keyval` / `fuse.js` / `nprogress` / `universal-cookie` / `axios` / `async-validator` / `drauu` / `sortablejs` / `rxjs` / `firebase` / `electron`——相关 implement issue（#193/#151/#141/#138/#172/#97/#82/#79/#114/#209/#201 及 rxjs/firebase/electron 全部）**继续暂缓**，待维护者安装依赖或允许 `npm install`。无外部依赖的候选：#223（adjustment）、#5/#6/#20/#26/#36（shared，Vue DI/跨实例概念需先确认 React 映射设计）、#11 `computedAsync`（core）、#32 `useElementRemoval`（core，未打标签需维护者分流）、#19/#21/#13（Vue 模板/DI 特有，可能需 adjustment/impractical 裁定，勿擅自派发）。
 
