@@ -13,7 +13,7 @@ whenever the element or its children resize (`useResizeObserver`) and, with `obs
 whenever its DOM content mutates (`useMutationObserver`) → the returned object keeps the
 upstream member structure `{ isXOverflowed, isYOverflowed, stop, update }`, with the overflow
 flags as plain `boolean` state. `target` accepts an element, a React ref object (`{ current }`)
-or a getter returning one (SVG elements are ignored). The observers are reconciled in a single
+or a React ref (SVG elements are ignored). The observers are reconciled in a single
 effect: the `ResizeObserver` is rebuilt only when the resolved target + children or the `window`
 option changed, the `MutationObserver` whenever `observeMutation` toggles. The Vue
 component/directive variants are not ported.
@@ -50,7 +50,7 @@ export interface UseElementOverflowReturn {
 }
 
 export function useElementOverflow(
-  target: MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>,
+  target: RefOrValue<HTMLElement | SVGElement | null | undefined>,
   option?: UseElementOverflowOptions,
 ): UseElementOverflowReturn
 ```
