@@ -1,4 +1,4 @@
-import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
 import type { UseMouseSourceType } from './useMouse'
 import { toValue } from '@reaxuse/shared'
 import { useEffect, useRef, useState } from 'react'
@@ -36,7 +36,7 @@ export interface UseMousePressedOptions extends ConfigurableWindow {
   /**
    * Element target to be capture the click
    */
-  target?: MaybeRefOrGetter<EventTarget | null | undefined>
+  target?: RefOrValue<EventTarget | null | undefined>
 
   /**
    * Callback to be called when the mouse is pressed
@@ -78,7 +78,7 @@ export interface UseMousePressedReturn {
  * - `onPressed`/`onReleased` are read through a latest-value ref, so the
  *   listeners always call the newest callbacks without re-binding on renders;
  * - `target` accepts an element, a ref-like `{ current }` object or a getter
- *   (React equivalent of `MaybeRefOrGetter`). It is re-resolved on every
+ *   (React equivalent of `RefOrValue`). It is re-resolved on every
  *   render and the listeners re-bind when the resolved element changes;
  * - SSR-safe: nothing touches `window` during render — the listeners attach
  *   in the mount effect only, and `initialValue` seeds `useState` so SSR

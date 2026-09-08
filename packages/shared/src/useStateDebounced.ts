@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react'
-import type { MaybeRef } from './index'
+import type { RefOrValue } from './index'
 import type { DebounceFilterOptions } from './useDebounceFn'
 import { useEffect, useRef, useState } from 'react'
 import { useDebounceFn } from './useDebounceFn'
@@ -33,7 +33,7 @@ export type UseStateDebouncedReturn<T = any> = [
  * behind it by `ms`. Writes settle through a `useDebounceFn` updater, so a
  * burst of writes collapses into a single trailing update carrying the last
  * written value. `ms` (and `options.maxWait`) accept a plain number, a ref-like
- * `{ current }` or a getter (upstream: `MaybeRefOrGetter<number>`) and are
+ * `{ current }` or a getter (upstream: `RefOrValue<number>`) and are
  * re-read on every write; pending timers are cleared when the component
  * unmounts (upstream disposes with the effect scope).
  *
@@ -44,7 +44,7 @@ export type UseStateDebouncedReturn<T = any> = [
  */
 export function useStateDebounced<T>(
   value: T,
-  ms: MaybeRef<number> | (() => number) = 200,
+  ms: RefOrValue<number> = 200,
   options: DebounceFilterOptions = {},
 ): UseStateDebouncedReturn<T> {
   const [state, setState] = useState(value)
