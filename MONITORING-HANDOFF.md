@@ -210,7 +210,9 @@ New-Item -ItemType Junction -Path D:\reaxuse-wt\<hook>\node_modules -Target D:\r
 
 ## 7. 实时状态与任务队列
 
-> **当前基线**（2026-09-08 17:05）：`main` = `1cc9e53`，CI 全绿。**开放 PR 0**；#490（RefOrValue 迁移收尾）、#488（isDefined）、#489（createEventHook）已全部合并；元数据两次同步推送（`d0debb3` 369 functions、`1cc9e53` 373 functions）。本地 worktree 已全部清理（仅剩主树）。
+> **当前基线**（2026-09-08 17:20）：`main` = `bedfcba`，CI 全绿。**开放 PR 0**（#490/#488/#489/**#491** 均已合并）；元数据同步推送（`1cc9e53` 373 functions → `bedfcba` 374 functions，+unrefElement）。
+>
+> **Round 4 续（17:05–17:20）— #491 unrefElement 合并 + #223 派发**：远端既有分支 `feat/core-unrefelement`（#60，早于 #462）补齐 PR 流程：worktree `D:\projects\reaxuse-wt\unrefelement` 合并 origin/main（index.ts 三方冲突手工解决：main 真实行 + `export * from './unrefElement'` 按字母序插在所有 `use*` 行之前）→ **迁移到 #462 后词汇**（`MaybeComputedElementRef`→`ElementTarget<T>`、`MaybeElement`→`TargetElement`，getter 用例删除、JSDoc/`index.md`/`demo.tsx` 措辞清扫，demo 改纯 ref）→ tsc 相对 0 错误 + eslint 0 + unrefElement 5/5 + exports 6/6 → merge commit `a864263` push → **PR #491** 5/5 CI 绿 → 合并（main `c65ede1`）。同时派发 **#223 useTemplateRefsList**（子代理 `d2a9da99-6830-4e4c-bb7c-03bdbfa2ed81`，worktree `D:\projects\reaxuse-wt\trefslist`，branch `feat/core-usetemplaterefslist`，junction + 独立 `cacheDir` `.vite-trefs` 的 `vitest.worktree.config.ts` 已由编排者预置）。设计裁定（编排者按 §2B 可写容器）：返回元组 `[refs, setAt]`，`refs` 为跨渲染稳定数组（ref-like 容器不触发重渲染），`setAt(i, v|null)` 原位赋槽且同时挂在 `TemplateRefsList<T>` 类型上（保留上游 `refs.setAt` API 保真）。
 >
 > **Round 4 记录（16:00–17:05）— #462 类型债清偿**：main 因 `8fddc63`（去掉 getter 支持、改名 `RefOrValue` 系）遗留 85 个 tsc 错误 + 47 个失败测试 + shared 构建失败。编排者并行派发 2 个子代理 + 自理一个切片，三分支合一验证后开 **PR #490** 并合并（5/5 CI 绿）：
 > - math：`chore/462-math-ref-migration` `a81b1b3`（43 文件；14 源 + 14 测试 + 12 docs；`MaybeComputedRefArgs`→`RefOrValueArgs`；useMath `Reactified<T,Computed>` 折叠为 `Reactified<T>`）。
@@ -252,7 +254,7 @@ New-Item -ItemType Junction -Path D:\reaxuse-wt\<hook>\node_modules -Target D:\r
 * #42 `toObserver`（rxjs 包，同上暂缓）
 
 * ~~派发中（本会话子代理）~~ → **全部完成**：#27 → PR #488（已合并）、#4 `createEventHook` → PR #489（已合并，`on` 返回 `{ off }` 兼容 §2D）。
-* **下一个可派发候选**：`feat/core-unrefelement` 远端分支已有 unrefElement（#60）实现（5 文件 185+ 行，尚无 PR）——开 PR 后按 §2 审查合并；或派发 #223。
+* **下一个可派发候选**：~~unrefElement #60~~ → **已合并 PR #491**（2026-09-08 17:15，含 #462 后类型迁移）；**#223 派发中**（子代理 `d2a9da99`，worktree `trefslist`）。
 
 * **外部依赖解析现状**（2026-09-08 15:00 实测 `require.resolve`）：✅ 可解析仅 `change-case`、`focus-trap`（已被 #482/#483 消费）；❌ 不可解析：`qrcode` / `jwt-decode` / `idb-keyval` / `fuse.js` / `nprogress` / `universal-cookie` / `axios` / `async-validator` / `drauu` / `sortablejs` / `rxjs` / `firebase` / `electron`——相关 implement issue（#193/#151/#141/#138/#172/#97/#82/#79/#114/#209/#201 及 rxjs/firebase/electron 全部）**继续暂缓**，待维护者安装依赖或允许 `npm install`。无外部依赖的候选：#223（adjustment）、#5/#6/#20/#26/#36（shared，Vue DI/跨实例概念需先确认 React 映射设计）、#11 `computedAsync`（core）、#32 `useElementRemoval`（core，未打标签需维护者分流）、#19/#21/#13（Vue 模板/DI 特有，可能需 adjustment/impractical 裁定，勿擅自派发）。
 
