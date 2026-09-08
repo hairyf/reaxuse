@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react'
-import type { MaybeRefOrGetter } from './utils'
+import type { RefOrValue } from './utils'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toValue } from './utils'
 
@@ -15,7 +15,7 @@ export type UseStateAutoResetReturn<T = any> = [T, Dispatch<SetStateAction<T>>]
  * is a `useState`-style setter (value or updater form, `Dispatch<SetStateAction>`)
  * that also (re)schedules a timer to restore `defaultValue` after `afterMs`
  * milliseconds. `defaultValue` and `afterMs` accept the shared
- * `MaybeRefOrGetter` form and are resolved with `toValue` at fire time
+ * `RefOrValue` form (a plain value or a React ref) and are resolved with `toValue` at fire time
  * (upstream: `toValue`); the pending timer is cleared on unmount (upstream:
  * `tryOnScopeDispose`, timers in the effect scope). The deprecated `autoResetRef`
  * alias is not ported.
@@ -30,8 +30,8 @@ export type UseStateAutoResetReturn<T = any> = [T, Dispatch<SetStateAction<T>>]
  * }
  */
 export function useStateAutoReset<T = any>(
-  defaultValue: MaybeRefOrGetter<T>,
-  afterMs: MaybeRefOrGetter<number> = 10000,
+  defaultValue: RefOrValue<T>,
+  afterMs: RefOrValue<number> = 10000,
 ): UseStateAutoResetReturn<T> {
   const [value, setValue] = useState<T>(() => toValue(defaultValue))
 

@@ -50,8 +50,10 @@ describe('useStateAutoReset', () => {
     await unmount()
   })
 
-  it('should be reset with maybeRef', async () => {
-    const { result, act, unmount } = await renderHook(() => useStateAutoReset(() => [123], () => 10))
+  it('should be reset with ref-like defaultValue and afterMs', async () => {
+    const defaultValue = { current: [123] }
+    const afterMs = { current: 10 }
+    const { result, act, unmount } = await renderHook(() => useStateAutoReset(defaultValue, afterMs))
 
     await act(() => {
       result.current[1]([999])
@@ -98,21 +100,17 @@ describe('useStateAutoReset', () => {
   })
 
   it('should not reset when scope dispose', async () => {
-    // the getter is invoked both when the state initializes and when a reset
-    // fires — clear the mount-time call, then make sure no reset fires
-    // after unmount (upstream: `tryOnScopeDispose` inside the scope)
-    const resetSpy = vi.fn(() => [123])
-    const { result, act, unmount } = await renderHook(() => useStateAutoReset(resetSpy, 100))
+    const { result, act, unmount } = await renderHook(() => useStateAutoReset([123] as number[], 100))
 
     await act(() => {
       result.current[1]([999])
     })
     expect(result.current[0]).toEqual([999])
-    resetSpy.mockClear()
 
     await unmount()
 
-    vi.advanceTimersByTime(101)
-    expect(resetSpy).not.toBeCalled()
+    // the pending reset timer is cleared on unmount (upstream: `tryOnScopeDispose`
+    // inside the effect scope), so no reset can fire afterwards
+    expect(vi.getTimerCount()).toBe(0)
   })
 })

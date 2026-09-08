@@ -1,9 +1,9 @@
-import type { MaybeRefOrGetter } from './index'
+import type { RefOrValue } from './index'
 import { promiseTimeout, toValue } from './utils'
 
 /**
  * Polling interval (ms) used to resolve `until` promises. React has no
- * reactive watch, so the port re-reads the ref-like / getter source at this
+ * reactive watch, so the port re-reads the ref-like source at this
  * fixed interval — the same ref-like polling approach `useFetch` uses for its
  * `refetch` watch.
  */
@@ -52,7 +52,7 @@ type Falsy = false | void | null | undefined | 0 | 0n | ''
 export interface UntilValueInstance<T, Not extends boolean = false> extends UntilBaseInstance<T, Not> {
   readonly not: UntilValueInstance<T, Not extends true ? false : true>
 
-  toBe: <P = T>(value: MaybeRefOrGetter<P>, options?: UntilToMatchOptions) => Not extends true ? Promise<T> : Promise<P>
+  toBe: <P = T>(value: RefOrValue<P>, options?: UntilToMatchOptions) => Not extends true ? Promise<T> : Promise<P>
   toBeTruthy: (options?: UntilToMatchOptions) => Not extends true ? Promise<T & Falsy> : Promise<Exclude<T, Falsy>>
   toBeNull: (options?: UntilToMatchOptions) => Not extends true ? Promise<Exclude<T, null>> : Promise<null>
   toBeUndefined: (options?: UntilToMatchOptions) => Not extends true ? Promise<Exclude<T, undefined>> : Promise<undefined>
@@ -64,7 +64,7 @@ type ElementOf<T> = T extends readonly unknown[] ? T[number] : never
 export interface UntilArrayInstance<T> extends UntilBaseInstance<T> {
   readonly not: UntilArrayInstance<T>
 
-  toContains: (value: MaybeRefOrGetter<ElementOf<T>>, options?: UntilToMatchOptions) => Promise<T>
+  toContains: (value: RefOrValue<ElementOf<T>>, options?: UntilToMatchOptions) => Promise<T>
 }
 
 function createUntil<T>(r: any, isNot = false): UntilValueInstance<T, boolean> | UntilArrayInstance<T> {
@@ -108,7 +108,7 @@ function createUntil<T>(r: any, isNot = false): UntilValueInstance<T, boolean> |
     return Promise.race(promises)
   }
 
-  function toBe<P>(value: MaybeRefOrGetter<P | T>, options?: UntilToMatchOptions) {
+  function toBe<P>(value: RefOrValue<P | T>, options?: UntilToMatchOptions) {
     return toMatch(v => v === toValue(value), options)
   }
 
@@ -215,8 +215,8 @@ function createUntil<T>(r: any, isNot = false): UntilValueInstance<T, boolean> |
  *
  * @see https://vueuse.org/shared/until/
  */
-export function until<T extends unknown[]>(r: MaybeRefOrGetter<T>): UntilArrayInstance<T>
-export function until<T>(r: MaybeRefOrGetter<T>): UntilValueInstance<T>
+export function until<T extends unknown[]>(r: RefOrValue<T>): UntilArrayInstance<T>
+export function until<T>(r: RefOrValue<T>): UntilValueInstance<T>
 export function until<T>(r: any): UntilValueInstance<T, boolean> | UntilArrayInstance<T> {
   return createUntil(r)
 }
