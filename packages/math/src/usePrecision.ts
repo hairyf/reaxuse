@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 import { useMemo } from 'react'
 
@@ -41,8 +41,8 @@ function accurateMultiply(value: number, power: number): number {
  *
  * Adjustment for React: upstream wraps the computation in `computed(() => ...)`
  * and returns a `ComputedRef<number>`; the reaxuse version is a pure derived
- * hook — `value`, `digits` and `options` are resolved (plain values,
- * `{ current }` ref-like objects or getters) at render time and the
+ * hook — `value`, `digits` and `options` are resolved (plain values or React
+ * refs) at render time and the
  * precision-adjusted number is memoized and returned directly, with no
  * effects and no `.value` wrapper (SSR-safe).
  *
@@ -67,9 +67,9 @@ function accurateMultiply(value: number, power: number): number {
  * @returns The value with the applied precision.
  */
 export function usePrecision(
-  value: MaybeRefOrGetter<number>,
-  digits: MaybeRefOrGetter<number>,
-  options?: MaybeRefOrGetter<UsePrecisionOptions>,
+  value: RefOrValue<number>,
+  digits: RefOrValue<number>,
+  options?: RefOrValue<UsePrecisionOptions>,
 ): number {
   const _value = toValue(value)
   const _digits = toValue(digits)

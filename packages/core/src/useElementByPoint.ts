@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import type { Pausable } from './useTimeoutPoll'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useRef, useState } from 'react'
@@ -9,11 +9,11 @@ export interface UseElementByPointOptions<Multiple extends boolean = false> {
   /**
    * X coordinate of the point to hit-test
    */
-  x: MaybeRefOrGetter<number>
+  x: RefOrValue<number>
   /**
    * Y coordinate of the point to hit-test
    */
-  y: MaybeRefOrGetter<number>
+  y: RefOrValue<number>
   /**
    * When enabled, return every element under the point
    * (`document.elementsFromPoint`) instead of the topmost one
@@ -21,7 +21,7 @@ export interface UseElementByPointOptions<Multiple extends boolean = false> {
    *
    * @default false
    */
-  multiple?: MaybeRefOrGetter<Multiple>
+  multiple?: RefOrValue<Multiple>
   /**
    * Allow a custom `document` instance, e.g. working with iframes or in
    * testing environments (upstream: `ConfigurableDocument`).
@@ -83,8 +83,8 @@ type ElementByPointElement<M extends boolean> = M extends true ? HTMLElement[] :
  *   plain `element` value read directly off the result object;
  * - the Vue `ComputedRef<boolean>` `isSupported` becomes a plain boolean
  *   evaluated once in the mount effect (SSR-safe: `false` until then);
- * - `x`, `y` and `multiple` accept plain values, ref-like `{ current }`
- *   objects or getters (upstream: `MaybeRefOrGetter`) and are re-resolved on
+ * - `x`, `y` and `multiple` accept plain values or ref-like `{ current }`
+ *   objects (upstream: `RefOrValue`) and are re-resolved on
  *   every tick through latest-value refs, so e.g. a `useMouse` position
  *   updates the hit element without re-running the hook;
  * - the `document` option is inlined (upstream: `ConfigurableDocument`) and

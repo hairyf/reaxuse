@@ -167,7 +167,7 @@ export function useSessionStorage<T = unknown>(key: string, initialValue: null, 
  * - storage is never touched during render: the first read happens in the
  *   mount effect (SSR-safe — the server renders `initialValue`);
  * - `key` is a plain React string; changing it between renders re-reads the
- *   new key (upstream takes a reactive `MaybeRefOrGetter` key). Writes always
+ *   new key (upstream takes a reactive `RefOrValue` key). Writes always
  *   go to the key of the current render, and when `writeDefaults` is on, the
  *   new key is seeded with the initial value when absent — matching upstream;
  * - a function `initialValue` is a lazy initializer (React `useState`

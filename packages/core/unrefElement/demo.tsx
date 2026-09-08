@@ -3,14 +3,11 @@ import { useRef, useState } from 'react'
 
 export default function UnrefElementDemo() {
   const target = useRef<HTMLDivElement | null>(null)
-  const [fromRef, setFromRef] = useState('null')
-  const [fromGetter, setFromGetter] = useState('null')
+  const [resolved, setResolved] = useState('null')
 
   const resolve = () => {
     const el = unrefElement(target)
-    setFromRef(el ? `${el.tagName.toLowerCase()} — "${el.textContent}"` : 'null')
-    const el2 = unrefElement(() => target.current)
-    setFromGetter(el2 ? `${el2.tagName.toLowerCase()} — "${el2.textContent}"` : 'null')
+    setResolved(el ? `${el.tagName.toLowerCase()} — "${el.textContent}"` : 'null')
   }
 
   return (
@@ -30,11 +27,7 @@ export default function UnrefElementDemo() {
       </p>
       <p>
         {'ref-like: '}
-        <strong>{fromRef}</strong>
-      </p>
-      <p>
-        {'getter: '}
-        <strong>{fromGetter}</strong>
+        <strong>{resolved}</strong>
       </p>
     </div>
   )

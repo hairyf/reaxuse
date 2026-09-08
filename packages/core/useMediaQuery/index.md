@@ -9,8 +9,8 @@ Reactive [Media Query](https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Qu
 **Mapping:** upstream creates a `MediaQueryList` for the query string and returns a reactive
 `computed<boolean>` that flips on its `change` event → a `useState(false)`-backed plain boolean + a
 self-contained `useEffect` that creates the query, syncs `matches` and subscribes to its `change`
-event (removed on unmount). `query` accepts a plain string, a ref-like `{ current }` object or a
-getter (upstream `MaybeRefOrGetter`) — re-resolved on every render, the media query re-binds when
+event (removed on unmount). `query` accepts a plain string or a React
+ref (upstream `RefOrValue`) — re-resolved on every render, the media query re-binds when
 the resolved string changes. The initial `matches` sync happens in the mount effect (SSR-safe — the
 server renders the `false` default without touching `window`). For SSR, a numeric `ssrWidth` makes
 `useMediaQuery` approximate the query from a simulated viewport width while `matchMedia` is
@@ -47,14 +47,14 @@ useEffect(() => {
 ## Type Declarations
 
 ```ts
-type MaybeRefOrGetter<T> = T | { current: T } | (() => T)
+type RefOrValue<T> = T | { current: T } | (() => T)
 
 interface ConfigurableWindow {
   window?: Window
 }
 
 export function useMediaQuery(
-  query: MaybeRefOrGetter<string>,
+  query: RefOrValue<string>,
   options?: ConfigurableWindow & { ssrWidth?: number },
 ): boolean
 ```

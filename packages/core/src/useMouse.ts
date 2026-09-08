@@ -1,4 +1,4 @@
-import type { ConfigurableWindow, EventFilter, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { ConfigurableWindow, EventFilter, RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 import { useEffect, useRef, useState } from 'react'
 
@@ -24,7 +24,7 @@ export interface UseMouseOptions extends ConfigurableWindow {
    *
    * @default 'Window'
    */
-  target?: MaybeRefOrGetter<Window | EventTarget | null | undefined>
+  target?: RefOrValue<Window | EventTarget | null | undefined>
 
   /**
    * Listen to `touchmove` events
@@ -95,8 +95,8 @@ const UseMouseBuiltinExtractors: Record<UseMouseCoordType, UseMouseEventExtracto
  *   that re-subscribes when the resolved `target` / the `type` mode / the
  *   `touch` / `scroll` / `resetOnTouchEnds` flags change and removes all
  *   listeners on unmount;
- * - `target` accepts a plain element, a ref-like `{ current }` object or a
- *   getter (upstream: `MaybeRefOrGetter`); it is re-resolved on every render
+ * - `target` accepts a plain element or a ref-like `{ current }` object
+ *   (upstream: `RefOrValue`); it is re-resolved on every render
  *   and the listeners re-bind when the resolved element changes. Not passing
  *   `target` listens on the `window` option (default the global `window`),
  *   while an explicit `null` attaches nothing — exactly like upstream;
@@ -161,7 +161,7 @@ export function useMouse(options: UseMouseOptions = {}): UseMouseReturn {
   useEffect(() => {
     const win = windowRef.current
     // upstream defaults `target` to the `window` option; an explicit `null`
-    // (or a getter resolving to nullish) attaches no listeners at all
+    // (or a ref-like object resolving to nullish) attaches no listeners at all
     const el = targetRef.current === undefined ? win : toValue(targetRef.current)
     if (!el)
       return

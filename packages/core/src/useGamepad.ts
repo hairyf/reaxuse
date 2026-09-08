@@ -213,8 +213,8 @@ export function useGamepad(options: UseGamepadOptions = {}): UseGamepadReturn {
   const onGamepadDisconnectedRef = useRef(onGamepadDisconnected)
   onGamepadDisconnectedRef.current = onGamepadDisconnected
 
-  useEventListener('gamepadconnected', e => onGamepadConnectedRef.current(e.gamepad), { passive: true })
-  useEventListener('gamepaddisconnected', e => onGamepadDisconnectedRef.current(e.gamepad), { passive: true })
+  useEventListener('gamepadconnected', (e: GamepadEvent) => onGamepadConnectedRef.current(e.gamepad), { passive: true })
+  useEventListener('gamepaddisconnected', (e: GamepadEvent) => onGamepadDisconnectedRef.current(e.gamepad), { passive: true })
 
   // initial poll for already-connected gamepads (upstream: `tryOnMounted`)
   useEffect(() => {

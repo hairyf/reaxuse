@@ -1,5 +1,5 @@
-import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
-import type { MaybeComputedElementRef } from './useResizeObserver'
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
+import type { ElementTarget } from './useResizeObserver'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useIntersectionObserver } from './useIntersectionObserver'
@@ -19,7 +19,7 @@ export interface UseElementVisibilityOptions extends ConfigurableWindow {
   /**
    * The element that is used as the viewport for checking visibility of the target.
    */
-  scrollTarget?: MaybeComputedElementRef | Document
+  scrollTarget?: ElementTarget | Document
   /**
    * Either a single number or an array of numbers between 0.0 and 1.
    *
@@ -29,7 +29,7 @@ export interface UseElementVisibilityOptions extends ConfigurableWindow {
   /**
    * A string which specifies a set of offsets to add to the root's bounding_box when calculating intersections.
    */
-  rootMargin?: MaybeRefOrGetter<string>
+  rootMargin?: RefOrValue<string>
   /**
    * Stop tracking when element visibility changes for the first time.
    *
@@ -39,12 +39,12 @@ export interface UseElementVisibilityOptions extends ConfigurableWindow {
 }
 
 /**
- * React equivalent of upstream's `unrefElement`: resolves a getter, a ref-like
- * object, or a plain value down to an element (or, for a scroll target, a
+ * React equivalent of upstream's `unrefElement`: resolves a ref-like object
+ * or a plain value down to an element (or, for a scroll target, a
  * `Document`). Built on the shared `toValue`.
  */
 function resolveTarget(value: unknown): Element | Document | undefined {
-  const resolved = toValue(value as MaybeRefOrGetter<unknown>)
+  const resolved = toValue(value as RefOrValue<unknown>)
   if (resolved && typeof resolved === 'object' && 'current' in resolved)
     return resolveTarget(resolved)
   return (resolved as Element | Document | null | undefined) ?? undefined
@@ -154,7 +154,7 @@ function computeVisibility(
  * return <div ref={target}>{targetIsVisible ? 'inside' : 'outside'}</div>
  */
 export function useElementVisibility(
-  element: MaybeComputedElementRef,
+  element: ElementTarget,
   options: UseElementVisibilityOptions = {},
 ): boolean {
   const {

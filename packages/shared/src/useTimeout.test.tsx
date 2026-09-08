@@ -33,8 +33,9 @@ describe('useTimeout', () => {
     expect(result.current.isPending).toBe(false)
   })
 
-  it('accepts a getter interval (upstream: ref target)', async () => {
-    const { result, act } = await renderHook(() => useTimeout(() => 10))
+  it('accepts a ref interval (upstream: ref target)', async () => {
+    const ms = { current: 10 }
+    const { result, act } = await renderHook(() => useTimeout(ms))
     expect(result.current).toBe(false)
 
     await act(async () => {

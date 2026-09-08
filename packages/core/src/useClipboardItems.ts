@@ -1,0 +1,178 @@
+import type { RefOrValue } from '@reaxuse/shared'
+import { toValue, useTimeoutFn } from '@reaxuse/shared'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useSupported } from './useSupported'
+
+export interface UseClipboardItemsOptions<Source> {
+  /**
+   * Enabled reading for clipboard
+   *
+   * @default false
+   */
+  read?: boolean
+
+  /**
+   * Copy source
+   */
+  source?: Source
+
+  /**
+   * Milliseconds to reset state of `copied`
+   *
+   * @default 1500
+   */
+  copiedDuring?: number
+
+  /**
+   * Specify a custom `navigator` instance, e.g. working with iframes or in
+   * testing environments. Declared inline instead of composing a shared
+   * `ConfigurableNavigator` type because other core hooks export a same-named
+   * type — `export *` in `index.ts` would collide (TS2308), so like
+   * `useGamepad` this module declares the member directly.
+   */
+  navigator?: Navigator
+}
+
+export interface UseClipboardItemsReturn<Optional> {
+  /**
+   * `true` when the resolved navigator exposes the Clipboard API
+   * (`'clipboard' in navigator`). Resolved in a mount effect, so it stays
+   * `false` during the first render and on the server (SSR-safe).
+   */
+  isSupported: boolean
+  /**
+   * The clipboard items currently read from the system clipboard. Updated by
+   * a successful `copy`, by a manual `read()` call, and automatically when
+   * `read` is enabled and a `copy` / `cut` event fires.
+   */
+  content: ClipboardItems
+  /**
+   * Whether the last `copy` call succeeded. Resets to `false` after
+   * `copiedDuring` milliseconds via a timeout.
+   */
+  copied: boolean
+  /**
+   * Asynchronously writes `content` to the system clipboard. When the
+   * `source` option is provided it may be called without arguments; it is a
+   * no-op (resolves without writing) when the Clipboard API is unsupported
+   * or when no value is available.
+   */
+  copy: Optional extends true
+    ? (content?: ClipboardItems) => Promise<void>
+    : (content: ClipboardItems) => Promise<void>
+  /**
+   * Manually reads the current clipboard content into `content`.
+   */
+  read: () => void
+}
+
+/**
+ * Reactive [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API).
+ *
+ * Map from @vueuse/core `useClipboardItems`
+ * (`source/vueuse/packages/core/useClipboardItems/`). Provides the ability
+ * to respond to clipboard commands (cut, copy and paste) as well as to
+ * asynchronously read from and write to the system clipboard. Access to the
+ * contents of the clipboard is gated behind the
+ * [Permissions API](https://developer.mozilla.org/en-US/docs/Web/API/Permissions_API).
+ *
+ * React divergences:
+ * - the Vue `content` / `copied` shallow refs become plain state values read
+ *   directly, and `isSupported` (upstream `useSupported` computed) becomes a
+ *   plain boolean resolved once in a mount effect — nothing touches
+ *   `window` or `navigator` during render, so SSR renders the defaults;
+ * - upstream binds the copy/cut listeners via `useEventListener` after the
+ *   support check passes; here a self-contained effect (the pattern of
+ *   `useMagicKeys` / `useNetwork`) binds `copy` / `cut` on `window` only
+ *   while `read` is enabled and the Clipboard API is supported, and removes
+ *   them on unmount;
+ * - `copy` is a stable callback that resolves the `source` option at call
+ *   time through `toValue` (React has no reactive refs), writes no-op when
+ *   the API is unsupported or no value is available, and sets `content` +
+ *   `copied` after a successful write;
+ * - the `copiedDuring` reset timer composes `@reaxuse/shared` `useTimeoutFn`
+ *   with `immediate: false`, and the pending timer is cleared on unmount.
+ *
+ * @example
+ * const source = [
+ *   new ClipboardItem({
+ *     'text/plain': new Blob(['plain text'], { type: 'text/plain' }),
+ *   }),
+ * ]
+ *
+ * const { isSupported, content, copy, copied } = useClipboardItems({ source })
+ */
+export function useClipboardItems(options?: UseClipboardItemsOptions<undefined>): UseClipboardItemsReturn<false>
+export function useClipboardItems(options: UseClipboardItemsOptions<RefOrValue<ClipboardItems>>): UseClipboardItemsReturn<true>
+export function useClipboardItems(options: UseClipboardItemsOptions<RefOrValue<ClipboardItems> | undefined> = {}): UseClipboardItemsReturn<boolean> {
+  const {
+    navigator: customNavigator,
+    read = false,
+    source,
+    copiedDuring = 1500,
+  } = options
+
+  // latest-value refs synced each render so the mount support probe and the
+  // stable callbacks always read the newest navigator / source (React has no
+  // reactive refs — upstream destructures these once at setup)
+  const navigatorRef = useRef<Navigator | undefined>(undefined)
+  navigatorRef.current = customNavigator ?? (typeof navigator === 'undefined' ? undefined : navigator)
+  const sourceRef = useRef<RefOrValue<ClipboardItems> | undefined>(source)
+  sourceRef.current = source
+
+  const isSupported = useSupported(() => {
+    const nav = navigatorRef.current
+    return Boolean(nav && 'clipboard' in nav)
+  })
+
+  const [content, setContent] = useState<ClipboardItems>([])
+  const [copied, setCopied] = useState(false)
+
+  // resets `copied` to `false` after `copiedDuring` (upstream `useTimeoutFn`)
+  const { start } = useTimeoutFn(() => setCopied(false), copiedDuring, { immediate: false })
+
+  // upstream `updateContent` — reads the clipboard into `content`
+  const updateContent = useCallback(() => {
+    const nav = navigatorRef.current
+    if (nav && 'clipboard' in nav) {
+      nav.clipboard.read().then((items) => {
+        setContent(items)
+      })
+    }
+  }, [])
+
+  // copy/cut listeners keep `content` fresh when reading is enabled
+  // (upstream `useEventListener(['copy', 'cut'], updateContent, ...)` bound
+  // only when the Clipboard API is supported and `read` is enabled).
+  // `useEventListener` is not reused here: its event argument cannot be an
+  // empty array, and an empty array would be misparsed as a target-first
+  // overload, invoking the listener through `toValue` during render. A
+  // self-contained effect (like `useMagicKeys` / `useNetwork`) binds the
+  // listeners only while `read && isSupported` and removes them on unmount.
+  useEffect(() => {
+    if (!read || !isSupported)
+      return
+
+    const handler = () => updateContent()
+    window.addEventListener('copy', handler, { passive: true })
+    window.addEventListener('cut', handler, { passive: true })
+
+    return () => {
+      window.removeEventListener('copy', handler)
+      window.removeEventListener('cut', handler)
+    }
+  }, [read, isSupported, updateContent])
+
+  const copy = useCallback(async (value?: ClipboardItems) => {
+    const resolved = value === undefined ? toValue(sourceRef.current) : value
+    const nav = navigatorRef.current
+    if (nav && 'clipboard' in nav && resolved != null) {
+      await nav.clipboard.write(resolved)
+      setContent(resolved)
+      setCopied(true)
+      start()
+    }
+  }, [start])
+
+  return { isSupported, content, copied, copy, read: updateContent }
+}

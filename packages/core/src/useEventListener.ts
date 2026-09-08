@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { isObject, isRefLike, toArray, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -22,9 +22,9 @@ interface InferEventTarget<Events> {
 /**
  * Unwrap a listener argument for binding. Unlike `toValue`, a plain function
  * is NOT treated as a getter (a listener is a callable itself — upstream's
- * `MaybeRef` semantics), only ref-like `{ current }` objects are unwrapped.
+ * `RefOrValue` semantics), only ref-like `{ current }` objects are unwrapped.
  */
-function unwrapListeners<T extends GeneralEventListener>(listener: MaybeRefOrGetter<Arrayable<T>>): T[] {
+function unwrapListeners<T extends GeneralEventListener>(listener: RefOrValue<Arrayable<T>>): T[] {
   const value = isRefLike(listener) ? listener.current : listener
   return toArray(value) as T[]
 }
@@ -55,7 +55,7 @@ function sameValues<T>(a: readonly T[], b: readonly T[]): boolean {
  * listeners on one or more targets; the target defaults to `window` when
  * omitted. Events, listeners and targets may be passed as arrays (React
  * `Arrayable`), and the target accepts a plain element, a ref-like
- * `{ current }` object or a getter (`MaybeRefOrGetter`).
+ * `{ current }` object or a React ref (`RefOrValue`).
  *
  * React divergences:
  * - the listeners are read through a latest-value ref, so new inline listener
@@ -80,11 +80,10 @@ function sameValues<T>(a: readonly T[], b: readonly T[]): boolean {
  *   console.log(evt)
  * })
  */
-// @ts-expect-error - TypeScript gets confused with this and can't infer the correct overload with Parameters<...>
 export function useEventListener<E extends keyof WindowEventMap>(
-  event: MaybeRefOrGetter<Arrayable<E>>,
-  listener: MaybeRefOrGetter<Arrayable<(this: Window, ev: WindowEventMap[E]) => any>>,
-  options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
+  event: RefOrValue<Arrayable<E>>,
+  listener: RefOrValue<Arrayable<(this: Window, ev: WindowEventMap[E]) => any>>,
+  options?: RefOrValue<boolean | AddEventListenerOptions>,
 ): Fn | undefined
 
 /**
@@ -96,9 +95,9 @@ export function useEventListener<E extends keyof WindowEventMap>(
  */
 export function useEventListener<E extends keyof WindowEventMap>(
   target: Window,
-  event: MaybeRefOrGetter<Arrayable<E>>,
-  listener: MaybeRefOrGetter<Arrayable<(this: Window, ev: WindowEventMap[E]) => any>>,
-  options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
+  event: RefOrValue<Arrayable<E>>,
+  listener: RefOrValue<Arrayable<(this: Window, ev: WindowEventMap[E]) => any>>,
+  options?: RefOrValue<boolean | AddEventListenerOptions>,
 ): Fn | undefined
 
 /**
@@ -110,9 +109,9 @@ export function useEventListener<E extends keyof WindowEventMap>(
  */
 export function useEventListener<E extends keyof DocumentEventMap>(
   target: Document,
-  event: MaybeRefOrGetter<Arrayable<E>>,
-  listener: MaybeRefOrGetter<Arrayable<(this: Document, ev: DocumentEventMap[E]) => any>>,
-  options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
+  event: RefOrValue<Arrayable<E>>,
+  listener: RefOrValue<Arrayable<(this: Document, ev: DocumentEventMap[E]) => any>>,
+  options?: RefOrValue<boolean | AddEventListenerOptions>,
 ): Fn | undefined
 
 /**
@@ -123,10 +122,10 @@ export function useEventListener<E extends keyof DocumentEventMap>(
  * @see https://vueuse.org/useEventListener
  */
 export function useEventListener<E extends keyof ShadowRootEventMap>(
-  target: MaybeRefOrGetter<Arrayable<ShadowRoot> | null | undefined>,
-  event: MaybeRefOrGetter<Arrayable<E>>,
-  listener: MaybeRefOrGetter<Arrayable<(this: ShadowRoot, ev: ShadowRootEventMap[E]) => any>>,
-  options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
+  target: RefOrValue<Arrayable<ShadowRoot> | null | undefined>,
+  event: RefOrValue<Arrayable<E>>,
+  listener: RefOrValue<Arrayable<(this: ShadowRoot, ev: ShadowRootEventMap[E]) => any>>,
+  options?: RefOrValue<boolean | AddEventListenerOptions>,
 ): Fn | undefined
 
 /**
@@ -137,10 +136,10 @@ export function useEventListener<E extends keyof ShadowRootEventMap>(
  * @see https://vueuse.org/useEventListener
  */
 export function useEventListener<E extends keyof HTMLElementEventMap>(
-  target: MaybeRefOrGetter<Arrayable<HTMLElement> | null | undefined>,
-  event: MaybeRefOrGetter<Arrayable<E>>,
-  listener: MaybeRefOrGetter<(this: HTMLElement, ev: HTMLElementEventMap[E]) => any>,
-  options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
+  target: RefOrValue<Arrayable<HTMLElement> | null | undefined>,
+  event: RefOrValue<Arrayable<E>>,
+  listener: RefOrValue<(this: HTMLElement, ev: HTMLElementEventMap[E]) => any>,
+  options?: RefOrValue<boolean | AddEventListenerOptions>,
 ): Fn | undefined
 
 /**
@@ -151,10 +150,10 @@ export function useEventListener<E extends keyof HTMLElementEventMap>(
  * @see https://vueuse.org/useEventListener
  */
 export function useEventListener<Names extends string, EventType = Event>(
-  target: MaybeRefOrGetter<Arrayable<InferEventTarget<Names>> | null | undefined>,
-  event: MaybeRefOrGetter<Arrayable<Names>>,
-  listener: MaybeRefOrGetter<Arrayable<GeneralEventListener<EventType>>>,
-  options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
+  target: RefOrValue<Arrayable<InferEventTarget<Names>> | null | undefined>,
+  event: RefOrValue<Arrayable<Names>>,
+  listener: RefOrValue<Arrayable<GeneralEventListener<EventType>>>,
+  options?: RefOrValue<boolean | AddEventListenerOptions>,
 ): Fn | undefined
 
 /**
@@ -165,23 +164,23 @@ export function useEventListener<Names extends string, EventType = Event>(
  * @see https://vueuse.org/useEventListener
  */
 export function useEventListener<EventType = Event>(
-  target: MaybeRefOrGetter<Arrayable<EventTarget> | null | undefined>,
-  event: MaybeRefOrGetter<Arrayable<string>>,
-  listener: MaybeRefOrGetter<Arrayable<GeneralEventListener<EventType>>>,
-  options?: MaybeRefOrGetter<boolean | AddEventListenerOptions>,
+  target: RefOrValue<Arrayable<EventTarget> | null | undefined>,
+  event: RefOrValue<Arrayable<string>>,
+  listener: RefOrValue<Arrayable<GeneralEventListener<EventType>>>,
+  options?: RefOrValue<boolean | AddEventListenerOptions>,
 ): Fn | undefined
 
 export function useEventListener(
-  ...args: Parameters<typeof useEventListener>
+  ...args: any[]
 ): Fn | undefined {
   // distinguish the two call shapes: a (list of) string event name(s) as the
   // first parameter means the window-target overload, anything else is a target
   const firstParamTargets = toArray(toValue(args[0])).filter(e => e != null)
   const isTargetFirst = firstParamTargets.every(e => typeof e !== 'string')
 
-  const eventArg = (isTargetFirst ? args[1] : args[0]) as MaybeRefOrGetter<Arrayable<string>>
-  const listenerArg = (isTargetFirst ? args[2] : args[1]) as MaybeRefOrGetter<Arrayable<GeneralEventListener>>
-  const optionsArg = (isTargetFirst ? args[3] : args[2]) as MaybeRefOrGetter<boolean | AddEventListenerOptions> | undefined
+  const eventArg = (isTargetFirst ? args[1] : args[0]) as RefOrValue<Arrayable<string>>
+  const listenerArg = (isTargetFirst ? args[2] : args[1]) as RefOrValue<Arrayable<GeneralEventListener>>
+  const optionsArg = (isTargetFirst ? args[3] : args[2]) as RefOrValue<boolean | AddEventListenerOptions> | undefined
 
   const win = typeof window === 'undefined' ? undefined : window
 

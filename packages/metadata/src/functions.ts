@@ -16,6 +16,61 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'breakpointsAntDesign',
+    file: 'packages/core/src/useBreakpoints.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'breakpointsBootstrapV5',
+    file: 'packages/core/src/useBreakpoints.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'breakpointsElement',
+    file: 'packages/core/src/useBreakpoints.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'breakpointsMasterCss',
+    file: 'packages/core/src/useBreakpoints.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'breakpointsPrimeFlex',
+    file: 'packages/core/src/useBreakpoints.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'breakpointsQuasar',
+    file: 'packages/core/src/useBreakpoints.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'breakpointsSematic',
+    file: 'packages/core/src/useBreakpoints.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'breakpointsTailwind',
+    file: 'packages/core/src/useBreakpoints.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'breakpointsVuetify',
+    file: 'packages/core/src/useBreakpoints.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'breakpointsVuetifyV2',
+    file: 'packages/core/src/useBreakpoints.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'breakpointsVuetifyV3',
+    file: 'packages/core/src/useBreakpoints.ts',
+    pkg: 'core',
+  },
+  {
     name: 'clamp',
     file: 'packages/shared/src/utils.ts',
     pkg: 'shared',
@@ -24,6 +79,11 @@ export const functions: FunctionInfo[] = [
     name: 'cloneFnJSON',
     file: 'packages/core/src/useCloned.ts',
     pkg: 'core',
+  },
+  {
+    name: 'createEventHook',
+    file: 'packages/shared/src/createEventHook.ts',
+    pkg: 'shared',
   },
   {
     name: 'createFetch',
@@ -54,6 +114,11 @@ export const functions: FunctionInfo[] = [
     name: 'deepEqual',
     file: 'packages/shared/src/useWatchDeep.ts',
     pkg: 'shared',
+  },
+  {
+    name: 'events',
+    file: 'packages/core/src/useEventBus.ts',
+    pkg: 'core',
   },
   {
     name: 'formatDate',
@@ -121,6 +186,26 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'isDefined',
+    file: 'packages/shared/src/isDefined.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'isDefined',
+    file: 'packages/shared/src/isDefined.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'isDefined',
+    file: 'packages/shared/src/isDefined.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'isFocusedElementEditable',
+    file: 'packages/core/src/useStartTyping.ts',
+    pkg: 'core',
+  },
+  {
     name: 'isIOS',
     file: 'packages/shared/src/utils.ts',
     pkg: 'shared',
@@ -133,6 +218,31 @@ export const functions: FunctionInfo[] = [
   {
     name: 'isRefLike',
     file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'isTypedCharValid',
+    file: 'packages/core/src/useStartTyping.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'logicAnd',
+    file: 'packages/math/src/logicAnd.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'logicNot',
+    file: 'packages/math/src/logicNot.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'logicOr',
+    file: 'packages/math/src/logicOr.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'makeDestructurable',
+    file: 'packages/shared/src/makeDestructurable.ts',
     pkg: 'shared',
   },
   {
@@ -173,6 +283,16 @@ export const functions: FunctionInfo[] = [
   {
     name: 'rand',
     file: 'packages/shared/src/utils.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'syncRef',
+    file: 'packages/shared/src/syncRef.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'syncRefs',
+    file: 'packages/shared/src/syncRefs.ts',
     pkg: 'shared',
   },
   {
@@ -218,6 +338,36 @@ export const functions: FunctionInfo[] = [
   {
     name: 'TransitionPresets',
     file: 'packages/core/src/useTransition.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'until',
+    file: 'packages/shared/src/until.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'until',
+    file: 'packages/shared/src/until.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'until',
+    file: 'packages/shared/src/until.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useAbs',
+    file: 'packages/math/src/useAbs.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'useActiveElement',
+    file: 'packages/core/src/useActiveElement.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useAnimate',
+    file: 'packages/core/src/useAnimate.ts',
     pkg: 'core',
   },
   {
@@ -331,6 +481,156 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useAsyncState',
+    file: 'packages/core/src/useAsyncState.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useAverage',
+    file: 'packages/math/src/useAverage.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'useAverage',
+    file: 'packages/math/src/useAverage.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'useAverage',
+    file: 'packages/math/src/useAverage.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'useBase64',
+    file: 'packages/core/src/useBase64.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useBase64',
+    file: 'packages/core/src/useBase64.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useBase64',
+    file: 'packages/core/src/useBase64.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useBase64',
+    file: 'packages/core/src/useBase64.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useBase64',
+    file: 'packages/core/src/useBase64.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useBase64',
+    file: 'packages/core/src/useBase64.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useBase64',
+    file: 'packages/core/src/useBase64.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useBase64',
+    file: 'packages/core/src/useBase64.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useBase64',
+    file: 'packages/core/src/useBase64.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useBase64',
+    file: 'packages/core/src/useBase64.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useBattery',
+    file: 'packages/core/src/useBattery.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useBluetooth',
+    file: 'packages/core/src/useBluetooth.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useBreakpoints',
+    file: 'packages/core/src/useBreakpoints.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useBroadcastChannel',
+    file: 'packages/core/src/useBroadcastChannel.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useBrowserLocation',
+    file: 'packages/core/src/useBrowserLocation.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useCached',
+    file: 'packages/core/src/useCached.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useCeil',
+    file: 'packages/math/src/useCeil.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'useChangeCase',
+    file: 'packages/integrations/src/useChangeCase.ts',
+    pkg: 'integrations',
+  },
+  {
+    name: 'useClamp',
+    file: 'packages/math/src/useClamp.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'useClickOutside',
+    file: 'packages/core/src/useClickOutside.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useClipboard',
+    file: 'packages/core/src/useClipboard.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useClipboard',
+    file: 'packages/core/src/useClipboard.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useClipboard',
+    file: 'packages/core/src/useClipboard.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useClipboardItems',
+    file: 'packages/core/src/useClipboardItems.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useClipboardItems',
+    file: 'packages/core/src/useClipboardItems.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useClipboardItems',
+    file: 'packages/core/src/useClipboardItems.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useCloned',
     file: 'packages/core/src/useCloned.ts',
     pkg: 'core',
@@ -401,6 +701,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useDeviceOrientation',
+    file: 'packages/core/src/useDeviceOrientation.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useDevicePixelRatio',
     file: 'packages/core/src/useDevicePixelRatio.ts',
     pkg: 'core',
@@ -408,6 +713,11 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useDevicesList',
     file: 'packages/core/src/useDevicesList.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useDisplayMedia',
+    file: 'packages/core/src/useDisplayMedia.ts',
     pkg: 'core',
   },
   {
@@ -453,6 +763,11 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useElementVisibility',
     file: 'packages/core/src/useElementVisibility.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useEventBus',
+    file: 'packages/core/src/useEventBus.ts',
     pkg: 'core',
   },
   {
@@ -536,9 +851,49 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useFileSystemAccess',
+    file: 'packages/core/src/useFileSystemAccess.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFileSystemAccess',
+    file: 'packages/core/src/useFileSystemAccess.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFileSystemAccess',
+    file: 'packages/core/src/useFileSystemAccess.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFileSystemAccess',
+    file: 'packages/core/src/useFileSystemAccess.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFileSystemAccess',
+    file: 'packages/core/src/useFileSystemAccess.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFileSystemAccess',
+    file: 'packages/core/src/useFileSystemAccess.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useFloor',
+    file: 'packages/math/src/useFloor.ts',
+    pkg: 'math',
+  },
+  {
     name: 'useFocus',
     file: 'packages/core/src/useFocus.ts',
     pkg: 'core',
+  },
+  {
+    name: 'useFocusTrap',
+    file: 'packages/integrations/src/useFocusTrap.ts',
+    pkg: 'integrations',
   },
   {
     name: 'useFocusWithin',
@@ -576,6 +931,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useInfiniteScroll',
+    file: 'packages/core/src/useInfiniteScroll.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useIntersectionObserver',
     file: 'packages/core/src/useIntersectionObserver.ts',
     pkg: 'core',
@@ -606,6 +966,21 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useKeyStroke',
+    file: 'packages/core/src/useKeyStroke.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useKeyStroke',
+    file: 'packages/core/src/useKeyStroke.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useKeyStroke',
+    file: 'packages/core/src/useKeyStroke.ts',
+    pkg: 'core',
+  },
+  {
     name: 'useLastChanged',
     file: 'packages/shared/src/useLastChanged.ts',
     pkg: 'shared',
@@ -626,8 +1001,8 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
-    name: 'useLocalStorage',
-    file: 'packages/core/src/useLocalStorage.ts',
+    name: 'useLiveAnnouncer',
+    file: 'packages/core/src/useLiveAnnouncer.ts',
     pkg: 'core',
   },
   {
@@ -653,11 +1028,46 @@ export const functions: FunctionInfo[] = [
   {
     name: 'useLocalStorage',
     file: 'packages/core/src/useLocalStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useLocalStorage',
+    file: 'packages/core/src/useLocalStorage.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useLongPress',
+    file: 'packages/core/src/useLongPress.ts',
     pkg: 'core',
   },
   {
     name: 'useMagicKeys',
     file: 'packages/core/src/useMagicKeys.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useMath',
+    file: 'packages/math/src/useMath.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'useMax',
+    file: 'packages/math/src/useMax.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'useMax',
+    file: 'packages/math/src/useMax.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'useMax',
+    file: 'packages/math/src/useMax.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'useMediaControls',
+    file: 'packages/core/src/useMediaControls.ts',
     pkg: 'core',
   },
   {
@@ -674,6 +1084,21 @@ export const functions: FunctionInfo[] = [
     name: 'useMemory',
     file: 'packages/core/src/useMemory.ts',
     pkg: 'core',
+  },
+  {
+    name: 'useMin',
+    file: 'packages/math/src/useMin.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'useMin',
+    file: 'packages/math/src/useMin.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'useMin',
+    file: 'packages/math/src/useMin.ts',
+    pkg: 'math',
   },
   {
     name: 'useMount',
@@ -851,6 +1276,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useRound',
+    file: 'packages/math/src/useRound.ts',
+    pkg: 'math',
+  },
+  {
     name: 'useScreenOrientation',
     file: 'packages/core/src/useScreenOrientation.ts',
     pkg: 'core',
@@ -926,9 +1356,29 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useStartTyping',
+    file: 'packages/core/src/useStartTyping.ts',
+    pkg: 'core',
+  },
+  {
+    name: 'useStateAutoReset',
+    file: 'packages/shared/src/useStateAutoReset.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useStateDebounced',
+    file: 'packages/shared/src/useStateDebounced.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useStateDebouncedHistory',
     file: 'packages/core/src/useStateDebouncedHistory.ts',
     pkg: 'core',
+  },
+  {
+    name: 'useStateDefault',
+    file: 'packages/shared/src/useStateDefault.ts',
+    pkg: 'shared',
   },
   {
     name: 'useStateHistory',
@@ -941,9 +1391,24 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useStateManualReset',
+    file: 'packages/shared/src/useStateManualReset.ts',
+    pkg: 'shared',
+  },
+  {
+    name: 'useStateThrottled',
+    file: 'packages/shared/src/useStateThrottled.ts',
+    pkg: 'shared',
+  },
+  {
     name: 'useStateThrottledHistory',
     file: 'packages/core/src/useStateThrottledHistory.ts',
     pkg: 'core',
+  },
+  {
+    name: 'useStateWithControl',
+    file: 'packages/shared/src/useStateWithControl.ts',
+    pkg: 'shared',
   },
   {
     name: 'useStepper',
@@ -1014,6 +1479,21 @@ export const functions: FunctionInfo[] = [
     name: 'useStyleTag',
     file: 'packages/core/src/useStyleTag.ts',
     pkg: 'core',
+  },
+  {
+    name: 'useSum',
+    file: 'packages/math/src/useSum.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'useSum',
+    file: 'packages/math/src/useSum.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'useSum',
+    file: 'packages/math/src/useSum.ts',
+    pkg: 'math',
   },
   {
     name: 'useSupported',
@@ -1134,6 +1614,11 @@ export const functions: FunctionInfo[] = [
     name: 'useTransition',
     file: 'packages/core/src/useTransition.ts',
     pkg: 'core',
+  },
+  {
+    name: 'useTrunc',
+    file: 'packages/math/src/useTrunc.ts',
+    pkg: 'math',
   },
   {
     name: 'useUnmount',

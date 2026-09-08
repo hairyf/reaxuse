@@ -1,5 +1,5 @@
 import type { ConfigurableWindow } from '@reaxuse/shared'
-import type { MaybeComputedElementRef, MaybeElement } from './useResizeObserver'
+import type { ElementTarget, TargetElement } from './useResizeObserver'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useMutationObserver } from './useMutationObserver'
@@ -82,8 +82,8 @@ export interface UseElementBoundingReturn {
  * - the Vue `ShallowRef`s returned by upstream become a plain object of plain
  *   `number` state read off the result — `x`, `y`, `top`, `right`, `bottom`,
  *   `left`, `width`, `height` — plus `update()`, which re-measures on demand;
- * - `target` accepts a plain element, a React ref object (`{ current }`) or a
- *   getter — the React analog of upstream's `MaybeComputedElementRef`;
+ * - `target` accepts a plain element or a React ref object (`{ current }`) —
+ *   the React analog of upstream's `ElementTarget`;
  * - upstream's `watch(() => unrefElement(target), ele => !ele && update())`
  *   (reset the values whenever the resolved target element becomes detached)
  *   becomes an effect that re-resolves the target after every render and
@@ -98,8 +98,8 @@ export interface UseElementBoundingReturn {
  * - SSR-safe: nothing touches `window` or the DOM during render — all
  *   measurements happen in effects.
  *
- * @param target - element, React ref object (`{ current }`) or getter
- *   returning the element to measure the bounding box of
+ * @param target - element or React ref object (`{ current }`) returning
+ *   the element to measure the bounding box of
  * @param options - `reset` (default `true`), `windowResize` (default `true`),
  *   `windowScroll` (default `true`), `immediate` (default `true`),
  *   `updateTiming` (default `'sync'`), and a custom `window` instance
@@ -108,7 +108,7 @@ export interface UseElementBoundingReturn {
  * const { x, y, top, right, bottom, left, width, height } = useElementBounding(el)
  */
 export function useElementBounding(
-  target: MaybeComputedElementRef,
+  target: ElementTarget,
   options: UseElementBoundingOptions = {},
 ): UseElementBoundingReturn {
   // Latest-value refs so effects/observers always work with the newest
@@ -180,7 +180,7 @@ export function useElementBounding(
   // resolved element actually became `null` (which resets the values when
   // `reset` is enabled). The first run just records the element — the
   // immediate mount effect below performs the initial measurement.
-  const previousElementRef = useRef<MaybeElement>(undefined)
+  const previousElementRef = useRef<TargetElement>(undefined)
   useEffect(() => {
     const el = toValue(targetRef.current)
     if (previousElementRef.current !== el) {

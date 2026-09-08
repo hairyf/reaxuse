@@ -16,7 +16,7 @@ import { useEffect, useRef } from 'react'
  *
  * Divergences from the Vue upstream:
  * - React values are plain, so the source is a plain `T` instead of a
- *   `MaybeRefOrGetter`, and the hook returns the value itself instead of a
+ *   `RefOrValue`, and the hook returns the value itself instead of a
  *   readonly shallow ref.
  * - The upstream `initialValue` overload is not ported (not part of the
  *   mapped API); the first previous value is always `undefined`.

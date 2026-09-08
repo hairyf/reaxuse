@@ -1,4 +1,4 @@
-import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -75,8 +75,8 @@ export interface UseFocusReturn {
  *   target-change effect. Options are read through latest-value refs, so the
  *   listeners and the setter stay stable and never re-subscribe (upstream
  *   reads the options once in setup);
- * - the target is resolved with `toValue` during render (a plain element, a
- *   ref-like `{ current }` object, or a getter), so SSR renders the default
+ * - the target is resolved with `toValue` during render (a plain element or a
+ *   ref-like `{ current }` object), so SSR renders the default
  *   `false` state without touching the DOM.
  *
  * @example
@@ -87,7 +87,7 @@ export interface UseFocusReturn {
  * focused.value = false // blur the input
  */
 export function useFocus(
-  target: MaybeRefOrGetter<HTMLElement | null | undefined>,
+  target: RefOrValue<HTMLElement | null | undefined>,
   options: UseFocusOptions = {},
 ): UseFocusReturn {
   const { initialValue = false, focusVisible = false, preventScroll = false } = options
@@ -106,8 +106,8 @@ export function useFocus(
   const preventScrollRef = useRef(preventScroll)
   preventScrollRef.current = preventScroll
 
-  // resolve the target during render — a pure unwrap (ref-like `.current` read
-  // or getter call), no DOM access — so SSR renders the bare default state
+  // resolve the target during render — a pure unwrap (ref-like `.current`
+  // read), no DOM access — so SSR renders the bare default state
   const elementRef = useRef<HTMLElement | null | undefined>(undefined)
   const element = toValue(target)
   elementRef.current = element

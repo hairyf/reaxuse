@@ -142,14 +142,13 @@ function resolveEasing(easing: EasingFunction | CubicBezierPoints | undefined): 
   return easing ? createEasingFunction(easing) : linear
 }
 
-function readSource(source: number | readonly number[] | (() => number | readonly number[])): number[] {
-  const value = typeof source === 'function' ? source() : source
-  return typeof value === 'number' ? [value] : [...value]
+function readSource(source: number | readonly number[]): number[] {
+  return typeof source === 'number' ? [source] : [...source]
 }
 
-export function useTransition(source: number | (() => number), options?: UseTransitionOptions): number
+export function useTransition(source: number, options?: UseTransitionOptions): number
 
-export function useTransition(source: readonly number[] | (() => readonly number[]), options?: UseTransitionOptions): number[]
+export function useTransition(source: readonly number[], options?: UseTransitionOptions): number[]
 
 /**
  * Follow value with a transition — React port of VueUse's `useTransition`.
@@ -165,11 +164,11 @@ export function useTransition(source: readonly number[] | (() => readonly number
  * - the returned `ComputedRef` becomes a plain value (`number` for a scalar
  *   source, `number[]` for an array source) backed by `useState`; the calling
  *   component re-renders on every animation frame while a transition runs;
- * - the source is a plain number, a `number[]`, or a getter returning either
- *   (upstream's `MaybeRefOrGetter<number>` / `MaybeRefOrGetter<number[]>`
- *   overloads map to the getter form);
+ * - the source is a plain number, a `number[]`, or a ref-like `{ current }`
+ *   object (upstream's `RefOrValue<number>` / `RefOrValue<number[]>`
+ *   overloads map to the same forms);
  * - options are plain values read when a transition starts — upstream keeps
- *   `duration` / `easing` / `delay` / `disabled` reactive via `MaybeRef`,
+ *   `duration` / `easing` / `delay` / `disabled` reactive via `RefOrValue`,
  *   which has no React equivalent;
  * - the deprecated `transition` option, the deprecated `executeTransition`
  *   function and the `interpolation` option are not ported: sources are
@@ -184,7 +183,7 @@ export function useTransition(source: readonly number[] | (() => readonly number
  * setTarget(100) // output tweens 0 → 100 over 1s, re-rendering per frame
  */
 export function useTransition(
-  source: number | readonly number[] | (() => number | readonly number[]),
+  source: number | readonly number[],
   options: UseTransitionOptions = {},
 ): number | number[] {
   // Latest-ref mirrors: a transition captures the source/options that were
@@ -196,7 +195,7 @@ export function useTransition(
     optionsRef.current = options
   })
 
-  const resolved = typeof source === 'function' ? source() : source
+  const resolved = source
   const isScalar = typeof resolved === 'number'
   const target: readonly number[] = isScalar ? [resolved] : resolved
   const key = target.join(',')

@@ -13,7 +13,7 @@ Framework-agnostic helper functions ported 1:1 from VueUse's internal
 signatures and semantics. Vue-only pieces are intentionally not ported:
 reactivity helpers (`toValue`, `toRef`, …), event filters
 (`createFilterWrapper`, `debounceFilter`, `throttleFilter` — reaxuse hooks
-inline their own) and Vue types (`MaybeRef`, … — reaxuse hooks define local
+inline their own) and Vue types (`RefOrValue`, … — reaxuse hooks define local
 types).
 
 ## Usage

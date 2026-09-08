@@ -1,4 +1,4 @@
-import type { MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import { toValue, useIntervalFn } from '@reaxuse/shared'
 import { useCallback, useRef, useState } from 'react'
 
@@ -27,7 +27,7 @@ export interface UseCountdownReturn {
   /**
    * Resets the countdown to its initial value.
    */
-  reset: (countdown?: MaybeRefOrGetter<number>) => void
+  reset: (countdown?: RefOrValue<number>) => void
   /**
    * Stops the countdown and resets its state.
    */
@@ -35,7 +35,7 @@ export interface UseCountdownReturn {
   /**
    * Resets the countdown and starts it again.
    */
-  start: (countdown?: MaybeRefOrGetter<number>) => void
+  start: (countdown?: RefOrValue<number>) => void
   /**
    * Pauses the countdown — the interval is cleared, `remaining` stays put.
    */
@@ -59,8 +59,8 @@ export interface UseCountdownReturn {
  * the upstream members: `{ remaining, reset, stop, start, pause, resume,
  * isActive }`. `remaining` is a plain number state (upstream: a shallow ref)
  * that counts down one step per `interval` (default `1000` ms) after
- * `start()` — call `start(countdown?)`/`reset(countdown?)` with a number, a
- * ref-like `{ current }` or a getter to feed a new value. `stop()` pauses and
+ * `start()` — call `start(countdown?)`/`reset(countdown?)` with a number or a
+ * ref-like `{ current }` to feed a new value. `stop()` pauses and
  * resets to the initial value, `pause()`/`resume()` freeze/thaw in place
  * (resume is a no-op at 0), and `onTick` fires every tick with `onComplete`
  * once the countdown reaches 0.
@@ -83,7 +83,7 @@ export interface UseCountdownReturn {
  * start() // begins counting down from 5
  */
 export function useCountdown(
-  initialCountdown: MaybeRefOrGetter<number>,
+  initialCountdown: RefOrValue<number>,
   options: UseCountdownOptions = {},
 ): UseCountdownReturn {
   const {
@@ -123,7 +123,7 @@ export function useCountdown(
 
   isActiveRef.current = isActive
 
-  const reset = useCallback((countdown?: MaybeRefOrGetter<number>) => {
+  const reset = useCallback((countdown?: RefOrValue<number>) => {
     const value = toValue(countdown) ?? toValue(initialCountdownRef.current)
     remainingRef.current = value
     setRemaining(value)
@@ -139,7 +139,7 @@ export function useCountdown(
       resumeInterval()
   }, [resumeInterval])
 
-  const start = useCallback((countdown?: MaybeRefOrGetter<number>) => {
+  const start = useCallback((countdown?: RefOrValue<number>) => {
     reset(countdown)
     resumeInterval()
   }, [reset, resumeInterval])

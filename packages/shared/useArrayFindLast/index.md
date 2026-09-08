@@ -31,8 +31,8 @@ list[2].current = -2 // positive === 1 on the next render
 export type UseArrayFindLastReturn<T = any> = T | undefined
 
 export function useArrayFindLast<T>(
-  list: MaybeRef<MaybeRef<T>[]>,
-  fn: (element: T, index: number, array: MaybeRef<T>[]) => boolean,
+  list: RefOrValue<RefOrValue<T>[]>,
+  fn: (element: T, index: number, array: RefOrValue<T>[]) => boolean,
 ): UseArrayFindLastReturn<T>
 ```
 

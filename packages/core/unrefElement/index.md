@@ -4,9 +4,9 @@ category: Component
 
 # unrefElement
 
-Get the DOM element of a React ref-like object, element or getter — React port of VueUse's [`unrefElement`](https://vueuse.org/core/unrefElement/).
+Get the DOM element of a React ref-like object or a plain element — React port of VueUse's [`unrefElement`](https://vueuse.org/core/unrefElement/).
 
-**Mapping:** upstream unwraps a Vue ref or component instance to its underlying DOM element (`plain?.$el ?? plain`). React has no component-instance analog — refs already hold DOM nodes via `{ current }` — so the `$el` unwrap branch (and `VueInstance` in `MaybeElement`) is omitted. The port is a plain, hook-free utility: it resolves a React ref-like object (`{ current }`), a raw element, or a getter (the React analog of upstream's `MaybeComputedElementRef`) through `toValue` and returns the underlying DOM element, leaving `null`/`undefined` inputs unchanged.
+**Mapping:** upstream unwraps a Vue ref or component instance to its underlying DOM element (`plain?.$el ?? plain`). React has no component-instance analog — refs already hold DOM nodes via `{ current }` — so the `$el` unwrap branch (and `VueInstance` in `MaybeElement`) is omitted. The port is a plain, hook-free utility: it resolves a React ref-like object (`{ current }`) or a raw element through `toValue` and returns the underlying DOM element, leaving `null`/`undefined` inputs unchanged.
 
 ## Usage
 
@@ -21,11 +21,10 @@ useEffect(() => {
 })
 ```
 
-A plain element or a getter works the same way:
+A plain element works the same way:
 
 ```tsx
 console.log(unrefElement(div.current)) // the <div> element
-console.log(unrefElement(() => div.current)) // the <div> element
 ```
 
 <DemoContainer name="UnrefElement" />
@@ -33,14 +32,14 @@ console.log(unrefElement(() => div.current)) // the <div> element
 ## Type Declarations
 
 ```ts
-export type UnRefElementReturn<T extends MaybeElement = MaybeElement> = T | undefined
+export type UnRefElementReturn<T extends TargetElement = TargetElement> = T | undefined
 
-export function unrefElement<T extends MaybeElement = MaybeElement>(
-  elRef: MaybeComputedElementRef<T>,
+export function unrefElement<T extends TargetElement = TargetElement>(
+  elRef: ElementTarget<T>,
 ): UnRefElementReturn<T>
 ```
 
-`MaybeElement` (`HTMLElement | SVGElement | null | undefined`) and `MaybeComputedElementRef` (an element, a React ref-like object, or a getter) are shared with `useResizeObserver` — see [`useResizeObserver`](./../useResizeObserver/) for their definitions.
+`TargetElement` (`HTMLElement | SVGElement | null | undefined`) and `ElementTarget` (a plain element or a React ref-like object) are shared with `useResizeObserver` — see [`useResizeObserver`](./../useResizeObserver/) for their definitions.
 
 ## Source
 

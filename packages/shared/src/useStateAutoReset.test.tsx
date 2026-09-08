@@ -1,0 +1,116 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { renderHook } from 'vitest-browser-react'
+import { useStateAutoReset } from './useStateAutoReset'
+
+describe('useStateAutoReset', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('should be defined', () => {
+    expect(useStateAutoReset).toBeDefined()
+  })
+
+  it('should be default at first', async () => {
+    const { result, unmount } = await renderHook(() => useStateAutoReset('default', 100))
+
+    expect(result.current[0]).toBe('default')
+
+    await unmount()
+  })
+
+  it('should be updated', async () => {
+    const { result, act, unmount } = await renderHook(() => useStateAutoReset('default', 100))
+
+    await act(() => {
+      result.current[1]('update')
+    })
+    expect(result.current[0]).toBe('update')
+
+    await unmount()
+  })
+
+  it('should be reset', async () => {
+    const { result, act, unmount } = await renderHook(() => useStateAutoReset('default', 100))
+
+    await act(() => {
+      result.current[1]('update')
+    })
+    expect(result.current[0]).toBe('update')
+
+    await act(() => {
+      vi.advanceTimersByTime(101)
+    })
+    expect(result.current[0]).toBe('default')
+
+    await unmount()
+  })
+
+  it('should be reset with ref-like defaultValue and afterMs', async () => {
+    const defaultValue = { current: [123] }
+    const afterMs = { current: 10 }
+    const { result, act, unmount } = await renderHook(() => useStateAutoReset(defaultValue, afterMs))
+
+    await act(() => {
+      result.current[1]([999])
+    })
+    expect(result.current[0]).toEqual([999])
+
+    await act(() => {
+      vi.advanceTimersByTime(11)
+    })
+    expect(result.current[0]).toEqual([123])
+
+    await unmount()
+  })
+
+  it('should change afterMs', async () => {
+    const afterMs = { current: 150 }
+    const { result, act, unmount } = await renderHook(() => useStateAutoReset('default', afterMs))
+
+    await act(() => {
+      result.current[1]('update')
+    })
+    afterMs.current = 100
+
+    await act(() => {
+      vi.advanceTimersByTime(101)
+    })
+    expect(result.current[0]).toBe('update')
+
+    await act(() => {
+      vi.advanceTimersByTime(50)
+    })
+    expect(result.current[0]).toBe('default')
+
+    await act(() => {
+      result.current[1]('update')
+    })
+
+    await act(() => {
+      vi.advanceTimersByTime(101)
+    })
+    expect(result.current[0]).toBe('default')
+
+    await unmount()
+  })
+
+  it('should not reset when scope dispose', async () => {
+    const { result, act, unmount } = await renderHook(() => useStateAutoReset([123] as number[], 100))
+
+    await act(() => {
+      result.current[1]([999])
+    })
+    expect(result.current[0]).toEqual([999])
+
+    await unmount()
+
+    // the pending reset timer is cleared on unmount (upstream: `tryOnScopeDispose`
+    // inside the effect scope), so no reset can fire afterwards
+    expect(vi.getTimerCount()).toBe(0)
+  })
+})

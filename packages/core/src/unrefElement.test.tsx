@@ -39,12 +39,6 @@ describe('unrefElement', () => {
     expect(unrefElement(el)).toBe(el)
   })
 
-  it('return the resolved value of a getter', () => {
-    const el = document.createElement('div')
-    expect(unrefElement(() => el)).toBe(el)
-    expect(unrefElement(() => null)).toBeNull()
-  })
-
   it('return null if the ref-like current is null', () => {
     const targetNodeRef = createRef<HTMLDivElement>()
     expect(unrefElement(targetNodeRef)).toBeNull()

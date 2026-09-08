@@ -1,4 +1,4 @@
-import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
 import { noop, toValue, useDebounceFn, useThrottleFn } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -70,7 +70,7 @@ export interface UseScrollOptions extends ConfigurableWindow {
    *
    * @default 'auto'
    */
-  behavior?: MaybeRefOrGetter<ScrollBehavior>
+  behavior?: RefOrValue<ScrollBehavior>
 
   /**
    * On error callback
@@ -150,8 +150,8 @@ export interface UseScrollReturn {
  * 3. The optional MutationObserver (upstream composes `useMutationObserver`)
  *    is a self-contained observer inside the same effect, disconnected on
  *    unmount.
- * 4. `element` accepts a plain element, a ref-like `{ current }` object or a
- *    getter (upstream: `MaybeRefOrGetter`). It is re-resolved on every render
+ * 4. `element` accepts a plain element or a ref-like `{ current }` object
+ *    (upstream: `RefOrValue`). It is re-resolved on every render
  *    and the listeners re-bind when the resolved element changes, so a
  *    `useRef` target that is `null` during first render still binds once
  *    React attaches the element.
@@ -164,7 +164,7 @@ export interface UseScrollReturn {
  * setX(100) // scroll to x = 100
  */
 export function useScroll(
-  element: MaybeRefOrGetter<UseScrollElement>,
+  element: RefOrValue<UseScrollElement>,
   options: UseScrollOptions = {},
 ): UseScrollReturn {
   const {

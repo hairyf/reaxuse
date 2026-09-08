@@ -1,5 +1,5 @@
 import type { ConfigurableWindow } from '@reaxuse/shared'
-import type { MaybeComputedElementRef } from './useResizeObserver'
+import type { ElementTarget } from './useResizeObserver'
 import { toValue } from '@reaxuse/shared'
 import { useEffect, useRef, useState } from 'react'
 
@@ -45,8 +45,8 @@ const PSEUDO_CLASS_FOCUS_WITHIN = ':focus-within'
  * SSR-safe: nothing touches `window` or the DOM during render — the validity
  * check and the listener bindings all happen in effects.
  *
- * @param target - element, React ref object (`{ current }`) or getter
- *   returning the element to track focus within
+ * @param target - element or React ref object (`{ current }`) returning
+ *   the element to track focus within
  * @param options - a custom `window` instance, e.g. working with iframes or
  *   in testing environments
  *
@@ -56,7 +56,7 @@ const PSEUDO_CLASS_FOCUS_WITHIN = ':focus-within'
  * // `focused` is true while the form or any input inside it has focus
  */
 export function useFocusWithin(
-  target: MaybeComputedElementRef,
+  target: ElementTarget,
   options: ConfigurableWindow = {},
 ): UseFocusWithinReturn {
   const [focused, setFocused] = useState(false)

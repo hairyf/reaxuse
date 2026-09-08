@@ -1,4 +1,4 @@
-import type { MaybeRef, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import type { Dispatch, SetStateAction } from 'react'
 import { clamp, isRefLike, noop, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -7,19 +7,19 @@ export interface UseOffsetPaginationOptions {
   /**
    * Total number of items.
    */
-  total?: MaybeRefOrGetter<number>
+  total?: RefOrValue<number>
 
   /**
    * The number of items to display per page.
    * @default 10
    */
-  pageSize?: MaybeRefOrGetter<number>
+  pageSize?: RefOrValue<number>
 
   /**
    * The current page number.
    * @default 1
    */
-  page?: MaybeRef<number>
+  page?: RefOrValue<number>
 
   /**
    * Callback when the `page` change.
@@ -88,9 +88,9 @@ export type UseOffsetPaginationInfinityPageReturn = Omit<UseOffsetPaginationCont
  *    assigns `currentPage.value` / `currentPageSize.value` directly), while
  *    `pageCount` / `isFirstPage` / `isLastPage` are derived on every render
  *    (upstream: computed refs).
- * 2. `total` / `pageSize` accept a plain value, a ref-like (`{ current }`) or
- *    a getter (`() => number`), and `page` accepts a plain value or a
- *    ref-like — all resolved with `toValue` (upstream: `MaybeRefOrGetter`).
+ * 2. `total` / `pageSize` accept a plain value or a ref-like (`{ current }`),
+ *    and `page` accepts a plain value or a
+ *    ref-like — all resolved with `toValue` (upstream: `RefOrValue`).
  *    A ref-like `page` / `pageSize` is kept in two-way sync with the internal
  *    state, mirroring upstream's `syncRef` (including writing the clamped
  *    value back to the ref-like); external mutations are adopted on the next

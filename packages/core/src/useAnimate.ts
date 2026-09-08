@@ -1,0 +1,446 @@
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
+import type { ElementTarget } from './useResizeObserver'
+import { isObject, objectOmit, toValue } from '@reaxuse/shared'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEventListener } from './useEventListener'
+import { useRafFn } from './useRafFn'
+
+/**
+ * Options for `useAnimate`: the platform `KeyframeAnimationOptions`
+ * (`duration` / `easing` / `iterations` / `direction` / `fill`, ...) plus the
+ * VueUse-specific knobs — `immediate`, `commitStyles`, `persist`,
+ * `playbackRate`, `onReady`, `onError` — and a custom `window` instance, e.g.
+ * working with iframes or in testing environments.
+ */
+export interface UseAnimateOptions extends KeyframeAnimationOptions, ConfigurableWindow {
+  /**
+   * Will automatically run play when `useAnimate` is used
+   *
+   * @default true
+   */
+  immediate?: boolean
+  /**
+   * Whether to commit the end styling state of an animation to the element
+   * being animated. In general, you should use `fill` option with this.
+   *
+   * @default false
+   */
+  commitStyles?: boolean
+  /**
+   * Whether to persist the animation
+   *
+   * @default false
+   */
+  persist?: boolean
+  /**
+   * Initial `playbackRate` of the animation
+   *
+   * @default 1
+   */
+  playbackRate?: number
+  /**
+   * Executed after animation initialization
+   */
+  onReady?: (animate: Animation) => void
+  /**
+   * Callback when error is caught.
+   */
+  onError?: (e: unknown) => void
+}
+
+/**
+ * Animation keyframes — an array of keyframe objects, a keyframe object, or
+ * `null` (see [Keyframe Formats](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats)),
+ * accepted as a plain value or a ref-like `{ current }` object (a React ref).
+ */
+export type UseAnimateKeyframes = RefOrValue<Keyframe[] | PropertyIndexedKeyframes | null>
+
+/**
+ * Store of the animation attributes kept in sync from the platform
+ * `Animation` object on every animation frame while the hook is running
+ * (upstream: a `shallowReactive` store driven by `useRafFn`).
+ */
+type AnimateStore = Pick<Animation, 'startTime' | 'currentTime' | 'timeline' | 'playbackRate' | 'pending' | 'playState' | 'replaceState'>
+
+/**
+ * Return of `useAnimate`. Mirrors the upstream `UseAnimateReturn` member by
+ * member; the upstream Vue refs become plain values:
+ * - `isSupported` is `boolean` state (upstream: `ComputedRef<boolean>`);
+ * - `animate` is the `Animation` object or `undefined` (upstream:
+ *   `ShallowRef<Animation | undefined>`);
+ * - the state members `pending` / `playState` / `replaceState` /
+ *   `startTime` / `currentTime` / `timeline` / `playbackRate` are plain values
+ *   re-rendered on every animation frame while the animation runs —
+ *   upstream's `ComputedRef`s / `WritableComputedRef`s have no setter here, so
+ *   seeking (`animate.currentTime = ...`) goes through the returned `animate`
+ *   object directly;
+ * - the controls `play` / `pause` / `reverse` / `finish` / `cancel` are stable.
+ */
+export interface UseAnimateReturn {
+  /**
+   * Whether the current environment supports the Web Animations API
+   * (`Element.animate`). Starts `false` and settles in a mount effect
+   * (SSR-safe).
+   */
+  isSupported: boolean
+  /**
+   * The `Animation` instance created on the target element, `undefined` while
+   * no target is mounted or the API is unsupported.
+   */
+  animate: Animation | undefined
+  /** Start or resume playing the animation. */
+  play: () => void
+  /** Pause the animation. */
+  pause: () => void
+  /** Reverse the playback direction of the animation. */
+  reverse: () => void
+  /** Seek the animation to its end. */
+  finish: () => void
+  /** Abort the animation. */
+  cancel: () => void
+  /** Whether the animation is waiting for a pending play/pause task. */
+  pending: boolean
+  /** `idle` | `running` | `paused` | `finished` playback state. */
+  playState: AnimationPlayState
+  /** `active` | `removed` | `persisted` replace state. */
+  replaceState: AnimationReplaceState
+  /** The scheduled time when the animation's playback began (`null` until then). */
+  startTime: number | CSSNumberish | null
+  /** The current time of the animation, pace-set by its timeline. */
+  currentTime: CSSNumberish | null
+  /** The timeline this animation is running on. */
+  timeline: AnimationTimeline | null
+  /** The current playback rate of the animation. */
+  playbackRate: number
+}
+
+/**
+ * React equivalent of upstream's `unrefElement`: resolves a ref-like object
+ * or a plain value down to an element.
+ */
+function unrefElement(value: unknown): Element | undefined {
+  if (typeof value === 'function')
+    return unrefElement((value as () => unknown)())
+  if (value && typeof value === 'object' && 'current' in value)
+    return unrefElement((value as { current: unknown }).current)
+  return (value as Element | null | undefined) ?? undefined
+}
+
+/**
+ * Upstream probes `window && HTMLElement && 'animate' in HTMLElement.prototype`
+ * on the global scope; the same probe runs once in the mount effect here.
+ */
+function supportsElementAnimate(): boolean {
+  return typeof window !== 'undefined' && typeof HTMLElement !== 'undefined' && 'animate' in HTMLElement.prototype
+}
+
+/**
+ * Reactive [Web Animations API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API).
+ *
+ * Map from @vueuse/core `useAnimate`
+ * (`source/vueuse/packages/core/useAnimate/`): creates an `Animation` on the
+ * target element via `Element.animate(keyframes, options)` and mirrors its
+ * mutable attributes (`playState`, `currentTime`, `playbackRate`, ...) into
+ * state on every animation frame through a `useRafFn` loop, while exposing
+ * stable controls (`play` / `pause` / `reverse` / `finish` / `cancel`).
+ *
+ * React divergences:
+ * - upstream's Vue watch (target + keyframes) / `tryOnMounted` / scope-dispose
+ *   become `useEffect`s: the mount effect creates the animation (and re-creates
+ *   it when the resolved target element appears or changes, keeping it paused
+ *   when `immediate: false`), the keyframes effect swaps the animation's
+ *   `effect` when the resolved keyframes change, and the unmount cleanup calls
+ *   `cancel`;
+ * - the returned `ComputedRef` / `WritableComputedRef` members become plain
+ *   values re-rendered per frame — the writable setters (e.g. seeking through
+ *   `currentTime`) are dropped, use the returned `animate` object for that;
+ * - `keyframes` re-resolves with `toValue` on every render, so a ref-like
+ *   `{ current }` object keyframes input updates live without an
+ *   explicit subscription (upstream: a deep watcher);
+ * - `isSupported` is plain `boolean` state settled in the mount effect, and
+ *   internal gating reads a ref mirror so effects decide synchronously
+ *   (upstream `useSupported` computed);
+ * - the `finish` / `cancel` / `remove` event listeners are bound to the
+ *   `Animation` object through `useEventListener` (upstream:
+ *   `useEventListener(animate, ...)`), which rebinds when the animation is
+ *   replaced.
+ *
+ * @example
+ * const el = useRef<HTMLSpanElement>(null)
+ * const { isSupported, play, pause, reverse, playState, currentTime } =
+ *   useAnimate(el, { transform: 'rotate(360deg)' }, 1000)
+ */
+export function useAnimate(
+  target: ElementTarget,
+  keyframes: UseAnimateKeyframes,
+  options?: number | UseAnimateOptions,
+): UseAnimateReturn {
+  // Options handling mirrors upstream: a number is the duration, an object
+  // is split into the VueUse-specific config and the platform animation
+  // options passed to `Element.animate` / `KeyframeEffect`.
+  const isOptionsObject = isObject(options)
+  const config: UseAnimateOptions = isOptionsObject ? options : { duration: options }
+  const animateOptions: number | KeyframeAnimationOptions | undefined = isOptionsObject
+    ? objectOmit(options, ['window', 'immediate', 'commitStyles', 'persist', 'playbackRate', 'onReady', 'onError'])
+    : options
+
+  const {
+    window: windowOption,
+    immediate = true,
+    commitStyles = false,
+    persist = false,
+    playbackRate: _playbackRate = 1,
+    onReady,
+    onError = (e: unknown) => {
+      console.error(e)
+    },
+  } = config
+
+  const win = windowOption ?? (typeof window === 'undefined' ? undefined : window)
+
+  // Latest-value refs synced each render so callbacks and effects stay
+  // referentially stable while always reading the newest target / keyframes /
+  // options (house pattern).
+  const targetRef = useRef(target)
+  targetRef.current = target
+  const keyframesRef = useRef(keyframes)
+  keyframesRef.current = keyframes
+  const animateOptionsRef = useRef(animateOptions)
+  animateOptionsRef.current = animateOptions
+  const immediateRef = useRef(immediate)
+  immediateRef.current = immediate
+  const commitStylesRef = useRef(commitStyles)
+  commitStylesRef.current = commitStyles
+  const persistRef = useRef(persist)
+  persistRef.current = persist
+  const windowRef = useRef(win)
+  windowRef.current = win
+  const onReadyRef = useRef(onReady)
+  onReadyRef.current = onReady
+  const onErrorRef = useRef(onError)
+  onErrorRef.current = onError
+
+  const [isSupported, setIsSupported] = useState(false)
+  const supportedRef = useRef(false)
+
+  const [animate, setAnimate] = useState<Animation | undefined>(undefined)
+  const animateRef = useRef<Animation | undefined>(undefined)
+
+  const [store, setStore] = useState<AnimateStore>({
+    startTime: null,
+    currentTime: null,
+    timeline: null,
+    playbackRate: _playbackRate,
+    pending: false,
+    playState: immediate ? 'idle' : 'paused',
+    replaceState: 'active',
+  })
+
+  // Sync the platform `Animation` attributes into state on every frame while
+  // the loop runs (upstream: `useRafFn` + `shallowReactive` store). The frame
+  // loop only ever runs while an animation is playing.
+  const { resume: resumeFrame, pause: pauseFrame } = useRafFn(() => {
+    const animation = animateRef.current
+    if (!animation)
+      return
+    setStore({
+      startTime: animation.startTime,
+      currentTime: animation.currentTime,
+      timeline: animation.timeline,
+      playbackRate: animation.playbackRate,
+      pending: animation.pending,
+      playState: animation.playState,
+      replaceState: animation.replaceState,
+    })
+  }, { immediate: false })
+
+  const syncResume = useCallback(() => {
+    if (supportedRef.current)
+      resumeFrame()
+  }, [resumeFrame])
+
+  // Schedule the pause through a frame like upstream so a queued sync frame
+  // writes the final state (e.g. `finished`) before the loop actually stops.
+  const syncPause = useCallback(() => {
+    const win = windowRef.current
+    if (supportedRef.current && win)
+      win.requestAnimationFrame(pauseFrame)
+  }, [pauseFrame])
+
+  // Create the animation when missing, apply the static options, and start or
+  // hold the loop (upstream `update()`). Reads everything from refs so the
+  // callback is stable.
+  const update = useCallback((init?: boolean) => {
+    const el = unrefElement(targetRef.current)
+    if (!supportedRef.current || !el)
+      return
+
+    if (!animateRef.current) {
+      const animation = el.animate(
+        toValue(keyframesRef.current),
+        animateOptionsRef.current,
+      )
+      animateRef.current = animation
+      setAnimate(animation)
+    }
+
+    if (persistRef.current)
+      animateRef.current.persist()
+    if (_playbackRate !== 1)
+      animateRef.current.playbackRate = _playbackRate
+
+    if (init && !immediateRef.current)
+      animateRef.current.pause()
+    else
+      syncResume()
+
+    onReadyRef.current?.(animateRef.current)
+  }, [syncResume])
+
+  const play = useCallback(() => {
+    if (animateRef.current) {
+      try {
+        animateRef.current.play()
+        syncResume()
+      }
+      catch (e) {
+        syncPause()
+        onErrorRef.current(e)
+      }
+    }
+    else {
+      update()
+    }
+  }, [syncResume, syncPause, update])
+
+  const pause = useCallback(() => {
+    try {
+      animateRef.current?.pause()
+      syncPause()
+    }
+    catch (e) {
+      onErrorRef.current(e)
+    }
+  }, [syncPause])
+
+  const reverse = useCallback(() => {
+    if (!animateRef.current)
+      update()
+    try {
+      animateRef.current?.reverse()
+      syncResume()
+    }
+    catch (e) {
+      syncPause()
+      onErrorRef.current(e)
+    }
+  }, [syncResume, syncPause, update])
+
+  const finish = useCallback(() => {
+    try {
+      animateRef.current?.finish()
+      syncPause()
+    }
+    catch (e) {
+      onErrorRef.current(e)
+    }
+  }, [syncPause])
+
+  const cancel = useCallback(() => {
+    try {
+      animateRef.current?.cancel()
+      syncPause()
+    }
+    catch (e) {
+      onErrorRef.current(e)
+    }
+  }, [syncPause])
+
+  // Feature detection (upstream: `useSupported` on mount, gated on
+  // `tryOnMounted`). The ref mirror lets `update` / `sync*` gate synchronously
+  // in the same effect run.
+  useEffect(() => {
+    const supported = supportsElementAnimate()
+    supportedRef.current = supported
+    setIsSupported(supported)
+  }, [])
+
+  // Resolved target element, recomputed every render so a changed `current`
+  // re-runs the effect below.
+  const targetEl = unrefElement(target)
+
+  // upstream `watch(() => unrefElement(target))` + `tryOnMounted(() =>
+  // update(true))`: create / refresh the animation when the target element
+  // becomes available, drop it when the element goes away.
+  useEffect(() => {
+    if (targetEl) {
+      update(true)
+    }
+    else {
+      animateRef.current = undefined
+      setAnimate(undefined)
+    }
+  }, [targetEl, update])
+
+  // upstream `watch(() => keyframes, ..., { deep: true })`: when the resolved
+  // keyframes change, re-apply the animation options and swap the animation's
+  // effect onto the target element with the new keyframes. The first run is
+  // skipped — the animation is created with the initial keyframes already.
+  const keyframesKey = JSON.stringify(toValue(keyframes))
+  const previousKeyframesKeyRef = useRef(keyframesKey)
+
+  useEffect(() => {
+    if (!animateRef.current || previousKeyframesKeyRef.current === keyframesKey)
+      return
+    previousKeyframesKeyRef.current = keyframesKey
+    update()
+    const el = unrefElement(targetRef.current)
+    if (el && animateRef.current) {
+      animateRef.current.effect = new KeyframeEffect(
+        el,
+        toValue(keyframesRef.current),
+        animateOptionsRef.current,
+      )
+    }
+  }, [keyframesKey, update])
+
+  // Round-trip the animation events into the store loop and commit the end
+  // styling state when requested (upstream `useEventListener` on the
+  // `Animation`; the ref-like target re-binds after the animation appears).
+  const listenerOptions = { passive: true }
+  useEventListener(animateRef, ['cancel', 'finish', 'remove'], syncPause, listenerOptions)
+  useEventListener(animateRef, 'finish', () => {
+    if (commitStylesRef.current)
+      animateRef.current?.commitStyles()
+  }, listenerOptions)
+
+  // Cancel the animation on unmount (upstream: `tryOnScopeDispose(cancel)`).
+  useEffect(() => () => {
+    cancel()
+  }, [cancel])
+
+  const { pending, playState, replaceState } = store
+  const { startTime, currentTime, timeline } = store
+  const playbackRate = store.playbackRate
+
+  return {
+    isSupported,
+    animate,
+
+    // actions
+    play,
+    pause,
+    reverse,
+    finish,
+    cancel,
+
+    // state
+    pending,
+    playState,
+    replaceState,
+    startTime,
+    currentTime,
+    timeline,
+    playbackRate,
+  }
+}

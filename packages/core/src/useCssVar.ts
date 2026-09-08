@@ -1,4 +1,4 @@
-import type { ConfigurableWindow, MaybeRefOrGetter } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
 import type { Dispatch, SetStateAction } from 'react'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -25,8 +25,8 @@ export interface UseCssVarOptions extends ConfigurableWindow {
 }
 
 /**
- * Elements accepted as the CSS variable target — a plain element, a ref-like
- * `{ current }` object or a getter (upstream: `MaybeElementRef`).
+ * Elements accepted as the CSS variable target — a plain element or a ref-like
+ * `{ current }` object (a React ref; upstream: `ElementRef`).
  */
 export type UseCssVarElement = HTMLElement | SVGElement | null | undefined
 
@@ -59,8 +59,8 @@ export type UseCssVarReturn = [
  *   changes (removing the previous key from the previous element first, as
  *   upstream's watcher does), and the write effect applies the state back to
  *   the element whenever the value or target changes;
- * - the prop is resolved with `toValue` on every render, so a plain string, a
- *   ref-like `{ current }` object or a getter are all accepted, and a key
+ * - the prop is resolved with `toValue` on every render, so a plain string or a
+ *   ref-like `{ current }` object are both accepted, and a key
  *   change is picked up on the next render (upstream re-fires its watcher via
  *   reactive refs);
  * - the optional MutationObserver (upstream composes `useMutationObserver`
@@ -78,8 +78,8 @@ export type UseCssVarReturn = [
  * setColor('#df8543') // writes style="--color: #df8543" on the element
  */
 export function useCssVar(
-  prop: MaybeRefOrGetter<string | null | undefined>,
-  target?: MaybeRefOrGetter<UseCssVarElement>,
+  prop: RefOrValue<string | null | undefined>,
+  target?: RefOrValue<UseCssVarElement>,
   options: UseCssVarOptions = {},
 ): UseCssVarReturn {
   const {
