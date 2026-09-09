@@ -1,3 +1,4 @@
+import { renderToString } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useMediaQuery } from '../useMediaQuery'
@@ -82,6 +83,57 @@ describe('useMediaQuery', () => {
 
     await rerender({ query: 'not all (max-width: 100px) and (min-width: 1000px)', ssrWidth: 500 })
     expect(result.current).toBe(true)
+  })
+
+  it('should render the ssrWidth match on the server without reading window.matchMedia', async () => {
+    const matchMediaSpy = vi.spyOn(window, 'matchMedia')
+
+    function SSRMediaQuery() {
+      const isLarge = useMediaQuery('(min-width: 1024px)', { ssrWidth: 768 })
+      const isMedium = useMediaQuery('(min-width: 500px)', { ssrWidth: 768 })
+      return <div>{`large:${isLarge} medium:${isMedium}`}</div>
+    }
+
+    const html = await renderToString(<SSRMediaQuery />)
+
+    // 768 < 1024 → false, 768 >= 500 → true, resolved during render (no effects)
+    expect(html).toContain('large:false medium:true')
+    expect(matchMediaSpy).not.toHaveBeenCalled()
+
+    matchMediaSpy.mockRestore()
+  })
+
+  it('should render the ssrWidth match before matchMedia syncs, then let matchMedia win', async () => {
+    const stub = stubMatchMedia(true)
+    const renderValues: boolean[] = []
+
+    function useProbe() {
+      const matches = useMediaQuery('(min-width: 1024px)', { ssrWidth: 768 })
+      renderValues.push(matches)
+      return matches
+    }
+
+    const { result } = await renderHook(() => useProbe())
+
+    // first render (SSR / before hydration) uses ssrWidth: 768 < 1024 → false
+    expect(renderValues[0]).toBe(false)
+    // the mount effect then syncs the real matchMedia result
+    expect(result.current).toBe(true)
+    expect(stub.queries).toEqual(['(min-width: 1024px)'])
+
+    stub.restore()
+  })
+
+  it('should let a non-matching matchMedia override a matching ssrWidth', async () => {
+    const stub = stubMatchMedia(false)
+    const { result } = await renderHook(() =>
+      useMediaQuery('(min-width: 500px)', { ssrWidth: 500 }))
+
+    // ssrWidth alone would match (500 >= 500), but the client matchMedia wins
+    expect(result.current).toBe(false)
+    expect(stub.queries).toEqual(['(min-width: 500px)'])
+
+    stub.restore()
   })
 
   it('should re-resolve a plain query string on re-render', async () => {
