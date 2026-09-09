@@ -1,3 +1,4 @@
+import { renderToString } from 'react-dom/server'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useSpeechSynthesis } from '../useSpeechSynthesis'
@@ -97,6 +98,26 @@ it('reports isSupported false and no-ops speak/stop without speechSynthesis', as
   expect(() => result.current.stop()).not.toThrow()
   expect(() => result.current.speak()).not.toThrow()
   expect(result.current.utterance).toBeUndefined()
+})
+
+it('is SSR-safe: the server render emits the idle defaults and constructs no utterance', async () => {
+  const utteranceSpy = vi.spyOn(window, 'SpeechSynthesisUtterance')
+
+  function Probe() {
+    const { isSupported, isPlaying, status, utterance } = useSpeechSynthesis('Hello')
+    return <div>{`${isSupported}|${isPlaying}|${status}|${utterance === undefined}`}</div>
+  }
+
+  try {
+    // a server render runs no effects: the markup carries the idle SSR
+    // defaults and the speech API is never touched (no utterance is built)
+    const html = renderToString(<Probe />)
+    expect(html).toContain('false|false|init|true')
+    expect(utteranceSpy).not.toHaveBeenCalled()
+  }
+  finally {
+    utteranceSpy.mockRestore()
+  }
 })
 
 it('speak cancels previous speech and speaks a new utterance with defaults', async () => {
@@ -303,6 +324,35 @@ it('changing the voice option cancels current speech', async () => {
 
   await rerender({ voice: voiceB })
   expect(stub.calls).toEqual(['cancel', 'speak:Hello', 'cancel'])
+})
+
+it('a transition from no voice to a voice does not cancel (upstream installs the watcher only if options.voice)', async () => {
+  const stub = stubSpeechSynthesis()
+  const voiceA = fakeVoice('Voice A', 'en-US')
+  const voiceB = fakeVoice('Voice B', 'fr-FR')
+
+  const { result, act, rerender } = await renderHook(
+    (props?: { voice?: SpeechSynthesisVoice }) => useSpeechSynthesis('Hello', { voice: props?.voice }),
+    { initialProps: {} },
+  )
+
+  await act(() => {
+    result.current.speak()
+  })
+  expect(stub.calls).toEqual(['cancel', 'speak:Hello'])
+
+  // upstream: no watcher was installed (no voice at setup) → undefined→voice
+  // transitions never auto-cancel
+  await rerender({ voice: voiceA })
+  expect(stub.calls).toEqual(['cancel', 'speak:Hello'])
+
+  // once a voice is in effect a further change cancels — and so does a
+  // defined → undefined transition (the watcher exists from then on)
+  await rerender({ voice: voiceB })
+  expect(stub.calls).toEqual(['cancel', 'speak:Hello', 'cancel'])
+
+  await rerender({ voice: undefined })
+  expect(stub.calls).toEqual(['cancel', 'speak:Hello', 'cancel', 'cancel'])
 })
 
 it('changing lang updates the spoken utterance only while not playing', async () => {

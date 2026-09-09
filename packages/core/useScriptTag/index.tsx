@@ -75,7 +75,7 @@ export interface UseScriptTagReturn {
    * in-flight promise instead of creating a second script tag.
    *
    * @param waitForScriptLoad Whether if the Promise should resolve once the "load" event is emitted by the <script> attribute, or right after appending it to the DOM.
-   * @returns Promise<HTMLScriptElement>
+   * @returns Promise<HTMLScriptElement | boolean>
    */
   load: (waitForScriptLoad?: boolean) => Promise<HTMLScriptElement | boolean>
 
@@ -135,7 +135,7 @@ export function useScriptTag(
   // singleton in-flight promise, so repeated `load()` calls share one script
   const promiseRef = useRef<Promise<HTMLScriptElement | boolean> | null>(null)
   // listeners currently attached for the in-flight script, detached on unmount
-  const listenersRef = useRef<{ el: HTMLScriptElement, detach: () => void } | null>(null)
+  const listenersRef = useRef<{ detach: () => void } | null>(null)
 
   const loadScript = useCallback((waitForScriptLoad: boolean): Promise<HTMLScriptElement | boolean> => new Promise((resolve, reject) => {
     const {
@@ -213,7 +213,6 @@ export function useScriptTag(
     target.addEventListener('abort', onAbort, { passive: true })
     target.addEventListener('load', onLoad, { passive: true })
     listenersRef.current = {
-      el: target,
       detach: () => {
         target.removeEventListener('error', onError)
         target.removeEventListener('abort', onAbort)

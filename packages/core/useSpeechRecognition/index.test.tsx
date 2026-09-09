@@ -132,6 +132,13 @@ describe('useSpeechRecognition', () => {
     expect(result.current.isSupported).toBe(true)
   })
 
+  it('falls back to en-US when lang is an empty string (upstream || semantics)', async () => {
+    const { window, instances } = createMockWindow()
+    await renderHook(() => useSpeechRecognition({ window, lang: '' }))
+
+    expect(instances[0].lang).toBe('en-US')
+  })
+
   it('reuses one recognition instance across re-renders', async () => {
     const { window, instances } = createMockWindow()
     const { result, rerender } = await renderHook(() => useSpeechRecognition({ window }))
@@ -195,6 +202,40 @@ describe('useSpeechRecognition', () => {
     })
     expect(calls).toEqual(['start', 'stop'])
     expect(result.current.isListening).toBe(false)
+  })
+
+  it('setIsListening drives the recognition instance like start()/stop()', async () => {
+    const { window, calls } = createMockWindow()
+    const { result, act } = await renderHook(() => useSpeechRecognition({ window }))
+
+    await act(() => {
+      result.current.setIsListening(true)
+    })
+    expect(result.current.isListening).toBe(true)
+    expect(calls).toEqual(['start'])
+
+    // functional updater form, like a useState setter
+    await act(() => {
+      result.current.setIsListening(prev => !prev)
+    })
+    expect(result.current.isListening).toBe(false)
+    expect(calls).toEqual(['start', 'stop'])
+  })
+
+  it('setError writes the error value (upstream writable error ref)', async () => {
+    const { window, handlers } = createMockWindow()
+    const { result, act } = await renderHook(() => useSpeechRecognition({ window }))
+
+    const errorEvent = Object.assign(new Event('error'), { error: 'not-allowed', message: 'permission denied' }) as ErrorEventLike
+    await act(() => {
+      handlers.onerror!(errorEvent)
+    })
+    expect(result.current.error).toBe(errorEvent)
+
+    await act(() => {
+      result.current.setError(undefined)
+    })
+    expect(result.current.error).toBeUndefined()
   })
 
   it('onstart resets isFinal and onend clears isListening', async () => {
@@ -317,6 +358,8 @@ describe('useSpeechRecognition', () => {
     expect(result.current.confidence).toBe(0)
     expect(result.current.result).toBe('')
     expect(result.current.isListening).toBe(false)
+    expect(result.current.setIsListening).toBeTypeOf('function')
+    expect(result.current.setError).toBeTypeOf('function')
 
     await act(() => {
       result.current.start()
