@@ -29,6 +29,13 @@ export interface UsePermissionOptions<Controls extends boolean = false> {
    * @default false
    */
   controls?: Controls
+  /**
+   * Specify a custom `navigator` instance (upstream `ConfigurableNavigator`),
+   * e.g. when the Permissions API should be queried against an iframe or a
+   * testing environment instead of the global `navigator`. Defaults to the
+   * global `navigator`; substitution only happens for `undefined`.
+   */
+  navigator?: Navigator
 }
 
 export type UsePermissionReturn = PermissionState
@@ -57,7 +64,12 @@ export interface UsePermissionReturnWithControls {
  *   serialized for change detection, so inline object literals are safe and
  *   descriptor objects don't need a stable identity;
  * - the `change` listener attaches to the resolved `PermissionStatus` and is
- *   removed on unmount and when the descriptor changes;
+ *   removed on unmount and when the descriptor changes; an in-flight query
+ *   that resolves after unmount is ignored (no listener re-attach, no state
+ *   update);
+ * - `navigator` is a read-only option that defaults to the global
+ *   `navigator` (upstream `ConfigurableNavigator`) — pass a custom instance
+ *   to query the Permissions API against another environment;
  * - with `controls: true`, `isSupported` resolves after mount instead of
  *   during setup, and `query()` re-queries instead of returning upstream's
  *   cached singleton result.
@@ -89,13 +101,24 @@ export function usePermission(
   const [isSupported, setIsSupported] = useState(false)
   const statusRef = useRef<PermissionStatus | undefined>(undefined)
   const descKeyRef = useRef(descKey)
+  // set by the mount-effect cleanup so an in-flight query that resolves after
+  // unmount neither re-attaches a listener nor sets state
+  const disposedRef = useRef(false)
+
+  // latest options reachable from the stable `query` (a new options object
+  // per render must not change `query`'s identity)
+  const optionsRef = useRef(options)
+  optionsRef.current = options
 
   const update = useCallback(() => {
     setState(statusRef.current?.state ?? 'prompt')
   }, [])
 
   const query = useCallback(async (): Promise<PermissionStatus | undefined> => {
-    const permissions = typeof navigator === 'undefined' ? undefined : navigator.permissions
+    const nav = optionsRef.current.navigator === undefined
+      ? (typeof navigator === 'undefined' ? undefined : navigator)
+      : optionsRef.current.navigator
+    const permissions = nav?.permissions
     setIsSupported(!!permissions)
     if (!permissions)
       return undefined
@@ -109,8 +132,9 @@ export function usePermission(
       status = undefined
     }
 
-    // a newer query (changed descriptor) supersedes this one
-    if (descKeyRef.current !== key)
+    // a newer query (changed descriptor) or an unmounted component supersedes
+    // this one — never re-attach a listener or set state afterwards
+    if (descKeyRef.current !== key || disposedRef.current)
       return status
 
     if (statusRef.current !== status) {
@@ -127,9 +151,12 @@ export function usePermission(
   })
 
   useEffect(() => {
+    disposedRef.current = false
     void query()
     return () => {
+      disposedRef.current = true
       statusRef.current?.removeEventListener('change', update)
+      statusRef.current = undefined
     }
   }, [query, update])
 

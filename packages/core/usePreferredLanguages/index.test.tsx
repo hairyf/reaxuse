@@ -1,4 +1,4 @@
-import { expect, it } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { usePreferredLanguages } from '../usePreferredLanguages'
 
@@ -36,24 +36,22 @@ it('usePreferredLanguages updates on window languagechange events', async () => 
 
 it('usePreferredLanguages removes its listener on unmount', async () => {
   const { result, unmount } = await renderHook(() => usePreferredLanguages())
-  const initial = result.current
+  await expect.poll(() => result.current).toEqual(navigator.languages)
+
+  const removeSpy = vi.spyOn(window, 'removeEventListener')
   unmount()
 
-  Object.defineProperty(navigator, 'languages', {
-    value: ['xx-YY'],
-    configurable: true,
-  })
+  // the cleanup must actually detach the languagechange listener from the
+  // real window (proves removal instead of relying on a silent no-op)
+  expect(removeSpy).toHaveBeenCalledWith('languagechange', expect.any(Function))
+  removeSpy.mockRestore()
+})
 
-  try {
-    expect(() => {
-      window.dispatchEvent(new Event('languagechange'))
-    }).not.toThrow()
-  }
-  finally {
-    Reflect.deleteProperty(navigator, 'languages')
-  }
+it('stays at the ["en"] fallback when an explicit window: null is passed', async () => {
+  const { result } = await renderHook(() => usePreferredLanguages({ window: null as unknown as undefined }))
 
-  expect(result.current).toEqual(initial)
+  // no window — no listener, the upstream `['en']` fallback is kept
+  expect(result.current).toEqual(['en'])
 })
 
 it('usePreferredLanguages supports a custom window option', async () => {

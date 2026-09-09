@@ -1,5 +1,6 @@
-import { expect, it } from 'vitest'
-import { render, renderHook } from 'vitest-browser-react'
+import { renderToString } from 'react-dom/server'
+import { expect, it, vi } from 'vitest'
+import { renderHook } from 'vitest-browser-react'
 import { usePageLeave } from '../usePageLeave'
 
 it('usePageLeave starts with the mouse on the page', async () => {
@@ -49,19 +50,28 @@ it('usePageLeave renders the false default during SSR (no window access in rende
     return null
   }
 
-  await render(<Probe />)
+  // real server renderer: effects never run, so only the render-time value
+  // (false) is observable
+  await renderToString(<Probe />)
 
   expect(firstRenderValue).toBe(false)
 })
 
 it('usePageLeave removes its listeners on unmount', async () => {
   const { unmount } = await renderHook(() => usePageLeave())
+
+  // the cleanup must actually detach all three listeners — `mouseout` lives
+  // on the window, `mouseleave`/`mouseenter` on the document (proves removal
+  // instead of relying on a silent no-op)
+  const windowRemoveSpy = vi.spyOn(window, 'removeEventListener')
+  const documentRemoveSpy = vi.spyOn(document, 'removeEventListener')
   unmount()
 
-  expect(() => {
-    window.dispatchEvent(new MouseEvent('mouseout'))
-    document.dispatchEvent(new MouseEvent('mouseleave'))
-  }).not.toThrow()
+  expect(windowRemoveSpy).toHaveBeenCalledWith('mouseout', expect.any(Function))
+  expect(documentRemoveSpy).toHaveBeenCalledWith('mouseleave', expect.any(Function))
+  expect(documentRemoveSpy).toHaveBeenCalledWith('mouseenter', expect.any(Function))
+  windowRemoveSpy.mockRestore()
+  documentRemoveSpy.mockRestore()
 })
 
 it('usePageLeave supports a custom window option', async () => {

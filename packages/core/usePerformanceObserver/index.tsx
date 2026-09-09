@@ -14,6 +14,16 @@ export type UsePerformanceObserverOptions = PerformanceObserverInit & {
   immediate?: boolean
 }
 
+// Default substitution applies only to `undefined` — an explicit `window:
+// null` resolves to `undefined` and leaves the hook inert (isSupported
+// false, start() a no-op), matching upstream's `window = defaultWindow`
+// destructure.
+function resolveWindow(windowOption: Window | undefined): Window | undefined {
+  return windowOption === undefined
+    ? (typeof window === 'undefined' ? undefined : window)
+    : windowOption
+}
+
 /**
  * React port of VueUse's `usePerformanceObserver`.
  *
@@ -36,6 +46,7 @@ export type UsePerformanceObserverOptions = PerformanceObserverInit & {
  *   `isSupported: false` and `start()` is a silent no-op (same as upstream).
  *
  * @example
+ * const [entrys, setEntrys] = useState<PerformanceEntry[]>([])
  * const { isSupported, start, stop } = usePerformanceObserver(
  *   { entryTypes: ['paint'] },
  *   list => setEntrys(list.getEntries()),
@@ -65,7 +76,7 @@ export function usePerformanceObserver(
 
   const start = useCallback(() => {
     const { window: windowOption, ...performanceOptions } = optionsRef.current
-    const win = windowOption ?? (typeof window === 'undefined' ? undefined : window)
+    const win = resolveWindow(windowOption)
 
     if (win && 'PerformanceObserver' in win) {
       observerRef.current?.disconnect()
@@ -75,7 +86,7 @@ export function usePerformanceObserver(
   }, [])
 
   useEffect(() => {
-    const win = customWindow ?? (typeof window === 'undefined' ? undefined : window)
+    const win = resolveWindow(customWindow)
     setIsSupported(Boolean(win && 'PerformanceObserver' in win))
 
     if (immediate)

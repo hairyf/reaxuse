@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 
 export type NetworkType = 'bluetooth' | 'cellular' | 'ethernet' | 'none' | 'wifi' | 'wimax' | 'other' | 'unknown'
 
-export type NetworkEffectiveType = 'slow-2g' | '2g' | '3g' | '4g'
+export type NetworkEffectiveType = 'slow-2g' | '2g' | '3g' | '4g' | undefined
 
 // `Navigator.connection` / `NetworkInformation` are not part of lib.dom, so we
 // vendor a minimal interface here to avoid the dependency (same approach as
@@ -99,7 +99,12 @@ export function useNetwork(options: UseNetworkOptions = {}): UseNetworkReturn {
   const [type, setType] = useState<NetworkType>('unknown')
 
   useEffect(() => {
-    const win = options.window ?? (typeof window === 'undefined' ? undefined : window)
+    // default substitution only for `undefined` — an explicit `window: null`
+    // keeps the hook inert (isSupported stays false, no listeners), matching
+    // upstream's `window = defaultWindow` destructure
+    const win = options.window === undefined
+      ? (typeof window === 'undefined' ? undefined : window)
+      : options.window
     if (!win || !win.navigator)
       return
 
@@ -107,10 +112,16 @@ export function useNetwork(options: UseNetworkOptions = {}): UseNetworkReturn {
     const connection = 'connection' in nav ? (nav as NavigatorWithConnection).connection : undefined
     setIsSupported(Boolean(connection))
 
+    // single writer for the online/offline timestamps, shared by the
+    // `change` handler and the window `online`/`offline` events
+    const setConnectionTimes = (online: boolean) => {
+      setOfflineAt(online ? undefined : Date.now())
+      setOnlineAt(online ? Date.now() : undefined)
+    }
+
     const updateNetworkInformation = () => {
       setIsOnline(nav.onLine)
-      setOfflineAt(nav.onLine ? undefined : Date.now())
-      setOnlineAt(nav.onLine ? Date.now() : undefined)
+      setConnectionTimes(nav.onLine)
 
       if (connection) {
         setDownlink(connection.downlink)
@@ -126,12 +137,12 @@ export function useNetwork(options: UseNetworkOptions = {}): UseNetworkReturn {
 
     const goOffline = () => {
       setIsOnline(false)
-      setOfflineAt(Date.now())
+      setConnectionTimes(false)
     }
 
     const goOnline = () => {
       setIsOnline(true)
-      setOnlineAt(Date.now())
+      setConnectionTimes(true)
     }
 
     win.addEventListener('offline', goOffline, { passive: true })

@@ -125,6 +125,17 @@ it('useNetwork flips isOnline on window online/offline events', async () => {
     listeners.online.forEach(listener => listener())
   })
   expect(result.current.isOnline).toBe(true)
+  expect(typeof result.current.onlineAt).toBe('number')
+})
+
+it('useNetwork stays inert when an explicit window: null is passed', async () => {
+  const { result } = await renderHook(() => useNetwork({ window: null as unknown as undefined }))
+
+  // explicit null is honored (no fallback to the global window): nothing is
+  // supported and no listeners attach — upstream's `window = defaultWindow`
+  // destructure only substitutes for `undefined`
+  expect(result.current.isSupported).toBe(false)
+  expect(result.current.isOnline).toBe(true)
 })
 
 it('useNetwork updates connection properties on the connection change event', async () => {
@@ -135,6 +146,7 @@ it('useNetwork updates connection properties on the connection change event', as
   state.downlink = 1.5
   state.downlinkMax = 2
   state.effectiveType = '2g'
+  state.rtt = 100
   state.saveData = true
   state.type = 'cellular'
 
@@ -147,6 +159,7 @@ it('useNetwork updates connection properties on the connection change event', as
     downlink: 1.5,
     downlinkMax: 2,
     effectiveType: '2g',
+    rtt: 100,
     saveData: true,
     type: 'cellular',
   })

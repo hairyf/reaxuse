@@ -1,7 +1,13 @@
 import type { ConfigurableWindow } from '@reaxuse/shared'
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 
 export type ColorSchemeType = 'dark' | 'light' | 'no-preference'
+
+// The initial `matchMedia().matches` read must happen before paint on the
+// client (a `useEffect` would flash one `'no-preference'` frame) while
+// staying inert on the server (where `useLayoutEffect` is a no-op and would
+// only warn) — this is the isomorphic variant.
+const useIsomorphicLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
 
 /**
  * React port of VueUse's `usePreferredColorScheme`.
@@ -19,12 +25,13 @@ export type ColorSchemeType = 'dark' | 'light' | 'no-preference'
  *   derived from two `useState(false)`-backed booleans (one per query), so
  *   components re-render on media query changes;
  * - both `matchMedia` queries and their `change` listeners attach inside a
- *   self-contained `useEffect` (upstream binds through `useMediaQuery` +
+ *   self-contained effect (upstream binds through `useMediaQuery` +
  *   `useEventListener`) and are all removed on unmount;
- * - the initial `matches` sync happens in the mount effect instead of
- *   during setup, so SSR renders the `'no-preference'` default without
- *   touching `window` (matching upstream's initial value, where both media
- *   query refs start `false`).
+ * - the initial `matches` sync happens in an isomorphic layout effect — on
+ *   the client it runs before paint, so the very first frame already carries
+ *   the real preference (no `'no-preference'` flash), while SSR renders the
+ *   `'no-preference'` default without touching `window` (matching upstream's
+ *   initial value, where both media query refs start `false`).
  *
  * @example
  * const colorScheme = usePreferredColorScheme() // 'dark' | 'light' | 'no-preference'
@@ -33,7 +40,7 @@ export function usePreferredColorScheme(options: ConfigurableWindow = {}): Color
   const [isLight, setIsLight] = useState(false)
   const [isDark, setIsDark] = useState(false)
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const win = options.window ?? (typeof window === 'undefined' ? undefined : window)
     if (!win || typeof win.matchMedia !== 'function')
       return

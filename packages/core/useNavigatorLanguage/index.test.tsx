@@ -1,4 +1,4 @@
-import { expect, it } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useNavigatorLanguage } from '../useNavigatorLanguage'
 
@@ -40,25 +40,15 @@ it('useNavigatorLanguage updates language on window languagechange events', asyn
 })
 
 it('useNavigatorLanguage removes its listener on unmount', async () => {
-  const { result, unmount } = await renderHook(() => useNavigatorLanguage())
-  const initial = result.current.language
+  const { unmount } = await renderHook(() => useNavigatorLanguage())
+
+  const removeSpy = vi.spyOn(window, 'removeEventListener')
   unmount()
 
-  Object.defineProperty(navigator, 'language', {
-    value: 'xx-YY',
-    configurable: true,
-  })
-
-  try {
-    expect(() => {
-      window.dispatchEvent(new Event('languagechange'))
-    }).not.toThrow()
-  }
-  finally {
-    Reflect.deleteProperty(navigator, 'language')
-  }
-
-  expect(result.current.language).toBe(initial)
+  // the cleanup must actually detach the languagechange listener from the
+  // real window (proves removal instead of relying on a silent no-op)
+  expect(removeSpy).toHaveBeenCalledWith('languagechange', expect.any(Function))
+  removeSpy.mockRestore()
 })
 
 it('useNavigatorLanguage supports a custom window option', async () => {

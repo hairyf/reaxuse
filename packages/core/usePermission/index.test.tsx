@@ -156,6 +156,80 @@ it('removes the change listener on unmount', async () => {
   expect(result.current).toBe('granted')
 })
 
+it('ignores a stale query when the descriptor changes mid-flight', async () => {
+  let resolveGeo!: (status: PermissionStatus) => void
+  const cameraStatus = createPermissionStatus('denied')
+  queryImpl = (desc) => {
+    if (desc.name === 'geolocation') {
+      return new Promise((res) => {
+        resolveGeo = res
+      })
+    }
+    return Promise.resolve(cameraStatus)
+  }
+
+  const { result, rerender, act } = await renderHook(
+    (props?: { desc?: 'geolocation' | 'camera' }) => usePermission(props?.desc ?? 'geolocation'),
+  )
+  await expect.poll(() => calls.length).toBe(1)
+
+  // the descriptor changes while the geolocation query is still pending
+  rerender({ desc: 'camera' })
+  await expect.poll(() => result.current).toBe('denied')
+
+  // the superseded query resolves late — it must not clobber the newer state
+  await act(async () => {
+    resolveGeo(createPermissionStatus('granted'))
+  })
+  await expect.poll(() => result.current).toBe('denied')
+  expect(calls.map(call => call.name)).toEqual(['geolocation', 'camera'])
+  // only the camera status carries the change listener
+  expect(cameraStatus.listenerCount()).toBe(1)
+})
+
+it('does not attach a listener or set state when the query resolves after unmount', async () => {
+  let resolve!: (status: PermissionStatus) => void
+  queryImpl = () => new Promise((res) => {
+    resolve = res
+  })
+  const status = createPermissionStatus('granted')
+
+  const { unmount } = await renderHook(() => usePermission('geolocation'))
+  await expect.poll(() => calls.length).toBe(1)
+
+  unmount()
+
+  // resolving the in-flight query after unmount must not attach a listener
+  // or fire a state update (the hook ignores late resolutions); flush the
+  // promise continuations with plain microtasks — no `act` is needed because
+  // the guard prevents any React update
+  resolve(status)
+  await Promise.resolve()
+  await Promise.resolve()
+
+  expect(status.listenerCount()).toBe(0)
+})
+
+it('supports a custom navigator option', async () => {
+  const customCalls: PermissionDescriptor[] = []
+  const customNavigator = {
+    permissions: {
+      query: (desc: PermissionDescriptor) => {
+        customCalls.push(desc)
+        return Promise.resolve(createPermissionStatus('granted'))
+      },
+    },
+  } as unknown as Navigator
+
+  const { result } = await renderHook(() => usePermission('geolocation', { controls: true, navigator: customNavigator }))
+
+  await expect.poll(() => result.current.state).toBe('granted')
+  await expect.poll(() => result.current.isSupported).toBe(true)
+  expect(customCalls).toEqual([{ name: 'geolocation' }])
+  // the global navigator.permissions stub must not have been queried
+  expect(calls).toEqual([])
+})
+
 it('exposes isSupported and query with controls: true', async () => {
   const status = createPermissionStatus('prompt')
   queryImpl = async () => status
