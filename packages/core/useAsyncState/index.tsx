@@ -1,5 +1,5 @@
-import type { State } from '@reaxuse/shared'
-import { noop, promiseTimeout, toValue, useControllableState } from '@reaxuse/shared'
+import type { Dispatch, SetStateAction } from 'react'
+import { noop, promiseTimeout } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -23,6 +23,14 @@ export interface UseAsyncStateReturnBase<Data, Params extends any[], _Shallow ex
    * with VueUse and never affects this type.
    */
   state: Data
+  /**
+   * Set the state value directly, without re-executing the async function.
+   *
+   * The React equivalent of writing upstream's writable `state` ref
+   * (`state.value = next`). It updates only `state`; `isReady`, `isLoading`
+   * and `error` are left untouched.
+   */
+  setState: Dispatch<SetStateAction<Data>>
   isReady: boolean
   isLoading: boolean
   error: unknown
@@ -98,13 +106,14 @@ export interface UseAsyncStateOptions<Shallow extends boolean = true, D = any> {
  *
  * Map from @vueuse/core `useAsyncState`
  * (`source/vueuse/packages/core/useAsyncState/`). Mirrors the upstream object
- * return: `{ state, isReady, isLoading, error, execute, executeImmediate }`.
- * `state` holds the resolved result of the async function, `isReady` becomes
- * `true` when the latest execution resolved (reset to `false` on each
- * execution and stays `false` when it rejects), `isLoading` is `true` while a
- * promise is pending and `error` holds the rejection reason. `execute(delay?, ...args)`
- * re-runs the promise (waiting for `delay` ms first) and
- * `executeImmediate(...args)` is shorthand for `execute(0, ...args)`.
+ * return: `{ state, setState, isReady, isLoading, error, execute, executeImmediate }`.
+ * `state` holds the resolved result of the async function, `setState` writes
+ * it directly (the React equivalent of upstream's writable `state` ref, see
+ * below), `isReady` becomes `true` when the latest execution resolved (reset
+ * to `false` on each execution and stays `false` when it rejects), `isLoading`
+ * is `true` while a promise is pending and `error` holds the rejection reason.
+ * `execute(delay?, ...args)` re-runs the promise (waiting for `delay` ms first)
+ * and `executeImmediate(...args)` is shorthand for `execute(0, ...args)`.
  * `onSuccess`/`onError` callbacks fire for every settled execution and
  * `throwError` re-throws the rejection from `execute`.
  *
@@ -113,6 +122,13 @@ export interface UseAsyncStateOptions<Shallow extends boolean = true, D = any> {
  *   is an object mirror whose members are live React state values — the
  *   members render as plain values (no `.value`) and re-reading them yields
  *   the latest committed state (getters over the current render state);
+ * - upstream's `state` ref is writable, so this port pairs it with
+ *   `setState(next)` / `setState(prev => next)` (the React equivalent of
+ *   `state.value = next`). `setState` updates `state` only and never triggers
+ *   an execution; `isReady`, `isLoading` and `error` are left untouched;
+ * - `initialState` is a read-only plain value (upstream `MaybeRef<Data>`):
+ *   it is read once when the hook is created and again by each
+ *   `resetOnExecute` reset, and is never written back to;
  * - the initial execution fires from a mount effect (upstream fires during
  *   setup), honoring `delay`; subsequent executions run from
  *   `execute`/`executeImmediate` with an execution counter guarding against
@@ -126,17 +142,18 @@ export interface UseAsyncStateOptions<Shallow extends boolean = true, D = any> {
  *   generic is likewise kept for type-arity parity only.
  *
  * @example
- * const { state, isReady, isLoading, error, execute } = useAsyncState(
+ * const { state, setState, isReady, isLoading, error, execute } = useAsyncState(
  *   fetchData,
  *   initialData,
  * )
  * // pass `immediate: false` and call `execute()` manually instead
+ * setState(nextData) // write `state` without re-executing
  *
  * @see https://vueuse.org/core/useAsyncState/
  */
 export function useAsyncState<Data, Params extends any[] = any[], Shallow extends boolean = true>(
   promise: Promise<Data> | ((...args: Params) => Promise<Data>),
-  initialState: State<Data>,
+  initialState: Data,
   options?: UseAsyncStateOptions<Shallow, Data>,
 ): UseAsyncStateReturn<Data, Params, Shallow> {
   const {
@@ -148,7 +165,7 @@ export function useAsyncState<Data, Params extends any[] = any[], Shallow extend
     throwError,
   } = options || {}
 
-  const [state, setState] = useControllableState(initialState, { passive: true })
+  const [state, setStateInternal] = useState<Data>(() => initialState)
   const [isReady, setIsReady] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<unknown>(undefined)
@@ -174,10 +191,11 @@ export function useAsyncState<Data, Params extends any[] = any[], Shallow extend
 
   // live mirror of the exposed state — the shell getters read this so a
   // captured object (e.g. the value an `await useAsyncState(...)` resolves to)
-  // still exposes fresh values. It is updated only by `execute` (synchronously,
-  // like upstream refs) and never from the render body — React renders can
-  // commit with stale state values when updates are queued outside `act`, and a
-  // render-body reassignment would clobber the in-progress mirror.
+  // still exposes fresh values. It is updated synchronously by `execute` and by
+  // the exposed `setState` (like upstream refs) and never from the render body —
+  // React renders can commit with stale state values when updates are queued
+  // outside `act`, and a render-body reassignment would clobber the in-progress
+  // mirror.
   const liveRef = useRef({ state, isReady, isLoading, error })
 
   // execution counter: only the latest execution may touch the exposed state
@@ -186,15 +204,25 @@ export function useAsyncState<Data, Params extends any[] = any[], Shallow extend
   const loadingRef = useRef(false)
   const waitersRef = useRef<Array<{ resolve: (value: UseAsyncStateReturnBase<Data, Params, Shallow>) => void }>>([])
 
+  // React equivalent of writing upstream's writable `state` ref. It writes the
+  // internal state (and its live mirror) only — it never starts an execution,
+  // so `isReady`/`isLoading`/`error` keep their current values.
+  const setState = useCallback<Dispatch<SetStateAction<Data>>>((action) => {
+    const prev = liveRef.current.state
+    const next = typeof action === 'function' ? (action as (value: Data) => Data)(prev) : action
+    liveRef.current.state = next
+    setStateInternal(next)
+  }, [])
+
   const execute = useCallback((delay = 0, ...args: any[]): Promise<Data | undefined> => {
     const executionId = (executionsCountRef.current += 1)
 
     // `liveRef` is updated synchronously alongside every state update so the
     // shell getters read the in-progress values immediately (upstream refs are
     // synchronous too; React state only commits on the next render)
-    const nextState = resetOnExecuteRef.current ? toValue(initialStateRef.current) : liveRef.current.state
+    const nextState = resetOnExecuteRef.current ? initialStateRef.current : liveRef.current.state
     if (resetOnExecuteRef.current)
-      setState(nextState)
+      setStateInternal(nextState)
     liveRef.current = { state: nextState, isReady: false, isLoading: true, error: undefined }
     setError(undefined)
     setIsReady(false)
@@ -212,7 +240,7 @@ export function useAsyncState<Data, Params extends any[] = any[], Shallow extend
       try {
         const data = await pending
         if (executionId === executionsCountRef.current) {
-          setState(data)
+          setStateInternal(data)
           setIsReady(true)
           liveRef.current.state = data
           liveRef.current.isReady = true
@@ -258,6 +286,7 @@ export function useAsyncState<Data, Params extends any[] = any[], Shallow extend
     get error() {
       return liveRef.current.error
     },
+    setState,
     execute,
     executeImmediate,
   }
