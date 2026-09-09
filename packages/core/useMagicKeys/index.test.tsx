@@ -171,15 +171,32 @@ describe('useMagicKeys', () => {
     expect(result.current.ct).toBe(true)
   })
 
-  it('use reactive mode', async () => {
+  it('reactive option: plain booleans in both modes', async () => {
+    // `reactive` is accepted for API compatibility only — React state is
+    // always reactive, so both modes return plain boolean values
     const { act, result } = await renderHook(() => useMagicKeys({ target, reactive: true }))
-    expect(result.current.a).toBe(false)
+    expect(result.current.a).toBeTypeOf('boolean')
+
     await act(() => {
       dispatchKeyboardEvent({ target, key: 'a' })
     })
-
     expect(result.current.a).toBe(true)
     expect(result.current.current.has('a')).toBe(true)
+
+    const { result: defaultResult } = await renderHook(() => useMagicKeys({ target }))
+    expect(defaultResult.current.a).toBeTypeOf('boolean')
+  })
+
+  it('tracks a key pressed before it was first read (eager tracking)', async () => {
+    // divergence from upstream's lazy per-key refs: presses are recorded
+    // eagerly, so reading a key afterwards reports the truth
+    const { act, result } = await renderHook(() => useMagicKeys({ target }))
+
+    await act(() => {
+      dispatchKeyboardEvent({ target, key: 'x' })
+    })
+
+    expect(result.current.x).toBe(true)
   })
 
   it('target blur', async () => {

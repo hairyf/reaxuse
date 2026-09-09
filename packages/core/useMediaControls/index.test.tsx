@@ -1,3 +1,4 @@
+import type { UseMediaControlsReturn, UseMediaSource, UseMediaTextTrackSource } from '../useMediaControls'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
 import { useMediaControls } from '../useMediaControls'
@@ -7,11 +8,15 @@ import { useMediaControls } from '../useMediaControls'
 // covering the object-mirror contract: initial state, the media events
 // (`timeupdate`, `durationchange`, `volumechange`, `ratechange`, `play` /
 // `pause`, `seeking` / `seeked`, `waiting` / `loadeddata`, `ended`,
-// `stalled`, `progress`), the control methods, the `src` / `tracks` option
-// injection, listener cleanup on unmount and target change, and SSR safety.
-// Media state that depends on a loaded resource (`currentTime`, `duration`,
-// `buffered`) is stubbed on the element so the assertions are deterministic
-// in the headless browser.
+// `stalled`, `progress`), the control methods (`play` / `pause` / `toggle`,
+// `seek`, `setVolume`, `mute` / `unmute` / `toggleMute`, `setRate`,
+// `enableTrack` / `disableTrack`, `togglePictureInPicture` enter/exit),
+// event-hook subscribe/unsubscribe, the `src` (string / object / array) and
+// `tracks` option injection including re-injection on option change, the
+// bind effect's first-bind vs target-swap behavior, listener cleanup on
+// unmount and target change, and SSR safety. Media state that depends on a
+// loaded resource (`currentTime`, `duration`, `buffered`) is stubbed on the
+// element so the assertions are deterministic in the headless browser.
 
 function stubNumberProperty(el: HTMLVideoElement, prop: 'currentTime' | 'duration') {
   let value = 0
@@ -350,6 +355,45 @@ describe('useMediaControls', () => {
     video2.remove()
   })
 
+  it('does not clobber pre-set element state on the first bind', async () => {
+    // e.g. a `<video muted>` element — upstream's non-immediate
+    // `watch([target, volume|muted|rate])` never writes at setup, so the
+    // first bind must preserve the element's own state
+    video.muted = true
+    video.volume = 0.3
+    video.playbackRate = 0.5
+
+    await renderHook(() => useMediaControls(video))
+
+    expect(video.muted).toBe(true)
+    expect(video.volume).toBe(0.3)
+    expect(video.playbackRate).toBe(0.5)
+  })
+
+  it('applies the composable state when re-binding to a new element', async () => {
+    const video2 = document.createElement('video')
+    document.body.appendChild(video2)
+
+    const target = { current: video as HTMLVideoElement | null }
+    const { result, act, rerender } = await renderHook(() => useMediaControls(target))
+
+    await act(async () => {
+      result.current.mute()
+    })
+    expect(video.muted).toBe(true)
+    expect(result.current.muted).toBe(true)
+
+    // swapping the target restores the current state on the new element
+    // (upstream: the target-change watch fires)
+    target.current = video2
+    await rerender()
+
+    expect(video2.muted).toBe(true)
+    expect(result.current.muted).toBe(true)
+
+    video2.remove()
+  })
+
   it('injects source elements from the src option, loads them and reports source errors', async () => {
     const loadSpy = vi.spyOn(video, 'load').mockImplementation(() => {})
 
@@ -371,6 +415,56 @@ describe('useMediaControls', () => {
     })
     expect(errorHandler).toHaveBeenCalledTimes(1)
     expect(errorHandler.mock.calls[0]![0]).toBe(errorEvent)
+  })
+
+  it('accepts a string src and an array of sources', async () => {
+    const loadSpy = vi.spyOn(video, 'load').mockImplementation(() => {})
+
+    const { rerender } = await renderHook<{ src?: string | UseMediaSource | UseMediaSource[] }, UseMediaControlsReturn>(
+      (props?) => useMediaControls(video, { src: props?.src ?? 'https://example.com/media.mp4' }),
+      { initialProps: { src: 'https://example.com/media.mp4' } },
+    )
+
+    const stringSource = video.querySelector('source')
+    expect(stringSource?.getAttribute('src')).toBe('https://example.com/media.mp4')
+    expect(loadSpy).toHaveBeenCalledTimes(1)
+
+    await rerender({
+      src: [
+        { src: 'https://example.com/video.mp4', type: 'video/mp4' },
+        { src: 'https://example.com/video.webm', type: 'video/webm' },
+      ],
+    })
+
+    const sources = video.querySelectorAll('source')
+    expect(sources.length).toBe(2)
+    expect(sources[0]?.getAttribute('src')).toBe('https://example.com/video.mp4')
+    expect(sources[0]?.getAttribute('type')).toBe('video/mp4')
+    expect(sources[1]?.getAttribute('src')).toBe('https://example.com/video.webm')
+    expect(sources[1]?.getAttribute('type')).toBe('video/webm')
+  })
+
+  it('unsubscribes an event-hook listener via the returned off function', async () => {
+    vi.spyOn(video, 'load').mockImplementation(() => {})
+
+    const { result, act } = await renderHook(() => useMediaControls(video, {
+      src: { src: 'https://example.com/media.mp4' },
+    }))
+
+    const source = video.querySelector('source')!
+    const handler = vi.fn()
+    const off = result.current.onSourceError(handler)
+
+    await act(async () => {
+      source.dispatchEvent(new Event('error'))
+    })
+    expect(handler).toHaveBeenCalledTimes(1)
+
+    off()
+    await act(async () => {
+      source.dispatchEvent(new Event('error'))
+    })
+    expect(handler).toHaveBeenCalledTimes(1)
   })
 
   it('injects track elements from the tracks option and manages them', async () => {
@@ -418,6 +512,75 @@ describe('useMediaControls', () => {
       video.textTracks.dispatchEvent(new Event('change'))
     })
     expect(result.current.tracks.every(t => t.mode === 'disabled')).toBe(true)
+  })
+
+  it('re-injects tracks when the tracks option changes', async () => {
+    const { rerender } = await renderHook(
+      (props?: { tracks?: UseMediaTextTrackSource[] }) =>
+        useMediaControls(video, { tracks: props?.tracks }),
+      {
+        initialProps: {
+          tracks: [
+            { src: 'https://example.com/subtitles-en.vtt', kind: 'subtitles', label: 'English', srcLang: 'en' },
+          ],
+        },
+      },
+    )
+
+    expect(video.querySelectorAll('track').length).toBe(1)
+
+    await rerender({
+      tracks: [
+        { default: true, src: 'https://example.com/subtitles-fr.vtt', kind: 'subtitles', label: 'French', srcLang: 'fr' },
+        { src: 'https://example.com/subtitles-de.vtt', kind: 'subtitles', label: 'German', srcLang: 'de' },
+      ],
+    })
+
+    const tracks = video.querySelectorAll('track')
+    expect(tracks.length).toBe(2)
+    expect(tracks[0]?.getAttribute('srclang')).toBe('fr')
+    expect(tracks[0]?.getAttribute('label')).toBe('French')
+    expect(tracks[1]?.getAttribute('srclang')).toBe('de')
+  })
+
+  it('toggles picture-in-picture via request / exit', async () => {
+    const requestPip = vi.fn().mockResolvedValue(undefined)
+    vi.spyOn(video, 'requestPictureInPicture').mockImplementation(requestPip)
+    const exitPip = vi.fn().mockResolvedValue(undefined)
+    const fakeDoc = {
+      pictureInPictureEnabled: true,
+      exitPictureInPicture: exitPip,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    } as unknown as Document
+
+    const { result, act, unmount } = await renderHook(() => useMediaControls(video, { document: fakeDoc }))
+    expect(result.current.supportsPictureInPicture).toBe(true)
+    expect(result.current.isPictureInPicture).toBe(false)
+
+    await act(async () => {
+      await result.current.togglePictureInPicture()
+    })
+    expect(requestPip).toHaveBeenCalledTimes(1)
+    expect(exitPip).not.toHaveBeenCalled()
+
+    // the element reports the entered state once the request settles
+    await act(async () => {
+      video.dispatchEvent(new Event('enterpictureinpicture'))
+    })
+    expect(result.current.isPictureInPicture).toBe(true)
+
+    await act(async () => {
+      await result.current.togglePictureInPicture()
+    })
+    expect(exitPip).toHaveBeenCalledTimes(1)
+
+    await act(async () => {
+      video.dispatchEvent(new Event('leavepictureinpicture'))
+    })
+    expect(result.current.isPictureInPicture).toBe(false)
+
+    await unmount()
   })
 
   it('triggers onPlaybackError when el.play() rejects', async () => {

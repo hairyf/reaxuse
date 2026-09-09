@@ -76,7 +76,10 @@ function nextTick(callback?: () => void): Promise<void> {
  *   `idPrefix` unmounts;
  * - upstream `nextTick` becomes a microtask flush (see `nextTick` above);
  * - the return object `{ announce, polite, assertive }` mirrors upstream and
- *   is identity-stable across renders.
+ *   is identity-stable across renders;
+ * - the `window` option defaults to the global `window` (`undefined` on the
+ *   server, where the hook becomes a no-op) — upstream's `defaultWindow`
+ *   symbol is inlined here because the shared package does not export it.
  *
  * @example
  * const { announce, polite, assertive } = useLiveAnnouncer()
@@ -92,7 +95,8 @@ export function useLiveAnnouncer(options: UseLiveAnnouncerOptions = {}): UseLive
   } = options
 
   // Resolve the window without touching the global during render; an explicit
-  // `window: null` / `window: {}` opts out entirely (mirrors `defaultWindow`).
+  // `window: null` / `window: {}` opts out entirely (upstream's
+  // `defaultWindow` is inlined here — the shared package does not export it).
   const win = windowOption !== undefined
     ? windowOption
     : (isClient ? window : undefined)

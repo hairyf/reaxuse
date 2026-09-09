@@ -76,10 +76,14 @@ export interface UseMemoizeOptions<Result, Args extends unknown[]> {
  * and don't trigger re-renders on their own; re-renders are driven by your
  * own state, e.g. after a forced `load()`. The memoized function, the cache
  * and the helpers are built once (`useMemo`) so their identity stays stable
- * across renders, while the latest `resolver` / `options` are mirrored into
- * refs so every call sees fresh values. Async resolvers are supported too:
- * since the in-flight promise is what gets cached, concurrent calls with the
- * same arguments reuse the same pending promise.
+ * across renders, while the latest `resolver` and `getKey` are mirrored into
+ * refs so every call sees fresh values. The `cache` container is resolved
+ * once at build time (upstream closes over the setup-time options object):
+ * re-pointing `options.cache` on a later render is ignored, because swapping
+ * a stateful cache container mid-flight would discard cached data. Async
+ * resolvers are supported too: since the in-flight promise is what gets
+ * cached, concurrent calls with the same arguments reuse the same pending
+ * promise.
  *
  * @example
  * const getUser = useMemoize(async (userId: number) => axios.get(`users/${userId}`).then(({ data }) => data))
@@ -103,6 +107,12 @@ export function useMemoize<Result, Args extends unknown[]>(
   // build the memoized function + cache once — upstream creates them once
   // per setup call, `useMemo` gives the same stability in React
   const memoized = useMemo<UseMemoizeReturn<Result, Args>>(() => {
+    // The cache container is resolved once at build time (upstream closes
+    // over the setup-time options object): `options.cache` is stateful, so
+    // re-pointing it on a later render is intentionally ignored — swapping
+    // the container mid-flight would discard cached data. `getKey` below, by
+    // contrast, is stateless and is read fresh from the latest options on
+    // every call.
     const initCache = (): UseMemoizeCache<CacheKey, Result> => {
       if (optionsRef.current?.cache)
         return optionsRef.current.cache

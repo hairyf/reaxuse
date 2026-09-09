@@ -62,6 +62,20 @@ describe('useKeyModifier', () => {
     it.for(cases)('should track state for %s', async ({ key, options }) => {
       await assertModifierState(key, options)
     })
+
+    it('reports FnLock as falsy on synthetic events (environmental gap)', async () => {
+      // Chromium's `getModifierState` does not implement `FnLock` for
+      // synthetic events (see the MDN browser compatibility table), so the
+      // state stays falsy even when `modifierFnLock` is passed to
+      // `KeyboardEventInit`. Pins the environmental behavior and guards
+      // against future changes.
+      const { result, act } = await renderHook(() => useKeyModifier('FnLock'))
+
+      await act(() => {
+        dispatchKeyboardEvent({ key: 'FnLock', modifierFnLock: true })
+      })
+      expect(result.current).toBeFalsy()
+    })
   })
 
   describe('params', () => {

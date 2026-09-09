@@ -71,9 +71,19 @@ export interface MagicKeysInternal {
   current: ReadonlySet<string>
 }
 
-export type UseMagicKeysReturn<_Reactive extends boolean>
+/**
+ * Return of `useMagicKeys`. Upstream maps `Reactive extends true ? boolean :
+ * ComputedRef<boolean>` — a plain boolean in reactive mode, a ref otherwise.
+ * React state is always "reactive" (the port has no ref layer), so both
+ * branches collapse to plain `boolean`; the conditional is kept to mirror the
+ * upstream type shape.
+ */
+export type UseMagicKeysReturn<Reactive extends boolean>
   = Readonly<
-    Record<string, boolean> & MagicKeysInternal
+    Record<
+      string,
+      Reactive extends true ? boolean : boolean
+    > & MagicKeysInternal
   >
 
 /**
@@ -98,9 +108,12 @@ export type UseMagicKeysReturn<_Reactive extends boolean>
  *   with cleanup (upstream composes `useEventListener`) and the `blur` /
  *   `focus` reset listeners stay on `window`. SSR-safe: nothing touches the
  *   DOM during render.
- * - Upstream lazily creates a ref per key on access; here keys are entries of
- *   the state object and combination keys are computed on access through a
- *   small Proxy over the current state snapshot.
+ * - Upstream lazily creates a ref per key on access and ignores presses for
+ *   keys that were never read; here every pressed key is recorded eagerly in
+ *   the state object, so reading a key after it was pressed reports the truth
+ *   (upstream would report `false` for a key that was never read before).
+ *   Combination keys are computed on access through a small Proxy over the
+ *   current state snapshot.
  *
  * @example
  * const { shift, space, a } = useMagicKeys()
@@ -117,6 +130,9 @@ export type UseMagicKeysReturn<_Reactive extends boolean>
  */
 export function useMagicKeys<T extends boolean = false>(options: UseMagicKeysOptions<T> = {}): UseMagicKeysReturn<T> {
   const {
+    // accepted for API compatibility only — React state is always reactive,
+    // so the option has no effect (see the hook JSDoc)
+    reactive: _reactive = false,
     target,
     aliasMap = DefaultMagicKeysAliasMap,
     passive = true,

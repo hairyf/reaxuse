@@ -66,6 +66,6 @@ Prefix for the id of the announcer elements. The generated elements will have ID
 ### window
 
 - Type: `Window`
-- Default: `defaultWindow`
+- Default: the global `window` (`undefined` on the server)
 
 The window object where the announcer elements will be created.

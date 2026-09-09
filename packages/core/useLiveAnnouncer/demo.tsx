@@ -27,7 +27,7 @@ export default function UseLiveAnnouncerDemo() {
       </p>
       <div className="flex gap-2">
         <button type="button" onClick={handleAnnounce}>
-          Use Announce Custom
+          Use Announce
         </button>
         <button type="button" onClick={handlePolite}>
           Announce Polite

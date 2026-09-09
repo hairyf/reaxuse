@@ -2,6 +2,7 @@ import type { RefOrValue } from '@reaxuse/shared'
 import type { ElementTarget, ElementTargetOrArray } from '../useResizeObserver'
 import { toArray, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { unrefElement } from '../unrefElement'
 
 /**
  * Options for `useIntersectionObserver`: the platform `IntersectionObserver`
@@ -44,10 +45,8 @@ export interface UseIntersectionObserverOptions {
 }
 
 /**
- * Return of `useIntersectionObserver`. Upstream additionally exposes the
- * Pausable members (`isActive`/`pause`/`resume`); the React port keeps the
- * observer contract of this repo (`useResizeObserver` style):
- * `{ isSupported, stop }`.
+ * Return of `useIntersectionObserver`, mirroring upstream's `Supportable &
+ * Pausable` shape: `{ isSupported, isActive, pause, resume, stop }`.
  */
 export interface UseIntersectionObserverReturn {
   /**
@@ -56,29 +55,30 @@ export interface UseIntersectionObserverReturn {
    */
   isSupported: boolean
   /**
-   * Disconnect the observer and stop observing. Calling it again is a no-op —
-   * the hook does not restart after `stop()`.
+   * Whether the observer is currently running. Starts from the `immediate`
+   * option (default `true`) and turns `false` after `pause()` or `stop()`.
+   */
+  isActive: boolean
+  /**
+   * Pause observing and set `isActive` to `false`.
+   */
+  pause: () => void
+  /**
+   * Resume observing.
+   */
+  resume: () => void
+  /**
+   * Disconnect the observer and stop observing permanently. Calling it again
+   * is a no-op — the hook does not restart after `stop()`.
    */
   stop: () => void
 }
 
 /**
- * React equivalent of upstream's `unrefElement`: resolves a ref-like object
- * or a plain value down to an element.
- */
-function unrefElement(value: unknown): Element | undefined {
-  if (typeof value === 'function')
-    return unrefElement((value as () => unknown)())
-  if (value && typeof value === 'object' && 'current' in value)
-    return unrefElement((value as { current: unknown }).current)
-  return (value as Element | null | undefined) ?? undefined
-}
-
-/**
  * Mirrors upstream's `targets` computed: `toValue` first (so ref-likes
  * resolve, including ref-likes holding an array of elements), then
- * `toArray`, then resolve every item down to an element, dropping empty
- * slots (upstream filters with `notNullish`).
+ * `toArray`, then resolve every item down to an element through the shared
+ * `unrefElement`, dropping empty slots (upstream filters with `notNullish`).
  */
 function resolveTargets(target: ElementTargetOrArray): Element[] {
   const value = toValue(target as RefOrValue<unknown>)
@@ -86,7 +86,7 @@ function resolveTargets(target: ElementTargetOrArray): Element[] {
 
   const elements: Element[] = []
   for (const item of items) {
-    const element = unrefElement(item)
+    const element = unrefElement(item as ElementTarget)
     if (element)
       elements.push(element)
   }
@@ -113,9 +113,11 @@ function resolveTargets(target: ElementTargetOrArray): Element[] {
  * - `isSupported` is plain `boolean` state settled in the mount effect
  *   (upstream composes `useSupported`, a `ComputedRef<boolean>`);
  * - `tryOnScopeDispose(stop)` becomes an unmount effect that disconnects;
- * - the Pausable members (`isActive`/`pause`/`resume`) are dropped — the
- *   React contract mirrors `useResizeObserver`: `{ isSupported, stop }`, so
- *   `immediate: false` keeps the observer idle for the whole lifetime;
+ * - the Pausable members mirror upstream: `isActive` is a plain boolean
+ *   starting from the `immediate` option, `pause()` disconnects the observer
+ *   and sets `isActive` to `false`, `resume()` re-observes the same targets,
+ *   and `stop()` deactivates permanently — `immediate: false` leaves the
+ *   observer idle until `resume()` is called;
  * - the observer is constructed through the resolved `window`, and a changed
  *   `window` option re-observes (upstream destructures it once at setup;
  *   this matches this repo's `useResizeObserver`).
@@ -150,10 +152,16 @@ export function useIntersectionObserver(
   const previousRef = useRef<{
     window: Window | null | undefined
     elements: Element[]
-    root: Element | Document | undefined
+    root: Element | Document | null | undefined
     rootMargin: string | undefined
   } | undefined>(undefined)
   const [isSupported, setIsSupported] = useState(false)
+  // upstream: `isActive = shallowRef(immediate)`
+  const [isActive, setIsActive] = useState(() => optionsRef.current.immediate ?? true)
+  // read inside the no-deps effect (which intentionally re-runs every render)
+  // without tripping exhaustive-deps
+  const isActiveRef = useRef(isActive)
+  isActiveRef.current = isActive
 
   // Re-observe after every render when the resolved targets, root, root
   // margin or window changed (upstream: `watch(..., { immediate: true })`).
@@ -164,7 +172,6 @@ export function useIntersectionObserver(
 
     const {
       window: customWindow,
-      immediate = true,
       root: rootOption,
       rootMargin: rootMarginOption,
       threshold = 0,
@@ -178,11 +185,13 @@ export function useIntersectionObserver(
     const supported = Boolean(win && 'IntersectionObserver' in win)
     setIsSupported(supported)
 
-    if (!immediate)
+    // paused (or `immediate: false` and not yet resumed): stay disconnected —
+    // the previous inputs are kept so `resume()` diffing recreates the observer
+    if (!isActiveRef.current)
       return
 
     const elements = resolveTargets(targetRef.current)
-    const root = rootOption === undefined ? undefined : unrefElement(rootOption)
+    const root = rootOption === undefined ? undefined : unrefElement(rootOption as ElementTarget)
     const rootMargin = rootMarginOption === undefined ? undefined : toValue(rootMarginOption)
     const previous = previousRef.current
     const unchanged = Boolean(
@@ -230,11 +239,25 @@ export function useIntersectionObserver(
     observerRef.current = undefined
   }, [])
 
+  // upstream: `pause() { cleanup(); isActive = false }`
+  const pause = useCallback(() => {
+    observerRef.current?.disconnect()
+    observerRef.current = undefined
+    setIsActive(false)
+  }, [])
+
+  // upstream: `resume() { isActive = true }` — the watch over `isActive`
+  // recreates the observer on the next committed render
+  const resume = useCallback(() => {
+    setIsActive(true)
+  }, [])
+
   const stop = useCallback(() => {
     stoppedRef.current = true
     observerRef.current?.disconnect()
     observerRef.current = undefined
+    setIsActive(false)
   }, [])
 
-  return { isSupported, stop }
+  return { isSupported, isActive, pause, resume, stop }
 }

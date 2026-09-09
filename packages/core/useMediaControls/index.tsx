@@ -350,6 +350,12 @@ function updateNumberState(set: (value: number) => void, ref: { current: number 
  * 7. SSR-safe: nothing touches `document` or the media element during render
  *    — the element is only accessed inside effects and control methods, so
  *    the server renders the initial defaults.
+ * 8. Upstream's non-immediate `watch([target, volume|muted|rate])`
+ *    apply-watchers are replaced by the control methods writing through to
+ *    the element directly; the binding effect only applies the current
+ *    `volume` / `muted` / `playbackRate` when re-binding to a *different*
+ *    element (target swap), so the first bind never clobbers pre-set element
+ *    state (e.g. a `<video muted>` attribute).
  *
  * @example
  * const video = useRef<HTMLVideoElement>(null)
@@ -411,23 +417,22 @@ export function useMediaControls(
 
   // Live mirror refs of the state above, read inside the stable callbacks and
   // the binding effect (upstream mutates and reads its refs directly; React
-  // state only drives renders).
-  const currentTimeRef = useRef(0)
-  const durationRef = useRef(0)
-  const seekingRef = useRef(false)
+  // state only drives renders). Only the refs read by control methods / the
+  // binding effect are kept — the rest would be write-only mirrors.
   const volumeRef = useRef(1)
-  const waitingRef = useRef(false)
-  const endedRef = useRef(false)
   const playingRef = useRef(false)
   const rateRef = useRef(1)
-  const stalledRef = useRef(false)
-  const bufferedRef = useRef<[number, number][]>([])
   const tracksRef = useRef<UseMediaTextTrack[]>([])
   const selectedTrackRef = useRef(-1)
   const isPictureInPictureRef = useRef(false)
   const mutedRef = useRef(false)
 
   const supportsPictureInPicture = Boolean(doc && 'pictureInPictureEnabled' in doc)
+
+  // The element the composable state was last applied to — see the binding
+  // effect: the state is applied only when binding to a NEW element (target
+  // swap), never on the first bind.
+  const boundElementRef = useRef<HTMLMediaElement | null>(null)
 
   // Events — inlined `createEventHook` (see module-level helper).
   const sourceErrorEventRef = useRef(createEventHook<Event>())
@@ -445,10 +450,19 @@ export function useMediaControls(
     if (!mediaEl)
       return
 
-    // Apply the current state to a (new) element — upstream `watch([target, volume])` etc.
-    mediaEl.volume = volumeRef.current
-    mediaEl.muted = mutedRef.current
-    mediaEl.playbackRate = rateRef.current
+    // Apply the current state only when re-binding to a DIFFERENT element —
+    // upstream's non-immediate `watch([target, volume|muted|rate])` fires on
+    // target change but never at setup, so the first bind must not clobber
+    // pre-set element state (e.g. a `<video muted>` attribute); re-binding
+    // after a target swap restores the composable state, like upstream's
+    // target-change watch firing.
+    const previousElement = boundElementRef.current
+    if (previousElement && mediaEl !== previousElement) {
+      mediaEl.volume = volumeRef.current
+      mediaEl.muted = mutedRef.current
+      mediaEl.playbackRate = rateRef.current
+    }
+    boundElementRef.current = mediaEl
 
     const offs: Array<() => void> = []
     const on = (event: string, handler: () => void) => {
@@ -456,32 +470,30 @@ export function useMediaControls(
       offs.push(() => mediaEl.removeEventListener(event, handler, listenerOptions))
     }
 
-    on('timeupdate', () => updateNumberState(setCurrentTime, currentTimeRef, mediaEl.currentTime))
-    on('durationchange', () => updateNumberState(setDuration, durationRef, mediaEl.duration))
+    on('timeupdate', () => setCurrentTime(mediaEl.currentTime))
+    on('durationchange', () => setDuration(mediaEl.duration))
     on('progress', () => {
-      const ranges = timeRangeToArray(mediaEl.buffered)
-      bufferedRef.current = ranges
-      setBuffered(ranges)
+      setBuffered(timeRangeToArray(mediaEl.buffered))
     })
-    on('seeking', () => updateState(setSeeking, seekingRef, true))
-    on('seeked', () => updateState(setSeeking, seekingRef, false))
+    on('seeking', () => setSeeking(true))
+    on('seeked', () => setSeeking(false))
     on('waiting', () => {
-      updateState(setWaiting, waitingRef, true)
+      setWaiting(true)
       updateState(setPlaying, playingRef, false)
     })
     on('loadstart', () => {
-      updateState(setWaiting, waitingRef, true)
+      setWaiting(true)
       updateState(setPlaying, playingRef, false)
     })
-    on('loadeddata', () => updateState(setWaiting, waitingRef, false))
+    on('loadeddata', () => setWaiting(false))
     on('playing', () => {
-      updateState(setWaiting, waitingRef, false)
-      updateState(setEnded, endedRef, false)
+      setWaiting(false)
+      setEnded(false)
       updateState(setPlaying, playingRef, true)
     })
     on('ratechange', () => updateNumberState(setRateState, rateRef, mediaEl.playbackRate))
-    on('stalled', () => updateState(setStalled, stalledRef, true))
-    on('ended', () => updateState(setEnded, endedRef, true))
+    on('stalled', () => setStalled(true))
+    on('ended', () => setEnded(true))
     on('pause', () => updateState(setPlaying, playingRef, false))
     on('play', () => updateState(setPlaying, playingRef, true))
     on('enterpictureinpicture', () => updateState(setIsPictureInPicture, isPictureInPictureRef, true))
@@ -723,7 +735,6 @@ export function useMediaControls(
       return
 
     mediaEl.currentTime = time
-    currentTimeRef.current = time
     setCurrentTime(time)
   }, [])
 

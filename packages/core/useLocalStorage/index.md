@@ -8,6 +8,8 @@ Reactive [LocalStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/
 
 ## Usage
 
+Please refer to `useStorage`.
+
 ```tsx
 import { useLocalStorage } from '@reaxuse/core'
 

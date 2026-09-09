@@ -106,6 +106,11 @@ export function useIdle(timeout: number = oneMinute, options: UseIdleOptions = {
   }, [timeout])
 
   const onEvent = useCallback(() => {
+    // upstream guards the wrapped callback (`if (!isPending.value) return`)
+    // so activity flowing in after `stop()` cannot refresh `lastActive` or
+    // re-arm the idle timer
+    if (!isPendingRef.current)
+      return
     setLastActive(timestamp())
     reset()
   }, [reset])

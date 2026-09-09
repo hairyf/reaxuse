@@ -25,6 +25,26 @@ useEffect(() => {
 }, [shift, a])
 ```
 
+::: tip NOTE
+If you're using TypeScript with `noUncheckedIndexedAccess` enabled in your `tsconfig.json`, the destructured keys will have the type `boolean | undefined`.
+
+The `noUncheckedIndexedAccess` TypeScript option adds `undefined` to any un-declared field accessed via index signatures. Since `useMagicKeys()` uses an index signature to allow accessing any key dynamically, TypeScript will treat destructured properties as potentially undefined for type safety.
+
+A truthiness check narrows the value back to `boolean`:
+
+```tsx
+const { shift, space, a } = useMagicKeys()
+
+if (space)
+  console.log('space has been pressed')
+
+if (shift && a)
+  console.log('Shift + A have been pressed')
+```
+
+Check the [TypeScript documentation](https://www.typescriptlang.org/tsconfig/#noUncheckedIndexedAccess) for more details about `noUncheckedIndexedAccess`.
+:::
+
 Check out [all the possible keycodes](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code/code_values).
 
 ### Combinations
@@ -84,6 +104,26 @@ useEffect(() => {
 ```
 
 By default, we have some preconfigured aliases for common practices (`ctrl` → `control`, `cmd` / `command` → `meta`, `option` → `alt`, `up` → `arrowup`, ...).
+
+### Conditionally Disable
+
+You might have some `<input />` elements in your apps, and you don't want to trigger the magic keys handling when users focused on those inputs. There is an example of using `useActiveElement` to do that.
+
+```tsx
+import { useActiveElement, useMagicKeys } from '@reaxuse/core'
+import { useEffect } from 'react'
+
+const activeElement = useActiveElement()
+const notUsingInput = activeElement?.tagName !== 'INPUT'
+  && activeElement?.tagName !== 'TEXTAREA'
+
+const { tab } = useMagicKeys()
+
+useEffect(() => {
+  if (tab && notUsingInput)
+    console.log('Tab has been pressed outside of inputs!')
+}, [tab, notUsingInput])
+```
 
 ### Custom Event Handler
 

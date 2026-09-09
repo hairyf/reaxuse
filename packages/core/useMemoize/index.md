@@ -4,7 +4,7 @@ category: Utilities
 
 # useMemoize
 
-Cache results of functions depending on arguments
+Cache results of functions depending on arguments. It can also be used for asynchronous functions and will reuse existing promises to avoid fetching the same data at the same time.
 
 ::: tip
 The results are not cleared automatically. Call `clear()` in case you no longer need the results or use your own

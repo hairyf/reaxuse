@@ -23,6 +23,18 @@ const { stop } = useIntersectionObserver(
 )
 ```
 
+### Controls and cleanup
+
+`useIntersectionObserver` returns controls for the underlying observer:
+
+| State         | Type         | Description                                                                           |
+| ------------- | ------------ | ------------------------------------------------------------------------------------- |
+| `isSupported` | `boolean`    | Whether the `IntersectionObserver` API is available.                                  |
+| `isActive`    | `boolean`    | Whether the observer is currently running. Turns `false` after `pause()` or `stop()`. |
+| `pause`       | `() => void` | Pause observing and set `isActive` to `false`.                                        |
+| `resume`      | `() => void` | Resume observing.                                                                     |
+| `stop`        | `() => void` | Stop observing permanently.                                                           |
+
 The observer is disconnected automatically on unmount, so in most cases you don't need to call
 `stop` yourself. Call `stop()` to disconnect the observer earlier, for example once the element has
 become visible:

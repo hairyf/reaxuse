@@ -354,7 +354,7 @@ describe('useIntersectionObserver', () => {
     target.textContent = 'Target Node'
     document.body.append(spacer, target)
 
-    const { unmount } = await renderHook(() =>
+    const { result, act, unmount } = await renderHook(() =>
       useIntersectionObserver(
         { current: target },
         callbackMock,
@@ -362,10 +362,69 @@ describe('useIntersectionObserver', () => {
       ),
     )
 
+    expect(result.current.isActive).toBe(false)
     await expectFunctionHasNotBeenCalled(callbackMock)
 
     window.scrollTo(0, 100)
     await expectFunctionHasNotBeenCalled(callbackMock)
+
+    // resume starts observing without re-rendering the component
+    await act(() => {
+      result.current.resume()
+    })
+    expect(result.current.isActive).toBe(true)
+
+    await vi.waitFor(() => {
+      expect(callbackMock).toHaveBeenCalledTimes(1)
+      expect(callbackMock.mock.calls[0][0][0].isIntersecting).toBe(true)
+    })
+
+    await unmount()
+    spacer.remove()
+    target.remove()
+  })
+
+  it('pause stops observing and resume restarts it', async () => {
+    const callbackMock = vi.fn()
+
+    const spacer = document.createElement('div')
+    spacer.style.height = 'calc(100vh + 10px)'
+    const target = document.createElement('div')
+    target.style.height = '100px'
+    target.textContent = 'Target Node'
+    document.body.append(spacer, target)
+
+    const { result, act, unmount } = await renderHook(() =>
+      useIntersectionObserver({ current: target }, callbackMock),
+    )
+
+    // immediate call
+    await vi.waitFor(() => {
+      expect(callbackMock).toHaveBeenCalledTimes(1)
+      expect(callbackMock.mock.calls[0][0][0].isIntersecting).toBe(false)
+    })
+    expect(result.current.isActive).toBe(true)
+
+    callbackMock.mockClear()
+    await act(() => {
+      result.current.pause()
+    })
+    expect(result.current.isActive).toBe(false)
+
+    // scroll should not trigger the callback while paused
+    window.scrollTo(0, 100)
+    await expectFunctionHasNotBeenCalled(callbackMock)
+
+    await act(() => {
+      result.current.resume()
+    })
+    expect(result.current.isActive).toBe(true)
+
+    // resume re-observes and delivers the current intersection state
+    await vi.waitFor(() => {
+      expect(callbackMock).toHaveBeenCalledTimes(1)
+      expect(callbackMock.mock.calls[0][0][0].isIntersecting).toBe(true)
+    })
 
     await unmount()
     spacer.remove()
@@ -396,7 +455,7 @@ describe('useIntersectionObserver', () => {
     target.textContent = 'Target Node'
     document.body.append(spacer, target)
 
-    const { result, unmount } = await renderHook(() =>
+    const { result, act, unmount } = await renderHook(() =>
       useIntersectionObserver({ current: target }, callbackMock),
     )
 
@@ -414,7 +473,10 @@ describe('useIntersectionObserver', () => {
     })
     callbackMock.mockClear()
 
-    result.current.stop()
+    await act(() => {
+      result.current.stop()
+    })
+    expect(result.current.isActive).toBe(false)
 
     // scroll back, should not trigger callback
     window.scrollTo(0, 0)
