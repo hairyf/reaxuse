@@ -1,4 +1,4 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { State } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 
 /**
@@ -13,6 +13,12 @@ import { toValue } from '@reaxuse/shared'
  * and `Math.round` is applied directly, with no
  * effects and no `.value` wrapper (SSR-safe).
  *
+ * `value` accepts a React `State<number>` — a plain number, a getter
+ * (`() => value`), a React ref (`{ current }`), a `[value, setter]` tuple, or a
+ * `{ value, onChange }` pair. Every form is resolved through `toValue`; the
+ * tuple and `{ value, onChange }` forms are the React state protocol and have
+ * no upstream equivalent (upstream takes `MaybeRefOrGetter<number>`).
+ *
  * @see https://vueuse.org/math/useRound/
  *
  * @__NO_SIDE_EFFECTS__
@@ -26,6 +32,6 @@ import { toValue } from '@reaxuse/shared'
  * @param value - The value to round.
  * @returns The value rounded to the nearest integer.
  */
-export function useRound(value: RefOrValue<number>): number {
+export function useRound(value: State<number>): number {
   return Math.round(toValue(value))
 }

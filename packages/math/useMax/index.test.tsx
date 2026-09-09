@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useMax } from '../useMax'
@@ -82,5 +82,56 @@ describe('useMax', () => {
     const { result } = await renderHook(() => useMax())
 
     expect(result.current).toBe(Number.NEGATIVE_INFINITY)
+  })
+
+  it('accepts a controlled state tuple for the array form', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [array, setArray] = useState([1, 5, 3, 8])
+      return { max: useMax([array, setArray]), setArray }
+    })
+
+    expect(result.current.max).toBe(8)
+
+    await act(() => result.current.setArray([1, 5, 3, 10]))
+    await rerender()
+    expect(result.current.max).toBe(10)
+  })
+
+  it('accepts a value/onChange pair for the array form', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [array, setArray] = useState([1, 5, 3, 8])
+      return { max: useMax({ value: array, onChange: setArray }), setArray }
+    })
+
+    expect(result.current.max).toBe(8)
+
+    await act(() => result.current.setArray([1, 5, 3, 10]))
+    await rerender()
+    expect(result.current.max).toBe(10)
+  })
+
+  it('accepts controlled state values as variadic arguments', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [a, setA] = useState(1)
+      const [b, setB] = useState(3)
+      return { max: useMax([a, setA], { value: b, onChange: setB }), setA, setB }
+    })
+
+    expect(result.current.max).toBe(3)
+
+    await act(() => result.current.setA(10))
+    await rerender()
+    expect(result.current.max).toBe(10)
+  })
+
+  it('documents the 2-element-array caveat: [1, fn] is read as a state tuple', async () => {
+    const { result } = await renderHook(() => useMax([1, () => 2]))
+
+    // `toValue` resolves a 2-element array whose [1] is a function as the
+    // `[value, setter]` tuple form, so only the first element is compared
+    expect(result.current).toBe(1)
+
+    // pass the elements as separate arguments to compare both
+    expect(useMax(1, () => 2)).toBe(2)
   })
 })

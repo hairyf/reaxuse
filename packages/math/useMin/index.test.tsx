@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useMin } from '../useMin'
@@ -77,5 +77,56 @@ describe('useMin', () => {
     const { result } = await renderHook(() => useMin())
 
     expect(result.current).toBe(Number.POSITIVE_INFINITY)
+  })
+
+  it('accepts a controlled state tuple for the array form', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [array, setArray] = useState([10, 100])
+      return { min: useMin([array, setArray]), setArray }
+    })
+
+    expect(result.current.min).toBe(10)
+
+    await act(() => result.current.setArray([7, 100]))
+    await rerender()
+    expect(result.current.min).toBe(7)
+  })
+
+  it('accepts a value/onChange pair for the array form', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [array, setArray] = useState([10, 100])
+      return { min: useMin({ value: array, onChange: setArray }), setArray }
+    })
+
+    expect(result.current.min).toBe(10)
+
+    await act(() => result.current.setArray([7, 100]))
+    await rerender()
+    expect(result.current.min).toBe(7)
+  })
+
+  it('accepts controlled state values as variadic arguments', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [a, setA] = useState(10)
+      const [b, setB] = useState(100)
+      return { min: useMin([a, setA], { value: b, onChange: setB }), setA, setB }
+    })
+
+    expect(result.current.min).toBe(10)
+
+    await act(() => result.current.setA(7))
+    await rerender()
+    expect(result.current.min).toBe(7)
+  })
+
+  it('documents the 2-element-array caveat: [5, fn] is read as a state tuple', async () => {
+    const { result } = await renderHook(() => useMin([5, () => 1]))
+
+    // `toValue` resolves a 2-element array whose [1] is a function as the
+    // `[value, setter]` tuple form, so only the first element is compared
+    expect(result.current).toBe(5)
+
+    // pass the elements as separate arguments to compare both
+    expect(useMin(5, () => 1)).toBe(1)
   })
 })

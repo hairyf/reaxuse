@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useCeil } from '../useCeil'
@@ -61,5 +61,31 @@ describe('useCeil', () => {
 
     const third = await renderHook(() => useCeil(useRef(3.1415)))
     expect(third.result.current).toBe(4)
+  })
+
+  it('accepts a controlled state tuple', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState(0.95)
+      return { ceil: useCeil([value, setValue]), setValue }
+    })
+
+    expect(result.current.ceil).toBe(1)
+
+    await act(() => result.current.setValue(-7.004))
+    await rerender()
+    expect(result.current.ceil).toBe(-7)
+  })
+
+  it('accepts a value/onChange pair', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState(0.95)
+      return { ceil: useCeil({ value, onChange: setValue }), setValue }
+    })
+
+    expect(result.current.ceil).toBe(1)
+
+    await act(() => result.current.setValue(-7.004))
+    await rerender()
+    expect(result.current.ceil).toBe(-7)
   })
 })

@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useAverage } from '../useAverage'
@@ -87,5 +87,56 @@ describe('useAverage', () => {
     const { result } = await renderHook(() => useAverage())
 
     expect(result.current).toBe(0)
+  })
+
+  it('accepts a controlled state tuple for the array form', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [array, setArray] = useState([1, 2, 3])
+      return { average: useAverage([array, setArray]), setArray }
+    })
+
+    expect(result.current.average).toBe(2)
+
+    await act(() => result.current.setArray([4, 5]))
+    await rerender()
+    expect(result.current.average).toBe(4.5)
+  })
+
+  it('accepts a value/onChange pair for the array form', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [array, setArray] = useState([1, 2, 3])
+      return { average: useAverage({ value: array, onChange: setArray }), setArray }
+    })
+
+    expect(result.current.average).toBe(2)
+
+    await act(() => result.current.setArray([4, 5]))
+    await rerender()
+    expect(result.current.average).toBe(4.5)
+  })
+
+  it('accepts controlled state values as variadic arguments', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [a, setA] = useState(1)
+      const [b, setB] = useState(3)
+      return { average: useAverage([a, setA], { value: b, onChange: setB }), setA, setB }
+    })
+
+    expect(result.current.average).toBe(2)
+
+    await act(() => result.current.setA(5))
+    await rerender()
+    expect(result.current.average).toBe(4)
+  })
+
+  it('documents the 2-element-array caveat: [1, fn] is read as a state tuple', async () => {
+    const { result } = await renderHook(() => useAverage([1, () => 2]))
+
+    // `toValue` resolves a 2-element array whose [1] is a function as the
+    // `[value, setter]` tuple form, so only the first element is averaged
+    expect(result.current).toBe(1)
+
+    // pass the elements as separate arguments to average both
+    expect(useAverage(1, () => 2)).toBe(1.5)
   })
 })

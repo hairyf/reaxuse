@@ -1,4 +1,4 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { State } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 
 /**
@@ -12,6 +12,10 @@ import { toValue } from '@reaxuse/shared'
  * React refs) with `toValue` and returns a plain `boolean` on each call — there
  * is no reactivity, so re-renders (or effects) drive re-evaluation (SSR-safe).
  *
+ * Every argument accepts a React `State<any>` — a plain value, a getter
+ * (`() => value`), a React ref (`{ current }`), a `[value, setter]` tuple, or a
+ * `{ value, onChange }` pair. Every form is resolved through `toValue`.
+ *
  * @__NO_SIDE_EFFECTS__
  *
  * @example
@@ -21,9 +25,9 @@ import { toValue } from '@reaxuse/shared'
  * logicAnd(a, b) // false — re-evaluated on every call
  * logicAnd(true, 1, 'foo') // true
  *
- * @param args - Values or React refs to test.
+ * @param args - React `State<any>` values to test.
  * @returns `true` when every argument is truthy, `false` otherwise.
  */
-export function logicAnd(...args: RefOrValue<any>[]): boolean {
+export function logicAnd(...args: State<any>[]): boolean {
   return args.every(value => toValue(value))
 }

@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useSum } from '../useSum'
@@ -59,5 +59,56 @@ describe('useSum', () => {
     const { result } = await renderHook(() => useSum())
 
     expect(result.current).toBe(0)
+  })
+
+  it('accepts a controlled state tuple for the array form', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [array, setArray] = useState([1, 2, 3])
+      return { sum: useSum([array, setArray]), setArray }
+    })
+
+    expect(result.current.sum).toBe(6)
+
+    await act(() => result.current.setArray([4, 5]))
+    await rerender()
+    expect(result.current.sum).toBe(9)
+  })
+
+  it('accepts a value/onChange pair for the array form', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [array, setArray] = useState([1, 2, 3])
+      return { sum: useSum({ value: array, onChange: setArray }), setArray }
+    })
+
+    expect(result.current.sum).toBe(6)
+
+    await act(() => result.current.setArray([4, 5]))
+    await rerender()
+    expect(result.current.sum).toBe(9)
+  })
+
+  it('accepts controlled state values as variadic arguments', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [a, setA] = useState(1)
+      const [b, setB] = useState(3)
+      return { sum: useSum([a, setA], { value: b, onChange: setB }), setA, setB }
+    })
+
+    expect(result.current.sum).toBe(4)
+
+    await act(() => result.current.setA(10))
+    await rerender()
+    expect(result.current.sum).toBe(13)
+  })
+
+  it('documents the 2-element-array caveat: [1, fn] is read as a state tuple', async () => {
+    const { result } = await renderHook(() => useSum([1, () => 2]))
+
+    // `toValue` resolves a 2-element array whose [1] is a function as the
+    // `[value, setter]` tuple form, so only the first element is summed
+    expect(result.current).toBe(1)
+
+    // pass the elements as separate arguments to sum both
+    expect(useSum(1, () => 2)).toBe(3)
   })
 })

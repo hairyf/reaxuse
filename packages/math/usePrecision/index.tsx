@@ -1,4 +1,4 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { RefOrValue, State } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 import { useMemo } from 'react'
 
@@ -46,6 +46,12 @@ function accurateMultiply(value: number, power: number): number {
  * precision-adjusted number is memoized and returned directly, with no
  * effects and no `.value` wrapper (SSR-safe).
  *
+ * `value` accepts a React `State<number>` — a plain number, a getter
+ * (`() => value`), a React ref (`{ current }`), a `[value, setter]` tuple, or a
+ * `{ value, onChange }` pair — while `digits` and `options` stay
+ * `RefOrValue` (plain value or React ref) because they are formatting knobs,
+ * not the hook's data input.
+ *
  * @see https://vueuse.org/math/usePrecision/
  *
  * @__NO_SIDE_EFFECTS__
@@ -61,13 +67,13 @@ function accurateMultiply(value: number, power: number): number {
  *   math: 'floor',
  * }) // 3.141
  *
- * @param value - The value to set the precision of.
- * @param digits - The number of digits to keep.
+ * @param value - The value to set the precision of (a React `State<number>`).
+ * @param digits - The number of digits to keep (plain value or React ref).
  * @param options - The rounding method to use (`round` by default).
  * @returns The value with the applied precision.
  */
 export function usePrecision(
-  value: RefOrValue<number>,
+  value: State<number>,
   digits: RefOrValue<number>,
   options?: RefOrValue<UsePrecisionOptions>,
 ): number {

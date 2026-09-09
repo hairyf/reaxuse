@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useClamp } from '../useClamp'
@@ -99,5 +100,24 @@ describe('useClamp', () => {
     // ref-backed values are writable: the setter writes the clamped value back into the ref
     await act(() => result.current[1](50))
     expect(result.current[0]).toBe(50)
+  })
+
+  it('accepts State bounds (tuple and value/onChange)', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [min, setMin] = useState(0)
+      const [max, setMax] = useState(10)
+      const [clamped, setClamped] = useClamp(5, [min, setMin], { value: max, onChange: setMax })
+      return { clamped, setClamped, setMin, setMax }
+    })
+
+    expect(result.current.clamped).toBe(5)
+
+    await act(() => result.current.setMax(3))
+    await rerender()
+    expect(result.current.clamped).toBe(3)
+
+    await act(() => result.current.setMin(-10))
+    await rerender()
+    expect(result.current.clamped).toBe(3)
   })
 })

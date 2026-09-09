@@ -1,4 +1,4 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { State } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 
 /**
@@ -15,6 +15,10 @@ import { toValue } from '@reaxuse/shared'
  * boolean result is returned directly, with no effects and no `.value` wrapper
  * (SSR-safe). The caller re-invokes it to react to changing values.
  *
+ * Every argument accepts a React `State<any>` — a plain value, a getter
+ * (`() => value`), a React ref (`{ current }`), a `[value, setter]` tuple, or a
+ * `{ value, onChange }` pair. Every form is resolved through `toValue`.
+ *
  * @see https://vueuse.org/math/logicOr/
  *
  * @__NO_SIDE_EFFECTS__
@@ -27,9 +31,9 @@ import { toValue } from '@reaxuse/shared'
  *
  * logicOr(true, false) // true
  *
- * @param args - Values or React refs to evaluate.
+ * @param args - React `State<any>` values to evaluate.
  * @returns `true` if any argument is truthy, `false` otherwise.
  */
-export function logicOr(...args: RefOrValue<any>[]): boolean {
+export function logicOr(...args: State<any>[]): boolean {
   return args.some(i => toValue(i))
 }

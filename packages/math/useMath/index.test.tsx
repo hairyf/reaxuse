@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useMath } from '../useMath'
@@ -39,5 +39,27 @@ describe('useMath', () => {
     const { result: rootResult } = await renderHook(() => useMath('sqrt', useRef(4)))
 
     expect(rootResult.current).toBe(2)
+  })
+
+  it('accepts controlled state values as arguments', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [base, setBase] = useState(2)
+      const [exponent, setExponent] = useState(3)
+      return {
+        power: useMath('pow', [base, setBase], { value: exponent, onChange: setExponent }),
+        setBase,
+        setExponent,
+      }
+    })
+
+    expect(result.current.power).toBe(8)
+
+    await act(() => result.current.setExponent(4))
+    await rerender()
+    expect(result.current.power).toBe(16)
+
+    await act(() => result.current.setBase(3))
+    await rerender()
+    expect(result.current.power).toBe(81)
   })
 })

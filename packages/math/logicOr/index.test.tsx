@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { logicOr } from '../logicOr'
@@ -45,5 +45,32 @@ describe('logicOr', () => {
     expect(logicOr(falsy.current)).toBe(false)
     expect(logicOr(empty.current)).toBe(false)
     expect(logicOr(zero.current)).toBe(false)
+  })
+
+  it('accepts controlled state tuples and value/onChange pairs', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [a, setA] = useState(false)
+      const [b, setB] = useState(false)
+      return {
+        either: logicOr([a, setA], { value: b, onChange: setB }),
+        setA,
+        setB,
+      }
+    })
+
+    expect(result.current.either).toBe(false)
+
+    await act(() => result.current.setB(true))
+    await rerender()
+    expect(result.current.either).toBe(true)
+
+    await act(() => result.current.setA(true))
+    await act(() => result.current.setB(false))
+    await rerender()
+    expect(result.current.either).toBe(true)
+
+    await act(() => result.current.setA(false))
+    await rerender()
+    expect(result.current.either).toBe(false)
   })
 })

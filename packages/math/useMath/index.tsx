@@ -1,4 +1,4 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { State } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 
 /** String keys of `Math` that are methods (callables), mirroring upstream's `UseMathKeys`. */
@@ -7,17 +7,17 @@ export type UseMathKeys = keyof { [K in keyof Math as Math[K] extends (...args: 
 /** Return type — `Math` methods always return a `number`. */
 export type UseMathReturn<K extends keyof Math> = ReturnType<Reactified<Math[K]>>
 
-/** Arguments of a plain function where each argument may also be a React ref. */
+/** Arguments of a plain function where each argument may also be a `State`. */
 type ArgumentsType<T> = T extends (...args: infer U) => any ? U : never
 
 /**
  * The React analog of VueUse's `Reactified<T, Computed>`: same configuration
- * (arguments become `RefOrValue`) but the result is the plain return
+ * (arguments become `State`) but the result is the plain return
  * value instead of a `ComputedRef` — the reaxuse hook resolves arguments at
  * render time and returns the computed number directly.
  */
 type Reactified<T> = T extends (...args: infer A) => infer R
-  ? (...args: { [K in keyof A]: RefOrValue<A[K]> }) => R
+  ? (...args: { [K in keyof A]: State<A[K]> }) => R
   : never
 
 /**
@@ -28,6 +28,10 @@ type Reactified<T> = T extends (...args: infer A) => infer R
  * `Math` method name as the key and its arguments (plain values or React
  * refs); the result is recomputed on every render and
  * returned directly, with no `.value` wrapper and no effects (SSR-safe).
+ *
+ * Every argument accepts a React `State<number>` — a plain number, a getter
+ * (`() => value`), a React ref (`{ current }`), a `[value, setter]` tuple, or a
+ * `{ value, onChange }` pair. Every form is resolved through `toValue`.
  *
  * Adjustment for React: upstream wraps the computation in `computed(() => ...)`
  * via `reactify` and returns a `ComputedRef<number>`; the reaxuse version is a
@@ -52,8 +56,8 @@ type Reactified<T> = T extends (...args: infer A) => infer R
  * const rounded = useMath('round', { current: 2.5 }) // 3
  *
  * @param key - The `Math` method name to call (e.g. `'pow'`, `'sqrt'`).
- * @param args - Arguments to pass to the `Math` method — numbers or React
- *   refs, resolved at render time.
+ * @param args - Arguments to pass to the `Math` method — React `State<number>`
+ *   values, resolved at render time.
  * @returns The result of calling `Math[key]` with the (resolved) arguments.
  */
 export function useMath<K extends keyof Math>(
@@ -61,5 +65,5 @@ export function useMath<K extends keyof Math>(
   ...args: ArgumentsType<Reactified<Math[K]>>
 ): UseMathReturn<K> {
   const fn = Math[key] as unknown as (...args: number[]) => number
-  return fn(...args.map(arg => toValue(arg as RefOrValue<number>))) as UseMathReturn<K>
+  return fn(...args.map(arg => toValue(arg as State<number>))) as UseMathReturn<K>
 }

@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useFloor } from '../useFloor'
@@ -61,5 +61,31 @@ describe('useFloor', () => {
 
     const third = await renderHook(() => useFloor(useRef(3.1415)))
     expect(third.result.current).toBe(3)
+  })
+
+  it('accepts a controlled state tuple', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState(45.95)
+      return { floor: useFloor([value, setValue]), setValue }
+    })
+
+    expect(result.current.floor).toBe(45)
+
+    await act(() => result.current.setValue(-45.05))
+    await rerender()
+    expect(result.current.floor).toBe(-46)
+  })
+
+  it('accepts a value/onChange pair', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState(45.95)
+      return { floor: useFloor({ value, onChange: setValue }), setValue }
+    })
+
+    expect(result.current.floor).toBe(45)
+
+    await act(() => result.current.setValue(-45.05))
+    await rerender()
+    expect(result.current.floor).toBe(-46)
   })
 })

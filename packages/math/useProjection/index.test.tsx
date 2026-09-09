@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useProjection } from '../useProjection'
@@ -49,5 +50,31 @@ describe('useProjection', () => {
 
     const third = await renderHook(() => useProjection(4, [0, 44], [0, 132]))
     expect(third.result.current).toBe(12)
+  })
+
+  it('accepts a controlled state tuple as the input', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [input, setInput] = useState(5)
+      return { projected: useProjection([input, setInput], [0, 10], [0, 100]), setInput }
+    })
+
+    expect(result.current.projected).toBe(50)
+
+    await act(() => result.current.setInput(8))
+    await rerender()
+    expect(result.current.projected).toBe(80)
+  })
+
+  it('accepts a value/onChange pair as the input', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [input, setInput] = useState(5)
+      return { projected: useProjection({ value: input, onChange: setInput }, [0, 10], [0, 100]), setInput }
+    })
+
+    expect(result.current.projected).toBe(50)
+
+    await act(() => result.current.setInput(8))
+    await rerender()
+    expect(result.current.projected).toBe(80)
   })
 })

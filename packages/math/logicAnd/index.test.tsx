@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { logicAnd } from '../logicAnd'
@@ -54,5 +54,27 @@ describe('logicAnd', () => {
     a.current = 1
     b.current = ''
     expect(logicAnd(a, b)).toBe(false)
+  })
+
+  it('accepts controlled state tuples and value/onChange pairs', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [a, setA] = useState(true)
+      const [b, setB] = useState(false)
+      return {
+        both: logicAnd([a, setA], { value: b, onChange: setB }),
+        setA,
+        setB,
+      }
+    })
+
+    expect(result.current.both).toBe(false)
+
+    await act(() => result.current.setB(true))
+    await rerender()
+    expect(result.current.both).toBe(true)
+
+    await act(() => result.current.setA(false))
+    await rerender()
+    expect(result.current.both).toBe(false)
   })
 })

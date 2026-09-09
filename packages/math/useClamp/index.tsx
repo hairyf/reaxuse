@@ -1,4 +1,4 @@
-import type { RefOrValue, State } from '@reaxuse/shared'
+import type { State } from '@reaxuse/shared'
 import { clamp, toValue, useControllableState } from '@reaxuse/shared'
 import { useCallback } from 'react'
 
@@ -8,8 +8,10 @@ import { useCallback } from 'react'
  * Map from @vueuse/math `useClamp`
  * (`source/vueuse/packages/math/useClamp/`). React port of VueUse's writable
  * `useClamp` — returns a `[value, setValue]` tuple whose setter clamps on
- * write. `value`, `min` and `max` accept plain numbers or React refs (resolved
- * on every render). Bounds are re-resolved on
+ * write. `value`, `min` and `max` all accept a React `State<number>` — a plain
+ * number, a getter (`() => value`), a React ref (`{ current }`), a
+ * `[value, setter]` tuple, or a `{ value, onChange }` pair — resolved on every
+ * render. Bounds are re-resolved on
  * every render and on every set, so shrinking `max` / raising `min` re-clamps
  * the current value automatically. Ref-like value inputs are tracked
  * on each render (mirroring upstream's `computed` branches); ref-like inputs
@@ -22,15 +24,15 @@ import { useCallback } from 'react'
  * setValue(15) // value is 10
  * setValue(-5) // value is 0
  *
- * @param value - The value to clamp (a plain number, getter, controllable tuple, or `{ value, onChange }`).
- * @param min - The lower bound (a plain number or a React ref).
- * @param max - The upper bound (a plain number or a React ref).
+ * @param value - The value to clamp (a React `State<number>`).
+ * @param min - The lower bound (a React `State<number>`).
+ * @param max - The upper bound (a React `State<number>`).
  * @returns A `[value, setValue]` pair; `setValue` clamps into `[min, max]`.
  */
 export function useClamp(
   value: State<number>,
-  min: RefOrValue<number>,
-  max: RefOrValue<number>,
+  min: State<number>,
+  max: State<number>,
 ): [number, (value: number) => void] {
   const [raw, setRaw] = useControllableState(value, { passive: true })
 

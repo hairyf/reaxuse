@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useRound } from '../useRound'
@@ -61,5 +61,31 @@ describe('useRound', () => {
 
     const third = await renderHook(() => useRound(useRef(3.1415)))
     expect(third.result.current).toBe(3)
+  })
+
+  it('accepts a controlled state tuple', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState(20.49)
+      return { round: useRound([value, setValue]), setValue }
+    })
+
+    expect(result.current.round).toBe(20)
+
+    await act(() => result.current.setValue(-20.51))
+    await rerender()
+    expect(result.current.round).toBe(-21)
+  })
+
+  it('accepts a value/onChange pair', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState(20.49)
+      return { round: useRound({ value, onChange: setValue }), setValue }
+    })
+
+    expect(result.current.round).toBe(20)
+
+    await act(() => result.current.setValue(-20.51))
+    await rerender()
+    expect(result.current.round).toBe(-21)
   })
 })

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { usePrecision } from '../usePrecision'
@@ -63,5 +64,31 @@ describe('usePrecision', () => {
     const { result } = await renderHook(() => usePrecision(3.1415, 2))
 
     expect(result.current).toBe(3.14)
+  })
+
+  it('accepts a controlled state tuple as the value', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState(45.125)
+      return { precision: usePrecision([value, setValue], 2), setValue }
+    })
+
+    expect(result.current.precision).toBe(45.13)
+
+    await act(() => result.current.setValue(-45.155))
+    await rerender()
+    expect(result.current.precision).toBe(-45.15)
+  })
+
+  it('accepts a value/onChange pair as the value', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState(45.125)
+      return { precision: usePrecision({ value, onChange: setValue }, 2), setValue }
+    })
+
+    expect(result.current.precision).toBe(45.13)
+
+    await act(() => result.current.setValue(-45.155))
+    await rerender()
+    expect(result.current.precision).toBe(-45.15)
   })
 })

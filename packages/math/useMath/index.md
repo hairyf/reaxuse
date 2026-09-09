@@ -36,3 +36,18 @@ const refPower = useMath('pow', base, exponent) // 8
 
 const rounded = useMath('round', { current: 2.5 }) // 3
 ```
+
+## Argument Forms
+
+Every argument accepts a React `State<number>` and is resolved through `toValue`:
+
+```tsx
+import { useMath } from '@reaxuse/math'
+
+useMath('pow', 2, 3) // plain numbers
+useMath('pow', () => 2, { current: 3 }) // getter and React ref
+useMath('pow', [base, setBase], { value: exponent, onChange: setExponent }) // state forms
+```
+
+The `[value, setter]` tuple and `{ value, onChange }` pair are the React state protocol and have no
+upstream equivalent (upstream takes `MaybeRefOrGetter`).

@@ -51,3 +51,19 @@ const [clamped] = useClamp(value, min, max)
 
 max.current = 3 // clamped is 3 on the next render
 ```
+
+## Value Forms
+
+`value`, `min` and `max` all accept a React `State<number>` and every form is resolved through
+`toValue`:
+
+```tsx
+import { useClamp } from '@reaxuse/math'
+
+useClamp(0, 0, 10) // plain numbers
+useClamp({ current: 0 }, () => 0, { value: 10, onChange: setMax }) // ref, getter, value/onChange
+useClamp([value, setValue], [min, setMin], [max, setMax]) // state tuples
+```
+
+The `[value, setter]` tuple and `{ value, onChange }` pair are the React state protocol and have no
+upstream equivalent (upstream takes `MaybeRefOrGetter`).

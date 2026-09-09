@@ -1,4 +1,4 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { State } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 
 /**
@@ -14,6 +14,12 @@ import { toValue } from '@reaxuse/shared'
  * and the truncated number is returned directly, with
  * no effects and no `.value` wrapper (SSR-safe).
  *
+ * `value` accepts a React `State<number>` — a plain number, a getter
+ * (`() => value`), a React ref (`{ current }`), a `[value, setter]` tuple, or a
+ * `{ value, onChange }` pair. Every form is resolved through `toValue`; the
+ * tuple and `{ value, onChange }` forms are the React state protocol and have
+ * no upstream equivalent (upstream takes `MaybeRefOrGetter<number>`).
+ *
  * @see https://vueuse.org/math/useTrunc/
  *
  * @__NO_SIDE_EFFECTS__
@@ -28,6 +34,6 @@ import { toValue } from '@reaxuse/shared'
  * @param value - The value to truncate.
  * @returns The truncated number.
  */
-export function useTrunc(value: RefOrValue<number>): number {
+export function useTrunc(value: State<number>): number {
   return Math.trunc(toValue(value))
 }

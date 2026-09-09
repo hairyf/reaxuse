@@ -1,4 +1,4 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { State } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 
 /**
@@ -12,6 +12,10 @@ import { toValue } from '@reaxuse/shared'
  * React ref) with `toValue` and returns a plain `boolean` on each call — there
  * is no reactivity, so re-renders (or effects) drive re-evaluation (SSR-safe).
  *
+ * `v` accepts a React `State<any>` — a plain value, a getter (`() => value`),
+ * a React ref (`{ current }`), a `[value, setter]` tuple, or a
+ * `{ value, onChange }` pair. Every form is resolved through `toValue`.
+ *
  * @__NO_SIDE_EFFECTS__
  *
  * @example
@@ -21,9 +25,9 @@ import { toValue } from '@reaxuse/shared'
  * logicNot(0) // true
  * logicNot('foo') // false
  *
- * @param v - A value or React ref to negate.
+ * @param v - A React `State<any>` value to negate.
  * @returns `true` when the resolved value is falsy, `false` otherwise.
  */
-export function logicNot(v: RefOrValue<any>): boolean {
+export function logicNot(v: State<any>): boolean {
   return !toValue(v)
 }

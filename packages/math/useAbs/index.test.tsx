@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useAbs } from '../useAbs'
@@ -71,5 +71,31 @@ describe('useAbs', () => {
     })
     await rerender()
     expect(result.current.value).toBe(0)
+  })
+
+  it('accepts a controlled state tuple', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState(-5)
+      return { abs: useAbs([value, setValue]), setValue }
+    })
+
+    expect(result.current.abs).toBe(5)
+
+    await act(() => result.current.setValue(-12))
+    await rerender()
+    expect(result.current.abs).toBe(12)
+  })
+
+  it('accepts a value/onChange pair', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState(-5)
+      return { abs: useAbs({ value, onChange: setValue }), setValue }
+    })
+
+    expect(result.current.abs).toBe(5)
+
+    await act(() => result.current.setValue(-12))
+    await rerender()
+    expect(result.current.abs).toBe(12)
   })
 })

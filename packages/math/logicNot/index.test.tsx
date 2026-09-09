@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { logicNot } from '../logicNot'
@@ -50,5 +50,29 @@ describe('logicNot', () => {
 
     a.current = 1
     expect(logicNot(a)).toBe(false)
+  })
+
+  it('accepts a controlled state tuple and a value/onChange pair', async () => {
+    const tuple = await renderHook(() => {
+      const [a, setA] = useState(true)
+      return { notA: logicNot([a, setA]), setA }
+    })
+
+    expect(tuple.result.current.notA).toBe(false)
+
+    await tuple.act(() => tuple.result.current.setA(false))
+    await tuple.rerender()
+    expect(tuple.result.current.notA).toBe(true)
+
+    const pair = await renderHook(() => {
+      const [a, setA] = useState(true)
+      return { notA: logicNot({ value: a, onChange: setA }), setA }
+    })
+
+    expect(pair.result.current.notA).toBe(false)
+
+    await pair.act(() => pair.result.current.setA(false))
+    await pair.rerender()
+    expect(pair.result.current.notA).toBe(true)
   })
 })

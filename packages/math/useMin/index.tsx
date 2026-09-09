@@ -1,13 +1,21 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { State } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 
 /**
- * Composable argument types — a variadic list of resolvable numbers, or a
- * single resolvable array of resolvable numbers. Mirrors VueUse math's
+ * Composable argument types — a variadic list of `State<number>` values, or a
+ * single `ArraySource<number>` array. Mirrors VueUse math's
  * `MaybeComputedRefArgs` (`source/vueuse/packages/math/utils.ts`), migrated to
- * `RefOrValue` (plain values or React refs).
+ * `State` (plain values, getters, React refs, `[value, setter]` tuples and
+ * `{ value, onChange }` pairs).
  */
-type RefOrValueArgs<T> = RefOrValue<T>[] | [RefOrValue<RefOrValue<T>[]>]
+type StateArgs<T> = State<T>[] | [ArraySource<T>]
+
+/**
+ * Array-valued source type. `State<State<T>[]>` alone is not assignable from a
+ * plain `useState<T[]>()` tuple because the tuple setter is contravariant, so
+ * the plain-array form is accepted as a separate union member.
+ */
+type ArraySource<T> = State<State<T>[]> | State<T[]>
 
 /**
  * Flatten the composable arguments into a plain resolved value array.
@@ -15,7 +23,7 @@ type RefOrValueArgs<T> = RefOrValue<T>[] | [RefOrValue<RefOrValue<T>[]>]
  *
  * @__NO_SIDE_EFFECTS__
  */
-function toValueArgsFlat<T>(args: RefOrValueArgs<T>): T[] {
+function toValueArgsFlat<T>(args: StateArgs<T>): T[] {
   return args.flatMap((item: any): T[] => {
     const value = toValue(item)
     if (Array.isArray(value))
@@ -37,6 +45,16 @@ function toValueArgsFlat<T>(args: RefOrValueArgs<T>): T[] {
  * render time and the minimum is returned
  * directly, with no effects and no `.value` wrapper (SSR-safe).
  *
+ * Every argument accepts a React `State<number>` — a plain number, a getter
+ * (`() => value`), a React ref (`{ current }`), a `[value, setter]` tuple, or a
+ * `{ value, onChange }` pair — and the single-array form accepts
+ * `ArraySource<number>`. Every form is resolved through `toValue`.
+ *
+ * Caveat: a 2-element array whose second element is a function resolves as the
+ * `[value, setter]` tuple form (see `toValue`), so `useMin([5, () => 1])` reads
+ * `5`, not `1`. Pass the elements as separate arguments
+ * (`useMin(5, () => 1)`) to compare them.
+ *
  * @see https://vueuse.org/math/useMin/
  *
  * @__NO_SIDE_EFFECTS__
@@ -53,9 +71,9 @@ function toValueArgsFlat<T>(args: RefOrValueArgs<T>): T[] {
  * @returns The minimum of the given numbers, or `Number.POSITIVE_INFINITY` when
  * no arguments are passed (matching `Math.min()` semantics).
  */
-export function useMin(array: RefOrValue<RefOrValue<number>[]>): number
-export function useMin(...args: RefOrValue<number>[]): number
+export function useMin(array: ArraySource<number>): number
+export function useMin(...args: State<number>[]): number
 
-export function useMin(...args: RefOrValueArgs<number>): number {
+export function useMin(...args: StateArgs<number>): number {
   return Math.min(...toValueArgsFlat(args))
 }

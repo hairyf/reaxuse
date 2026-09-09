@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useTrunc } from '../useTrunc'
@@ -65,5 +65,31 @@ describe('useTrunc', () => {
 
     const { result: refResult } = await renderHook(() => useTrunc(useRef(-2.34)))
     expect(refResult.current).toBe(-2)
+  })
+
+  it('accepts a controlled state tuple', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState(1.95)
+      return { trunc: useTrunc([value, setValue]), setValue }
+    })
+
+    expect(result.current.trunc).toBe(1)
+
+    await act(() => result.current.setValue(-7.004))
+    await rerender()
+    expect(result.current.trunc).toBe(-7)
+  })
+
+  it('accepts a value/onChange pair', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState(1.95)
+      return { trunc: useTrunc({ value, onChange: setValue }), setValue }
+    })
+
+    expect(result.current.trunc).toBe(1)
+
+    await act(() => result.current.setValue(-7.004))
+    await rerender()
+    expect(result.current.trunc).toBe(-7)
   })
 })
