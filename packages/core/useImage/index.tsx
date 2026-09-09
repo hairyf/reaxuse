@@ -119,10 +119,12 @@ export interface UseImageReturn {
 async function loadImage(options: UseImageOptions): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image()
-    const { src, srcset, sizes, class: clazz, loading, crossorigin, referrerPolicy, width, height, decoding, fetchPriority, ismap, usemap } = options
+    const { src, srcset, sizes, class: clazz, alt, loading, crossorigin, referrerPolicy, width, height, decoding, fetchPriority, ismap, usemap } = options
 
     img.src = src
 
+    if (alt != null)
+      img.alt = alt
     if (srcset != null)
       img.srcset = srcset
     if (sizes != null)
@@ -259,12 +261,16 @@ export function useImage(
   // the cleanup invalidates the in-flight load before a new one starts and on
   // unmount, aborting it
   const optionsKey = JSON.stringify(options)
+  // reloads whenever the options object changes — upstream's `watch` on the
+  // options fires unconditionally on change, regardless of `immediate`
+  const prevOptionsKeyRef = useRef(optionsKey)
 
   useEffect(() => {
     const { immediate = true, delay = 0 } = asyncStateOptionsRef.current
 
-    if (immediate)
+    if (prevOptionsKeyRef.current !== optionsKey || immediate)
       void execute(delay)
+    prevOptionsKeyRef.current = optionsKey
 
     return () => {
       executionsCountRef.current += 1

@@ -112,3 +112,85 @@ it('should not touch Image during render (SSR-safe)', async () => {
   expect(result.current.error).toBeUndefined()
   expect(result.current.url).toBeNull()
 })
+
+it('should wait for the configured delay before starting the load', async () => {
+  const { result } = await renderHook(() => useImage({ src: GOOD_GIF_SRC }, { delay: 100 }))
+
+  // still waiting out the delay — nothing loaded yet
+  expect(result.current.isLoading).toBe(true)
+  expect(result.current.isLoaded).toBe(false)
+
+  await vi.waitFor(() => {
+    expect(result.current.isLoaded).toBe(true)
+  })
+  expect(result.current.isLoading).toBe(false)
+})
+
+it('should keep the previous url when resetOnExecute is false', async () => {
+  const { result, rerender } = await renderHook(
+    (props?: { src: string }) => useImage({ src: props?.src ?? GOOD_GIF_SRC }, { resetOnExecute: false }),
+    { initialProps: { src: GOOD_GIF_SRC } },
+  )
+
+  await vi.waitFor(() => {
+    expect(result.current.isLoaded).toBe(true)
+  })
+  expect(result.current.url).toContain('data:image/gif')
+
+  // a failed reload must not clear the last good url
+  await rerender({ src: BAD_SRC })
+
+  await vi.waitFor(() => {
+    expect(result.current.error).toBeTruthy()
+  })
+  expect(result.current.isLoaded).toBe(false)
+  expect(result.current.url).toContain('data:image/gif')
+})
+
+it('should rethrow the load error when throwError is set', async () => {
+  const { result, act } = await renderHook(() => useImage({ src: BAD_SRC }, { immediate: false, throwError: true }))
+
+  await act(async () => {
+    await expect(result.current.execute()).rejects.toThrow()
+  })
+  expect(result.current.error).toBeTruthy()
+  expect(result.current.isLoaded).toBe(false)
+  expect(result.current.isLoading).toBe(false)
+})
+
+it('should capture the unavailable-Image error on the server', async () => {
+  // on the server `execute` cannot construct an `Image`; the failure must be
+  // captured in `error` rather than surfacing as an unhandled rejection
+  vi.stubGlobal('Image', undefined)
+
+  const { result, act } = await renderHook(() => useImage({ src: GOOD_GIF_SRC }, { immediate: false }))
+
+  await act(async () => {
+    await result.current.execute()
+  })
+  expect(result.current.error).toBeTruthy()
+  expect(result.current.isLoaded).toBe(false)
+  expect(result.current.isLoading).toBe(false)
+})
+
+it('should set the alt attribute on the created image', async () => {
+  // capture the element(s) useImage constructs without losing real load
+  // behavior (data: urls still fire onload)
+  const instances: HTMLImageElement[] = []
+  class ImageStub extends window.Image {
+    constructor() {
+      super()
+      instances.push(this)
+    }
+  }
+  vi.stubGlobal('Image', ImageStub)
+
+  const { result } = await renderHook(() => useImage({ src: GOOD_PNG_SRC, alt: 'alt text' }))
+
+  await vi.waitFor(() => {
+    expect(result.current.isLoaded).toBe(true)
+  })
+
+  expect(instances).toHaveLength(1)
+  expect(instances[0]?.alt).toBe('alt text')
+})
