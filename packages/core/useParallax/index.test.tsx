@@ -35,6 +35,18 @@ function moveMouse(rect: DOMRect, x = 50, y = 50) {
 }
 
 /**
+ * Shadow `getClientRects` with a deterministic, mutable rect so scroll/resize
+ * geometry can be asserted without depending on real layout.
+ */
+function mockRects(el: HTMLElement, rect: { left: number, top: number, width: number, height: number }) {
+  Object.defineProperty(el, 'getClientRects', {
+    configurable: true,
+    value: () => [rect],
+  })
+  return rect
+}
+
+/**
  * Chromium exposes a real (environment-dependent) `screen.orientation`, so
  * shadow it with a deterministic own property. `afterEach` deletes the own
  * property again, which restores the browser's prototype accessor.
@@ -130,6 +142,68 @@ describe('useParallax', () => {
     expect(result.current.tilt).toBeCloseTo(20 / 90, 5)
   })
 
+  it('keeps tilt/roll cursor-relative across scroll and resize instead of snapping to the corner', async () => {
+    const el = createTarget()
+    // deterministic geometry: a 200x200 box at (100, 100) in the viewport
+    const rect = mockRects(el, { left: 100, top: 100, width: 200, height: 200 })
+    const { result, act } = await renderHook(() => useParallax(el))
+
+    // cursor 150px into the box → tilt = (150 - 100) / 200 = 0.25,
+    // roll = -(150 - 100) / 200 = -0.25
+    await act(() => {
+      window.dispatchEvent(new MouseEvent('mousemove', { clientX: 250, clientY: 250, bubbles: true }))
+    })
+    await expect.poll(() => result.current.tilt).toBeCloseTo(0.25, 5)
+    expect(result.current.roll).toBeCloseTo(-0.25, 5)
+
+    // the page scrolls by 40px: the element moves up, the cursor stays put.
+    // Re-measuring without a persisted cursor snapped tilt/roll to the element
+    // corner (-0.5 / +0.5) until the next mousemove.
+    await act(() => {
+      rect.top = 60
+      window.dispatchEvent(new Event('scroll'))
+    })
+    // elementY = 250 - 60 = 190 → roll = -(190 - 100) / 200 = -0.45
+    await expect.poll(() => result.current.roll).toBeCloseTo(-0.45, 5)
+    expect(result.current.tilt).toBeCloseTo(0.25, 5)
+
+    // resize re-measures against the same persisted cursor position
+    await act(() => {
+      window.dispatchEvent(new Event('resize'))
+    })
+    expect(result.current.tilt).toBeCloseTo(0.25, 5)
+    expect(result.current.roll).toBeCloseTo(-0.45, 5)
+  })
+
+  it('applies the deviceOrientation adjust callbacks', async () => {
+    stubScreenOrientation('portrait-primary', 0)
+    const { result, act } = await renderHook(() => useParallax(null, {
+      deviceOrientationTiltAdjust: i => i * 2,
+      deviceOrientationRollAdjust: i => i * 3,
+    }))
+
+    await act(() => {
+      window.dispatchEvent(new DeviceOrientationEvent('deviceorientation', { alpha: 45, beta: 10, gamma: 20 }))
+    })
+
+    await expect.poll(() => result.current.source).toBe('deviceOrientation')
+    // portrait-primary: tilt = gamma / 90, roll = -beta / 90
+    expect(result.current.tilt).toBeCloseTo((20 / 90) * 2, 5)
+    expect(result.current.roll).toBeCloseTo((-10 / 90) * 3, 5)
+  })
+
+  it('returns finite 0 for a zero-size rect where upstream yields NaN', async () => {
+    const el = createTarget()
+    mockRects(el, { left: 0, top: 0, width: 0, height: 0 })
+    const { result, act } = await renderHook(() => useParallax(el))
+
+    await act(() => {
+      window.dispatchEvent(new MouseEvent('mousemove', { clientX: 10, clientY: 10, bubbles: true }))
+    })
+
+    expect(result.current).toEqual({ tilt: 0, roll: 0, source: 'mouse' })
+  })
+
   it('resolves a ref-like target at bind time, after it is populated', async () => {
     const el = createTarget()
     const targetRef: { current: HTMLElement | null } = { current: null }
@@ -156,7 +230,7 @@ describe('useParallax', () => {
     expect(result.current.roll).toBeCloseTo(-0.25, 5)
   })
 
-  it('stays SSR-safe during render before the mount effect', async () => {
+  it('returns finite 0 tilt/roll on the first render before the mount effect measures', async () => {
     const snapshots: Array<{ tilt: number, roll: number, source: 'deviceOrientation' | 'mouse' }> = []
 
     function Probe() {
@@ -165,6 +239,8 @@ describe('useParallax', () => {
       return <div>{parallax.tilt}</div>
     }
 
+    // client render: the hook reads no `window`/DOM during render, so the
+    // first render matches what an SSR pass would emit
     await render(<Probe />)
 
     expect(snapshots[0]).toEqual({ tilt: 0, roll: 0, source: 'mouse' })

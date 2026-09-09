@@ -89,8 +89,13 @@ interface MouseInElementState {
  * - upstream's `useDeviceOrientation` and `useMouseInElement` listener
  *   wiring (`mousemove`/`scroll`/`resize`, plus the `deviceorientation`
  *   subscription) becomes self-contained `useEffect`s with cleanup — no
- *   `useMutationObserver`/`useResizeObserver` re-measuring, a window
- *   `scroll`/`resize` listener re-measures the rect instead;
+ *   `useMutationObserver`/`useResizeObserver` re-measuring. The window
+ *   `scroll`/`resize` listeners re-measure the rect against the last cursor
+ *   position (upstream keeps it in `useMouse`), so `tilt`/`roll` stay
+ *   cursor-relative instead of snapping to the element corner;
+ * - a zero-size or not-yet-measured rect yields `tilt`/`roll` `0`, where
+ *   upstream divides by the zero `elementWidth`/`elementHeight` and yields
+ *   `NaN` — deliberate, so the first render and SSR stay finite;
  * - SSR-safe: nothing touches `window`, `document` or the DOM during render —
  *   all listeners attach in mount effects and the initial values
  *   (`tilt: 0`, `roll: 0`, `source: 'mouse'`) render on the server.
@@ -136,6 +141,11 @@ export function useParallax(
   const targetRef = useRef(target)
   targetRef.current = target
 
+  // Latest cursor position in client coordinates (upstream `useMouse` `x`/`y`,
+  // refreshed by every `mousemove` and kept between events). `null` until the
+  // first mouse event, mirroring upstream's `{ x: 0, y: 0 }` initial values.
+  const cursorRef = useRef<{ x: number, y: number } | null>(null)
+
   // dependency-tracking read: ref-like targets populate after the first
   // render, so the effect below re-resolves fresh at bind time and re-binds
   // whenever the resolved element changes
@@ -173,32 +183,63 @@ export function useParallax(
       return
 
     const update = (event?: MouseEvent) => {
+      // upstream `useMouse` persists the last cursor position, so `scroll` /
+      // `resize` re-measure the rect against the cursor instead of falling
+      // back to the element origin (which snapped tilt/roll to the corner)
+      if (event)
+        cursorRef.current = { x: event.clientX, y: event.clientY }
+
       const el = toValue(targetRef.current)
       if (!el || !(el instanceof Element))
         return
 
-      for (const rect of el.getClientRects()) {
-        const { left, top, width, height } = rect
-        const positionX = left + win.pageXOffset
-        const positionY = top + win.pageYOffset
+      const rects = el.getClientRects()
+      if (rects.length === 0)
+        return
 
-        const elementX = event ? event.pageX - positionX : 0
-        const elementY = event ? event.pageY - positionY : 0
+      const cursor = cursorRef.current
+
+      let width = 0
+      let height = 0
+      let inside: MouseInElementState | undefined
+
+      for (const rect of rects) {
+        width = rect.width
+        height = rect.height
+
+        // upstream subtracts the rect's page position from the persisted
+        // `useMouse` page coordinates; with the cursor pinned to its viewport
+        // position that is algebraically the client-relative difference used
+        // here, and it stays correct across scroll/resize
+        const elementX = cursor ? cursor.x - rect.left : -(rect.left + win.pageXOffset)
+        const elementY = cursor ? cursor.y - rect.top : -(rect.top + win.pageYOffset)
 
         const isOutside = width === 0 || height === 0
           || elementX < 0 || elementY < 0
           || elementX > width || elementY > height
 
-        if (isOutside)
-          continue
-
-        setMouse(prev => (
-          prev.x === elementX && prev.y === elementY && prev.width === width && prev.height === height
-            ? prev
-            : { x: elementX, y: elementY, width, height }
-        ))
-        break
+        if (!isOutside) {
+          inside = { x: elementX, y: elementY, width, height }
+          break
+        }
       }
+
+      if (!inside) {
+        // upstream `handleOutside: false`: while the cursor is outside every
+        // rect the element position keeps its last value, but the rect size
+        // still tracks the element
+        setMouse(prev => (
+          prev.width === width && prev.height === height ? prev : { ...prev, width, height }
+        ))
+        return
+      }
+
+      const next = inside
+      setMouse(prev => (
+        prev.x === next.x && prev.y === next.y && prev.width === next.width && prev.height === next.height
+          ? prev
+          : next
+      ))
     }
 
     const onMouseMove = (event: MouseEvent) => update(event)
