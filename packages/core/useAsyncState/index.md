@@ -69,6 +69,8 @@ const { state } = useAsyncState(promise, initialState, {
   delay: 0,
   // Reset state to initial before each execution (default: true)
   resetOnExecute: true,
+  // Accepted for API parity; no-op in React (default: true)
+  shallow: true,
   // Throw errors instead of catching them (default: false)
   throwError: false,
   // Called when promise resolves
@@ -81,3 +83,9 @@ const { state } = useAsyncState(promise, initialState, {
   },
 })
 ```
+
+::: tip `shallow` is a no-op
+VueUse uses `shallow` to choose between `shallowRef` and `ref` for `state` (default `true`). React
+state is never deep-wrapped, so the option — and the `Shallow` generic that mirrors it — is accepted
+for API parity only and has no effect: `state` is always the plain resolved value.
+:::
