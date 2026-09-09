@@ -18,7 +18,7 @@ const { coords, locatedAt, error, resume, pause } = useGeolocation()
 | --------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
 | coords    | [`Coordinates`](https://developer.mozilla.org/en-US/docs/Web/API/GeolocationCoordinates) | information about the position retrieved like the latitude and longitude |
 | locatedAt | `number \| null`                                                                         | The time of the last geolocation call (epoch ms)                         |
-| error     | `GeolocationPositionError \| null`                                                       | An error message in case geolocation API fails.                          |
+| error     | `GeolocationPositionError \| null`                                                       | The `GeolocationPositionError` in case the geolocation API fails.        |
 | resume    | `function`                                                                               | Control function to resume updating geolocation                          |
 | pause     | `function`                                                                               | Control function to pause updating geolocation                           |
 
