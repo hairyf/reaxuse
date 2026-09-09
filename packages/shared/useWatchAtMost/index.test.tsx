@@ -75,6 +75,35 @@ it('useWatchAtMost stops early when `stop` is called before the limit (renderHoo
   expect(calls).toEqual([{ value: 1, oldValue: 0 }])
 })
 
+it('useWatchAtMost pause/resume suspends and restores firing (upstream Pausable)', async () => {
+  const calls: WatchCall[] = []
+  let setValue: (value: number) => void = () => {}
+  let controls: UseWatchAtMostReturn = { count: 0, stop: () => {}, pause: () => {}, resume: () => {} }
+
+  const { act } = await renderHook(() => {
+    const [value, update] = useState(0)
+    setValue = update
+    controls = useWatchAtMost(value, (next, prev) => calls.push({ value: next, oldValue: prev }), { count: 3 })
+  })
+
+  await act(() => setValue(1))
+  expect(calls).toEqual([{ value: 1, oldValue: 0 }])
+
+  // paused changes neither fire the callback nor count towards the limit
+  await act(() => controls.pause())
+  await act(() => setValue(2))
+  expect(calls).toEqual([{ value: 1, oldValue: 0 }])
+  expect(controls.count).toBe(1)
+
+  await act(() => controls.resume())
+  await act(() => setValue(3))
+  expect(calls).toEqual([
+    { value: 1, oldValue: 0 },
+    { value: 3, oldValue: 2 },
+  ])
+  expect(controls.count).toBe(2)
+})
+
 it('useWatchAtMost counts the `immediate` call toward the limit (renderHook)', async () => {
   const calls: WatchCall[] = []
   let setValue: (value: number) => void = () => {}
