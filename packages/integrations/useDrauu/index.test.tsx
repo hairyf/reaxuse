@@ -260,6 +260,71 @@ describe('useDrauu', () => {
     expect(result.current.dump()).toContain('stroke="green"')
   })
 
+  it('should accept the React functional updater in setBrush', async () => {
+    const svg = createSvg()
+    const { result, act } = await renderHook(() => useDrauu(svg))
+    const instance = result.current.drauuInstance!
+
+    await act(() => {
+      result.current.setBrush(prev => ({ ...prev, color: 'purple', size: prev.size + 1 }))
+    })
+
+    // the updater receives the current brush and only the patched fields change
+    expect(result.current.brush.color).toBe('purple')
+    expect(result.current.brush.size).toBe(4)
+    expect(result.current.brush.mode).toBe('draw')
+    expect(instance.brush).toBe(result.current.brush)
+
+    // a second updater composes on the first (latest value, not the mount value)
+    await act(() => {
+      result.current.setBrush(prev => ({ ...prev, size: prev.size + 1 }))
+    })
+    expect(result.current.brush.size).toBe(5)
+    expect(instance.brush.size).toBe(5)
+  })
+
+  it('should update the returned brush with no mounted instance', async () => {
+    const { result, act } = await renderHook(() => useDrauu(null))
+
+    expect(result.current.drauuInstance).toBeUndefined()
+
+    await act(() => {
+      result.current.setBrush(prev => ({ ...prev, color: 'teal' }))
+    })
+
+    expect(result.current.brush.color).toBe('teal')
+    expect(result.current.drauuInstance).toBeUndefined()
+  })
+
+  it('should return one object with the paired setBrush and every upstream member', async () => {
+    const svg = createSvg()
+    const { result } = await renderHook(() => useDrauu(svg))
+
+    // return-shape rule 5: a single object, every caller-writable value paired
+    // with its setter (`brush` / `setBrush`) plus the upstream methods and the
+    // read-only outputs (`drauuInstance`, `canUndo`, `canRedo`).
+    expect(Array.isArray(result.current)).toBe(false)
+    expect(Object.keys(result.current).sort()).toEqual([
+      'brush',
+      'canRedo',
+      'canUndo',
+      'cancel',
+      'clear',
+      'drauuInstance',
+      'dump',
+      'load',
+      'onCanceled',
+      'onChanged',
+      'onCommitted',
+      'onEnd',
+      'onStart',
+      'redo',
+      'setBrush',
+      'undo',
+    ])
+    expect(typeof result.current.setBrush).toBe('function')
+  })
+
   it('should fire each on* registrar and stop it with off()', async () => {
     const svg = createSvg()
     const { result, act } = await renderHook(() => useDrauu(svg))

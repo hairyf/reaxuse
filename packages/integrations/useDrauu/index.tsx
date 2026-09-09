@@ -1,5 +1,6 @@
 import type { ListenerOn } from '@reaxuse/shared'
 import type { Brush, Drauu, Options } from 'drauu'
+import type { Dispatch, SetStateAction } from 'react'
 import { isRefLike, toValue } from '@reaxuse/shared'
 import { createDrauu } from 'drauu'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -13,7 +14,10 @@ export type UseDrauuOptions = Omit<Options, 'el'>
 export interface UseDrauuReturn {
   /**
    * The mounted drauu instance — `undefined` until the target resolves to an
-   * `<svg>` element (upstream `Ref<Drauu | undefined>`).
+   * `<svg>` element (upstream writable `Ref<Drauu | undefined>`). The hook owns
+   * the instance lifecycle, so this is a read-only output and has no paired
+   * setter (precedent: `useFileSystemAccess`'s `file`, `useTextareaAutosize`'s
+   * `textarea`).
    */
   drauuInstance: Drauu | undefined
 
@@ -48,25 +52,32 @@ export interface UseDrauuReturn {
   redo: () => boolean | undefined
 
   /**
-   * Whether there is an operation to undo (upstream `ShallowRef<boolean>`).
+   * Whether there is an operation to undo (upstream writable
+   * `ShallowRef<boolean>`). The hook re-reads it from the instance on every
+   * drauu `changed` event, so it is a read-only output and has no paired setter.
    */
   canUndo: boolean
 
   /**
-   * Whether there is an operation to redo (upstream `ShallowRef<boolean>`).
+   * Whether there is an operation to redo (upstream writable
+   * `ShallowRef<boolean>`). The hook re-reads it from the instance on every
+   * drauu `changed` event, so it is a read-only output and has no paired setter.
    */
   canRedo: boolean
 
   /**
-   * The current brush (upstream writable `Ref<Brush>`).
+   * The current brush (upstream writable `Ref<Brush>`) — the hook's only
+   * caller-writable value, paired with `setBrush`.
    */
   brush: Brush
 
   /**
-   * React writable-side analog of the upstream `brush` ref: updates the
-   * returned `brush` value and the mounted instance's brush / mode.
+   * React writable-side analog of the upstream `brush` ref, paired with
+   * `brush`: `setBrush(next)` or `setBrush(prev => next)` (the React state
+   * setter protocol — `Dispatch<SetStateAction<Brush>>`). It writes the
+   * returned `brush` value AND the mounted instance's brush / mode.
    */
-  setBrush: (brush: Brush) => void
+  setBrush: Dispatch<SetStateAction<Brush>>
 
   /**
    * Register a listener for drauu's `changed` event — `useListener(onChanged, cb)`.
@@ -176,11 +187,19 @@ function useEventHook<T extends (...args: any[]) => void>(): EventHookRegistrar<
  * for this port.
  *
  * Adjustment for React (upstream returns `Ref` / `ShallowRef` / `EventHookOn`):
- * - `drauuInstance`, `canUndo`, `canRedo` and `brush` are plain values from
- *   state instead of refs, and the writable `brush` ref is returned as the
- *   value plus an explicit `setBrush` setter (object-member setter precedent:
- *   `useNProgress`'s `setProgress`). `setBrush` writes the state AND the
+ * - the return is an OBJECT with a paired setter for every caller-writable
+ *   value (return-shape rule 5). `brush` is the only such value — upstream's
+ *   writable `Ref<Brush>` — and it is paired with `setBrush`, the React state
+ *   setter (`Dispatch<SetStateAction<Brush>>`), so `setBrush(next)` and
+ *   `setBrush(prev => next)` both work; `setBrush` writes the state AND the
  *   mounted instance's brush / mode, mirroring upstream's deep watcher;
+ * - `drauuInstance`, `canUndo` and `canRedo` are plain values from state
+ *   instead of refs and stay read-only outputs without paired setters: the
+ *   hook owns the instance lifecycle and re-reads the undo / redo status from
+ *   the instance on every drauu `changed` event, so a caller write would be
+ *   overwritten (upstream returns them as writable `Ref` / `ShallowRef`s;
+ *   precedent: `useFileSystemAccess`'s `file`, `useAsyncState`'s `isReady` /
+ *   `error`, `useTextareaAutosize`'s `textarea`);
  * - the five `on*` members are §2D registrars — `(fn) => ({ off })` typed
  *   `ListenerOn<T>` (`@reaxuse/shared`), consumable as
  *   `useListener(onChanged, cb)` for automatic cleanup on unmount, and `off()`
@@ -202,6 +221,7 @@ function useEventHook<T extends (...args: any[]) => void>(): EventHookRegistrar<
  * @example
  * const target = useRef<SVGSVGElement>(null)
  * const { undo, redo, canUndo, canRedo, brush, setBrush } = useDrauu(target)
+ * setBrush(prev => ({ ...prev, color: '#ef4444' }))
  * return <svg ref={target} />
  */
 export function useDrauu(
@@ -331,17 +351,19 @@ export function useDrauu(
 
   const redo = useCallback(() => instanceRef.current?.redo(), [])
 
-  const setBrush = useCallback((next: Brush) => {
-    brushRef.current = next
-    setBrushState(next)
+  const setBrush = useCallback((next: SetStateAction<Brush>) => {
+    // React setter protocol: a function argument receives the latest brush.
+    const value = typeof next === 'function' ? next(brushRef.current) : next
+    brushRef.current = value
+    setBrushState(value)
 
     const instance = instanceRef.current
     if (instance) {
-      instance.brush = next
+      instance.brush = value
       // drauu's `brush` setter does not switch the model; upstream assigns
       // the mode explicitly so the drawing model follows the brush.
-      if (next.mode)
-        instance.mode = next.mode
+      if (value.mode)
+        instance.mode = value.mode
     }
   }, [])
 

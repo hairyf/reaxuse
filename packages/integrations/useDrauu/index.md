@@ -23,8 +23,9 @@ const { undo, redo, canUndo, canRedo, clear, brush, setBrush } = useDrauu(target
   brush: { color: 'black', size: 3 },
 })
 
-// `brush` is the current brush value; `setBrush` updates it and the instance
-setBrush({ ...brush, color: '#ef4444' })
+// `brush` is the current brush value; `setBrush` is its paired setter and
+// updates both the returned value and the mounted instance
+setBrush(prev => ({ ...prev, color: '#ef4444' }))
 
 return <svg ref={target} />
 ```

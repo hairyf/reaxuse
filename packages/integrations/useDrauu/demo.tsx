@@ -24,10 +24,12 @@ export default function UseDrauuDemo() {
   })
   const [size, setSize] = useState(3)
 
-  // `setBrush` writes the returned value AND the mounted instance, mirroring
-  // the upstream writable `brush` ref (`toRefs(brush)` in the Vue demo).
+  // `setBrush` is the React setter paired with `brush` — the updater form
+  // receives the latest brush and writes both the returned value and the
+  // mounted instance, mirroring the upstream writable `brush` ref
+  // (`toRefs(brush)` in the Vue demo).
   const updateBrush = (patch: Partial<Brush>) => {
-    setBrush({ ...brush, ...patch })
+    setBrush(prev => ({ ...prev, ...patch }))
   }
 
   return (
