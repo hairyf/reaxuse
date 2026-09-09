@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useWindowScroll } from '../useWindowScroll'
 
@@ -7,17 +7,69 @@ function makeBodyScrollable() {
   document.body.style.width = '3000px'
 }
 
+/**
+ * Deterministic window-scroll harness.
+ *
+ * The hook is driven by native `scroll` events, so really scrolling the window
+ * races the assertions: chromium delivers the native event on a later frame,
+ * which re-measures against the already-updated position and wipes
+ * `directions` right before an immediate assertion, and the `idle` reset then
+ * runs on a real timer that can fire mid-test. Here `window.scrollTo` is
+ * replaced by a stubbed position that dispatches the `scroll` event
+ * synchronously, and the tests fake timers so the `idle` reset only happens
+ * when they advance the clock.
+ */
+function installScrollStub() {
+  let left = 0
+  let top = 0
+
+  const scrollTo = vi.spyOn(window, 'scrollTo')
+  scrollTo.mockImplementation((first: ScrollToOptions | number, second?: number) => {
+    if (typeof first === 'object') {
+      left = first.left ?? left
+      top = first.top ?? top
+    }
+    else {
+      left = first
+      top = second ?? top
+    }
+    window.dispatchEvent(new Event('scroll'))
+  })
+
+  const documentElement = document.documentElement
+  const leftDescriptor = Object.getOwnPropertyDescriptor(documentElement, 'scrollLeft')
+  const topDescriptor = Object.getOwnPropertyDescriptor(documentElement, 'scrollTop')
+  Object.defineProperty(documentElement, 'scrollLeft', { configurable: true, get: () => left })
+  Object.defineProperty(documentElement, 'scrollTop', { configurable: true, get: () => top })
+
+  return {
+    restore() {
+      scrollTo.mockRestore()
+      if (leftDescriptor)
+        Object.defineProperty(documentElement, 'scrollLeft', leftDescriptor)
+      else
+        delete (documentElement as unknown as { scrollLeft?: number }).scrollLeft
+      if (topDescriptor)
+        Object.defineProperty(documentElement, 'scrollTop', topDescriptor)
+      else
+        delete (documentElement as unknown as { scrollTop?: number }).scrollTop
+    },
+  }
+}
+
 describe('useWindowScroll', () => {
+  let scroll: ReturnType<typeof installScrollStub>
+
   beforeEach(() => {
-    document.body.style.height = ''
-    document.body.style.width = ''
-    window.scrollTo(0, 0)
+    vi.useFakeTimers()
+    scroll = installScrollStub()
   })
 
   afterEach(() => {
+    scroll.restore()
+    vi.useRealTimers()
     document.body.style.height = ''
     document.body.style.width = ''
-    window.scrollTo(0, 0)
   })
 
   it('should be defined', () => {
@@ -54,11 +106,11 @@ describe('useWindowScroll', () => {
     const { result, act } = await renderHook(() => useWindowScroll())
 
     await act(() => result.current.setY(100))
-    await expect.poll(() => result.current.y).toBe(100)
+    expect(result.current.y).toBe(100)
     expect(result.current.x).toBe(0)
 
     await act(() => result.current.setX(120))
-    await expect.poll(() => result.current.x).toBe(120)
+    expect(result.current.x).toBe(120)
     expect(result.current.y).toBe(100)
   })
 
@@ -66,22 +118,23 @@ describe('useWindowScroll', () => {
     makeBodyScrollable()
     const { result } = await renderHook(() => useWindowScroll({ x: 30, y: 60 }))
 
-    await expect.poll(() => result.current.x).toBe(30)
-    await expect.poll(() => result.current.y).toBe(60)
+    expect(result.current.x).toBe(30)
+    expect(result.current.y).toBe(60)
   })
 
   it('should set isScrolling while scrolling and reset after idle', async () => {
     makeBodyScrollable()
     const { result, act } = await renderHook(() => useWindowScroll({ idle: 80 }))
 
-    // keep the position unchanged so no native scroll/scrollend events
-    // interfere — the reset below comes from the idle timeout alone
     await act(() => {
       window.dispatchEvent(new Event('scroll'))
     })
     expect(result.current.isScrolling).toBe(true)
 
-    await expect.poll(() => result.current.isScrolling).toBe(false)
+    await act(() => {
+      vi.advanceTimersByTime(80)
+    })
+    expect(result.current.isScrolling).toBe(false)
   })
 
   it('should track scroll directions and reset them on stop', async () => {
@@ -90,7 +143,6 @@ describe('useWindowScroll', () => {
 
     await act(() => {
       window.scrollTo(0, 200)
-      window.dispatchEvent(new Event('scroll'))
     })
     expect(result.current.directions).toEqual({
       left: false,
@@ -101,7 +153,6 @@ describe('useWindowScroll', () => {
 
     await act(() => {
       window.scrollTo(0, 50)
-      window.dispatchEvent(new Event('scroll'))
     })
     expect(result.current.directions).toEqual({
       left: false,
@@ -112,7 +163,6 @@ describe('useWindowScroll', () => {
 
     await act(() => {
       window.scrollTo(150, 50)
-      window.dispatchEvent(new Event('scroll'))
     })
     expect(result.current.directions).toEqual({
       left: false,
@@ -122,13 +172,16 @@ describe('useWindowScroll', () => {
     })
 
     // directions and isScrolling reset when scrolling ends
-    await expect.poll(() => result.current.directions).toEqual({
+    await act(() => {
+      vi.advanceTimersByTime(50)
+    })
+    expect(result.current.directions).toEqual({
       left: false,
       right: false,
       top: false,
       bottom: false,
     })
-    await expect.poll(() => result.current.isScrolling).toBe(false)
+    expect(result.current.isScrolling).toBe(false)
   })
 
   it('should update arrivedState within the offset', async () => {
@@ -140,20 +193,17 @@ describe('useWindowScroll', () => {
 
     await act(() => {
       window.scrollTo(0, 200)
-      window.dispatchEvent(new Event('scroll'))
     })
     expect(result.current.arrivedState.top).toBe(false)
     expect(result.current.arrivedState.bottom).toBe(false)
 
     await act(() => {
       window.scrollTo(0, document.documentElement.scrollHeight)
-      window.dispatchEvent(new Event('scroll'))
     })
     expect(result.current.arrivedState.bottom).toBe(true)
 
     await act(() => {
       window.scrollTo(0, 200)
-      window.dispatchEvent(new Event('scroll'))
     })
 
     // a second hook with a custom top offset of 250px counts y=200 as arrived

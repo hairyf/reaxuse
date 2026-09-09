@@ -143,7 +143,26 @@ describe('useElementOverflow', () => {
   })
 
   it('should update and call onUpdated from the mutation observer', async () => {
+    let mutationCallback: MutationCallback | undefined
     const onUpdated = vi.fn()
+    const observed: MutationObserverInit[] = []
+
+    vi.stubGlobal('MutationObserver', class {
+      constructor(callback: MutationCallback) {
+        mutationCallback = callback
+      }
+
+      observe(_target: Node, options?: MutationObserverInit): void {
+        observed.push(options ?? {})
+      }
+
+      disconnect(): void {}
+
+      takeRecords(): MutationRecord[] {
+        return []
+      }
+    })
+
     const el = document.createElement('div')
     document.body.appendChild(el)
     const content = document.createTextNode('fit')
@@ -151,17 +170,20 @@ describe('useElementOverflow', () => {
     changeDomSize(el, 'offsetWidth', 10)
     changeDomSize(el, 'scrollWidth', 50)
 
-    const { result } = await renderHook(() =>
+    const { result, act } = await renderHook(() =>
       useElementOverflow(el, { observeMutation: true, onUpdated }),
     )
 
-    content.data = 'overflowed'
+    // wired with the default characterData/subtree options
+    expect(observed).toEqual([{ childList: true, subtree: true, characterData: true }])
 
-    await vi.waitFor(() => {
-      expect(result.current.isXOverflowed).toBe(true)
+    // deliver the mutation synchronously instead of racing the real observer
+    await act(() => {
+      mutationCallback?.([], {} as unknown as MutationObserver)
     })
 
-    expect(onUpdated).toHaveBeenCalled()
+    expect(result.current.isXOverflowed).toBe(true)
+    expect(onUpdated).toHaveBeenCalledOnce()
     el.remove()
   })
 
@@ -206,24 +228,50 @@ describe('useElementOverflow', () => {
   })
 
   it('should start observing when a ref target attaches after mount', async () => {
+    let resizeCallback: ResizeObserverCallback | undefined
+    const observed: Element[] = []
+
+    vi.stubGlobal('ResizeObserver', class {
+      constructor(callback: ResizeObserverCallback) {
+        resizeCallback = callback
+      }
+
+      observe(target: Element): void {
+        observed.push(target)
+      }
+
+      unobserve(): void {}
+
+      disconnect(): void {}
+    })
+
     const el = document.createElement('div')
     document.body.appendChild(el)
     changeDomSize(el, 'offsetWidth', 10)
     changeDomSize(el, 'scrollWidth', 50)
     const ref = { current: null as HTMLDivElement | null }
 
-    const { result, rerender } = await renderHook(
+    const { result, rerender, act } = await renderHook(
       (props?: { target: { current: HTMLDivElement | null } }) =>
         useElementOverflow(props?.target ?? ref),
       { initialProps: { target: ref } },
     )
 
     expect(result.current.isXOverflowed).toBe(false)
+    expect(observed).toEqual([])
 
     ref.current = el
     await rerender({ target: ref })
-    // the resize observer delivers asynchronously — overflow is measured then
-    await expect.poll(() => result.current.isXOverflowed).toBe(true)
+
+    // the target that attached after mount is the one being observed
+    expect(observed).toEqual([el])
+
+    // deliver the observer callback synchronously instead of racing the real
+    // resize observer
+    await act(() => {
+      resizeCallback?.([], {} as unknown as ResizeObserver)
+    })
+    expect(result.current.isXOverflowed).toBe(true)
 
     el.remove()
   })
