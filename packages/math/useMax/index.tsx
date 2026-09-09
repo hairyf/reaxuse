@@ -1,13 +1,4 @@
-/**
- * Flatten the composable arguments into a plain number array.
- * Mirrors VueUse math's `toValueArgsFlat` (`source/vueuse/packages/math/utils.ts`),
- * narrowed to plain values because the arguments are read-only value sources.
- *
- * @__NO_SIDE_EFFECTS__
- */
-function toArgsFlat(args: readonly (number | readonly number[])[]): number[] {
-  return args.flatMap(item => (Array.isArray(item) ? [...item] : [item as number]))
-}
+import { toArgsFlat } from '../utils'
 
 /**
  * React port of VueUse's `useMax`.
