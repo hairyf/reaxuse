@@ -129,14 +129,14 @@ function defaultParse<Raw, Serialized>(clone?: boolean | ((value: Raw) => Raw)) 
  * undo and redo functionality.
  *
  * Return tuple follows this repo's React idiom:
- * `const [history, commit, controls] = useStateManualHistory(source, setSource)`.
+ * `const [history, commit, controls] = useStateManualHistory([source, setSource])`.
  *
  * Adjustments from upstream (Vue reactivity does not translate 1:1):
  *
  * 1. Source: upstream tracks a writable Vue `Ref<Raw>`; React state lives in
- *    the component, so the source is the `(state, setState)` pair of an
- *    existing `useState` — upstream's `setSource` option becomes the
- *    positional `setSource` argument.
+ *    the component, so the source is the controlled tuple `[state, setState]`
+ *    of an existing `useState` — upstream's `setSource` option is superseded by
+ *    the tuple's setter.
  * 2. Same-tick commits: React `setState` is asynchronous — a `commit()`
  *    right after your own `setState` call would snapshot the previous
  *    rendered value. Use `controls.setSource()` for updates you commit in
@@ -150,7 +150,7 @@ function defaultParse<Raw, Serialized>(clone?: boolean | ((value: Raw) => Raw)) 
  *
  * @example
  * const [count, setCount] = useState(0)
- * const [history, commit, { undo, redo, canUndo, canRedo }] = useStateManualHistory(count, setCount)
+ * const [history, commit, { undo, redo, canUndo, canRedo }] = useStateManualHistory([count, setCount])
  *
  * setCount(count + 1)
  * commit() // record the new value

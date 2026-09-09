@@ -167,14 +167,14 @@ function defaultParse<Raw, Serialized>(clone?: boolean | ((value: Raw) => Raw)) 
  * carries the latest value.
  *
  * Return tuple follows this repo's React idiom:
- * `const [history, undo, redo, controls] = useStateThrottledHistory(source, setSource)`.
+ * `const [history, undo, redo, controls] = useStateThrottledHistory([source, setSource])`.
  *
  * Adjustments from upstream (Vue reactivity does not translate 1:1):
  *
  * 1. Source: upstream tracks a writable Vue `Ref<Raw>` and commits through a
  *    watcher; React state lives in the component, so the source is the
- *    `(state, setState)` pair of an existing `useState` and commits are driven
- *    by an effect on state changes (upstream: `watchIgnorable`). The `deep`
+ *    controlled tuple `[state, setState]` of an existing `useState`; commits are
+ *    driven by an effect on state changes (upstream: `watchIgnorable`). The `deep`
  *    and `flush` options don't apply — replace the state instead of mutating
  *    it, a mutated object does not re-render and is invisible to the history
  *    (`clone` / custom `dump` still support mutation-style sources).
@@ -201,7 +201,7 @@ function defaultParse<Raw, Serialized>(clone?: boolean | ((value: Raw) => Raw)) 
  *
  * @example
  * const [count, setCount] = useState(0)
- * const [history, undo, redo, { canUndo, canRedo }] = useStateThrottledHistory(count, setCount, { throttle: 1000 })
+ * const [history, undo, redo, { canUndo, canRedo }] = useStateThrottledHistory([count, setCount], { throttle: 1000 })
  *
  * setCount(1) // first change after a quiet window commits immediately
  * setCount(2) // changes inside the window collapse into one trailing commit

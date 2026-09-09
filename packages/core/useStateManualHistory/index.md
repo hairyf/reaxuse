@@ -15,7 +15,7 @@ import { useStateManualHistory } from '@reaxuse/core'
 import { useState } from 'react'
 
 const [count, setCount] = useState(0)
-const [history, commit, { undo, redo, canUndo, canRedo }] = useStateManualHistory(count, setCount)
+const [history, commit, { undo, redo, canUndo, canRedo }] = useStateManualHistory([count, setCount])
 
 setCount(count + 1)
 commit()
@@ -36,8 +36,8 @@ is reworked for React hooks:
 
 - **Source as a `[state, setState]` pair** — upstream tracks a writable Vue `Ref` that the hook can
   read and write synchronously. React state lives in the component, so the source is passed in as
-  the pair `(state, setState)`; upstream's `setSource` option is superseded by the positional
-  `setSource` argument.
+  the controlled tuple `[state, setState]`; upstream's `setSource` option is superseded by the
+  tuple's setter.
 - **Same-tick commits** — React `setState` is asynchronous. Calling `commit()` right after your own
   `setState` would snapshot the previous rendered value. For updates you want to commit in the same
   tick, use `controls.setSource()` (value or updater form, a drop-in for `setState`): it applies
@@ -60,7 +60,7 @@ import { useStateManualHistory } from '@reaxuse/core'
 import { useState } from 'react'
 
 const [target, setTarget] = useState({ foo: 1, bar: 2 })
-const [history, commit, controls] = useStateManualHistory(target, setTarget, { clone: true })
+const [history, commit, controls] = useStateManualHistory([target, setTarget], { clone: true })
 
 // prefer replacing the state in React…
 controls.setSource({ foo: 2, bar: 2 })
@@ -75,14 +75,14 @@ A full featured clone function can be passed via `clone`, e.g.
 [structuredClone](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone):
 
 ```tsx
-const refHistory = useStateManualHistory(target, setTarget, { clone: structuredClone })
+const refHistory = useStateManualHistory([target, setTarget], { clone: structuredClone })
 ```
 
 Instead of `clone`, custom `dump` / `parse` functions control serialization and parsing — useful to
 store stringified snapshots:
 
 ```tsx
-const refHistory = useStateManualHistory(target, setTarget, {
+const refHistory = useStateManualHistory([target, setTarget], {
   dump: JSON.stringify,
   parse: JSON.parse,
 })
@@ -93,7 +93,7 @@ const refHistory = useStateManualHistory(target, setTarget, {
 All history is kept by default (unlimited). Set the maximal amount of history with `capacity`:
 
 ```tsx
-const [history, commit, { clear }] = useStateManualHistory(target, setTarget, {
+const [history, commit, { clear }] = useStateManualHistory([target, setTarget], {
   capacity: 15, // limit to 15 history records
 })
 

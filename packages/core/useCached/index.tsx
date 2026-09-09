@@ -1,5 +1,6 @@
 import type { RefOrValue } from '@reaxuse/shared'
-import { toValue } from '@reaxuse/shared'
+import type { RefObject } from 'react'
+import { isRefLike } from '@reaxuse/shared'
 import { useRef } from 'react'
 
 /**
@@ -29,8 +30,10 @@ export type UseCachedComparator<T> = (newSourceValue: T, cachedValue: T) => bool
  * source and the updated cache is returned. The comparator therefore runs on
  * every render instead of only on changes — harmless, since `true` keeps the
  * cache. The source is a plain value per the mapped API, and also accepts a
- * ref-like `{ current }` object (a React ref), resolved via `toValue` like the
- * other core hooks.
+ * ref-like `{ current }` object (a React ref), resolved through `isRefLike`.
+ * Only real ref-like sources are unwrapped: a plain data object that happens
+ * to carry a `value` key (e.g. `{ value: 42, extra: 0 }`) is cached as-is —
+ * `toValue` would unwrap it as a Vue-style ref and return `42`.
  *
  * @__NO_SIDE_EFFECTS__
  * @example
@@ -47,7 +50,7 @@ export function useCached<T>(
   source: RefOrValue<T>,
   comparator: UseCachedComparator<T> = (newSourceValue, cachedValue) => newSourceValue === cachedValue,
 ): T {
-  const sourceValue = toValue(source)
+  const sourceValue = (isRefLike(source) ? (source as RefObject<T | null>).current : source) as T
 
   // derived state during render — the initial mount seeds the cache with the
   // source, then each render adopts the new source only when the comparator
