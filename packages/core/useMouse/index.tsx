@@ -92,9 +92,9 @@ const UseMouseBuiltinExtractors: Record<UseMouseCoordType, UseMouseEventExtracto
  *   become plain values — read `x`, `y` and `sourceType` directly off the
  *   result object;
  * - upstream's `useEventListener` becomes a self-contained mount `useEffect`
- *   that re-subscribes when the resolved `target` / the `type` mode / the
- *   `touch` / `scroll` / `resetOnTouchEnds` flags change and removes all
- *   listeners on unmount;
+ *   that re-subscribes when the resolved `target` / the resolved `window`
+ *   option / the `type` mode / the `touch` / `scroll` / `resetOnTouchEnds`
+ *   flags change and removes all listeners on unmount;
  * - `target` accepts a plain element or a ref-like `{ current }` object
  *   (upstream: `RefOrValue`); it is re-resolved on every render
  *   and the listeners re-bind when the resolved element changes. Not passing
@@ -103,8 +103,9 @@ const UseMouseBuiltinExtractors: Record<UseMouseCoordType, UseMouseEventExtracto
  * - `initialValue` is folded into the `useState` initializers and read back
  *   by the `touchend` reset through a latest-value ref, so SSR renders the
  *   defaults (`x: 0`, `y: 0`, `sourceType: null`) without touching `window`;
- * - the `eventFilter` wrapper collapses to the house `EventFilter` contract
- *   (`(invoke: FunctionArgs) => void`).
+ * - the `eventFilter` wrapper forwards upstream's placeholder second
+ *   argument (`{}`) so a chained filter reads an object instead of
+ *   `undefined` (upstream: `eventFilter(() => mouseHandler(event), {} as any)`).
  *
  * @example
  * const { x, y, sourceType } = useMouse()
@@ -129,9 +130,11 @@ export function useMouse(options: UseMouseOptions = {}): UseMouseReturn {
 
   // latest-value refs synced each render so the listeners registered in the
   // mount effect always read the newest options (stable handler identities,
-  // no re-subscription on option-only renders)
-  const windowRef = useRef<Window | undefined>(undefined)
-  windowRef.current = customWindow ?? (typeof window === 'undefined' ? undefined : window)
+  // no re-subscription on option-only renders); the resolved `window` is the
+  // exception — it is a dependency of the mount effect so a window-only
+  // option change re-binds the listeners instead of leaving them on the old
+  // window
+  const resolvedWindow = customWindow ?? (typeof window === 'undefined' ? undefined : window)
   const targetRef = useRef(target)
   targetRef.current = target
   const extractorRef = useRef(extractor)
@@ -159,7 +162,7 @@ export function useMouse(options: UseMouseOptions = {}): UseMouseReturn {
   const trackedTarget = toValue(target)
 
   useEffect(() => {
-    const win = windowRef.current
+    const win = resolvedWindow
     // upstream defaults `target` to the `window` option; an explicit `null`
     // (or a ref-like object resolving to nullish) attaches no listeners at all
     const el = targetRef.current === undefined ? win : toValue(targetRef.current)
@@ -212,8 +215,9 @@ export function useMouse(options: UseMouseOptions = {}): UseMouseReturn {
     }
 
     const run = (fn: () => void) => {
-      if (eventFilterRef.current)
-        eventFilterRef.current(fn)
+      const filter = eventFilterRef.current
+      if (filter)
+        filter(fn, {})
       else
         fn()
     }
@@ -248,7 +252,7 @@ export function useMouse(options: UseMouseOptions = {}): UseMouseReturn {
       if (win && scroll && typeMode === 'page')
         win.removeEventListener('scroll', scrollHandlerWrapper, listenerOptions)
     }
-  }, [trackedTarget, typeMode, touch, scroll, resetOnTouchEnds])
+  }, [trackedTarget, resolvedWindow, typeMode, touch, scroll, resetOnTouchEnds])
 
   return {
     x,

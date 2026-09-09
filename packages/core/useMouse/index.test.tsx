@@ -1,7 +1,39 @@
+import { renderToString } from 'react-dom/server'
 import { afterEach, describe, expect, it } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
 import { useMouse } from '../useMouse'
 import UseMouseDemo from './demo'
+
+type FakeWindowListener = (event: Event) => void
+
+// minimal window stand-in so the `window` option branches (custom window,
+// rebinding, scroll compensation) are exercised without a real iframe
+function createFakeWindow() {
+  const listeners: Partial<Record<string, FakeWindowListener[]>> = {}
+  const scroll = { x: 0, y: 0 }
+
+  const win = {
+    get scrollX() {
+      return scroll.x
+    },
+    get scrollY() {
+      return scroll.y
+    },
+    addEventListener: (type: string, listener: FakeWindowListener) => {
+      (listeners[type] ??= []).push(listener)
+    },
+    removeEventListener: (type: string, listener: FakeWindowListener) => {
+      listeners[type] = (listeners[type] ?? []).filter(item => item !== listener)
+    },
+  } as unknown as Window
+
+  return { win, listeners, scroll }
+}
+
+function fire(listeners: FakeWindowListener[] | undefined, event: Event) {
+  for (const listener of listeners ?? [])
+    listener(event)
+}
 
 function createMouseEvent(type: string, init: MouseEventInit = {}) {
   return new MouseEvent(type, { bubbles: true, cancelable: true, ...init })
@@ -149,6 +181,29 @@ describe('useMouse', () => {
     expect(result.current.sourceType).toBe('touch')
   })
 
+  it('ignores the touchend reset when touch is disabled', async () => {
+    const { result, act } = await renderHook(() => useMouse({
+      touch: false,
+      resetOnTouchEnds: true,
+      initialValue: { x: 3, y: 4 },
+    }))
+
+    await act(() => {
+      window.dispatchEvent(createMouseEvent('mousemove', { clientX: 90, clientY: 70 }))
+    })
+    expect(result.current.x).toBe(90)
+    expect(result.current.y).toBe(70)
+
+    await act(() => {
+      window.dispatchEvent(createTouchEvent('touchend', 0, 0, window))
+    })
+
+    // `touch: false` skips the whole touch block, so `touchend` never resets
+    expect(result.current.x).toBe(90)
+    expect(result.current.y).toBe(70)
+    expect(result.current.sourceType).toBe('mouse')
+  })
+
   it('uses initialValue as the initial state', async () => {
     const { result } = await renderHook(() => useMouse({ initialValue: { x: 11, y: 22 } }))
 
@@ -174,6 +229,47 @@ describe('useMouse', () => {
     expect(result.current.x).toBe(130)
     expect(result.current.y).toBe(70)
     expect(result.current.sourceType).toBe('mouse')
+  })
+
+  it('does not compensate on window scroll when scroll is false', async () => {
+    const { result, act } = await renderHook(() => useMouse({ scroll: false }))
+
+    await act(() => {
+      window.dispatchEvent(createMouseEvent('mousemove', { clientX: 100, clientY: 50 }))
+    })
+    expect(result.current.x).toBe(100)
+
+    mockScrollPosition(30, 20)
+    await act(() => {
+      window.dispatchEvent(new Event('scroll'))
+    })
+
+    expect(result.current.x).toBe(100)
+    expect(result.current.y).toBe(50)
+  })
+
+  it('uses the custom window option for its listeners and scroll compensation', async () => {
+    const { win, listeners, scroll } = createFakeWindow()
+
+    const { result, act } = await renderHook(() => useMouse({ window: win }))
+
+    expect(listeners.mousemove).toHaveLength(1)
+    expect(listeners.scroll).toHaveLength(1)
+
+    await act(() => {
+      fire(listeners.mousemove, createMouseEvent('mousemove', { clientX: 100, clientY: 50 }))
+    })
+    expect(result.current.x).toBe(100)
+    expect(result.current.y).toBe(50)
+
+    scroll.x = 30
+    scroll.y = 20
+    await act(() => {
+      fire(listeners.scroll, new Event('scroll'))
+    })
+
+    expect(result.current.x).toBe(130)
+    expect(result.current.y).toBe(70)
   })
 
   it('attaches its listeners to a custom target element', async () => {
@@ -255,6 +351,40 @@ describe('useMouse', () => {
     second.remove()
   })
 
+  it('re-binds the listeners when the window option changes', async () => {
+    const first = createFakeWindow()
+    const second = createFakeWindow()
+
+    const { result, act, rerender } = await renderHook(
+      (props?: { window?: Window }) => useMouse(props),
+      { initialProps: { window: first.win } },
+    )
+
+    await act(() => {
+      fire(first.listeners.mousemove, createMouseEvent('mousemove', { clientX: 12, clientY: 34 }))
+    })
+    expect(result.current.x).toBe(12)
+
+    await rerender({ window: second.win })
+
+    // the old window is fully unsubscribed, the new one is live
+    expect(first.listeners.mousemove).toHaveLength(0)
+    expect(first.listeners.scroll).toHaveLength(0)
+    expect(second.listeners.mousemove).toHaveLength(1)
+    expect(second.listeners.scroll).toHaveLength(1)
+
+    await act(() => {
+      fire(first.listeners.mousemove, createMouseEvent('mousemove', { clientX: 99, clientY: 99 }))
+    })
+    expect(result.current.x).toBe(12)
+
+    await act(() => {
+      fire(second.listeners.mousemove, createMouseEvent('mousemove', { clientX: 5, clientY: 6 }))
+    })
+    expect(result.current.x).toBe(5)
+    expect(result.current.y).toBe(6)
+  })
+
   it('removes its listeners on unmount', async () => {
     const { result, act, unmount } = await renderHook(() => useMouse())
     unmount()
@@ -268,21 +398,54 @@ describe('useMouse', () => {
     expect(result.current.sourceType).toBe(null)
   })
 
-  it('renders the defaults during the first render (SSR safety, no window access)', async () => {
-    // dispatch a move before mounting — a window-reading render would pick it up
-    window.dispatchEvent(createMouseEvent('mousemove', { clientX: 500, clientY: 600 }))
+  it('passes a placeholder second argument to eventFilter (upstream parity)', async () => {
+    const received: unknown[] = []
 
-    let firstRender: { x: number, y: number, sourceType: 'mouse' | 'touch' | null } | undefined
+    const { result, act } = await renderHook(() => useMouse({
+      eventFilter: (invoke, options) => {
+        received.push(options)
+        invoke()
+      },
+    }))
+
+    await act(() => {
+      window.dispatchEvent(createMouseEvent('mousemove', { clientX: 21, clientY: 43 }))
+    })
+
+    expect(result.current.x).toBe(21)
+    expect(result.current.y).toBe(43)
+    // upstream always passes a placeholder object (`{} as any`), never undefined
+    expect(received).toEqual([{}])
+  })
+
+  it('is SSR safe — the render phase returns the defaults and attaches no listeners', async () => {
+    const { win, listeners } = createFakeWindow()
+    let firstRender: ReturnType<typeof useMouse> | undefined
+    let listenersAtFirstRender = -1
 
     function Probe() {
-      const mouse = useMouse()
-      firstRender ??= mouse
-      return <div>{mouse.x}</div>
+      const mouse = useMouse({ window: win })
+      if (!firstRender) {
+        firstRender = mouse
+        // snapshot taken during the render phase — the mount effect has not run
+        listenersAtFirstRender = (listeners.mousemove?.length ?? 0) + (listeners.scroll?.length ?? 0)
+      }
+      return <div>{`${mouse.x},${mouse.y},${mouse.sourceType ?? 'null'}`}</div>
     }
+
+    // server render runs no effects: the markup carries the defaults and the
+    // window is never subscribed to
+    const html = renderToString(<Probe />)
+    expect(html).toContain('0,0,null')
+    expect(listenersAtFirstRender).toBe(0)
 
     await render(<Probe />)
 
+    // the client mount effect is what attaches exactly one mousemove + one
+    // scroll listener
     expect(firstRender).toEqual({ x: 0, y: 0, sourceType: null })
+    expect(listeners.mousemove).toHaveLength(1)
+    expect(listeners.scroll).toHaveLength(1)
   })
 
   it('mirrors the upstream demo test — the demo renders', async () => {
