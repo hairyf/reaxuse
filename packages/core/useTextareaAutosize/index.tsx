@@ -1,4 +1,6 @@
+import type { RefOrValue } from '@reaxuse/shared'
 import type { Dispatch, RefObject, SetStateAction } from 'react'
+import { deepEqual, isRefLike, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -11,10 +13,10 @@ export interface UseTextareaAutosizeOptions {
    */
   window?: Window
   /**
-   * Textarea element to autosize. When omitted, bind the returned `textarea`
-   * ref instead.
+   * Textarea element to autosize — a plain element or a ref-like `{ current }`
+   * object. When omitted, bind the returned `controls.textarea` ref instead.
    */
-  element?: RefObject<HTMLTextAreaElement | null>
+  element?: RefOrValue<HTMLTextAreaElement | null | undefined>
   /**
    * Textarea content. When omitted, the hook owns the content state and you
    * update it through the returned `setInput`.
@@ -24,17 +26,20 @@ export interface UseTextareaAutosizeOptions {
   maxHeight?: number
   /**
    * Values that should trigger a textarea resize when they change — the React
-   * mapping of upstream's `watch` sources. The resize also fires once on
-   * mount (upstream `immediate: true`).
+   * mapping of upstream's `watch` sources. Compared structurally with the
+   * shared `deepEqual` (functions by reference; `Map` / `Set` / `Date` /
+   * `RegExp` by contents), so non-serializable values are supported. The
+   * resize also fires once on mount (upstream `immediate: true`).
    */
   watch?: unknown[]
   /** Function called when the textarea size changes. */
   onResize?: () => void
   /**
-   * Specify style target to apply the height based on textarea content. If
-   * not provided it will use textarea itself.
+   * Specify style target to apply the height based on textarea content — a
+   * plain element or a ref-like `{ current }` object. If not provided it will
+   * use textarea itself.
    */
-  styleTarget?: RefObject<HTMLElement | null>
+  styleTarget?: RefOrValue<HTMLElement | null | undefined>
   /**
    * Specify the style property that will be used to manipulate height. Can be
    * `height | minHeight`. Default value is `height`.
@@ -42,22 +47,30 @@ export interface UseTextareaAutosizeOptions {
   styleProp?: 'height' | 'minHeight'
 }
 
-export interface UseTextareaAutosizeReturn {
+export interface UseTextareaAutosizeControls {
   /**
-   * Ref to bind to the `<textarea>` — the `element` option when provided,
-   * otherwise a hook-owned ref.
+   * Ref to bind to the `<textarea>` — the `element` option when it is a
+   * ref-like object, otherwise a hook-owned ref.
    */
   textarea: RefObject<HTMLTextAreaElement | null>
-  /** Current textarea content (the `input` option when provided, otherwise internal state). */
-  input: string
+  /** Manually trigger a textarea resize. */
+  triggerResize: () => void
+}
+
+export type UseTextareaAutosizeReturn = readonly [
+  /**
+   * Current textarea content — the `input` option when provided, otherwise the
+   * hook-owned state.
+   */
+  input: string,
   /**
    * Content setter for the hook-owned state. Has no effect on the resize
    * while an `input` option is provided.
    */
-  setInput: Dispatch<SetStateAction<string>>
-  /** Manually trigger a textarea resize. */
-  triggerResize: () => void
-}
+  setInput: Dispatch<SetStateAction<string>>,
+  /** Element ref and manual resize controls. */
+  controls: UseTextareaAutosizeControls,
+]
 
 /**
  * Call window.requestAnimationFrame(), if not available, just call the function
@@ -77,21 +90,29 @@ function tryRequestAnimationFrame(window: Window | undefined, fn: () => void) {
  * the height of a textarea depending on the content.
  *
  * React divergences:
- * - the Vue `textarea` ref return becomes a `RefObject` you bind with
- *   `ref={textarea}`, or pass your own via the `element` option; the Vue
- *   `input` ref becomes a plain `string` + `setInput` state pair, and a
- *   controlled value can be passed with the `input` option instead;
+ * - upstream returns `{ textarea, input, triggerResize }` with writable refs;
+ *   this port follows the React tuple rule and returns
+ *   `[input, setInput, { textarea, triggerResize }]` — the content is element
+ *   0, `setInput` element 1, and the element ref plus the manual resize live
+ *   in the `controls` object;
+ * - the `element` and `styleTarget` options accept a plain element or a
+ *   ref-like `{ current }` object (`RefOrValue`). The textarea is resolved at
+ *   commit time, so an element attached after mount (conditional or async
+ *   render) still triggers the resize and the `ResizeObserver`;
  * - upstream's `watch([input, textarea], () => nextTick(triggerResize), {
- *   immediate: true })` becomes an effect running `triggerResize` after each
- *   content/render commit;
- * - upstream's `watch(options.watch, ...)` sources become a `watch?: unknown[]`
- *   values array, compared structurally between renders;
+ *   immediate: true })` and `watch(options.watch, triggerResize, { immediate:
+ *   true, deep: true })` become one commit-time effect that resizes on mount
+ *   and whenever the resolved element, the content or the `watch` values
+ *   change — the mount resize therefore runs once, not twice;
+ * - the `watch` values are compared with the shared structural `deepEqual`
+ *   (functions by reference; `Map` / `Set` / `Date` / `RegExp` by contents)
+ *   instead of a `JSON.stringify` key, so non-serializable values re-trigger;
  * - upstream's `useResizeObserver` composition becomes a self-contained
  *   `ResizeObserver` effect that re-measures when the element's width changes
  *   and is disconnected on unmount.
  *
  * @example
- * const { textarea, input, setInput } = useTextareaAutosize()
+ * const [input, setInput, { textarea }] = useTextareaAutosize()
  * // <textarea ref={textarea} value={input} onChange={e => setInput(e.target.value)} />
  */
 export function useTextareaAutosize(options: UseTextareaAutosizeOptions = {}): UseTextareaAutosizeReturn {
@@ -110,15 +131,27 @@ export function useTextareaAutosize(options: UseTextareaAutosizeOptions = {}): U
   const input = inputOption ?? internalInput
 
   const fallbackTextarea = useRef<HTMLTextAreaElement | null>(null)
-  const textarea = element ?? fallbackTextarea
+  const textarea = (isRefLike(element) ? element : fallbackTextarea) as RefObject<HTMLTextAreaElement | null>
+
+  // Latest option values — `triggerResize` and the commit-time resolver stay
+  // referentially stable while still reading the newest options (upstream
+  // captures them in setup and reads `maxHeight` / `styleTarget` lazily).
+  const optionsRef = useRef({ element, maxHeight, onResize, styleProp, styleTarget })
+  optionsRef.current = { element, maxHeight, onResize, styleProp, styleTarget }
 
   const textareaScrollHeightRef = useRef(1)
   const textareaOldWidthRef = useRef(0)
-  const onResizeRef = useRef(onResize)
-  onResizeRef.current = onResize
+
+  // Resolve the target element at commit time (upstream resolves the reactive
+  // `textarea` ref): a plain element or a ref-like `.current`, falling back to
+  // the hook-owned ref bound through `controls.textarea`.
+  const resolveTextarea = useCallback(() => {
+    return toValue(optionsRef.current.element) ?? fallbackTextarea.current ?? null
+  }, [])
 
   const triggerResize = useCallback(() => {
-    const textareaEl = textarea.current
+    const { maxHeight, onResize, styleProp, styleTarget } = optionsRef.current
+    const textareaEl = resolveTextarea()
     if (!textareaEl)
       return
 
@@ -133,7 +166,7 @@ export function useTextareaAutosize(options: UseTextareaAutosizeOptions = {}): U
       : `${scrollHeight}px`
 
     // If style target is provided update its height
-    const target = styleTarget?.current
+    const target = toValue(styleTarget)
     if (target)
       target.style[styleProp] = styleHeight
     // else update textarea's height by updating height variable
@@ -144,26 +177,48 @@ export function useTextareaAutosize(options: UseTextareaAutosizeOptions = {}): U
 
     // upstream: watch(textareaScrollHeight, () => options?.onResize?.())
     if (scrollHeight !== previousScrollHeight)
-      onResizeRef.current?.()
-  }, [maxHeight, styleProp, styleTarget, textarea])
+      onResize?.()
+  }, [resolveTextarea])
+
+  // Track the resolved element so the resize and the ResizeObserver effects
+  // re-run when a textarea is attached after mount (conditional / async
+  // render). The first render resolves the already-attached element directly.
+  const [resolvedTextarea, setResolvedTextarea] = useState<HTMLTextAreaElement | null>(() => toValue(element) ?? null)
+
+  useEffect(() => {
+    const next = resolveTextarea()
+    setResolvedTextarea(prev => (prev === next ? prev : next))
+  })
 
   // upstream: watch([input, textarea], () => nextTick(triggerResize), { immediate: true })
-  useEffect(() => {
-    triggerResize()
-  }, [input, textarea, triggerResize])
+  // merged with upstream's watch(options.watch, triggerResize, { immediate: true, deep: true })
+  // so the mount resize runs once (upstream runs it twice when `watch` is provided).
+  const previousTextareaRef = useRef<HTMLTextAreaElement | null | undefined>(undefined)
+  const previousInputRef = useRef<string | undefined>(undefined)
+  const previousWatchRef = useRef<unknown[] | undefined>(undefined)
+  const firstRunRef = useRef(true)
 
-  // upstream: watch(options.watch, triggerResize, { immediate: true, deep: true })
-  const watchKey = watch ? JSON.stringify(watch) : ''
   useEffect(() => {
-    triggerResize()
-  }, [triggerResize, watchKey])
+    const firstRun = firstRunRef.current
+    firstRunRef.current = false
+
+    const elementChanged = previousTextareaRef.current !== resolvedTextarea
+    const inputChanged = previousInputRef.current !== input
+    const watchChanged = !deepEqual(previousWatchRef.current, watch)
+
+    previousTextareaRef.current = resolvedTextarea
+    previousInputRef.current = input
+    previousWatchRef.current = watch
+
+    if (firstRun || elementChanged || inputChanged || watchChanged)
+      triggerResize()
+  }, [resolvedTextarea, input, watch, triggerResize])
 
   // upstream: useResizeObserver(textarea, ...) — re-measure when the element's
   // width changes (e.g. responsive layouts)
   useEffect(() => {
-    const textareaEl = textarea.current
     const win = windowOption ?? (typeof window === 'undefined' ? undefined : window)
-    if (!win || !textareaEl || !('ResizeObserver' in win))
+    if (!win || !resolvedTextarea || !('ResizeObserver' in win))
       return
 
     const observer = new ResizeObserver((entries) => {
@@ -176,17 +231,12 @@ export function useTextareaAutosize(options: UseTextareaAutosizeOptions = {}): U
         triggerResize()
       })
     })
-    observer.observe(textareaEl)
+    observer.observe(resolvedTextarea)
 
     return () => {
       observer.disconnect()
     }
-  }, [textarea, triggerResize, windowOption])
+  }, [resolvedTextarea, triggerResize, windowOption])
 
-  return {
-    textarea,
-    input,
-    setInput: setInternalInput,
-    triggerResize,
-  }
+  return [input, setInternalInput, { textarea, triggerResize }]
 }
