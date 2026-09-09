@@ -115,7 +115,7 @@ describe('useDevicesList', () => {
     expect(useDevicesList).toBeDefined()
   })
 
-  it('reports isSupported false and keeps defaults when mediaDevices is unavailable (SSR-safe)', async () => {
+  it('reports isSupported false and keeps defaults when mediaDevices is unavailable', async () => {
     const original = navigator.mediaDevices
     Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: undefined })
     restores.push(() => {
@@ -194,6 +194,22 @@ describe('useDevicesList', () => {
     expect(calls).toHaveLength(1)
   })
 
+  it('fires the onUpdated option after each enumeration', async () => {
+    const { emitDeviceChange } = stubMediaDevices({ enumerateDevices: async () => allDevices })
+    const onUpdated = vi.fn()
+
+    const { result } = await renderHook(() => useDevicesList({ onUpdated }))
+
+    // mount enumeration fires it once, like upstream's `onUpdated?.(...)`
+    await expect.poll(() => onUpdated).toHaveBeenCalledTimes(1)
+    expect(onUpdated).toHaveBeenLastCalledWith(allDevices)
+    await expect.poll(() => result.current.devices).toEqual(allDevices)
+
+    emitDeviceChange()
+    await expect.poll(() => onUpdated).toHaveBeenCalledTimes(2)
+    expect(onUpdated).toHaveBeenLastCalledWith(allDevices)
+  })
+
   it('useListener(onUpdated, cb) fires on enumeration and unsubscribes on unmount', async () => {
     const { emitDeviceChange } = stubMediaDevices({ enumerateDevices: async () => allDevices })
 
@@ -240,6 +256,55 @@ describe('useDevicesList', () => {
     const getUserMedia = vi.fn(async () => stream)
     stubMediaDevices({ enumerateDevices: async () => allDevices, getUserMedia })
     stubPermissionQuery(async () => createPermissionStatus('prompt'))
+
+    const { result } = await renderHook(() => useDevicesList())
+
+    await expect(result.current.ensurePermissions()).resolves.toBe(true)
+    await expect.poll(() => result.current.permissionGranted).toBe(true)
+    expect(getUserMedia).toHaveBeenCalledWith({ video: true, audio: true })
+  })
+
+  it('passes the full constraints object to getUserMedia', async () => {
+    const { stream } = createFakeStream()
+    const getUserMedia = vi.fn(async () => stream)
+    stubMediaDevices({ enumerateDevices: async () => allDevices, getUserMedia })
+    stubPermissionQuery(async () => createPermissionStatus('prompt'))
+
+    const { result } = await renderHook(() => useDevicesList({
+      constraints: { video: { width: 640 }, audio: false },
+    }))
+
+    await expect(result.current.ensurePermissions()).resolves.toBe(true)
+    expect(getUserMedia).toHaveBeenCalledWith({ video: { width: 640 }, audio: false })
+  })
+
+  it('disables video/audio in getUserMedia when no matching device exists', async () => {
+    const { stream } = createFakeStream()
+    const getUserMedia = vi.fn(async () => stream)
+    // no videoinput device → the camera branch of the rebuilt constraints
+    stubMediaDevices({ enumerateDevices: async () => [mic1, speaker1], getUserMedia })
+    stubPermissionQuery(async () => createPermissionStatus('prompt'))
+
+    const { result } = await renderHook(() => useDevicesList())
+
+    await expect(result.current.ensurePermissions()).resolves.toBe(true)
+    expect(getUserMedia).toHaveBeenCalledWith({ video: false, audio: true })
+  })
+
+  it('still requests getUserMedia when the permissions API is absent', async () => {
+    const { stream } = createFakeStream()
+    const getUserMedia = vi.fn(async () => stream)
+    stubMediaDevices({ enumerateDevices: async () => allDevices, getUserMedia })
+    // no `navigator.permissions` stub — the inline query yields undefined and
+    // the flow falls through to the getUserMedia prompt
+    const original = navigator.permissions
+    Object.defineProperty(navigator, 'permissions', { configurable: true, value: undefined })
+    restores.push(() => {
+      if (original === undefined)
+        Reflect.deleteProperty(navigator, 'permissions')
+      else
+        Object.defineProperty(navigator, 'permissions', { configurable: true, value: original })
+    })
 
     const { result } = await renderHook(() => useDevicesList())
 

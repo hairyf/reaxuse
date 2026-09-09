@@ -5,6 +5,11 @@ export interface UseDeviceOrientationOptions extends ConfigurableWindow {}
 
 export interface UseDeviceOrientationReturn {
   /**
+   * Whether the current environment supports the `DeviceOrientationEvent` API.
+   * Starts `false` and settles in a mount effect (SSR-safe).
+   */
+  isSupported: boolean
+  /**
    * Whether the device orientation is given as absolute (relative to the
    * Earth's coordinate system) or as relative to the device.
    */
@@ -33,27 +38,30 @@ export interface UseDeviceOrientationReturn {
  *
  * Adjustment for React:
  * - the Vue (shallow) refs returned by upstream become plain values read off
- *   the result object (no `.value`): `isAbsolute` / `alpha` / `beta` /
- *   `gamma` hold `boolean | null` / `number | null` states, all starting
- *   `null` until the first `deviceorientation` event;
- * - upstream attaches its listener at setup time (behind `useSupported`);
- *   here a single mount effect resolves the window (SSR-safe — nothing
- *   touches `window` during render), registers the passive
- *   `deviceorientation` listener and removes it on unmount;
- * - upstream also reports `isSupported` through its `Supportable` mixin; this
- *   port returns the four orientation states only, since a passive
- *   `deviceorientation` listener is inert on browsers without the API and
- *   needs no capability probe.
+ *   the result object (no `.value`): `isAbsolute` holds a
+ *   `boolean | null` state starting at `false` (upstream's `shallowRef(false)`;
+ *   events may still report `null`), and `alpha` / `beta` / `gamma` hold
+ *   `number | null` states starting `null` until the first
+ *   `deviceorientation` event;
+ * - `isSupported` mirrors upstream's `Supportable` mixin: it is resolved in
+ *   the same mount effect that registers the listener, gated by the upstream
+ *   capability probe `'DeviceOrientationEvent' in window` — on browsers
+ *   without the API (or when a custom `window` lacks it) the listener is
+ *   never attached and `isSupported` stays `false`. Nothing touches `window`
+ *   during render (SSR-safe), and a falsy custom `window` (e.g. `{ window:
+ *   null }` in tests) is treated as "no window" — upstream's destructuring
+ *   default only replaces `undefined`.
  *
  * @example
- * const { isAbsolute, alpha, beta, gamma } = useDeviceOrientation()
+ * const { isSupported, isAbsolute, alpha, beta, gamma } = useDeviceOrientation()
  *
  * @__NO_SIDE_EFFECTS__
  */
 export function useDeviceOrientation(options: UseDeviceOrientationOptions = {}): UseDeviceOrientationReturn {
   const { window: customWindow } = options
 
-  const [isAbsolute, setIsAbsolute] = useState<boolean | null>(null)
+  const [isSupported, setIsSupported] = useState(false)
+  const [isAbsolute, setIsAbsolute] = useState<boolean | null>(false)
   const [alpha, setAlpha] = useState<number | null>(null)
   const [beta, setBeta] = useState<number | null>(null)
   const [gamma, setGamma] = useState<number | null>(null)
@@ -61,10 +69,18 @@ export function useDeviceOrientation(options: UseDeviceOrientationOptions = {}):
   // Attach the passive `deviceorientation` listener in a mount effect
   // (SSR-safe): re-registers when a custom `window` option changes and
   // removes the listener on unmount (upstream: `useEventListener` inside
-  // `useSupported`).
+  // `useSupported`). The listener only attaches when the capability probe
+  // passes (upstream: `if (window && isSupported.value)`).
   useEffect(() => {
-    const win = customWindow ?? (typeof window === 'undefined' ? undefined : window)
+    const win = customWindow === undefined
+      ? (typeof window === 'undefined' ? undefined : window)
+      : customWindow
     if (!win)
+      return
+
+    const supported = 'DeviceOrientationEvent' in win
+    setIsSupported(supported)
+    if (!supported)
       return
 
     const handleOrientation = (event: DeviceOrientationEvent) => {
@@ -82,6 +98,7 @@ export function useDeviceOrientation(options: UseDeviceOrientationOptions = {}):
   }, [customWindow])
 
   return {
+    isSupported,
     isAbsolute,
     alpha,
     beta,

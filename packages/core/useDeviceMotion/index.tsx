@@ -95,8 +95,12 @@ const DEFAULT_ROTATION_RATE: DeviceMotionEventRotationRate = { alpha: null, beta
  *   `eventFilter` is captured once on mount, like upstream's setup-time read;
  * - the iOS permission flow (`requestPermissions: true`) mirrors upstream:
  *   `ensurePermissions` requests the permission when the platform requires it
- *   and only then starts the listener — call it from a user interaction when
- *   not using `requestPermissions`;
+ *   and the mount effect starts the listener once it resolves (upstream
+ *   double-calls `init` — inside `ensurePermissions` and in
+ *   `ensurePermissions().then(() => init())` — which this port dedupes into
+ *   the single `.then()` re-add; `init` is idempotent, so behavior is
+ *   identical). Without `requestPermissions`, call `ensurePermissions` from a
+ *   user interaction — the listener is attached at mount already;
  * - `permissionGranted` defaults to `false` (upstream's `shallowRef(false)`),
  *   even when the API requires no permission — it only flips via
  *   `ensurePermissions`.
@@ -128,7 +132,6 @@ export function useDeviceMotion(options: UseDeviceMotionOptions = {}): UseDevice
   // without re-creating the stable callbacks.
   const requirePermissionsRef = useRef(false)
   const permissionGrantedRef = useRef(false)
-  const winRef = useRef<Window | null>(null)
   const isActiveRef = useRef(false)
   const removeListenerRef = useRef<(() => void) | null>(null)
 
@@ -178,6 +181,13 @@ export function useDeviceMotion(options: UseDeviceMotionOptions = {}): UseDevice
     removeListenerRef.current = () => win.removeEventListener('devicemotion', listener)
   }, [])
 
+  // Requests the iOS permission when the platform requires it. The listener
+  // is NOT started here — upstream's `init()` inside `ensurePermissions` is a
+  // duplicate of the mount effect's re-add (upstream index.ts:105 + 117):
+  // the mount effect attaches the listener before/after this resolves
+  // (`requestPermissions` path: `.then(() => init(win))`; otherwise the
+  // listener is already attached). Keeping a single `init` per path avoids
+  // tearing the listener down and re-adding it.
   const ensurePermissions = useCallback(async (): Promise<void> => {
     if (!requirePermissionsRef.current)
       setPermissionGrantedState(true)
@@ -188,18 +198,14 @@ export function useDeviceMotion(options: UseDeviceMotionOptions = {}): UseDevice
       const requestPermission = (DeviceMotionEvent as unknown as DeviceMotionEventiOS).requestPermission
       try {
         const response = await requestPermission()
-        if (response === 'granted') {
+        if (response === 'granted')
           setPermissionGrantedState(true)
-          const win = winRef.current
-          if (isActiveRef.current && win)
-            init(win)
-        }
       }
       catch (error) {
         console.error(error)
       }
     }
-  }, [init, setPermissionGrantedState])
+  }, [setPermissionGrantedState])
 
   // Capability detection (upstream: the `useSupported` setup callbacks) plus
   // the trailing `if (isSupported.value) { ... init() }` block — moved into a
@@ -211,7 +217,6 @@ export function useDeviceMotion(options: UseDeviceMotionOptions = {}): UseDevice
     if (!win)
       return
 
-    winRef.current = win
     isActiveRef.current = true
 
     const supported = typeof DeviceMotionEvent !== 'undefined'
@@ -239,7 +244,6 @@ export function useDeviceMotion(options: UseDeviceMotionOptions = {}): UseDevice
       isActiveRef.current = false
       removeListenerRef.current?.()
       removeListenerRef.current = null
-      winRef.current = null
     }
   }, [customWindow, ensurePermissions, init])
 
