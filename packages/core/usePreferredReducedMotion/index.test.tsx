@@ -123,3 +123,15 @@ it('usePreferredReducedMotion supports a custom window option', async () => {
   })
   await expect.poll(() => result.current).toBe('reduce')
 })
+
+it('usePreferredReducedMotion returns "no-preference" when matchMedia is unavailable', async () => {
+  const { result } = await renderHook(() => usePreferredReducedMotion({ window: {} as unknown as Window }))
+
+  expect(result.current).toBe('no-preference')
+})
+
+it('usePreferredReducedMotion returns "no-preference" when window is null', async () => {
+  const { result } = await renderHook(() => usePreferredReducedMotion({ window: null as unknown as undefined }))
+
+  expect(result.current).toBe('no-preference')
+})
