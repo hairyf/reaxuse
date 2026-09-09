@@ -327,6 +327,38 @@ it('useStepper re-derives when the steps array changes (index preserved)', async
   expect(result.current.next).toBeUndefined()
 })
 
+it('useStepper moves from an out-of-range index like upstream (equality guards)', async () => {
+  // out-of-range below: an `initialStep` that is not in `steps` starts at -1
+  const below = await renderHook(() => useStepperResult(['first', 'second'], 'unknown'))
+  expect(below.result.current.index).toBe(-1)
+  expect(below.result.current.isFirst).toBe(false)
+  await below.act(() => {
+    below.result.current.goToPrevious()
+  })
+  // upstream: `isFirst` (-1 === 0) is false, so it decrements further
+  expect(below.result.current.index).toBe(-2)
+  await below.unmount()
+
+  // out-of-range above: steps shrunk below the current index
+  const { result, act, rerender } = await renderHook((props?: { steps?: string[] }) =>
+    useStepperResult(props?.steps ?? ['first', 'second', 'third']))
+
+  await act(() => {
+    result.current.goTo('third')
+  })
+  expect(result.current.index).toBe(2)
+
+  await rerender({ steps: ['first'] })
+  expect(result.current.index).toBe(2)
+  expect(result.current.isLast).toBe(false)
+
+  await act(() => {
+    result.current.goToNext()
+  })
+  // upstream: `isLast` (2 === 0) is false, so it increments further
+  expect(result.current.index).toBe(3)
+})
+
 it('useStepper setIndex updates the returned index', async () => {
   const { result, act } = await renderHook(() => useStepper(STRING_STEPS))
 

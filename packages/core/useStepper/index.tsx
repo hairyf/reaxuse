@@ -75,8 +75,11 @@ export type UseStepperReturn<StepName, Steps, Step> = readonly [
  *   ported — the issue maps the array form (`T extends string | number`)
  *   only, where step names are the steps themselves;
  * - boundary semantics are upstream's: `goToNext`/`goToPrevious` are no-ops
- *   at the last/first step (no wrapping), `goTo` ignores steps that do not
- *   exist and `goBackTo` only moves backwards;
+ *   exactly at the last/first step (no wrapping, guarding on the `isLast`/
+ *   `isFirst` equality like upstream), `goTo` ignores steps that do not
+ *   exist and `goBackTo` only moves backwards — an out-of-range index
+ *   (e.g. `initialStep` not in `steps`, or steps shrunk below the index)
+ *   therefore still moves, matching upstream;
  * - like upstream, the initial index is `steps.indexOf(initialStep ??
  *   steps[0])` — an `initialStep` that is not in `steps` therefore starts
  *   at index `-1` (`current` reads `undefined`); pass a member of `steps`.
@@ -108,13 +111,17 @@ export function useStepper<T extends string | number>(steps: T[], initialStep?: 
   }, [])
 
   const goToNext = useCallback(() => {
-    // no-op at the last step (upstream: `if (isLast.value) return`), no wrap
-    setIndex(i => (i < stepsRef.current.length - 1 ? i + 1 : i))
+    // no-op only exactly at the last step (upstream: `if (isLast.value)
+    // return`), no wrap — an out-of-range index still increments, matching
+    // upstream where `isLast` is an equality check
+    setIndex(i => (i === stepsRef.current.length - 1 ? i : i + 1))
   }, [])
 
   const goToPrevious = useCallback(() => {
-    // no-op at the first step (upstream: `if (isFirst.value) return`)
-    setIndex(i => (i > 0 ? i - 1 : i))
+    // no-op only exactly at the first step (upstream: `if (isFirst.value)
+    // return`), no wrap — an out-of-range index still decrements, matching
+    // upstream where `isFirst` is an equality check
+    setIndex(i => (i === 0 ? i : i - 1))
   }, [])
 
   const goBackTo = useCallback((step: T) => {
@@ -127,13 +134,13 @@ export function useStepper<T extends string | number>(steps: T[], initialStep?: 
   const at = useCallback((i: number) => stepsRef.current[i], [])
 
   const get = useCallback((step: T) => {
-    // upstream: `at(stepNames.value.indexOf(step))` — for the array form the
-    // step at the found index is the step itself
-    const names = stepsRef.current
-    if (!names.includes(step))
+    // upstream: `at(stepNames.value.indexOf(step))` — delegate to `at()`;
+    // for the array form the step at the found index is the step itself
+    const index = stepsRef.current.indexOf(step)
+    if (index === -1)
       return undefined
-    return names[names.indexOf(step)]
-  }, [])
+    return at(index)
+  }, [at])
 
   const isNext = useCallback((step: T) => stepsRef.current.indexOf(step) === indexRef.current + 1, [])
   const isPrevious = useCallback((step: T) => stepsRef.current.indexOf(step) === indexRef.current - 1, [])
