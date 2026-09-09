@@ -7,24 +7,34 @@ import { useBroadcastChannel } from '../useBroadcastChannel'
  * A BroadcastChannel substitute deterministically constructible in chromium:
  * a plain class that records the registered listeners so tests can dispatch
  * events into the hook (the real API delivers messages across contexts).
+ * `close()` mirrors the native API: it flips a closed flag, fires the `close`
+ * event and makes a later `postMessage` throw `InvalidStateError`.
  */
 class MockBroadcastChannel {
   readonly name: string
-  readonly listeners: Record<string, Array<(event: MessageEvent) => void>> = {}
-  postMessage = vi.fn()
-  close = vi.fn()
+  readonly listeners: Record<string, Array<(event: Event) => void>> = {}
+  closed = false
+  postMessage = vi.fn(() => {
+    if (this.closed)
+      throw new DOMException('Cannot post message to a closed channel', 'InvalidStateError')
+  })
+
+  close = vi.fn(() => {
+    this.closed = true
+    this.emit('close', new Event('close'))
+  })
 
   constructor(name: string) {
     this.name = name
   }
 
-  addEventListener(type: string, listener: (event: MessageEvent) => void) {
+  addEventListener(type: string, listener: (event: Event) => void) {
     if (!this.listeners[type])
       this.listeners[type] = []
     this.listeners[type].push(listener)
   }
 
-  removeEventListener(type: string, listener: (event: MessageEvent) => void) {
+  removeEventListener(type: string, listener: (event: Event) => void) {
     const listeners = this.listeners[type]
     if (!listeners)
       return
@@ -33,7 +43,7 @@ class MockBroadcastChannel {
       listeners.splice(index, 1)
   }
 
-  emit(type: string, event: MessageEvent) {
+  emit(type: string, event: Event) {
     this.listeners[type]?.slice().forEach(listener => listener(event))
   }
 }
@@ -83,6 +93,33 @@ describe('useBroadcastChannel', () => {
     expect(result.current.channel).toBeInstanceOf(MockBroadcastChannel)
     expect(result.current.channel?.name).toBe('test-channel')
     expect(mockBroadcastChannel).toHaveBeenCalledWith('test-channel')
+  })
+
+  it('should start with error === null and isClosed === false on mount', async () => {
+    const { result } = await renderHook(() => useBroadcastChannel({ name: 'test-channel' }))
+
+    expect(result.current.error).toBeNull()
+    expect(result.current.isClosed).toBe(false)
+  })
+
+  it('should use the configured `window` option for support detection', async () => {
+    const customWindow = { BroadcastChannel: mockBroadcastChannel } as unknown as Window
+
+    const { result } = await renderHook(() => useBroadcastChannel({ name: 'test-channel', window: customWindow }))
+
+    expect(result.current.isSupported).toBe(true)
+    expect(mockBroadcastChannel).toHaveBeenCalledWith('test-channel')
+    expect(result.current.channel).toBeInstanceOf(MockBroadcastChannel)
+  })
+
+  it('should not create a channel when the configured `window` lacks BroadcastChannel', async () => {
+    const customWindow = {} as unknown as Window
+
+    const { result } = await renderHook(() => useBroadcastChannel({ name: 'test-channel', window: customWindow }))
+
+    expect(result.current.isSupported).toBe(false)
+    expect(result.current.channel).toBeUndefined()
+    expect(mockBroadcastChannel).not.toHaveBeenCalled()
   })
 
   it('should post a message to the channel', async () => {
@@ -171,31 +208,49 @@ describe('useBroadcastChannel', () => {
     expect(onMessage).toHaveBeenCalledTimes(1)
   })
 
-  it('should close the channel and release the reference', async () => {
+  it('should close the channel, keep the instance and mark isClosed', async () => {
     const { result, act } = await renderHook(() => useBroadcastChannel({ name: 'test-channel' }))
     const channel = mockChannel(result.current.channel)
+
+    expect(result.current.isClosed).toBe(false)
 
     await act(() => {
       result.current.close()
     })
 
     expect(channel.close).toHaveBeenCalled()
-    expect(result.current.channel).toBeUndefined()
+    // upstream keeps `channel.value` after close — no longer released
+    expect(result.current.channel).toBe(channel)
+    expect(result.current.isClosed).toBe(true)
   })
 
-  it('should not post after close', async () => {
+  it('should post to the retained channel after close and throw InvalidStateError', async () => {
     const { result, act } = await renderHook(() => useBroadcastChannel<string, string>({ name: 'test-channel' }))
     const channel = mockChannel(result.current.channel)
 
     await act(() => {
       result.current.close()
     })
-    expect(channel.close).toHaveBeenCalled()
+    expect(result.current.channel).toBe(channel)
+
+    expect(() => result.current.post('nope')).toThrowError(
+      expect.objectContaining({ name: 'InvalidStateError' }),
+    )
+    expect(channel.postMessage).toHaveBeenCalledWith('nope')
+  })
+
+  it('should mark isClosed when the native close event fires', async () => {
+    const { result, act } = await renderHook(() => useBroadcastChannel({ name: 'test-channel' }))
+    const channel = mockChannel(result.current.channel)
+
+    expect(result.current.isClosed).toBe(false)
 
     await act(() => {
-      result.current.post('nope')
+      channel.emit('close', new Event('close'))
     })
-    expect(channel.postMessage).not.toHaveBeenCalled()
+
+    expect(result.current.isClosed).toBe(true)
+    expect(channel.close).not.toHaveBeenCalled()
   })
 
   it('should close the channel on unmount', async () => {

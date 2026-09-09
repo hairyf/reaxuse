@@ -17,7 +17,9 @@ export interface UseBroadcastChannelReturn<D, P> {
 
   /**
    * The current `BroadcastChannel` instance; `undefined` before the mount
-   * effect creates it (SSR) or after `close()`.
+   * effect creates it (SSR). The instance is retained after `close()`
+   * (upstream parity), so `post()` on a closed channel reaches the native API
+   * and throws `InvalidStateError`.
    */
   channel: BroadcastChannel | undefined
 
@@ -27,12 +29,14 @@ export interface UseBroadcastChannelReturn<D, P> {
   data: D | undefined
 
   /**
-   * Send a message to the channel.
+   * Send a message to the channel. Throws the native `InvalidStateError` after
+   * the channel was closed (upstream: `channel.value.postMessage(data)`).
    */
   post: (data: P) => void
 
   /**
-   * Close the channel and release the `channel` reference.
+   * Close the channel and mark `isClosed` as `true`. The instance is kept
+   * (upstream parity) so a later `post()` still reaches the closed channel.
    */
   close: () => void
 
@@ -40,6 +44,12 @@ export interface UseBroadcastChannelReturn<D, P> {
    * The latest `messageerror` event, or `null` when none occurred.
    */
   error: Event | null
+
+  /**
+   * Whether the channel has been closed — `true` after `close()` or a native
+   * `close` event (upstream: `ShallowRef<boolean>`).
+   */
+  isClosed: boolean
 
   /**
    * Register a callback fired on every `message` event — `useListener`
@@ -65,24 +75,27 @@ export interface UseBroadcastChannelReturn<D, P> {
  * and closes the channel automatically on unmount.
  *
  * React divergences:
- * - the Vue `ShallowRef` returns become plain state: `channel`, `data` and
- *   `error` are `useState` values, updated when a message / error arrives or
- *   the channel is created;
+ * - the Vue `ShallowRef` returns become plain state: `channel`, `data`,
+ *   `error` and `isClosed` are `useState` values, updated when a message /
+ *   error / close arrives or the channel is created;
  * - the channel is created in a mount `useEffect` gated by `useSupported`
  *   (upstream: a `tryOnMounted` setup block behind `if (isSupported.value)`),
- *   so SSR renders the initial `undefined`/`null` values without ever touching
- *   `BroadcastChannel` — SSR-safe;
+ *   so SSR renders the initial `undefined`/`null`/`false` values without ever
+ *   touching `BroadcastChannel` — SSR-safe;
  * - upstream's internal `useEventListener` message listeners become the
  *   `onMessage` / `onMessageError` registration functions in the return
  *   (`(fn) => { off }`, `useListener` protocol); `data` / `error` are still
  *   updated from the same native listeners;
- * - upstream's `isClosed` flag is dropped: `close()` closes the channel and
- *   releases the reference (`channel` → `undefined`), so a closed channel is
- *   observable and `post()` becomes a no-op after closing (upstream keeps the
- *   closed instance and throws on `postMessage`).
+ * - upstream's `close` listener is registered in the same mount effect (with
+ *   cleanup) and flips `isClosed`, matching upstream `index.ts:66-68`; because
+ *   React effects can re-run, `isClosed` is re-armed to `false` whenever the
+ *   effect opens a fresh channel (upstream sets it once at setup);
+ * - like upstream, `close()` keeps the channel instance and `post()` on a
+ *   closed channel throws the native `InvalidStateError` instead of being
+ *   silently ignored.
  *
  * @example
- * const { isSupported, channel, data, post, close, error, onMessage } = useBroadcastChannel({ name: 'my-channel' })
+ * const { isSupported, channel, data, post, close, error, isClosed, onMessage } = useBroadcastChannel({ name: 'my-channel' })
  *
  * post('Hello, World!')
  * close()
@@ -99,6 +112,7 @@ export function useBroadcastChannel<D, P>(options: UseBroadcastChannelOptions): 
   const [channel, setChannel] = useState<BroadcastChannel | undefined>(undefined)
   const [data, setData] = useState<D | undefined>(undefined)
   const [error, setError] = useState<Event | null>(null)
+  const [isClosed, setIsClosed] = useState(false)
 
   // latest channel read by the stable `post` / `close` callbacks (upstream:
   // the `channel` ref)
@@ -127,17 +141,18 @@ export function useBroadcastChannel<D, P>(options: UseBroadcastChannelOptions): 
     }
   }, [])
 
+  // upstream: `if (channel.value) channel.value.postMessage(data)` — `close()`
+  // keeps the instance, so posting to a closed channel throws the native
+  // `InvalidStateError` instead of being silently ignored
   const post = useCallback((value: P) => {
     channelRef.current?.postMessage(value)
   }, [])
 
+  // upstream: `if (channel.value) channel.value.close(); isClosed.value = true`
+  // — the instance is intentionally retained (upstream parity)
   const close = useCallback(() => {
-    const current = channelRef.current
-    if (current) {
-      current.close()
-      channelRef.current = undefined
-      setChannel(undefined)
-    }
+    channelRef.current?.close()
+    setIsClosed(true)
   }, [])
 
   // upstream: `if (isSupported.value)` setup block + `tryOnScopeDispose(close)`
@@ -151,6 +166,9 @@ export function useBroadcastChannel<D, P>(options: UseBroadcastChannelOptions): 
     channelRef.current = broadcastChannel
     setChannel(broadcastChannel)
     setError(null)
+    // a fresh channel re-arms `isClosed` (React effects can re-run; upstream
+    // sets it once at setup)
+    setIsClosed(false)
 
     const onMessageEvent = (event: MessageEvent) => {
       setData(event.data as D)
@@ -162,12 +180,18 @@ export function useBroadcastChannel<D, P>(options: UseBroadcastChannelOptions): 
       Array.from(messageErrorFns.current).forEach(fn => fn(event))
     }
 
+    const onCloseEvent = () => {
+      setIsClosed(true)
+    }
+
     broadcastChannel.addEventListener('message', onMessageEvent, { passive: true })
     broadcastChannel.addEventListener('messageerror', onMessageErrorEvent, { passive: true })
+    broadcastChannel.addEventListener('close', onCloseEvent, { passive: true })
 
     return () => {
       broadcastChannel.removeEventListener('message', onMessageEvent)
       broadcastChannel.removeEventListener('messageerror', onMessageErrorEvent)
+      broadcastChannel.removeEventListener('close', onCloseEvent)
       if (channelRef.current === broadcastChannel)
         channelRef.current = undefined
       broadcastChannel.close()
@@ -181,6 +205,7 @@ export function useBroadcastChannel<D, P>(options: UseBroadcastChannelOptions): 
     post,
     close,
     error,
+    isClosed,
     onMessage,
     onMessageError,
   }
