@@ -67,14 +67,19 @@ export interface UseRafFnReturn {
  *   a plain boolean state flipped by `resume` / `pause`;
  * - the setup-time auto `resume()` (`immediate`, client-only) becomes a
  *   mount `useEffect`, and `tryOnScopeDispose(pause)` becomes its cleanup —
- *   frames are only ever scheduled inside effects, so SSR renders never touch
- *   `window.requestAnimationFrame`;
+ *   `immediate` is read exactly once on mount, like upstream reads it once
+ *   during setup: a later change to the option neither restarts nor stops the
+ *   loop. Frames are only ever scheduled inside effects, so SSR renders never
+ *   touch `window.requestAnimationFrame`;
  * - `fn`, `fpsLimit`, `once` and `window` are read through refs on every
  *   frame instead of from the setup closure, so the running loop always sees
  *   the latest values (upstream recomputes on watchers);
  * - `fpsLimit` is a `RefOrValue` resolved with `toValue` per frame
- *   (upstream: `computed` from `toValue` + a `watch`), so a React ref-like
- *   `{ current }` limit updates live without re-running the hook.
+ *   (upstream: `MaybeRefOrGetter` + `computed`), so a React ref-like
+ *   `{ current }` limit updates live without re-running the hook. The
+ *   upstream getter form (`() => number | null`) is deliberately not part of
+ *   `RefOrValue` — zero-argument getters were removed repo-wide (#462/#490) —
+ *   so it is rejected at the type level.
  *
  * @example
  * const { pause, resume } = useRafFn(() => setCount(c => c + 1))
@@ -154,16 +159,19 @@ export function useRafFn(
     rafIdRef.current = null
   }, [])
 
-  // upstream resumes synchronously during setup when `immediate`; in React the
-  // equivalent is a mount effect — its cleanup also pauses the loop on unmount
-  // (upstream: tryOnScopeDispose(pause))
+  // upstream resumes synchronously during setup when `immediate` and reads
+  // that flag exactly once — a later option change never restarts or stops
+  // the loop — so snapshot the initial value and key the effect on the two
+  // stable controls only. Its cleanup pauses the loop on unmount (upstream:
+  // tryOnScopeDispose(pause))
+  const immediateRef = useRef(immediate)
   useEffect(() => {
-    if (immediate)
+    if (immediateRef.current)
       resume()
     return () => {
       pause()
     }
-  }, [immediate, pause, resume])
+  }, [pause, resume])
 
   return { isActive, pause, resume }
 }

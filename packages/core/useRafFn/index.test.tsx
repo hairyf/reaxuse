@@ -65,6 +65,43 @@ describe('useRafFn', () => {
     expect(result.current.isActive).toBe(false)
   })
 
+  it('should not stop the loop when immediate turns false after mount (read once, like upstream)', async () => {
+    const frames = installManualFrames()
+    const fn = vi.fn()
+    const { result, rerender, act } = await renderHook(
+      (props?: { immediate: boolean }) => useRafFn(fn, { immediate: props?.immediate }),
+      { initialProps: { immediate: true } },
+    )
+    expect(result.current.isActive).toBe(true)
+
+    // upstream reads `immediate` once at setup — a later false must not pause
+    // the running loop (the effect is keyed on the stable controls only)
+    await rerender({ immediate: false })
+    expect(result.current.isActive).toBe(true)
+    await act(() => {
+      frames.frames([0, 16, 32])
+    })
+    expect(fn).toHaveBeenCalledTimes(3)
+  })
+
+  it('should not start the loop when immediate turns true after mount (read once, like upstream)', async () => {
+    const frames = installManualFrames()
+    const fn = vi.fn()
+    const { result, rerender, act } = await renderHook(
+      (props?: { immediate: boolean }) => useRafFn(fn, { immediate: props?.immediate }),
+      { initialProps: { immediate: false } },
+    )
+    expect(result.current.isActive).toBe(false)
+
+    // a later true must not start a loop that never ran
+    await rerender({ immediate: true })
+    expect(result.current.isActive).toBe(false)
+    await act(() => {
+      frames.frames([0, 16, 32])
+    })
+    expect(fn).not.toHaveBeenCalled()
+  })
+
   it('should not be active after pause', async () => {
     const { result, act } = await renderHook(() => useRafFn(() => {}))
     expect(result.current.isActive).toBe(true)
