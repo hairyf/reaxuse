@@ -10,16 +10,44 @@ Listen for a long press on an element. Returns a stop function.
 
 ```tsx
 import { useLongPress } from '@reaxuse/core'
+import { useRef, useState } from 'react'
 
-const target = useRef<HTMLButtonElement | null>(null)
-const [longPressed, setLongPressed] = useState(false)
+const htmlRefHook = useRef<HTMLButtonElement | null>(null)
+const [longPressedHook, setLongPressedHook] = useState(false)
 
-useLongPress(target, () => {
-  setLongPressed(true)
-})
+function onLongPressCallbackHook(e: PointerEvent) {
+  setLongPressedHook(true)
+}
+function resetHook() {
+  setLongPressedHook(false)
+}
 
-// Make sure the returned stop function isn't used in the same render:
-// const stop = useLongPress(target, handler)
+useLongPress(
+  htmlRefHook,
+  onLongPressCallbackHook,
+  {
+    modifiers: {
+      prevent: true,
+    },
+  },
+)
+
+return (
+  <>
+    <p>
+      Long Pressed:
+      {longPressedHook ? 'true' : 'false'}
+    </p>
+
+    <button ref={htmlRefHook} className="ml-2 button small">
+      Press long
+    </button>
+
+    <button className="ml-2 button small" onClick={resetHook}>
+      Reset
+    </button>
+  </>
+)
 ```
 
 ### Return Value
@@ -34,20 +62,29 @@ const stop = useLongPress(target, handler)
 stop()
 ```
 
-### Custom Threshold
+### Custom Delay
 
-By default, the handler fires after 500ms. You can customize this with the `threshold` option.
+By default, the handler fires after 500ms. You can customize this with the `delay` option. It can be a number or a function that receives the `PointerEvent`.
 
 ```tsx
-useLongPress(target, handler, { threshold: 1000 })
+import { useLongPress } from '@reaxuse/core'
+
+// Fixed delay
+useLongPress(target, handler, { delay: 1000 })
+
+// Dynamic delay based on event
+useLongPress(target, handler, {
+  delay: ev => ev.pointerType === 'touch' ? 800 : 500,
+})
 ```
 
 ### Distance Threshold
 
-The long press will be canceled if the pointer moves more than the threshold (default: 10 pixels).
-Set to `false` to disable movement detection.
+The long press will be canceled if the pointer moves more than the threshold (default: 10 pixels). Set to `false` to disable movement detection.
 
 ```tsx
+import { useLongPress } from '@reaxuse/core'
+
 // Custom threshold
 useLongPress(target, handler, { distanceThreshold: 20 })
 
@@ -55,38 +92,37 @@ useLongPress(target, handler, { distanceThreshold: 20 })
 useLongPress(target, handler, { distanceThreshold: false })
 ```
 
-### Press Lifecycle Callbacks
+### On Mouse Up Callback
 
-`onStart` is called when the pointer is pressed down, `onFinish` when the pointer is released after
-the long press has fired, and `onCancel` when the pointer is released (or canceled by the browser,
-e.g. a second pointer starting a pinch) before the threshold, or when it moves beyond
-`distanceThreshold` while the press is pending.
+You can provide an `onMouseUp` callback to be notified when the pointer is released.
 
 ```tsx
+import { useLongPress } from '@reaxuse/core'
+
 useLongPress(target, handler, {
-  onStart(event) {
-    console.log('Pressed', event)
-  },
-  onFinish(event) {
-    console.log('Long press finished', event)
-  },
-  onCancel(event) {
-    console.log('Press canceled', event)
+  onMouseUp(duration, distance, isLongPress, pointerEvent) {
+    console.log(`Held for ${duration}ms, moved ${distance}px, long press: ${isLongPress}, x: ${pointerEvent.clientX}`)
   },
 })
 ```
 
 ### Modifiers
 
-You can require keyboard modifier keys to be held for the long press to be detected. Only the listed
-keys are checked — `true` requires the key to be held down, `false` requires it to be released.
+The following modifiers are available:
+
+| Modifier  | Description                                  |
+| --------- | -------------------------------------------- |
+| `stop`    | Calls `event.stopPropagation()`              |
+| `once`    | Removes event listener after first trigger   |
+| `prevent` | Calls `event.preventDefault()`               |
+| `capture` | Uses capture mode for event listener         |
+| `self`    | Only trigger if target is the element itself |
 
 ```tsx
 useLongPress(target, handler, {
   modifiers: {
-    ctrl: true,
+    prevent: true,
+    stop: true,
   },
 })
 ```
-
-This only triggers the long press when the pointer is pressed while the `Ctrl` key is held.
