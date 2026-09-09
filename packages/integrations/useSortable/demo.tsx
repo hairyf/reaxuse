@@ -1,8 +1,5 @@
-// Relative (not `@reaxuse/integrations`): the package name resolves through the
-// worktree node_modules junction to the main repo's integrations package, which
-// does not export `useSortable` until this PR is merged.
+import { useSortable } from '@reaxuse/integrations'
 import { useRef, useState } from 'react'
-import { useSortable } from '../useSortable'
 
 interface Item {
   id: number

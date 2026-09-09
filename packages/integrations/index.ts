@@ -2,7 +2,7 @@
  * @reaxuse/integrations — React port of @vueuse/integrations
  *
  * TODO: map integrations with third-party services (axios, async-validator,
- * focus-trap, idb-keyval, jwt-decode, nprogress, qrcode, sortablejs …).
+ * focus-trap, idb-keyval, jwt-decode, nprogress, qrcode …).
  */
 
 export * from './useAsyncValidator'
@@ -18,7 +18,6 @@ export * from './useFuse'
 export * from './useIDBKeyval'
 // export * from './useIDBKeyval'
 export * from './useJwt'
-// export * from './useSortable'
 export * from './useNProgress'
 // export * from './useJwt'
 // export * from './useNProgress'
