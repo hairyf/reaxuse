@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import type { Dispatch, SetStateAction } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 export interface UseStyleTagOptions {
   /**
@@ -41,35 +42,39 @@ export interface UseStyleTagOptions {
   document?: Document
 }
 
-export interface UseStyleTagReturn {
+export type UseStyleTagReturn = readonly [
   /**
-   * DOM id of the style tag
+   * Current CSS text of the style tag — React state seeded by the initial
+   * `css` argument (upstream: a writable `css` ref).
    */
-  id: string
-
+  css: string,
   /**
-   * Set the CSS text of the style tag — updates the live `<style>` element
-   * while loaded, and is stored for the next `load()` otherwise. Upstream
-   * returns a writable `css` ref instead (`css.value = '...'`).
+   * Update the CSS text of the style tag — `setCss('...')` or
+   * `setCss(prev => '...')`. Updates the live `<style>` element while loaded,
+   * and is stored for the next `load()` otherwise. Upstream:
+   * `css.value = '...'`.
    */
-  css: (value: string) => void
-
-  /**
-   * Inject the style tag into `document.head` (no-op when already loaded)
-   */
-  load: () => void
-
-  /**
-   * Remove the style tag from `document.head` (reference-counted, so style
-   * tags shared by id are only removed with the last unloaded instance)
-   */
-  unload: () => void
-
-  /**
-   * Whether the style tag is currently injected
-   */
-  isLoaded: boolean
-}
+  setCss: Dispatch<SetStateAction<string>>,
+  controls: {
+    /**
+     * DOM id of the style tag
+     */
+    id: string
+    /**
+     * Inject the style tag into `document.head` (no-op when already loaded)
+     */
+    load: () => void
+    /**
+     * Remove the style tag from `document.head` (reference-counted, so style
+     * tags shared by id are only removed with the last unloaded instance)
+     */
+    unload: () => void
+    /**
+     * Whether the style tag is currently injected
+     */
+    isLoaded: boolean
+  },
+]
 
 let _id = 0
 const _refCount = new WeakMap<HTMLStyleElement, number>()
@@ -82,13 +87,18 @@ const _refCount = new WeakMap<HTMLStyleElement, number>()
  * into `document.head` and keeps its text in sync with the given CSS.
  *
  * React divergences:
- * - the initial `css` argument is a plain string, read once like upstream's
- *   initial ref value; updates go through the returned `css` setter —
- *   `css('...')` (upstream: writable ref, `css.value = '...'`);
+ * - the return is a React tuple `[css, setCss, { id, load, unload, isLoaded }]`
+ *   instead of upstream's object `{ id, css: ShallowRef<string>, load, unload,
+ *   isLoaded }` — `css` is plain state and `setCss` replaces it with the React
+ *   immutable-update protocol, `setCss('...')` or `setCss(prev => '...')`
+ *   (upstream: writable ref, `css.value = '...'`). The `controls` object keeps
+ *   a stable identity while `load`, `unload` and `isLoaded` are unchanged;
+ * - the initial `css` argument seeds that state once, like upstream's
+ *   `shallowRef(css)`; later updates go through `setCss`;
  * - the `isLoaded` ref return becomes a plain boolean state;
  * - upstream's `watch(cssRef, ..., { immediate: true })` becomes an initial
- *   `el.textContent` write in `load()` plus direct writes from the `css`
- *   setter while loaded;
+ *   `el.textContent` write in `load()` plus direct writes from `setCss` while
+ *   loaded;
  * - `tryOnMounted(load)` / `tryOnScopeDispose(unload)` become a mount
  *   `useEffect` whose cleanup calls `unload` (skipped with `manual: true`);
  * - SSR-safe: `document` is only touched inside the mount effect and the
@@ -98,23 +108,25 @@ const _refCount = new WeakMap<HTMLStyleElement, number>()
  *   `vueuse_styletag_`).
  *
  * @example
- * const { id, css, load, unload, isLoaded } = useStyleTag('.foo { margin-top: 32px; }')
- * css('.foo { margin-top: 64px; }') // updates the injected <style>
+ * const [css, setCss, { id, load, unload, isLoaded }] = useStyleTag('.foo { margin-top: 32px; }')
+ * setCss('.foo { margin-top: 64px; }') // updates the injected <style>
+ * setCss(prev => `${prev}\n.foo { margin-top: 96px; }`) // functional update
  */
 export function useStyleTag(
   css: string,
   options: UseStyleTagOptions = {},
 ): UseStyleTagReturn {
+  const [cssValue, setCssValue] = useState(css)
   const [isLoaded, setIsLoaded] = useState(false)
 
   // latest-value refs (repo idiom, see useStateManualHistory) so `load`,
-  // `unload` and `css` stay stable callbacks that always read the newest
+  // `unload` and `setCss` stay stable callbacks that always read the newest
   // values; `isLoadedRef` guards the ref-counting against stale state
-  const cssRef = useRef(css)
+  const cssRef = useRef(cssValue)
   const isLoadedRef = useRef(false)
   const optionsRef = useRef(options)
   const idRef = useRef<string>('')
-  cssRef.current = css
+  cssRef.current = cssValue
   optionsRef.current = options
   if (!idRef.current)
     idRef.current = options.id ?? `reaxuse_styletag_${++_id}`
@@ -148,7 +160,7 @@ export function useStyleTag(
     _refCount.set(el, (_refCount.get(el) ?? 0) + 1)
 
     // upstream: watch(cssRef, el.textContent = value, { immediate: true }) —
-    // the immediate write happens here; later writes go through `css`
+    // the immediate write happens here; later writes go through `setCss`
     el.textContent = cssRef.current
     isLoadedRef.current = true
     setIsLoaded(true)
@@ -175,14 +187,17 @@ export function useStyleTag(
     setIsLoaded(false)
   }, [resolveDocument])
 
-  const setCss = useCallback((value: string) => {
-    cssRef.current = value
+  const setCss = useCallback<Dispatch<SetStateAction<string>>>((action) => {
+    const prev = cssRef.current
+    const next = typeof action === 'function' ? action(prev) : action
+    cssRef.current = next
+    setCssValue(next)
     if (!isLoadedRef.current)
       return
     const doc = resolveDocument()
     const el = doc?.getElementById(idRef.current)
     if (el)
-      el.textContent = value
+      el.textContent = next
   }, [resolveDocument])
 
   useEffect(() => {
@@ -195,11 +210,8 @@ export function useStyleTag(
     }
   }, [load, unload])
 
-  return {
-    id: idRef.current,
-    css: setCss,
-    load,
-    unload,
-    isLoaded,
-  }
+  // stable controls object — new identity only when its members change
+  const controls = useMemo(() => ({ id: idRef.current, load, unload, isLoaded }), [load, unload, isLoaded])
+
+  return [cssValue, setCss, controls]
 }
