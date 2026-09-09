@@ -60,10 +60,12 @@ export interface UseAsyncQueueOptions {
  *   React state values — `activeIndex` is a number (the current task index,
  *   `-1` before the first task), `result` is the results array and updates
  *   trigger a re-render (no `.value`);
- * - upstream runs the queue synchronously during setup; here the queue starts
- *   from a mount effect — the promise chain is identical: sequential
- *   execution, `interrupt` stops subsequent tasks after a failure, `signal`
- *   aborts the current task via `Promise.race`.
+ * - upstream runs the reduce chain synchronously during setup; here it starts
+ *   from a mount effect (after the first render). React StrictMode (dev)
+ *   mounts effects twice, so a started ref keeps the queue running exactly
+ *   once — the promise chain itself is identical: sequential execution,
+ *   `interrupt` stops subsequent tasks after a failure, `signal` aborts the
+ *   current task via `Promise.race`.
  *
  * @example
  * const { activeIndex, result } = useAsyncQueue([p1, p2])
@@ -96,12 +98,22 @@ export function useAsyncQueue<T extends any[], S = MapQueueTask<T>>(
 
   const [activeIndex, setActiveIndex] = useState(-1)
   const [result, setResult] = useState<Array<UseAsyncQueueResult<any>>>(() =>
-    createInitialResult(tasks.length),
+    // `tasks` may be nullish for a plain-JS caller — upstream no-ops instead
+    // of throwing, so the initializer must not dereference it either
+    createInitialResult(tasks?.length ?? 0),
   )
 
-  // upstream runs the reduce chain synchronously during setup — React runs it
-  // from a mount effect instead (the queue is started exactly once)
+  // upstream runs the reduce chain synchronously during setup; here it starts
+  // from a mount effect. React StrictMode (dev) mounts effects twice, so the
+  // started ref keeps the queue running exactly once — the chain itself is
+  // identical: sequential execution, `interrupt` stops after a failure,
+  // `signal` aborts the current task via `Promise.race`.
+  const startedRef = useRef(false)
   useEffect(() => {
+    if (startedRef.current)
+      return
+    startedRef.current = true
+
     const queue = tasksRef.current
     if (!queue || queue.length === 0) {
       onFinishedRef.current()
