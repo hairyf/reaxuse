@@ -1,6 +1,6 @@
 import type { RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import { useEventListener } from '../useEventListener'
 
 export type KeyPredicate = (event: KeyboardEvent) => boolean
@@ -128,14 +128,82 @@ export function useKeyStroke(
     dedupe = false,
   } = options
   const predicate = createKeyPredicate(key)
+  // latest-value ref synced each render so the mount-bound listener always
+  // reads the newest handler (stable listener identity — no re-subscription)
+  const handlerRef = useRef(handler)
+  handlerRef.current = handler
   const listener = (e: KeyboardEvent) => {
     if (e.repeat && toValue(dedupe))
       return
 
     if (predicate(e))
-      handler(e)
+      handlerRef.current(e)
   }
 
   const stop = useEventListener(target, eventName, listener, passive)
   return useCallback(() => stop?.(), [stop])
+}
+
+/**
+ * Listen to the `keydown` event of the given key.
+ *
+ * Map from @vueuse/core `onKeyDown`
+ * (`source/vueuse/packages/core/onKeyStroke/`) — shorthand for
+ * `useKeyStroke(key, handler, { ...options, eventName: 'keydown' })`.
+ *
+ * @see https://vueuse.org/onKeyStroke
+ *
+ * @example
+ * useKeyDown('ArrowDown', (e) => {
+ *   e.preventDefault()
+ * })
+ */
+export function useKeyDown(
+  key: KeyFilter,
+  handler: (event: KeyboardEvent) => void,
+  options: Omit<UseKeyStrokeOptions, 'eventName'> = {},
+): () => void {
+  return useKeyStroke(key, handler, { ...options, eventName: 'keydown' })
+}
+
+/**
+ * Listen to the `keypress` event of the given key.
+ *
+ * Map from @vueuse/core `onKeyPressed`
+ * (`source/vueuse/packages/core/onKeyStroke/`) — shorthand for
+ * `useKeyStroke(key, handler, { ...options, eventName: 'keypress' })`.
+ *
+ * @see https://vueuse.org/onKeyStroke
+ *
+ * @example
+ * useKeyPressed('a', (e) => {
+ *   console.log(e.key)
+ * })
+ */
+export function useKeyPressed(
+  key: KeyFilter,
+  handler: (event: KeyboardEvent) => void,
+  options: Omit<UseKeyStrokeOptions, 'eventName'> = {},
+): () => void {
+  return useKeyStroke(key, handler, { ...options, eventName: 'keypress' })
+}
+
+/**
+ * Listen to the `keyup` event of the given key.
+ *
+ * Map from @vueuse/core `onKeyUp`
+ * (`source/vueuse/packages/core/onKeyStroke/`) — shorthand for
+ * `useKeyStroke(key, handler, { ...options, eventName: 'keyup' })`.
+ *
+ * @see https://vueuse.org/onKeyStroke
+ *
+ * @example
+ * useKeyUp('Shift', () => console.log('Shift key up'))
+ */
+export function useKeyUp(
+  key: KeyFilter,
+  handler: (event: KeyboardEvent) => void,
+  options: Omit<UseKeyStrokeOptions, 'eventName'> = {},
+): () => void {
+  return useKeyStroke(key, handler, { ...options, eventName: 'keyup' })
 }

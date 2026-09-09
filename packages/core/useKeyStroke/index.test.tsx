@@ -2,7 +2,7 @@ import type { Mock } from 'vitest'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { userEvent } from 'vitest/browser'
-import { useKeyStroke } from '../useKeyStroke'
+import { useKeyDown, useKeyPressed, useKeyStroke, useKeyUp } from '../useKeyStroke'
 
 describe('useKeyStroke', () => {
   let callBackFn: Mock<(event: KeyboardEvent) => void>
@@ -75,5 +75,60 @@ describe('useKeyStroke', () => {
     unmount()
     await userEvent.keyboard('a')
     expect(callBackFn).toBeCalledTimes(0)
+  })
+
+  it('calls the latest handler on re-render', async () => {
+    const first = vi.fn<(event: KeyboardEvent) => void>()
+    const second = vi.fn<(event: KeyboardEvent) => void>()
+    const { rerender } = await renderHook(
+      (props?: { handler: (event: KeyboardEvent) => void }) => useKeyStroke('a', props!.handler),
+      { initialProps: { handler: first } },
+    )
+
+    await userEvent.keyboard('a')
+    expect(first).toBeCalledTimes(1)
+
+    await rerender({ handler: second })
+    await userEvent.keyboard('a')
+    expect(second).toBeCalledTimes(1)
+    expect(first).toBeCalledTimes(1)
+  })
+
+  it('useKeyDown listens to the keydown event', async () => {
+    await renderHook(() => useKeyDown('a', callBackFn))
+    await userEvent.keyboard('ab')
+    expect(callBackFn).toBeCalledTimes(1)
+  })
+
+  it('useKeyPressed listens to the keypress event', async () => {
+    await renderHook(() => useKeyPressed('a', callBackFn))
+    await userEvent.keyboard('a>5')
+    await userEvent.keyboard('b')
+    expect(callBackFn).toBeCalledTimes(1)
+  })
+
+  it('useKeyUp listens to the keyup event', async () => {
+    await renderHook(() => useKeyUp('a', callBackFn))
+    await userEvent.keyboard('ab')
+    expect(callBackFn).toBeCalledTimes(1)
+  })
+
+  it('useKeyDown forwards the remaining options', async () => {
+    await renderHook(() => useKeyDown('a', callBackFn, { dedupe: true }))
+    await userEvent.keyboard('{a>5/}')
+    expect(callBackFn).toBeCalledTimes(1)
+  })
+
+  it('useKeyDown returns a stop function that removes the listener', async () => {
+    let stop: (() => void) | undefined
+    await renderHook(() => {
+      stop = useKeyDown('a', callBackFn)
+    })
+    await userEvent.keyboard('a')
+    expect(callBackFn).toBeCalledTimes(1)
+
+    stop?.()
+    await userEvent.keyboard('a')
+    expect(callBackFn).toBeCalledTimes(1)
   })
 })
