@@ -1,9 +1,9 @@
 // Relative (not `@reaxuse/integrations`): the package name resolves through the
 // worktree node_modules junction to the main repo's integrations package, which
 // does not export `useFuse` until this PR is merged.
-import type { UseFuseOptions } from '../src/useFuse'
+import type { UseFuseOptions } from '../useFuse'
 import { useMemo, useState } from 'react'
-import { useFuse } from '../src/useFuse'
+import { useFuse } from '../useFuse'
 
 interface DataItem {
   firstName: string

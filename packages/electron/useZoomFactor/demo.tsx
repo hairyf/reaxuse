@@ -1,7 +1,7 @@
 import type { WebFrame } from 'electron'
 import { useMemo } from 'react'
 // Relative import (not `@reaxuse/electron`): this worktree's node_modules is junctioned to the main checkout, so the package alias would resolve to the main tree's src.
-import { useZoomFactor } from '../src/useZoomFactor'
+import { useZoomFactor } from '../useZoomFactor'
 
 export default function UseZoomFactorDemo() {
   // demo-only stub: a browser page has no Electron runtime, so `webFrame` is faked

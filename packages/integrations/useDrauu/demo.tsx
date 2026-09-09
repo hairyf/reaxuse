@@ -3,7 +3,7 @@
 // which does not export `useDrauu` until this PR is merged.
 import type { Brush, DrawingMode } from 'drauu'
 import { useRef, useState } from 'react'
-import { useDrauu } from '../src/useDrauu'
+import { useDrauu } from '../useDrauu'
 
 const colors = ['black', '#ef4444', '#22c55e', '#3b82f6']
 

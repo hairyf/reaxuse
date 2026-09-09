@@ -1,5 +1,5 @@
 /**
- * contract-check.ts — verify every existing hook in packages/{core,shared}/src
+ * contract-check.ts — verify every existing hook in packages/{core,shared}/<hook>/index.tsx
  * satisfies the house contracts:
  *   A. naming: ref* upstream → useState*; use*RefHistory upstream → useState*History
  *   B. useState* family returns a React array tuple
@@ -16,8 +16,12 @@ const root = process.cwd()
 const PKGS = ['core', 'shared']
 const findings: string[] = []
 
-function pkgSrcDir(pkg: string) {
-  return join(root, 'packages', pkg, 'src')
+/** `use[A-Z]*` hook dirs of a package (docs+impl are co-located). */
+function hookDirs(pkg: string): string[] {
+  return readdirSync(join(root, 'packages', pkg), { withFileTypes: true })
+    .filter(d => d.isDirectory() && !['.turbo', 'dist', 'node_modules'].includes(d.name))
+    .filter(d => /^use[A-Z]/.test(d.name))
+    .map(d => d.name)
 }
 
 function extractUpstream(src: string): string | null {
@@ -84,13 +88,11 @@ function namingIssue(hook: string, upstream: string | null): string | null {
 }
 
 for (const pkg of PKGS) {
-  const srcDir = pkgSrcDir(pkg)
-  const files = readdirSync(srcDir).filter(f => /^use[A-Z].*\.tsx?$/.test(f) && !f.includes('.test.'))
-  const indexSrc = readFileSync(join(srcDir, 'index.ts'), 'utf-8')
+  const dirs = hookDirs(pkg)
+  const indexSrc = readFileSync(join(root, 'packages', pkg, 'index.ts'), 'utf-8')
 
-  for (const file of files) {
-    const full = join(srcDir, file)
-    const src = readFileSync(full, 'utf-8')
+  for (const dir of dirs) {
+    const src = readFileSync(join(root, 'packages', pkg, dir, 'index.tsx'), 'utf-8')
     const hooks = exportedHookNames(src)
     if (hooks.length === 0)
       continue // helper/utility module, not a hook
@@ -98,7 +100,7 @@ for (const pkg of PKGS) {
     const upstream = extractUpstream(src)
 
     for (const hook of hooks) {
-      const fileHook = file.replace(/\.tsx?$/, '')
+      const fileHook = dir
       // C. registration
       if (!indexSrc.includes(`export * from './${fileHook}'`))
         findings.push(`${pkg}/${hook}: NOT registered in index.ts`)

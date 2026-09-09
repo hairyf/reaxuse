@@ -35,8 +35,11 @@ React hook (`useX`) mapped 1:1 from the upstream VueUse implementation (see
 
 When porting a new function from VueUse:
 
-1. Implement it in `packages/<pkg>/src/<fn>.ts` with the same options and
-   return shape as the upstream (react-adapted).
+1. Implement it in `packages/<pkg>/<fn>/index.tsx` with the same options and
+   return shape as the upstream (react-adapted) — the implementation, test
+   (`index.test.tsx`), docs (`index.md`) and demo (`demo.tsx`) are all
+   co-located in the hook folder (VueUse-style), and the hook is re-exported
+   from the package barrel `packages/<pkg>/index.ts`.
 2. Run `npm run update` to regenerate `meta/functions.md`,
    `packages/functions.md` and `packages/metadata/src/functions.ts`.
 3. Add a docs page at `packages/<pkg>/<fn>/index.md` and a co-located demo at

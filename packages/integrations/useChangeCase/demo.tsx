@@ -1,10 +1,10 @@
 // Relative (not `@reaxuse/integrations`): until this PR is merged the package
 // name resolves through the worktree node_modules junction to the main repo's
 // still-empty integrations package.
-import type { ChangeCaseType } from '../src/useChangeCase'
+import type { ChangeCaseType } from '../useChangeCase'
 import * as ChangeCase from 'change-case'
 import { useState } from 'react'
-import { useChangeCase } from '../src/useChangeCase'
+import { useChangeCase } from '../useChangeCase'
 
 const transforms = Object.keys(ChangeCase).filter(v => v.endsWith('Case'))
 

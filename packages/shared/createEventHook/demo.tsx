@@ -2,7 +2,7 @@
 // name resolves through the worktree node_modules junction to the main repo's
 // copy of @reaxuse/shared, which does not contain createEventHook yet.
 import { useEffect, useState } from 'react'
-import { createEventHook } from '../src/createEventHook'
+import { createEventHook } from '../createEventHook'
 
 export default function CreateEventHookDemo() {
   const [count, setCount] = useState(0)

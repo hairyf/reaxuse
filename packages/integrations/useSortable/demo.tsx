@@ -2,7 +2,7 @@
 // worktree node_modules junction to the main repo's integrations package, which
 // does not export `useSortable` until this PR is merged.
 import { useRef, useState } from 'react'
-import { useSortable } from '../src/useSortable'
+import { useSortable } from '../useSortable'
 
 interface Item {
   id: number

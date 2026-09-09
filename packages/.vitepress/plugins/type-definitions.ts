@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, statSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import process from 'node:process'
 import ts from 'typescript'
@@ -8,7 +8,7 @@ import ts from 'typescript'
  *
  * React adaptation of VueUse's auto-generated `## Type Declarations` sections:
  * instead of copying types by hand into each `index.md`, the compiler AST of the
- * hook's source module (`packages/<pkg>/src/<Fn>.ts`) is walked and every public
+ * hook's source module (`packages/<pkg>/<Fn>/index.tsx`) is walked and every public
  * declaration (function signatures, interfaces, type aliases, enums, exported
  * consts) is printed as a clean `export` block. Types surfacing in those
  * signatures that are imported from other reaxuse modules — or local non-exported
@@ -101,8 +101,10 @@ function resolveImport(fromFile: string, specifier: string): string | undefined 
   if (!specifier.startsWith('.'))
     return undefined
   const target = resolve(join(fromFile, '..'), specifier)
-  const candidates = [target, `${target}.ts`, `${target}.tsx`, join(target, 'index.ts')]
-  return candidates.find(existsSync)
+  // Hook dirs make the bare target a *directory* (packages/<pkg>/<hook>/),
+  // so candidates must resolve to actual files — reading a directory is EISDIR.
+  const candidates = [target, `${target}.ts`, `${target}.tsx`, join(target, 'index.ts'), join(target, 'index.tsx')]
+  return candidates.find(c => existsSync(c) && statSync(c).isFile())
 }
 
 /**
@@ -296,10 +298,10 @@ export function getTypeDefinitions(srcFile: string, depth = 0): string {
   return [...new Set([...direct, ...sigs])].join('\n\n')
 }
 
-/** `packages/<pkg>/src/<Fn>.ts` for a docs page dir, when it exists. */
+/** `packages/<pkg>/<Fn>/index.tsx` for a docs page dir, when it exists. */
 export function findSourceFile(pkg: string, dir: string): string | undefined {
-  const base = join(process.cwd(), 'packages', pkg, 'src', dir)
-  for (const ext of ['.ts', '.tsx']) {
+  const base = join(process.cwd(), 'packages', pkg, dir, 'index')
+  for (const ext of ['.tsx', '.ts']) {
     if (existsSync(`${base}${ext}`))
       return `${base}${ext}`
   }

@@ -13,7 +13,7 @@ export const externals = [
  */
 export function createTsDownConfig(pkg: PackageManifest): UserConfig {
   return {
-    entry: ['src/index.ts'],
+    entry: ['index.ts'],
     format: ['es'],
     target: 'es2018',
     dts: true,

@@ -12,8 +12,12 @@ describe('package.json export maps', () => {
       expect(pkg.name).toBe(`@reaxuse/${name}`)
       expect(pkg.version).toMatch(/^\d+\.\d+\.\d+$/)
       expect(pkg.exports?.['.']).toBeDefined()
-      expect(pkg.exports['.'].types).toBe('./src/index.ts')
-      expect(pkg.exports['.'].default).toBe('./src/index.ts')
+      // the barrel lives at the package root (VueUse-style layout):
+      // packages/<pkg>/index.ts re-exports the per-hook index.tsx modules.
+      // metadata is the exception — its generated files stay under src/.
+      const entry = name === 'metadata' ? './src/index.ts' : './index.ts'
+      expect(pkg.exports['.'].types).toBe(entry)
+      expect(pkg.exports['.'].default).toBe(entry)
     })
   }
 })

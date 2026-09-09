@@ -20,10 +20,10 @@ git reset --hard HEAD --quiet
 git fetch origin main --quiet 2>/dev/null || { echo "FAIL: fetch $BRANCH"; exit 1; }
 
 BASE=$(git merge-base origin/main HEAD)
-CORE_ADDED=$(git diff "$BASE" HEAD -- packages/core/src/index.ts 2>/dev/null | grep '^+export ' | sed 's/^+//' || true)
-SHARED_ADDED=$(git diff "$BASE" HEAD -- packages/shared/src/index.ts 2>/dev/null | grep '^+export ' | sed 's/^+//' || true)
-MATH_ADDED=$(git diff "$BASE" HEAD -- packages/math/src/index.ts 2>/dev/null | grep '^+export ' | sed 's/^+//' || true)
-INT_ADDED=$(git diff "$BASE" HEAD -- packages/integrations/src/index.ts 2>/dev/null | grep '^+export ' | sed 's/^+//' || true)
+CORE_ADDED=$(git diff "$BASE" HEAD -- packages/core/index.ts 2>/dev/null | grep '^+export ' | sed 's/^+//' || true)
+SHARED_ADDED=$(git diff "$BASE" HEAD -- packages/shared/index.ts 2>/dev/null | grep '^+export ' | sed 's/^+//' || true)
+MATH_ADDED=$(git diff "$BASE" HEAD -- packages/math/index.ts 2>/dev/null | grep '^+export ' | sed 's/^+//' || true)
+INT_ADDED=$(git diff "$BASE" HEAD -- packages/integrations/index.ts 2>/dev/null | grep '^+export ' | sed 's/^+//' || true)
 
 # Re-apply added exports to an index.ts by uncommenting placeholders.
 # $1 = file, $2 = added export lines (newline-separated)
@@ -66,12 +66,12 @@ if git merge origin/main --no-edit >/dev/null 2>&1; then
   # Even on a clean merge, a PR branch created before the placeholder seed
   # may carry its own real export line while main now has the same
   # placeholder comment — drop the stale duplicate comment.
-  drop_stale_placeholders packages/core/src/index.ts 2>/dev/null
-  drop_stale_placeholders packages/shared/src/index.ts 2>/dev/null
-  drop_stale_placeholders packages/math/src/index.ts 2>/dev/null
-  drop_stale_placeholders packages/integrations/src/index.ts 2>/dev/null
-  if [ -n "$(git diff --name-only -- packages/core/src/index.ts packages/shared/src/index.ts packages/math/src/index.ts packages/integrations/src/index.ts)" ]; then
-    git add packages/core/src/index.ts packages/shared/src/index.ts packages/math/src/index.ts packages/integrations/src/index.ts
+  drop_stale_placeholders packages/core/index.ts 2>/dev/null
+  drop_stale_placeholders packages/shared/index.ts 2>/dev/null
+  drop_stale_placeholders packages/math/index.ts 2>/dev/null
+  drop_stale_placeholders packages/integrations/index.ts 2>/dev/null
+  if [ -n "$(git diff --name-only -- packages/core/index.ts packages/shared/index.ts packages/math/index.ts packages/integrations/index.ts)" ]; then
+    git add packages/core/index.ts packages/shared/index.ts packages/math/index.ts packages/integrations/index.ts
     git commit --no-edit >/dev/null 2>&1 || true
   fi
 else
@@ -79,8 +79,8 @@ else
   echo "CONFLICTED: $BRANCH files=[$CONFLICTS]"
   for f in $CONFLICTS; do
     case "$f" in
-      packages/core/src/index.ts|packages/shared/src/index.ts|packages/math/src/index.ts|packages/integrations/src/index.ts)
-        pkg=$(basename "$(dirname "$(dirname "$f")")")
+      packages/core/index.ts|packages/shared/index.ts|packages/math/index.ts|packages/integrations/index.ts)
+        pkg=$(basename "$(dirname "$f")")
         case "$pkg" in
           core) added=$CORE_ADDED ;;
           shared) added=$SHARED_ADDED ;;

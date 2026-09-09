@@ -2,7 +2,7 @@
 // resolves through the worktree node_modules junction to the main repo's
 // still-empty shared isDefined module.
 import { useState } from 'react'
-import { isDefined } from '../src/isDefined'
+import { isDefined } from '../isDefined'
 
 export default function IsDefinedDemo() {
   const [value, setValue] = useState<string | undefined>('example')

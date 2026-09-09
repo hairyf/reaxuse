@@ -20,7 +20,9 @@ export default defineConfig({
     reporters: 'dot',
     coverage: {
       provider: 'v8',
-      include: ['packages/*/src/**'],
+      // hook packages: barrel at package root + per-hook index.tsx;
+      // metadata keeps its generated files under `src/`
+      include: ['packages/*/index.ts', 'packages/*/*/index.{ts,tsx}', 'packages/metadata/src/**'],
       reporter: ['text'],
     },
     projects: [

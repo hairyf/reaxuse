@@ -4,7 +4,7 @@
 import type { Observable } from 'rxjs'
 import { useState } from 'react'
 import { Subject } from 'rxjs'
-import { useWatchExtractedObservable } from '../src/useWatchExtractedObservable'
+import { useWatchExtractedObservable } from '../useWatchExtractedObservable'
 
 interface Player {
   progress$: Observable<number>

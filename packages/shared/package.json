@@ -6,16 +6,17 @@
   "license": "MIT",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./index.ts",
+      "default": "./index.ts"
     }
   },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
+    "*/index.tsx",
     "dist",
-    "src"
+    "index.ts"
   ],
   "scripts": {
     "build": "tsdown"
