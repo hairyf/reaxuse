@@ -262,6 +262,65 @@ describe('useTemporalNow', () => {
     expect(result.current.now.timeZoneId).toBe('UTC')
   })
 
+  // Upstream drives these interop tests with the real `temporal-polyfill` /
+  // `@js-temporal/polyfill` packages (upstream index.test.ts:11, :217-249).
+  // Neither is installed in this repo, so a fully independent, hand-rolled
+  // `TemporalImplementation` stands in: it exercises the same end-to-end
+  // interop contract — the hook must work with ANY spec-compliant
+  // implementation, not just the ambient native `Temporal`.
+  it('interops end-to-end with an independently authored `temporal` implementation', async () => {
+    const nextEpoch = 1_000_000n
+
+    function fakeZonedDateTime(epochNs: bigint, timeZoneId: string, calendarId: string): TemporalZonedDateTime {
+      return {
+        epochNanoseconds: epochNs,
+        timeZoneId,
+        calendarId,
+        withTimeZone: tz => fakeZonedDateTime(epochNs, tz, calendarId),
+        withCalendar: cal => fakeZonedDateTime(epochNs, timeZoneId, cal),
+        toPlainDate: () => ({ toString: () => '2023-12-25' }),
+        toPlainTime: () => ({ toString: () => '15:30:00' }),
+        toPlainDateTime: () => ({ toString: () => '2023-12-25T15:30:00' }),
+        toLocaleString: () => '12/25/2023, 3:30:00 PM',
+        add: _duration => fakeZonedDateTime(epochNs + 1n, timeZoneId, calendarId),
+        subtract: _duration => fakeZonedDateTime(epochNs - 1n, timeZoneId, calendarId),
+      }
+    }
+
+    const fakeTemporal: TemporalImplementation = {
+      Now: {
+        zonedDateTimeISO(timezone = 'UTC') {
+          return fakeZonedDateTime(nextEpoch, timezone, 'gregory')
+        },
+      },
+      ZonedDateTime: {
+        compare: (a: TemporalZonedDateTime, b: TemporalZonedDateTime | string) => {
+          const bEpoch = typeof b === 'string' ? null : b.epochNanoseconds
+          if (bEpoch == null)
+            return 0
+          return a.epochNanoseconds < bEpoch ? -1 : a.epochNanoseconds > bEpoch ? 1 : 0
+        },
+      },
+    }
+
+    const { result } = await renderHook(() => useTemporalNow({
+      temporal: fakeTemporal,
+      timezone: 'Asia/Tokyo',
+      scheduler: pausedScheduler,
+    }))
+
+    // `now` comes from the custom implementation, not the ambient native one
+    expect(result.current.now.timeZoneId).toBe('Asia/Tokyo')
+    expect(result.current.now.epochNanoseconds).toBe(nextEpoch)
+    expect(result.current.now.toPlainDate().toString()).toBe('2023-12-25')
+    expect(result.current.format()).toBe('12/25/2023, 3:30:00 PM')
+
+    // add/subtract/compare all flow through the custom implementation
+    expect(result.current.add('P1D').epochNanoseconds).toBe(nextEpoch + 1n)
+    expect(result.current.subtract('P1D').epochNanoseconds).toBe(nextEpoch - 1n)
+    expect(result.current.compare(result.current.add('P1D'))).toBe(-1)
+  })
+
   it('should work even when the global Temporal object is unavailable, given a custom implementation', async () => {
     const native = getNativeTemporal()
     const custom: TemporalImplementation = {

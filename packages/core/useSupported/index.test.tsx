@@ -1,4 +1,5 @@
-import { expect, it } from 'vitest'
+import type { UseSupportedReturn } from '../useSupported'
+import { expect, expectTypeOf, it } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
 import { useSupported } from '../useSupported'
 
@@ -47,4 +48,11 @@ it('useSupported is false during render and evaluates the callback once after mo
   // no reactive re-evaluation on re-render (documented React divergence)
   await screen.rerender(<Probe />)
   expect(calls).toBe(1)
+})
+
+it('types: returns a plain boolean (UseSupportedReturn)', async () => {
+  const { result } = await renderHook(() => useSupported(() => true))
+
+  expectTypeOf(result.current).toEqualTypeOf<boolean>()
+  expectTypeOf<UseSupportedReturn>().toEqualTypeOf<boolean>()
 })

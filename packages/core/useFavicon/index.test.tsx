@@ -63,7 +63,7 @@ describe('useFavicon', () => {
 
   it('treats a plain value as the initial value only (the setter owns the state afterwards)', async () => {
     const { result, rerender } = await renderHook(
-      (props: { icon: string | null | undefined }) => useFavicon(props.icon),
+      (props: { icon: string | null | undefined } = { icon: null }) => useFavicon(props.icon),
       { initialProps: { icon: 'v1' } },
     )
 
@@ -75,10 +75,22 @@ describe('useFavicon', () => {
     expect(result.current[0]).toBe('v1')
   })
 
-  it('plain value/readonly', async () => {
-    const { result } = await renderHook(() => useFavicon('a.jpg'))
+  it('resolves functional updaters against React state (setter-updater alignment)', async () => {
+    const { result, act } = await renderHook(() => useFavicon('v1'))
 
-    expect(result.current[0]).toBe('a.jpg')
+    // the setter forwards the updater untouched — React applies it against its
+    // own state, so interleaved writes never diverge from the applied favicon
+    await act(() => {
+      result.current[1](prev => `${prev}-v2`)
+    })
+    expect(result.current[0]).toBe('v1-v2')
+    expect(faviconLink()?.getAttribute('href')).toBe('v1-v2')
+
+    await act(() => {
+      result.current[1](prev => `${prev}-v3`)
+    })
+    expect(result.current[0]).toBe('v1-v2-v3')
+    expect(faviconLink()?.getAttribute('href')).toBe('v1-v2-v3')
   })
 
   it('types: returns a writable [icon, setIcon] tuple', async () => {

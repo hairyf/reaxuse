@@ -41,6 +41,7 @@ This function relies on the [`Temporal`](https://developer.mozilla.org/en-US/doc
   [`@js-temporal/polyfill`](https://github.com/js-temporal/temporal-polyfill) is another common alternative. It does not install a global `Temporal` object by itself, so the `temporal` option is the natural way to use it — cast it to the hook's structural type at the call site:
 
   ```tsx
+  import type { TemporalImplementation } from '@reaxuse/core'
   import { Temporal } from '@js-temporal/polyfill'
   import { useTemporalNow } from '@reaxuse/core'
 
