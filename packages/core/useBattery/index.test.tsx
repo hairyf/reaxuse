@@ -1,7 +1,11 @@
 import type { BatteryManager } from '../useBattery'
-import { expect, it } from 'vitest'
+import { afterEach, expect, it, vi } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
 import { useBattery } from '../useBattery'
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
 
 interface FakeBatteryState {
   charging: boolean
@@ -55,6 +59,19 @@ function createFakeNavigator(battery?: BatteryManager): Navigator {
   return {
     ...(battery ? { getBattery: () => Promise.resolve(battery) } : {}),
   } as unknown as Navigator
+}
+
+// Wraps the real `navigator` so that unrelated consumers (React DOM, the
+// browser test harness) still read `userAgent`, `clipboard`, … while
+// `getBattery` resolves to the fake manager — replacing the global with a
+// plain object would break them.
+function createGlobalNavigatorStub(battery: BatteryManager): Navigator {
+  return new Proxy(window.navigator, {
+    has: (target, prop) => prop === 'getBattery' || prop in target,
+    get: (target, prop) => (prop === 'getBattery'
+      ? () => Promise.resolve(battery)
+      : Reflect.get(target, prop, target)),
+  }) as Navigator
 }
 
 it('useBattery reads the initial battery state once mounted', async () => {
@@ -165,4 +182,66 @@ it('useBattery removes its battery listeners on unmount', async () => {
     trigger('chargingchange')
   }).not.toThrow()
   expect(result.current.charging).toBe(false)
+})
+
+it('useBattery falls back to the global navigator when no options are given', async () => {
+  const { battery } = createFakeBattery({ charging: true, chargingTime: 30, dischargingTime: 90, level: 0.4 })
+  vi.stubGlobal('navigator', createGlobalNavigatorStub(battery))
+
+  const { result } = await renderHook(() => useBattery())
+
+  expect(result.current).toEqual({
+    isSupported: true,
+    charging: true,
+    chargingTime: 30,
+    dischargingTime: 90,
+    level: 0.4,
+  })
+})
+
+it('useBattery keeps the defaults when getBattery rejects', async () => {
+  // The implementation mirrors upstream and attaches no rejection handler, so
+  // the browser reports the rejection as unhandled. Listen for it here so the
+  // browser-mode harness does not treat it as an unexpected error, then pin
+  // what the hook guarantees: a rejected acquisition leaves the defaults.
+  const onUnhandledRejection = (event: PromiseRejectionEvent) => event.preventDefault()
+  window.addEventListener('unhandledrejection', onUnhandledRejection)
+
+  try {
+    const getBattery = vi.fn(() => Promise.reject(new Error('Battery Status API is not supported')))
+    const navigator = { getBattery } as unknown as Navigator
+
+    const { result } = await renderHook(() => useBattery({ navigator }))
+    await new Promise(resolve => setTimeout(resolve, 0))
+
+    expect(getBattery).toHaveBeenCalledTimes(1)
+    expect(result.current).toEqual({
+      isSupported: true,
+      charging: false,
+      chargingTime: 0,
+      dischargingTime: 0,
+      level: 1,
+    })
+  }
+  finally {
+    window.removeEventListener('unhandledrejection', onUnhandledRejection)
+  }
+})
+
+it('useBattery ignores a battery manager acquired after unmount', async () => {
+  const { battery, listenerCount } = createFakeBattery()
+  let resolveBattery: (manager: BatteryManager) => void = () => {}
+  const navigator = {
+    getBattery: () => new Promise<BatteryManager>((resolve) => {
+      resolveBattery = resolve
+    }),
+  } as unknown as Navigator
+
+  const { unmount } = await renderHook(() => useBattery({ navigator }))
+  unmount()
+  resolveBattery(battery)
+  await new Promise(resolve => setTimeout(resolve, 0))
+
+  // The `disposed` guard stops the late manager from being wired up.
+  expect(listenerCount()).toBe(0)
 })
