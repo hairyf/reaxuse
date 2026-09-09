@@ -43,13 +43,3 @@ const targetIsVisible = useElementVisibility(target, {
   threshold: 1.0, // 100% visible
 })
 ```
-
-### once
-
-Stop tracking once the element visibility has changed for the first time:
-
-```ts
-const targetIsVisible = useElementVisibility(target, {
-  once: true,
-})
-```

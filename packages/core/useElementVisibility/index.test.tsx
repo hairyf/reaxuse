@@ -6,13 +6,17 @@ import { useIntersectionObserver } from '../useIntersectionObserver'
 
 // Mirror upstream's index.browser.test.ts: the underlying observer is mocked
 // so the callback wiring and option passthrough can be asserted
-// deterministically. `isSupported` reflects the resolved `window` option so the
-// scroll/resize fallback path (a window without `IntersectionObserver`) can be
-// exercised through the same mock.
+// deterministically. `isSupported` mirrors the real hook's semantics — a
+// resolved `window` without `IntersectionObserver` (or an explicit `null`,
+// which disables observation) reports unsupported, an omitted option reports
+// supported — so the scroll/resize fallback path (a window without
+// `IntersectionObserver`) can be exercised through the same mock.
 vi.mock('../useIntersectionObserver', () => ({
   useIntersectionObserver: vi.fn(
     (_target: unknown, _callback?: IntersectionObserverCallback, options?: UseIntersectionObserverOptions) => ({
-      isSupported: !options?.window || 'IntersectionObserver' in options.window,
+      isSupported: options?.window === undefined
+        ? true
+        : Boolean(options.window && 'IntersectionObserver' in options.window),
       stop: vi.fn(),
     }),
   ),
@@ -36,12 +40,20 @@ describe('useElementVisibility', () => {
     expect(result.current).toBe(false)
   })
 
-  it('should work when window is undefined', async () => {
+  it('should work when window is null', async () => {
     const { result } = await renderHook(() => useElementVisibility(el, { window: null as unknown as undefined }))
     expect(result.current).toBe(false)
   })
 
-  it('should work when threshold is undefined', async () => {
+  it('should forward a null window to useIntersectionObserver (observation disabled)', async () => {
+    await renderHook(() => useElementVisibility(el, { window: null as unknown as undefined }))
+
+    // the null window must reach the observer hook as-is — it must NOT be
+    // collapsed to the global window (which would re-enable observation)
+    expect(vi.mocked(useIntersectionObserver).mock.lastCall?.[2]?.window).toBeNull()
+  })
+
+  it('should work when threshold is null', async () => {
     const { result } = await renderHook(() => useElementVisibility(el, { threshold: null as unknown as undefined }))
     expect(result.current).toBe(false)
   })
@@ -148,6 +160,38 @@ describe('useElementVisibility', () => {
   })
 
   describe('falls back to scroll/resize tracking without IntersectionObserver', () => {
+    it('disables all observation when window is null (real useIntersectionObserver)', async () => {
+      // swap in the REAL useIntersectionObserver for this case: `window: null`
+      // must disable observation there too (supported = false → no observer),
+      // so a fully visible element keeps `initialValue` instead of flipping
+      const originalImplementation = vi.mocked(useIntersectionObserver).getMockImplementation()
+      const actual = await vi.importActual<typeof import('../useIntersectionObserver')>('../useIntersectionObserver')
+      vi.mocked(useIntersectionObserver).mockImplementation(actual.useIntersectionObserver)
+
+      try {
+        const target = document.createElement('div')
+        target.style.width = '100px'
+        target.style.height = '100px'
+        document.body.append(target)
+
+        const { result, unmount } = await renderHook(() =>
+          useElementVisibility({ current: target }, { window: null as unknown as undefined }),
+        )
+
+        // give the observer (had it been created) time to deliver — nothing is
+        // active, so the value must stay at the untouched initialValue
+        await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
+        await new Promise<void>(resolve => setTimeout(resolve, 50))
+        expect(result.current).toBe(false)
+
+        await unmount()
+        target.remove()
+      }
+      finally {
+        vi.mocked(useIntersectionObserver).mockImplementation(originalImplementation!)
+      }
+    })
+
     it('tracks visibility with bounding-box math on a window without IntersectionObserver', async () => {
       const listeners: Record<string, (() => void) | undefined> = {}
       const fakeWindow = {
@@ -171,6 +215,12 @@ describe('useElementVisibility', () => {
       const { result, act, unmount } = await renderHook(() =>
         useElementVisibility({ current: target }, { window: fakeWindow }),
       )
+
+      // the fallback defers its immediate check — the first scroll/resize
+      // observation computes the initial visibility
+      await act(() => {
+        listeners.scroll?.()
+      })
 
       // inside the (fake) viewport right away
       await expect.poll(() => result.current).toBe(true)

@@ -1,4 +1,4 @@
-import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reaxuse/shared'
 import type { ElementTarget, ElementTargetOrArray } from '../useResizeObserver'
 import { toArray, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -10,7 +10,15 @@ import { useCallback, useEffect, useRef, useState } from 'react'
  * The accepted target types (`TargetElement`/`ElementTarget`/
  * `ElementTargetOrArray`) are shared with `useResizeObserver`.
  */
-export interface UseIntersectionObserverOptions extends ConfigurableWindow {
+export interface UseIntersectionObserverOptions {
+  /**
+   * Custom `window` instance, e.g. working with iframes or in testing
+   * environments. Unlike `ConfigurableWindow`, an explicit `null` is honored
+   * as-is: it disables observation entirely (mirroring upstream's
+   * `window && 'IntersectionObserver' in window` support gate) — only an
+   * omitted option falls back to the global `window`.
+   */
+  window?: Window | null
   /**
    * Start the IntersectionObserver immediately on creation.
    *
@@ -140,7 +148,7 @@ export function useIntersectionObserver(
   const observerRef = useRef<IntersectionObserver | undefined>(undefined)
   const stoppedRef = useRef(false)
   const previousRef = useRef<{
-    window: Window | undefined
+    window: Window | null | undefined
     elements: Element[]
     root: Element | Document | undefined
     rootMargin: string | undefined
@@ -161,7 +169,12 @@ export function useIntersectionObserver(
       rootMargin: rootMarginOption,
       threshold = 0,
     } = optionsRef.current
-    const win = customWindow ?? (typeof window === 'undefined' ? undefined : window)
+    // `customWindow === undefined` (not a nullish coalesce) — an explicit
+    // `window: null` stays null so the support gate below disables observation,
+    // mirroring upstream's `window && 'IntersectionObserver' in window`.
+    const win: Window | null | undefined = customWindow === undefined
+      ? (typeof window === 'undefined' ? undefined : window)
+      : customWindow
     const supported = Boolean(win && 'IntersectionObserver' in win)
     setIsSupported(supported)
 

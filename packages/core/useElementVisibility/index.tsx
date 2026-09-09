@@ -143,6 +143,10 @@ function computeVisibility(
  *   `useIntersectionObserver`'s `isSupported` state;
  * - `once` stops tracking after the first visibility change by calling the
  *   active `stop` (observer disconnect or listener removal);
+ * - an explicit `window: null` disables observation entirely, mirroring
+ *   upstream's `window && 'IntersectionObserver' in window` support gate —
+ *   the null is forwarded to `useIntersectionObserver` (supported = false) and
+ *   the fallback has no window to listen on;
  * - SSR-safe: the resolved `window` is read through `typeof` guards and the
  *   fallback listeners attach only in effects, so nothing touches `window`
  *   during render.
@@ -204,10 +208,12 @@ export function useElementVisibility(
   }, [updateVisibility])
 
   // SSR-safe window resolution: an explicit `window` option wins, otherwise the
-  // global is used; `window: null` disables observation entirely.
-  const win: Window | undefined = windowOption === undefined
+  // global is used; `window: null` stays null (not collapsed to the global) and
+  // disables observation entirely — `useIntersectionObserver` reports
+  // `isSupported: false` and the fallback below has no window to listen on.
+  const win: Window | null | undefined = windowOption === undefined
     ? (typeof window === 'undefined' ? undefined : window)
-    : (windowOption ?? undefined)
+    : windowOption
 
   const { isSupported, stop } = useIntersectionObserver(
     element,
@@ -224,12 +230,19 @@ export function useElementVisibility(
   // never accidentally call the observer's terminal `stop`.
   const fallbackCleanupRef = useRef<(() => void) | undefined>(undefined)
 
+  // Detach any active fallback listeners and drop the current stop — the
+  // shared teardown for every transition out of the fallback path.
+  const clearFallback = useCallback(() => {
+    fallbackCleanupRef.current?.()
+    fallbackCleanupRef.current = undefined
+    stopRef.current = undefined
+  }, [])
+
   useEffect(() => {
     if (isSupported) {
       // `IntersectionObserver` path — drop any fallback listeners still active
       // from the mount render (before `isSupported` settled).
-      fallbackCleanupRef.current?.()
-      fallbackCleanupRef.current = undefined
+      clearFallback()
       stopRef.current = stop
       return
     }
@@ -238,25 +251,19 @@ export function useElementVisibility(
     if (!resolvedWindow
       || typeof resolvedWindow.addEventListener !== 'function'
       || typeof resolvedWindow.removeEventListener !== 'function') {
-      fallbackCleanupRef.current?.()
-      fallbackCleanupRef.current = undefined
-      stopRef.current = undefined
+      clearFallback()
       return
     }
 
     const el = resolveTarget(element)
     if (!el || !(el instanceof Element)) {
-      fallbackCleanupRef.current?.()
-      fallbackCleanupRef.current = undefined
-      stopRef.current = undefined
+      clearFallback()
       return
     }
 
     const root = scrollTarget === undefined ? undefined : resolveTarget(scrollTarget)
     if (root && !(root instanceof Element) && !(root instanceof Document)) {
-      fallbackCleanupRef.current?.()
-      fallbackCleanupRef.current = undefined
-      stopRef.current = undefined
+      clearFallback()
       return
     }
 
@@ -272,22 +279,26 @@ export function useElementVisibility(
       scrollElement.removeEventListener('scroll', check)
     }
 
-    fallbackCleanupRef.current?.()
+    clearFallback()
     fallbackCleanupRef.current = cleanup
     stopRef.current = cleanup
 
-    check()
+    // Upstream has no fallback at all — `isVisible` keeps `initialValue` until
+    // an actual observation callback fires. The fallback therefore defers its
+    // immediate check while the value is still the untouched `initialValue`, so
+    // `initialValue: true` is not overwritten by the first effect run; the
+    // value only moves on a scroll/resize observation.
+    if (isVisibleRef.current !== initialValue)
+      check()
     resolvedWindow.addEventListener('resize', check)
     scrollElement.addEventListener('scroll', check, { passive: true })
-  }, [isSupported, stop, element, scrollTarget, rootMargin, threshold, win, updateVisibility])
+  }, [isSupported, stop, element, scrollTarget, rootMargin, threshold, win, updateVisibility, clearFallback])
 
   // Teardown the active stop on unmount (the observer itself is disconnected
   // by `useIntersectionObserver`'s own unmount effect).
   useEffect(() => () => {
-    fallbackCleanupRef.current?.()
-    fallbackCleanupRef.current = undefined
-    stopRef.current = undefined
-  }, [])
+    clearFallback()
+  }, [clearFallback])
 
   return isVisible
 }
