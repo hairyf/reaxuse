@@ -25,7 +25,12 @@ export function usePageLeave(options: ConfigurableWindow = {}): boolean {
   const [isLeft, setIsLeft] = useState(false)
 
   useEffect(() => {
-    const win = options.window ?? (typeof window === 'undefined' ? undefined : window)
+    // default substitution only for `undefined` — an explicit `window: null`
+    // keeps the hook inert (no listeners, `false`), matching upstream's
+    // `window = defaultWindow` destructure
+    const win = options.window === undefined
+      ? (typeof window === 'undefined' ? undefined : window)
+      : options.window
     if (!win)
       return
 
