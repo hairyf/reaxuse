@@ -1,9 +1,6 @@
-// Relative (not `@reaxuse/integrations`): the package name resolves through
-// the worktree node_modules junction to the main repo's integrations package,
-// which does not export `useDrauu` until this PR is merged.
 import type { Brush, DrawingMode } from 'drauu'
-import { useRef, useState } from 'react'
-import { useDrauu } from '../useDrauu'
+import { useDrauu } from '@reaxuse/integrations'
+import { useRef } from 'react'
 
 const colors = ['black', '#ef4444', '#22c55e', '#3b82f6']
 
@@ -22,7 +19,6 @@ export default function UseDrauuDemo() {
       size: 3,
     },
   })
-  const [size, setSize] = useState(3)
 
   // `setBrush` is the React setter paired with `brush` — the updater form
   // receives the latest brush and writes both the returned value and the
@@ -58,10 +54,9 @@ export default function UseDrauuDemo() {
             type="range"
             min={1}
             max={10}
-            value={size}
+            value={brush.size}
             onChange={(event) => {
               const next = Number(event.target.value)
-              setSize(next)
               updateBrush({ size: next })
             }}
           />
