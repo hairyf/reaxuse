@@ -4,7 +4,7 @@ category: Browser
 
 # useGamepad
 
-Provides reactive bindings for the [Gamepad API](https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API)
+Provides reactive bindings for the [Gamepad API](https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API).
 
 ## Usage
 
@@ -13,18 +13,18 @@ Provides reactive bindings for the [Gamepad API](https://developer.mozilla.org/e
 ```tsx
 import { useGamepad } from '@reaxuse/core'
 
-const { isSupported, gamepads } = useGamepad()
+const [gamepads, setGamepads, { isSupported }] = useGamepad()
 const gamepad = gamepads.find(g => g.mapping === 'standard')
 ```
 
-## Gamepad Updates
+### Gamepad Updates
 
-Currently the Gamepad API does not have event support to update the state of the gamepad. To update the gamepad state, `requestAnimationFrame` is used to poll for gamepad changes. You can control this polling by using the `pause` and `resume` functions provided by `useGamepad`.
+Currently the Gamepad API does not have event support to update the state of the gamepad. To update the gamepad state, `requestAnimationFrame` is used to poll for gamepad changes. You can control this polling by using the `pause` and `resume` functions provided by `useGamepad`
 
 ```tsx
 import { useGamepad } from '@reaxuse/core'
 
-const { pause, resume, gamepads } = useGamepad()
+const [gamepads, , { pause, resume }] = useGamepad()
 
 pause()
 
@@ -35,46 +35,36 @@ resume()
 // gamepads object will update on user input
 ```
 
-## Gamepad Connect & Disconnect Events
+### Gamepad Connect & Disconnect Events
 
 The `onConnected` and `onDisconnected` events will trigger when a gamepad is connected or disconnected.
 
 ```tsx
 import { useGamepad } from '@reaxuse/core'
-import { useListener } from '@reaxuse/shared'
 
-const { gamepads, onConnected, onDisconnected } = useGamepad()
+const [gamepads, , { onConnected, onDisconnected }] = useGamepad()
 
-useListener(onConnected, (index) => {
+onConnected((index) => {
   console.log(`${gamepads[index].id} connected`)
 })
 
-useListener(onDisconnected, (index) => {
+onDisconnected((index) => {
   console.log(`${index} disconnected`)
 })
 ```
 
-The returned `onConnected` / `onDisconnected` are stable registration functions following the `useListener` protocol — each accepts a callback and returns an `off` handle, so listeners never leak and never fire after the component unmounts:
-
-```tsx
-const { onConnected } = useGamepad()
-
-const { off } = onConnected(index => console.log(`${index} connected`))
-// later: off() unsubscribes
-```
-
-## Vibration
+### Vibration
 
 > The Gamepad Haptics API is sparse, so check the [compatibility table](https://developer.mozilla.org/en-US/docs/Web/API/GamepadHapticActuator#browser_compatibility) before using.
 
 ```tsx
 import { useGamepad } from '@reaxuse/core'
 
-const { gamepads } = useGamepad()
-const gamepad = gamepads[0]
+const [gamepads] = useGamepad()
+const gamepad = gamepads[0]!
 
-if (gamepad) {
-  const supportsVibration = gamepad.hapticActuators.length > 0
+const supportsVibration = gamepad.hapticActuators.length > 0
+function vibrate() {
   if (supportsVibration) {
     const actuator = gamepad.hapticActuators[0]
     actuator.playEffect('dual-rumble', {
@@ -86,3 +76,23 @@ if (gamepad) {
   }
 }
 ```
+
+## Return Values
+
+The return is a React tuple `[gamepads, setGamepads, controls]` — upstream returns the object
+`{ isSupported, onConnected, onDisconnected, gamepads: Ref<Gamepad[]>, pause, resume, isActive }`.
+
+- `gamepads` — the current snapshot of connected gamepads, refreshed by the `requestAnimationFrame`
+  poller (upstream: a writable `gamepads` ref).
+- `setGamepads(next | prev => next)` — replaces the snapshot with the React immutable-update protocol.
+  It also refreshes the internal latest-value ref synchronously, so the poller and the
+  connect/disconnect handlers always build on the newest list.
+- `controls.isSupported` — `true` when the resolved navigator exposes `getGamepads` (plain boolean,
+  resolved in a mount effect, so it stays `false` on the first render and on the server).
+- `controls.onConnected(fn)` / `controls.onDisconnected(fn)` — subscribe to the connect/disconnect
+  events; each returns an `off` handle to unsubscribe (upstream: `createEventHook()`).
+- `controls.pause()` / `controls.resume()` — control the `requestAnimationFrame` poller.
+- `controls.isActive` — `true` while the poller is running (upstream `useRafFn`'s `isActive`
+  shallow ref as a plain boolean).
+
+The `controls` object keeps a stable identity while its members are unchanged.
