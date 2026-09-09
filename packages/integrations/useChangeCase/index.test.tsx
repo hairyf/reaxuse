@@ -11,7 +11,9 @@ describe('useChangeCase', () => {
     delimiterHelloWorld: string
     delimiterVueuse: string
   }
-  // upstream omits camelCase — the delimiter option does not apply to it
+  // upstream omits camelCase from the delimiter matrix — it is covered by its
+  // own base test below (in change-case@5 the delimiter option does change
+  // camelCase's output, e.g. camelCase('helloWorld', { delimiter: '-' }) → 'hello-World')
   type ObjectTypes = Omit<Record<ChangeCaseType, ObjectValue>, 'camelCase'>
   const helloWorld = 'helloWorld'
   const vueuse = 'vue use'
