@@ -161,8 +161,6 @@ export function useEventSource<Events extends string[], Data = any>(
 
   // latest values read by the stable callbacks below (upstream: same refs)
   const eventSourceRef = useRef<EventSource | null>(null)
-  const statusRef = useRef<EventSourceStatus>(status)
-  statusRef.current = status
   const resolvedUrl = url
   const urlRef = useRef<string | URL | undefined>(resolvedUrl)
   urlRef.current = resolvedUrl
@@ -184,7 +182,6 @@ export function useEventSource<Events extends string[], Data = any>(
     eventSourceRef.current.close()
     eventSourceRef.current = null
     setEventSource(null)
-    statusRef.current = 'CLOSED'
     setStatus('CLOSED')
     explicitlyClosedRef.current = true
   }, [])
@@ -203,14 +200,12 @@ export function useEventSource<Events extends string[], Data = any>(
     const es = new EventSource(urlRef.current, { withCredentials })
     eventSourceRef.current = es
     setEventSource(es)
-    statusRef.current = 'CONNECTING'
     setStatus('CONNECTING')
 
     es.onopen = () => {
       if (eventSourceRef.current !== es)
         return
 
-      statusRef.current = 'OPEN'
       setStatus('OPEN')
       setError(null)
     }
@@ -219,7 +214,6 @@ export function useEventSource<Events extends string[], Data = any>(
       if (eventSourceRef.current !== es)
         return
 
-      statusRef.current = 'CLOSED'
       setStatus('CLOSED')
       setError(e)
 

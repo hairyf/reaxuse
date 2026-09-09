@@ -44,6 +44,27 @@ function sameValues<T>(a: readonly T[], b: readonly T[]): boolean {
 }
 
 /**
+ * Order-insensitive, identity-aware equality for the resolved options — the
+ * React equivalent of upstream's reactive comparison. Key order differences
+ * must not re-bind (a `JSON.stringify` comparison would), while identity
+ * changes of non-plain values (e.g. a new `AbortSignal`) must.
+ */
+function sameOptions(
+  a: boolean | AddEventListenerOptions | undefined,
+  b: boolean | AddEventListenerOptions | undefined,
+): boolean {
+  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null)
+    return Object.is(a, b)
+  if (!isObject(a) || !isObject(b))
+    return Object.is(a, b)
+  const aKeys = Object.keys(a).sort()
+  const bKeys = Object.keys(b).sort()
+  if (!sameValues(aKeys, bKeys))
+    return false
+  return aKeys.every(key => Object.is((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key]))
+}
+
+/**
  * Use EventListener with ease. Register using
  * [`addEventListener`](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener)
  * on mounted, and
@@ -58,14 +79,17 @@ function sameValues<T>(a: readonly T[], b: readonly T[]): boolean {
  * `{ current }` object or a React ref (`RefOrValue`).
  *
  * React divergences:
- * - the listeners are read through a latest-value ref, so new inline listener
- *   identities never cause re-subscription — only changes to the resolved
- *   target(s), events or options re-bind the listeners (upstream
- *   `watchImmediate` re-runs on any of them);
- * - the returned value is an optional cleanup function that detaches the
- *   currently registered listeners (upstream returns a `Fn` that stops the
- *   internal watcher); the listeners are also removed automatically on
- *   unmount;
+ * - re-binding follows upstream's `watchImmediate` over the resolved targets,
+ *   events, listeners and options: a ref-wrapped listener (a `{ current }`
+ *   object or React ref) re-registers when its `.current` changes; plain
+ *   function listeners are latest-tracked (each render syncs the newest
+ *   listener into the subscription), so an inline listener's new identity on
+ *   re-render never churns the binding — React cannot compare function
+ *   identities across renders without an infinite loop, unlike Vue's reactive
+ *   ref comparison;
+ * - the returned cleanup function detaches the currently registered listeners
+ *   (upstream returns a `Fn` that stops the internal watcher); the listeners
+ *   are also removed automatically on unmount;
  * - SSR-safe: nothing touches `window` during render — the default window
  *   target only resolves when `window` is defined and binding happens in the
  *   mount effect.
@@ -84,7 +108,7 @@ export function useEventListener<E extends keyof WindowEventMap>(
   event: RefOrValue<Arrayable<E>>,
   listener: RefOrValue<Arrayable<(this: Window, ev: WindowEventMap[E]) => any>>,
   options?: RefOrValue<boolean | AddEventListenerOptions>,
-): Fn | undefined
+): Fn
 
 /**
  * Register using addEventListener on mounted, and removeEventListener automatically on unmounted.
@@ -98,7 +122,7 @@ export function useEventListener<E extends keyof WindowEventMap>(
   event: RefOrValue<Arrayable<E>>,
   listener: RefOrValue<Arrayable<(this: Window, ev: WindowEventMap[E]) => any>>,
   options?: RefOrValue<boolean | AddEventListenerOptions>,
-): Fn | undefined
+): Fn
 
 /**
  * Register using addEventListener on mounted, and removeEventListener automatically on unmounted.
@@ -112,7 +136,7 @@ export function useEventListener<E extends keyof DocumentEventMap>(
   event: RefOrValue<Arrayable<E>>,
   listener: RefOrValue<Arrayable<(this: Document, ev: DocumentEventMap[E]) => any>>,
   options?: RefOrValue<boolean | AddEventListenerOptions>,
-): Fn | undefined
+): Fn
 
 /**
  * Register using addEventListener on mounted, and removeEventListener automatically on unmounted.
@@ -126,7 +150,7 @@ export function useEventListener<E extends keyof ShadowRootEventMap>(
   event: RefOrValue<Arrayable<E>>,
   listener: RefOrValue<Arrayable<(this: ShadowRoot, ev: ShadowRootEventMap[E]) => any>>,
   options?: RefOrValue<boolean | AddEventListenerOptions>,
-): Fn | undefined
+): Fn
 
 /**
  * Register using addEventListener on mounted, and removeEventListener automatically on unmounted.
@@ -140,7 +164,7 @@ export function useEventListener<E extends keyof HTMLElementEventMap>(
   event: RefOrValue<Arrayable<E>>,
   listener: RefOrValue<(this: HTMLElement, ev: HTMLElementEventMap[E]) => any>,
   options?: RefOrValue<boolean | AddEventListenerOptions>,
-): Fn | undefined
+): Fn
 
 /**
  * Register using addEventListener on mounted, and removeEventListener automatically on unmounted.
@@ -154,7 +178,7 @@ export function useEventListener<Names extends string, EventType = Event>(
   event: RefOrValue<Arrayable<Names>>,
   listener: RefOrValue<Arrayable<GeneralEventListener<EventType>>>,
   options?: RefOrValue<boolean | AddEventListenerOptions>,
-): Fn | undefined
+): Fn
 
 /**
  * Register using addEventListener on mounted, and removeEventListener automatically on unmounted.
@@ -168,11 +192,11 @@ export function useEventListener<EventType = Event>(
   event: RefOrValue<Arrayable<string>>,
   listener: RefOrValue<Arrayable<GeneralEventListener<EventType>>>,
   options?: RefOrValue<boolean | AddEventListenerOptions>,
-): Fn | undefined
+): Fn
 
 export function useEventListener(
   ...args: any[]
-): Fn | undefined {
+): Fn {
   // distinguish the two call shapes: a (list of) string event name(s) as the
   // first parameter means the window-target overload, anything else is a target
   const firstParamTargets = toArray(toValue(args[0])).filter(e => e != null)
@@ -184,33 +208,47 @@ export function useEventListener(
 
   const win = typeof window === 'undefined' ? undefined : window
 
-  // latest-value ref so the effect always binds the newest listeners without
-  // re-subscribing on renders (upstream keeps them in a reactive ref)
-  const listenerRef = useRef(listenerArg)
-  listenerRef.current = listenerArg
-
   const resolvedTargets: EventTarget[] = isTargetFirst
     ? toArray(toValue(args[0])).filter((e): e is EventTarget => e != null)
     : (win ? [win] : [])
   const resolvedEvents = toArray(toValue(eventArg)) as string[]
   const resolvedOptions = toValue(optionsArg)
+  // resolve the listeners at render time so identity changes participate in the
+  // re-bind comparison (upstream `watchImmediate` re-runs on the raw listeners).
+  // Only ref-wrapped listeners (`{ current: ... }`) are compared: a `.current`
+  // change re-registers, and the comparison converges because the ref value is
+  // stable between renders. Plain-function listeners are latest-tracked through
+  // `listenerRef` below — an inline function gets a new identity on every render
+  // and comparing it here would loop `setBind` forever ("Too many re-renders").
+  const resolvedListeners = unwrapListeners(listenerArg)
+  const listenerIsRef = isRefLike(listenerArg)
 
-  // re-bind whenever the resolved targets / events / options change (upstream
-  // `watchImmediate`); listeners deliberately stay out of this comparison so
-  // inline listener identities never churn the subscription
+  // latest raw listener arg, synced each render — the effect registers whatever
+  // is current at (re-)bind time, so plain-function listeners never go stale
+  const listenerRef = useRef(listenerArg)
+  listenerRef.current = listenerArg
+
+  // re-bind whenever the resolved targets / events / options change, or a
+  // ref-wrapped listener's `.current` changes (upstream `watchImmediate`)
   const [bind, setBind] = useState(() => ({
     targets: resolvedTargets,
     events: resolvedEvents,
     options: resolvedOptions,
+    listeners: resolvedListeners,
+    listenerIsRef,
   }))
 
   if (!sameValues(bind.targets, resolvedTargets)
     || !sameValues(bind.events, resolvedEvents)
-    || JSON.stringify(bind.options) !== JSON.stringify(resolvedOptions)) {
+    || !sameOptions(bind.options, resolvedOptions)
+    || bind.listenerIsRef !== listenerIsRef
+    || (listenerIsRef && !sameValues(bind.listeners, resolvedListeners))) {
     setBind({
       targets: resolvedTargets,
       events: resolvedEvents,
       options: resolvedOptions,
+      listeners: resolvedListeners,
+      listenerIsRef,
     })
   }
 

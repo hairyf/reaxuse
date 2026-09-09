@@ -39,7 +39,11 @@ export interface UseElementSizeReturn {
  *   changes) becomes an effect that re-resolves the target after every render
  *   and resets only when the resolved element actually changed;
  * - `stop()` is referentially stable, disconnects the observer and disables
- *   the target-change reset.
+ *   the target-change reset;
+ * - the `window` option mirrors upstream's `{ window = defaultWindow }`
+ *   destructure: an explicit `window: null` stays null and disables the
+ *   SVG-rect branch and the content-box computed-style prefill (both gated on
+ *   a truthy window), falling back to `contentRect` / plain `offsetWidth`.
  *
  * SSR-safe: nothing touches `window` during render — the observer, the prefill
  * and the reset all happen in effects.
@@ -54,7 +58,13 @@ export function useElementSize(
   options: UseElementSizeOptions = {},
 ): UseElementSizeReturn {
   const { window: customWindow, box = 'content-box' } = options
-  const win = customWindow ?? (typeof window === 'undefined' ? undefined : window)
+  // Mirror upstream's `{ window = defaultWindow }` destructure: an explicit
+  // `window: null` stays null (falsy) and disables the SVG-rect branch and the
+  // content-box computed-style prefill below — only an omitted option falls
+  // back to the global `window`.
+  const win = customWindow === undefined
+    ? (typeof window === 'undefined' ? undefined : window)
+    : customWindow
 
   // Latest-value refs so effects always work with the newest target/size
   // without re-running on their identity (mirrors `useResizeObserver`).
@@ -75,10 +85,17 @@ export function useElementSize(
           ? entry.contentBoxSize
           : entry.devicePixelContentBoxSize
 
-      if (win && entry.target.namespaceURI?.includes('svg')) {
-        const rect = entry.target.getBoundingClientRect()
-        setWidth(rect.width)
-        setHeight(rect.height)
+      // isSVG mirrors upstream's `computed(() => unrefElement(target)?.namespaceURI?.includes('svg'))`
+      // — keyed off the resolved target, not `entry.target`, so a stale
+      // delivery from a previous target after a switch doesn't take the
+      // SVG branch.
+      if (win && toValue(targetRef.current)?.namespaceURI?.includes('svg')) {
+        const $elem = toValue(targetRef.current)
+        if ($elem) {
+          const rect = $elem.getBoundingClientRect()
+          setWidth(rect.width)
+          setHeight(rect.height)
+        }
       }
       else if (boxSize) {
         const formatBoxSize = toArray(boxSize)

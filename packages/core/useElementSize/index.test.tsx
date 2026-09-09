@@ -51,6 +51,18 @@ describe('useElementSize', () => {
     expect(result.current.height).toBe(70)
   })
 
+  it('should keep the plain offsetWidth prefill when window is null', async () => {
+    // `window: null` disables the computed-style prefill (mirrors upstream's
+    // `box === 'content-box' && window` gate) — content-box falls back to the
+    // raw offsetWidth/offsetHeight without subtracting padding and border
+    const { result } = await renderHook(() =>
+      useElementSize(el, { width: 0, height: 0 }, { window: null as unknown as undefined, box: 'content-box' }),
+    )
+
+    expect(result.current.width).toBe(200)
+    expect(result.current.height).toBe(100)
+  })
+
   it('updates width/height when the element is resized', async () => {
     const { result, unmount } = await renderHook(() =>
       useElementSize(el, { width: 0, height: 0 }, { box: 'border-box' }),
