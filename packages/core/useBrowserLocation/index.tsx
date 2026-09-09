@@ -36,7 +36,9 @@ export interface BrowserLocationState {
  * (`source/vueuse/packages/core/useBrowserLocation/`). Mirrors the current
  * `window.location` as a live object — read URL parts from `href`, `pathname`,
  * `search`, `hash`, ... and navigate by assigning a writable field. The object
- * updates on `popstate` / `hashchange` events (initial value `trigger: 'load'`).
+ * refreshes from the URL on `popstate` / `hashchange` events and updates
+ * synchronously when a writable field is assigned (initial value
+ * `trigger: 'load'`).
  *
  * React divergences from upstream:
  *
@@ -44,14 +46,17 @@ export interface BrowserLocationState {
  *    returned directly — read `location.href`, `location.pathname`, ... like
  *    upstream's `state.value.*`.
  * 2. Writable refs → writable accessors: assigning a writable field (e.g.
- *    `location.hash = '#top'`) writes the value through to
- *    `window.location[key]` and navigates, exactly like upstream's write-back
- *    watcher (a no-op when the value is unchanged). Read-only members
- *    (`trigger`, `state`, `length`, `origin`) are getter-only.
+ *    `location.hash = '#top'`) writes the value back into the returned snapshot
+ *    and through to `window.location[key]`, exactly like upstream's ref
+ *    write-back watcher (the URL write is a no-op when the value is unchanged),
+ *    so the assigned field reads back the written value synchronously without
+ *    waiting for the next event. Read-only members (`trigger`, `state`,
+ *    `length`, `origin`) are getter-only.
  * 3. The `popstate` / `hashchange` listeners (passive, matching upstream) are
- *    registered in a `useEffect` with cleanup. There is no Vue scheduler
- *    flush — the state only changes from events and setters, so plain
- *    initialization never writes anything back to the URL.
+ *    registered in a `useEffect` with cleanup and refresh the snapshot from the
+ *    URL. There is no Vue scheduler flush — apart from setters the state only
+ *    changes from those events, so plain initialization never writes anything
+ *    back to the URL.
  *
  * @example
  * const location = useBrowserLocation()
@@ -112,8 +117,9 @@ export function useBrowserLocation(options: UseBrowserLocationOptions = {}): Bro
     }
   }, [win, buildState])
 
-  // stable live mirror: getters proxy the latest state snapshot, writable
-  // fields write through to `window.location` (upstream's write-back watcher)
+  // stable live mirror: getters proxy the latest state snapshot, writable fields
+  // update the snapshot and write through to `window.location` (upstream's
+  // write-back watcher)
   return useMemo(() => {
     const descriptors: PropertyDescriptorMap = {}
 
@@ -123,10 +129,17 @@ export function useBrowserLocation(options: UseBrowserLocationOptions = {}): Bro
         configurable: true,
         get: () => stateRef.current[key],
         set: (value: string) => {
-          if (!win?.location || win.location[key] === value) {
-            return
+          // write back into the returned snapshot synchronously (upstream's ref
+          // write-back), so the field reads back the assigned value right away
+          // instead of waiting for the next popstate/hashchange event
+          if (stateRef.current[key] !== value) {
+            const next: BrowserLocationState = { ...stateRef.current, [key]: value }
+            stateRef.current = next
+            setState(next)
           }
-          ;(win.location as any)[key] = value
+          if (win?.location && win.location[key] !== value) {
+            ;(win.location as any)[key] = value
+          }
         },
       }
     }
