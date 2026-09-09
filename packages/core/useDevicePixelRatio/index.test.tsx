@@ -63,7 +63,7 @@ it('useDevicePixelRatio renders 1 before the mount effect (SSR-safe)', async () 
     return ratio
   })
 
-  expect(rendered[0]).toEqual({ pixelRatio: 1 })
+  expect(rendered[0]).toEqual({ pixelRatio: 1, stop: expect.any(Function) })
   await expect.poll(() => result.current.pixelRatio).toBe(window.devicePixelRatio)
 })
 
@@ -73,12 +73,14 @@ it('useDevicePixelRatio reports the real devicePixelRatio once mounted', async (
   await expect.poll(() => result.current.pixelRatio).toBe(window.devicePixelRatio)
 })
 
-it('useDevicePixelRatio stays at 1 without matchMedia support', async () => {
+it('useDevicePixelRatio reads the real ratio once without matchMedia support', async () => {
   const { result } = await renderHook(() => useDevicePixelRatio({
     window: { devicePixelRatio: 2 } as unknown as Window,
   }))
 
-  expect(result.current).toEqual({ pixelRatio: 1 })
+  // upstream's `watchImmediate` still reads `window.devicePixelRatio` once
+  // even when the media query cannot be built, then freezes
+  await expect.poll(() => result.current.pixelRatio).toBe(2)
 })
 
 it('useDevicePixelRatio updates on a resolution change', async () => {
@@ -111,5 +113,24 @@ it('useDevicePixelRatio removes its change listener on unmount', async () => {
   expect(listenerCount()).toBe(0)
 
   // no listener → a stale change can no longer mutate the returned state
+  await expect.poll(() => result.current.pixelRatio).toBe(1)
+})
+
+it('useDevicePixelRatio stop() detaches the listener and freezes the ratio', async () => {
+  const { fakeWindow, listenerCount, changeDPR } = createFakeWindow(1)
+  const { result, act } = await renderHook(() => useDevicePixelRatio({ window: fakeWindow }))
+
+  await expect.poll(() => result.current.pixelRatio).toBe(1)
+  await expect.poll(() => listenerCount()).toBeGreaterThan(0)
+
+  await act(() => {
+    result.current.stop()
+  })
+  expect(listenerCount()).toBe(0)
+
+  await act(() => {
+    changeDPR(2)
+  })
+  // no listener and no re-subscription → the ratio stays frozen at 1
   await expect.poll(() => result.current.pixelRatio).toBe(1)
 })
