@@ -114,12 +114,28 @@ describe('useWindowScroll', () => {
     expect(result.current.y).toBe(100)
   })
 
-  it('should place the window at the initial x and y on mount', async () => {
+  it('should expose a measure() that re-reads the current position', async () => {
     makeBodyScrollable()
-    const { result } = await renderHook(() => useWindowScroll({ x: 30, y: 60 }))
+    const { result, act } = await renderHook(() => useWindowScroll())
 
-    expect(result.current.x).toBe(30)
-    expect(result.current.y).toBe(60)
+    await act(() => {
+      window.scrollTo(0, 100)
+    })
+    expect(result.current.y).toBe(100)
+
+    // move the position without dispatching a scroll event, then measure
+    const documentElement = document.documentElement
+    const descriptor = Object.getOwnPropertyDescriptor(documentElement, 'scrollTop')!
+    Object.defineProperty(documentElement, 'scrollTop', { configurable: true, get: () => 300 })
+    try {
+      await act(() => {
+        result.current.measure()
+      })
+      expect(result.current.y).toBe(300)
+    }
+    finally {
+      Object.defineProperty(documentElement, 'scrollTop', descriptor)
+    }
   })
 
   it('should set isScrolling while scrolling and reset after idle', async () => {
@@ -184,11 +200,81 @@ describe('useWindowScroll', () => {
     expect(result.current.isScrolling).toBe(false)
   })
 
+  it('should call onScroll on every scroll and onStop when scrolling ends', async () => {
+    makeBodyScrollable()
+    const onScroll = vi.fn()
+    const onStop = vi.fn()
+    const { act } = await renderHook(() => useWindowScroll({ onScroll, onStop, idle: 50 }))
+
+    await act(() => {
+      window.dispatchEvent(new Event('scroll'))
+    })
+    expect(onScroll).toHaveBeenCalledTimes(1)
+    expect(onStop).not.toHaveBeenCalled()
+
+    await act(() => {
+      vi.advanceTimersByTime(50)
+    })
+    expect(onStop).toHaveBeenCalledTimes(1)
+  })
+
+  it('should throttle scroll handling with the throttle option', async () => {
+    makeBodyScrollable()
+    const { result, act } = await renderHook(() => useWindowScroll({ throttle: 100, idle: 50 }))
+
+    // a burst of scroll events within the throttle window collapses into a
+    // single trailing call (upstream `useThrottleFn(..., trailing: true,
+    // leading: false)`): the trailing call fires once the window elapses
+    await act(() => {
+      window.dispatchEvent(new Event('scroll'))
+      window.dispatchEvent(new Event('scroll'))
+      window.dispatchEvent(new Event('scroll'))
+    })
+
+    await act(() => {
+      vi.advanceTimersByTime(100)
+    })
+    expect(result.current.isScrolling).toBe(true)
+
+    // scrolling ends after `throttle + idle` without events
+    await act(() => {
+      vi.advanceTimersByTime(150)
+    })
+    expect(result.current.isScrolling).toBe(false)
+  })
+
+  it('should listen on a custom window option', async () => {
+    const listeners = new Map<string, EventListener>()
+    const customWindow = {
+      document: {
+        documentElement: document.documentElement,
+        body: document.body,
+      },
+      getComputedStyle: window.getComputedStyle.bind(window),
+      addEventListener: (type: string, fn: EventListener) => listeners.set(type, fn),
+      removeEventListener: (type: string) => listeners.delete(type),
+      scrollTo: vi.fn(),
+    } as unknown as Window
+
+    const { result, act } = await renderHook(() => useWindowScroll({ window: customWindow, idle: 50 }))
+
+    expect(listeners.has('scroll')).toBe(true)
+    expect(listeners.has('scrollend')).toBe(true)
+    expect(result.current.x).toBe(0)
+    expect(result.current.y).toBe(0)
+
+    // drive the custom window's scroll listener
+    await act(() => {
+      listeners.get('scroll')?.(new Event('scroll'))
+    })
+    expect(result.current.isScrolling).toBe(true)
+  })
+
   it('should update arrivedState within the offset', async () => {
     makeBodyScrollable()
     const { result, act } = await renderHook(() => useWindowScroll({ idle: 50 }))
 
-    // at the top edge, within the default offset of 30px
+    // at the top edge (offset defaults to 0)
     expect(result.current.arrivedState.top).toBe(true)
 
     await act(() => {

@@ -10,20 +10,69 @@ const ARRIVED_STATE_THRESHOLD_PIXELS = 1
 
 export interface UseWindowScrollOptions {
   /**
-   * Initial horizontal scroll position. When provided, the window is
-   * scrolled there on mount.
-   *
-   * @default 0
+   * Specify a custom `window` instance, e.g. working with iframes or in
+   * testing environments.
    */
-  x?: number
+  window?: Window
 
   /**
-   * Initial vertical scroll position. When provided, the window is
-   * scrolled there on mount.
+   * Throttle time for scroll event, it's disabled by default.
    *
    * @default 0
    */
-  y?: number
+  throttle?: number
+
+  /**
+   * The check time when scrolling ends.
+   * This configuration will be setting to (throttle + idle) when the `throttle` is configured.
+   *
+   * @default 200
+   */
+  idle?: number
+
+  /**
+   * Offset arrived states by x pixels
+   *
+   * @default { left: 0, right: 0, top: 0, bottom: 0 }
+   */
+  offset?: {
+    left?: number
+    right?: number
+    top?: number
+    bottom?: number
+  }
+
+  /**
+   * Use MutationObserver to monitor specific DOM changes, such as attribute
+   * modifications, child node additions or removals, or subtree changes.
+   *
+   * Accepted for signature parity with upstream, but has no effect here:
+   * upstream's `useScroll` only registers the observer when the target is an
+   * element other than `window`/`document`, and `useWindowScroll` always
+   * targets the window.
+   *
+   * @default { mutation: false }
+   */
+  observe?: boolean | {
+    mutation?: boolean
+  }
+
+  /**
+   * Trigger it when scrolling.
+   */
+  onScroll?: (e: Event) => void
+
+  /**
+   * Trigger it when scrolling ends.
+   */
+  onStop?: (e: Event) => void
+
+  /**
+   * Listener options for scroll event.
+   *
+   * @default {capture: false, passive: true}
+   */
+  eventListenerOptions?: boolean | AddEventListenerOptions
 
   /**
    * Optionally specify a scroll behavior of `auto` (default, not smooth
@@ -33,26 +82,6 @@ export interface UseWindowScrollOptions {
    * @default 'auto'
    */
   behavior?: ScrollBehavior
-
-  /**
-   * The check time when scrolling ends, in milliseconds. After `idle`
-   * milliseconds without scroll events `isScrolling` resets to `false`.
-   *
-   * @default 200
-   */
-  idle?: number
-
-  /**
-   * Offset the arrived states by x pixels.
-   *
-   * @default { left: 30, right: 30, top: 30, bottom: 30 }
-   */
-  offset?: {
-    left?: number
-    right?: number
-    top?: number
-    bottom?: number
-  }
 
   /**
    * On error callback
@@ -100,6 +129,12 @@ export interface UseWindowScrollReturn {
   }
 
   /**
+   * Re-measure the current scroll position and refresh `arrivedState` /
+   * `directions` / `x` / `y`.
+   */
+  measure: () => void
+
+  /**
    * Scroll the window horizontally to `x`.
    */
   setX: (x: number) => void
@@ -108,6 +143,14 @@ export interface UseWindowScrollReturn {
    * Scroll the window vertically to `y`.
    */
   setY: (y: number) => void
+}
+
+/**
+ * Resolve the `window` to work against: an explicitly provided option wins,
+ * otherwise the global `window` on the client (`undefined` on the server).
+ */
+function resolveWindow(custom?: Window): Window | undefined {
+  return custom ?? (typeof window === 'undefined' ? undefined : window)
 }
 
 /**
@@ -132,29 +175,37 @@ export interface UseWindowScrollReturn {
  * 3. The `scroll` / `scrollend` listeners (passive, non-capturing per
  *    upstream's `eventListenerOptions` default) are registered inline in a
  *    `useEffect` with cleanup; the idle reset is a plain `setTimeout`
- *    instead of upstream's `useDebounceFn`.
+ *    instead of upstream's `useDebounceFn`, and the `throttle` option is a
+ *    small trailing throttle (upstream `useThrottleFn(..., { trailing:
+ *    true, leading: false })`).
+ * 4. The `observe` option is accepted for signature parity but inert:
+ *    upstream never registers the MutationObserver when the target is the
+ *    window.
  *
  * @example
- * const { x, y, isScrolling, arrivedState, directions, setX, setY } = useWindowScroll()
+ * const { x, y, isScrolling, arrivedState, directions, measure, setX, setY } = useWindowScroll()
  * setY(y + 200) // scroll down 200px more
  */
 export function useWindowScroll(options: UseWindowScrollOptions = {}): UseWindowScrollReturn {
   const {
-    x: initialX,
-    y: initialY,
-    behavior = 'auto',
+    window: configurableWindow,
+    throttle = 0,
     idle = 200,
     offset,
+    onScroll,
+    onStop,
+    eventListenerOptions = { capture: false, passive: true },
+    behavior = 'auto',
     onError = (e) => { console.error(e) },
   } = options
 
-  const offsetLeft = offset?.left ?? 30
-  const offsetRight = offset?.right ?? 30
-  const offsetTop = offset?.top ?? 30
-  const offsetBottom = offset?.bottom ?? 30
+  const offsetLeft = offset?.left ?? 0
+  const offsetRight = offset?.right ?? 0
+  const offsetTop = offset?.top ?? 0
+  const offsetBottom = offset?.bottom ?? 0
 
-  const [x, setXState] = useState(initialX ?? 0)
-  const [y, setYState] = useState(initialY ?? 0)
+  const [x, setXState] = useState(0)
+  const [y, setYState] = useState(0)
   const [isScrolling, setIsScrolling] = useState(false)
   const [arrivedState, setArrivedState] = useState({
     left: true,
@@ -171,25 +222,38 @@ export function useWindowScroll(options: UseWindowScrollOptions = {}): UseWindow
 
   // latest-value refs synced each render so the scroll handler, the setters
   // and the effect below always read the newest options without resubscribing
-  const internalXRef = useRef(initialX ?? 0)
-  const internalYRef = useRef(initialY ?? 0)
+  const internalXRef = useRef(0)
+  const internalYRef = useRef(0)
   const isScrollingRef = useRef(false)
   const behaviorRef = useRef(behavior)
   const idleRef = useRef(idle)
+  const throttleRef = useRef(throttle)
   const onErrorRef = useRef(onError)
+  const onScrollRef = useRef(onScroll)
+  const onStopRef = useRef(onStop)
+  const eventListenerOptionsRef = useRef(eventListenerOptions)
   const offsetRef = useRef({ left: offsetLeft, right: offsetRight, top: offsetTop, bottom: offsetBottom })
-  const initialRef = useRef({ x: initialX, y: initialY })
+  const winRef = useRef<Window | undefined>(undefined)
   const scrollEndTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const pendingThrottleTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const lastScrollRef = useRef(0)
 
   behaviorRef.current = behavior
   idleRef.current = idle
+  throttleRef.current = throttle
   onErrorRef.current = onError
+  onScrollRef.current = onScroll
+  onStopRef.current = onStop
+  eventListenerOptionsRef.current = eventListenerOptions
   offsetRef.current = { left: offsetLeft, right: offsetRight, top: offsetTop, bottom: offsetBottom }
-  initialRef.current = { x: initialX, y: initialY }
 
   const measure = useCallback(() => {
-    const el = document.documentElement
-    const { display, flexDirection, direction } = window.getComputedStyle(el)
+    const win = winRef.current
+    if (!win)
+      return
+
+    const el = win.document.documentElement
+    const { display, flexDirection, direction } = win.getComputedStyle(el)
     const directionMultiplier = direction === 'rtl' ? -1 : 1
 
     const scrollLeft = el.scrollLeft
@@ -197,7 +261,7 @@ export function useWindowScroll(options: UseWindowScrollOptions = {}): UseWindow
 
     // patch for mobile compatible
     if (!scrollTop)
-      scrollTop = document.body.scrollTop
+      scrollTop = win.document.body.scrollTop
 
     const nextDirections = {
       left: scrollLeft < internalXRef.current,
@@ -234,7 +298,7 @@ export function useWindowScroll(options: UseWindowScrollOptions = {}): UseWindow
     setYState(scrollTop)
   }, [])
 
-  const onScrollEnd = useCallback(() => {
+  const onScrollEnd = useCallback((e: Event) => {
     // dedupe if support native scrollend event
     if (!isScrollingRef.current)
       return
@@ -242,56 +306,81 @@ export function useWindowScroll(options: UseWindowScrollOptions = {}): UseWindow
     isScrollingRef.current = false
     setIsScrolling(false)
     setDirections({ left: false, right: false, top: false, bottom: false })
+    onStopRef.current?.(e)
   }, [])
 
   const setX = useCallback((value: number) => {
-    if (typeof window === 'undefined')
+    const win = winRef.current
+    if (!win)
       return
-    window.scrollTo({ left: value, top: internalYRef.current, behavior: behaviorRef.current })
+    win.scrollTo({ left: value, top: internalYRef.current, behavior: behaviorRef.current })
   }, [])
 
   const setY = useCallback((value: number) => {
-    if (typeof window === 'undefined')
+    const win = winRef.current
+    if (!win)
       return
-    window.scrollTo({ left: internalXRef.current, top: value, behavior: behaviorRef.current })
+    win.scrollTo({ left: internalXRef.current, top: value, behavior: behaviorRef.current })
   }, [])
 
   useEffect(() => {
+    const win = resolveWindow(configurableWindow)
+    winRef.current = win
+    if (!win)
+      return
+
+    // mirror upstream `tryOnMounted`: measure the initial arrived state
     try {
-      // place the window at the initial x / y when provided
-      const { x: placeX, y: placeY } = initialRef.current
-      if (placeX != null || placeY != null) {
-        window.scrollTo({
-          left: placeX ?? window.scrollX,
-          top: placeY ?? window.scrollY,
-          behavior: 'auto',
-        })
-      }
-      // mirror upstream `tryOnMounted`: measure the initial arrived state
       measure()
     }
     catch (e) {
       onErrorRef.current(e)
     }
 
-    const onScroll = () => {
+    const handleScroll = (e: Event) => {
       measure()
       isScrollingRef.current = true
       setIsScrolling(true)
       clearTimeout(scrollEndTimerRef.current)
-      scrollEndTimerRef.current = setTimeout(onScrollEnd, idleRef.current)
+      // upstream: `useDebounceFn(onScrollEnd, throttle + idle)`
+      scrollEndTimerRef.current = setTimeout(
+        onScrollEnd,
+        (throttleRef.current || 0) + idleRef.current,
+        e,
+      )
+      onScrollRef.current?.(e)
     }
 
-    const eventListenerOptions: AddEventListenerOptions = { capture: false, passive: true }
-    window.addEventListener('scroll', onScroll, eventListenerOptions)
-    window.addEventListener('scrollend', onScrollEnd, eventListenerOptions)
+    // upstream: `useThrottleFn(onScrollHandler, throttle, true, false)` —
+    // leading fires immediately (first call always exceeds the window),
+    // trailing fires once at the end of a throttled window
+    const onScroll = (e: Event) => {
+      const ms = throttleRef.current
+      const now = Date.now()
+      clearTimeout(pendingThrottleTimerRef.current)
+      if (ms <= 0 || now - lastScrollRef.current >= ms) {
+        lastScrollRef.current = now
+        handleScroll(e)
+      }
+      else {
+        pendingThrottleTimerRef.current = setTimeout(() => {
+          lastScrollRef.current = Date.now()
+          handleScroll(e)
+        }, ms - (now - lastScrollRef.current))
+      }
+    }
+
+    const listenerOptions = eventListenerOptionsRef.current
+    win.addEventListener('scroll', onScroll, listenerOptions)
+    win.addEventListener('scrollend', onScrollEnd, listenerOptions)
 
     return () => {
-      window.removeEventListener('scroll', onScroll, eventListenerOptions)
-      window.removeEventListener('scrollend', onScrollEnd, eventListenerOptions)
+      win.removeEventListener('scroll', onScroll, listenerOptions)
+      win.removeEventListener('scrollend', onScrollEnd, listenerOptions)
       clearTimeout(scrollEndTimerRef.current)
+      clearTimeout(pendingThrottleTimerRef.current)
     }
-  }, [measure, onScrollEnd])
+  }, [measure, onScrollEnd, configurableWindow])
 
   return {
     x,
@@ -299,6 +388,7 @@ export function useWindowScroll(options: UseWindowScrollOptions = {}): UseWindow
     isScrolling,
     arrivedState,
     directions,
+    measure,
     setX,
     setY,
   }
