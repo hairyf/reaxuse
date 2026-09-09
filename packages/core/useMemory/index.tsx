@@ -1,6 +1,6 @@
 import type { Pausable } from '../useTimeoutPoll'
 import { useIntervalFn } from '@reaxuse/shared'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
  * Performance.memory
@@ -38,6 +38,10 @@ export interface UseMemoryOptions {
    * consistently across renders, e.g.
    * `scheduler: cb => useIntervalFn(cb, 500)` with `useIntervalFn` from
    * `@reaxuse/shared`.
+   *
+   * The returned `Pausable` is paused while `performance.memory` is
+   * unavailable and resumed once it is detected, so `pause` / `resume` must
+   * actually control the loop.
    *
    * @default useIntervalFn (1000 ms)
    */
@@ -88,8 +92,9 @@ function getMemory(): MemoryInfo | undefined {
  *   the first scheduler tick);
  * - the `scheduler` option is called during render to compose the polling
  *   loop, so it must be passed consistently across renders (Rules of Hooks);
- *   the loop therefore runs even when the API is unsupported, with the
- *   callback no-op'ing (upstream only starts it when supported).
+ *   the loop it returns is paused in an effect while the API is unsupported
+ *   and resumed once support is detected, so an unsupported environment never
+ *   keeps a timer polling (upstream instead skips composing the scheduler).
  *
  * @see https://vueuse.org/core/useMemory/
  * @param options
@@ -114,7 +119,21 @@ export function useMemory(options: UseMemoryOptions = {}): UseMemoryReturn {
   }, [])
 
   const { scheduler = useIntervalFn } = options
-  scheduler(updateMemory)
+  const pausable = scheduler(updateMemory)
+  const pausableRef = useRef(pausable)
+  pausableRef.current = pausable
+
+  // Upstream only starts the polling loop when `performance.memory` exists
+  // (`if (isSupported.value) scheduler(...)`). The scheduler has to be
+  // composed on every render here — Rules of Hooks forbid the conditional
+  // call — so the loop is started/stopped from an effect instead: an
+  // unsupported environment leaves it paused, so no timer keeps polling.
+  useEffect(() => {
+    if (isSupported)
+      pausableRef.current.resume()
+    else
+      pausableRef.current.pause()
+  }, [isSupported])
 
   return { isSupported, memory }
 }
