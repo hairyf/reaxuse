@@ -1,13 +1,17 @@
 import type { RefOrValue } from '@reaxuse/shared'
 import type { UseScrollOptions, UseScrollReturn } from '../useScroll'
 import { toValue } from '@reaxuse/shared'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useElementVisibility } from '../useElementVisibility'
 import { useScroll } from '../useScroll'
 
 type InfiniteScrollElement = HTMLElement | SVGElement | Window | Document | null | undefined
 
 type Awaitable<T> = T | Promise<T>
+
+// hoisted so the destructuring default keeps a stable identity across renders
+// (an inline `() => true` default would churn the effect dependency)
+const defaultCanLoadMore = () => true
 
 /**
  * Resolve a scroll target down to an element that can be observed by an
@@ -88,10 +92,11 @@ export interface UseInfiniteScrollReturn {
  *    After `onLoadMore` settles, `measure()` is re-run together with the
  *    re-check signal (single batched commit), which replaces upstream's
  *    `finally → nextTick(checkAndLoad)` re-check after the DOM has grown.
- * 3. `canLoadMore` is evaluated inside a `useMemo` cached on the resolved
- *    element identity (upstream caches it in a `computed` keyed on
- *    `observedElement`), so the predicate is not re-invoked on unrelated
- *    renders.
+ * 3. `canLoadMore` is evaluated fresh inside the re-check effect against the
+ *    element resolved at effect time (upstream caches the predicate result in
+ *    a `computed` keyed on `observedElement`), so a swapped predicate is
+ *    honored on the next re-check instead of waiting for the element itself
+ *    to change.
  * 4. `reset` re-measures and schedules a re-check in one tick (upstream:
  *    `nextTick(() => checkAndLoad())`).
  * 5. SSR-safe: nothing touches `window` or the DOM during render — the
@@ -118,7 +123,7 @@ export function useInfiniteScroll<T extends InfiniteScrollElement>(
   const {
     direction = 'bottom',
     interval = 100,
-    canLoadMore = () => true,
+    canLoadMore = defaultCanLoadMore,
   } = options
 
   const state = useScroll(element, {
@@ -151,15 +156,12 @@ export function useInfiniteScroll<T extends InfiniteScrollElement>(
   const observedElement = resolveObservedElement(toValue(element))
   const isElementVisible = useElementVisibility(observedElement)
 
-  // cached on the resolved element only, mirroring upstream's computed —
-  // the predicate is re-evaluated when the tracked element changes (or when
-  // the option itself is swapped), never on unrelated renders
+  // the resolved element drives `useElementVisibility` at render time; the
+  // `canLoadMore` predicate itself is evaluated fresh inside the re-check
+  // effect against the element attached by then, so a swapped predicate is
+  // honored on the next re-check
   const canLoadMoreRef = useRef(canLoadMore)
   canLoadMoreRef.current = canLoadMore
-  const canLoad = useMemo(
-    () => observedElement ? canLoadMoreRef.current(observedElement as T) : false,
-    [observedElement],
-  )
 
   // committed value for the listened direction — the effect only re-runs when
   // it (or another dependency) actually changes, like upstream's watch source
@@ -168,6 +170,7 @@ export function useInfiniteScroll<T extends InfiniteScrollElement>(
   useEffect(() => {
     const currentState = stateRef.current
     const el = resolveObservedElement(toValue(elementRef.current))
+    const canLoad = el ? canLoadMoreRef.current(el as T) : false
     if (!el || !isElementVisible || !canLoad || isLoadingRef.current)
       return
 
@@ -200,7 +203,7 @@ export function useInfiniteScroll<T extends InfiniteScrollElement>(
         currentState.measure()
         setCheckTick(t => t + 1)
       })
-  }, [arrived, isElementVisible, canLoad, observedElement, checkTick])
+  }, [arrived, isElementVisible, observedElement, checkTick, canLoadMore])
 
   const reset = useCallback(() => {
     // upstream: `nextTick(() => checkAndLoad())` — re-measure the (possibly

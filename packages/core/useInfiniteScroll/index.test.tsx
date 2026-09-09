@@ -70,10 +70,36 @@ describe('useInfiniteScroll', () => {
     // (shorter-than-viewport) check would trigger onLoadMore immediately
     await render(<NarrowList onLoadMore={handlerSpy} canLoadMore={canLoadMoreSpy} />)
 
+    // the predicate is evaluated on the mount re-check and again whenever the
+    // effect re-runs (e.g. after the visibility observer fires)
     await vi.waitFor(() => {
-      expect(canLoadMoreSpy).toHaveBeenCalledOnce()
+      expect(canLoadMoreSpy).toHaveBeenCalled()
     })
     expect(handlerSpy).not.toBeCalled()
+  })
+
+  it('should re-evaluate canLoadMore when the option is swapped', async () => {
+    const handlerSpy = vi.fn()
+    const canLoadMoreSpy1 = vi.fn(() => false)
+
+    const screen = await render(<NarrowList onLoadMore={handlerSpy} canLoadMore={canLoadMoreSpy1} />)
+
+    await vi.waitFor(() => {
+      expect(canLoadMoreSpy1).toHaveBeenCalled()
+    })
+    expect(handlerSpy).not.toBeCalled()
+
+    // swapping the predicate must be honored without touching the element
+    const canLoadMoreSpy2 = vi.fn(() => true)
+    await screen.rerender(<NarrowList onLoadMore={handlerSpy} canLoadMore={canLoadMoreSpy2} />)
+
+    await vi.waitFor(() => {
+      expect(canLoadMoreSpy2).toHaveBeenCalled()
+    })
+    // the new predicate now permits loading the shorter-than-viewport content
+    await vi.waitFor(() => {
+      expect(handlerSpy).toBeCalled()
+    })
   })
 })
 
