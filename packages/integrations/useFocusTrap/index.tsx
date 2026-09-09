@@ -24,6 +24,23 @@ export interface UseFocusTrapOptions extends FocusTrap.Options {
    * Immediately activate the trap
    */
   immediate?: boolean
+
+  /**
+   * Called when the trap is activated. Focus-trap's own `Options.onActivate` is
+   * typed (and, in the pinned version, invoked) without arguments; this port
+   * re-declares it with the optional activation params so they are forwarded
+   * exactly like upstream (`options.onActivate(params)`).
+   */
+  onActivate?: (params?: ActivateOptions) => void
+
+  /**
+   * Called when the trap is deactivated, receiving the deactivation params.
+   * Focus-trap's own `Options.onDeactivate` is typed (and, in the pinned
+   * version, invoked) without arguments; this port re-declares it with the
+   * optional deactivation params so they are forwarded exactly like upstream
+   * (`options.onDeactivate(params)`).
+   */
+  onDeactivate?: (params?: DeactivateOptions) => void
 }
 
 export interface UseFocusTrapReturn {
@@ -125,7 +142,7 @@ function resolveElement(value: unknown): string | HTMLElement | SVGElement | nul
  * lazily inside the effect.
  *
  * @param target - element, React ref object (`{ current }`), selector string,
- *   a getter returning any of these, or an array of them
+ *   or an array of them
  * @param options - focus-trap options (see
  *   https://github.com/focus-trap/focus-trap#createoptions) plus the
  *   `immediate` shortcut
@@ -178,17 +195,17 @@ export function useFocusTrap(
       const { immediate, ...focusTrapOptions } = optionsRef.current
       trapRef.current = createFocusTrap(targets, {
         ...focusTrapOptions,
-        onActivate() {
+        onActivate(params?: ActivateOptions) {
           setHasFocus(true)
 
-          // Apply if user provided onActivate option
-          optionsRef.current.onActivate?.()
+          // Apply if user provided onActivate option (upstream forwards params)
+          optionsRef.current.onActivate?.(params)
         },
-        onDeactivate() {
+        onDeactivate(params?: DeactivateOptions) {
           setHasFocus(false)
 
-          // Apply if user provided onDeactivate option
-          optionsRef.current.onDeactivate?.()
+          // Apply if user provided onDeactivate option (upstream forwards params)
+          optionsRef.current.onDeactivate?.(params)
         },
       })
 

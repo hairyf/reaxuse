@@ -4,7 +4,7 @@ category: '@Integrations'
 
 # useFocusTrap
 
-Reactive wrapper for [`focus-trap`](https://github.com/focus-trap/focus-trap)
+Wrapper for [`focus-trap`](https://github.com/focus-trap/focus-trap)
 
 ## Install
 
