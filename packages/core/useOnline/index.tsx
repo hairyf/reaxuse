@@ -2,6 +2,18 @@ import type { ConfigurableWindow } from '@reaxuse/shared'
 import { useEffect, useState } from 'react'
 
 /**
+ * Reads the online state from a window, keeping upstream's `true` fallback when
+ * the window or its navigator does not expose `onLine`
+ * (upstream `useNetwork` only assigns `navigator.onLine` when `navigator` exists).
+ */
+function resolveOnline(win: Window | undefined): boolean {
+  const nav = win?.navigator
+  if (!nav || !('onLine' in nav))
+    return true
+  return nav.onLine
+}
+
+/**
  * React port of VueUse's `useOnline`.
  *
  * Map from @vueuse/core `useOnline`
@@ -14,22 +26,25 @@ import { useEffect, useState } from 'react'
  * - the window `online`/`offline` listeners live in a self-contained
  *   `useEffect` (upstream uses `useEventListener`) and are removed on
  *   unmount;
- * - the initial `navigator.onLine` sync happens in the mount effect instead
- *   of during setup, so SSR renders the `true` default without touching
- *   `navigator` (matching upstream's initial value).
+ * - the initial `navigator.onLine` read happens in a lazy state initializer
+ *   (the mount effect re-syncs it, e.g. when the `window` option changes), so
+ *   the first render already reflects the real connection state instead of
+ *   flashing `true`; during SSR, or when the window's navigator lacks
+ *   `onLine`, it keeps upstream's `true` default.
  *
  * @example
  * const online = useOnline()
  */
 export function useOnline(options: ConfigurableWindow = {}): boolean {
-  const [online, setOnline] = useState(true)
+  const [online, setOnline] = useState(() =>
+    resolveOnline(options.window ?? (typeof window === 'undefined' ? undefined : window)))
 
   useEffect(() => {
     const win = options.window ?? (typeof window === 'undefined' ? undefined : window)
     if (!win)
       return
 
-    setOnline(win.navigator.onLine)
+    setOnline(resolveOnline(win))
 
     const goOnline = () => setOnline(true)
     const goOffline = () => setOnline(false)
