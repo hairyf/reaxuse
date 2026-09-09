@@ -102,24 +102,40 @@ describe('useDateFormat', () => {
   })
 
   describe('reactive inputs', () => {
-    it('re-reads a ref-like date ({ current }) on every render', async () => {
-      const date = { current: new Date('2022-01-01 10:24:00') }
-      const { result, rerender } = await renderHook(() => useDateFormat(date, 'YYYY-MM-DD HH:mm:ss'))
-      expect(result.current).toBe('2022-01-01 10:24:00')
+    it('re-reads a plain date on every render', async () => {
+      const { result, act } = await renderHook(() => {
+        const [date, setDate] = useState(() => new Date('2022-01-01 10:24:00'))
+        return { formatted: useDateFormat(date, 'YYYY-MM-DD HH:mm:ss'), setDate }
+      })
+      expect(result.current.formatted).toBe('2022-01-01 10:24:00')
 
-      date.current = new Date('2023-06-15 08:30:45')
-      await rerender()
-      expect(result.current).toBe('2023-06-15 08:30:45')
+      await act(() => result.current.setDate(new Date('2023-06-15 08:30:45')))
+      expect(result.current.formatted).toBe('2023-06-15 08:30:45')
     })
 
-    it('re-reads a ref formatStr on every render', async () => {
-      const format = { current: 'YYYY' }
-      const { result, rerender } = await renderHook(() => useDateFormat(new Date('2022-01-01 10:24:00'), format))
-      expect(result.current).toBe('2022')
+    it('re-reads a plain formatStr on every render', async () => {
+      const { result, act } = await renderHook(() => {
+        const [format, setFormat] = useState('YYYY')
+        return { formatted: useDateFormat(new Date('2022-01-01 10:24:00'), format), setFormat }
+      })
+      expect(result.current.formatted).toBe('2022')
 
-      format.current = 'HH:mm:ss'
-      await rerender()
-      expect(result.current).toBe('10:24:00')
+      await act(() => result.current.setFormat('HH:mm:ss'))
+      expect(result.current.formatted).toBe('10:24:00')
+    })
+
+    it('re-reads plain locales on every render', async () => {
+      const { result, act } = await renderHook(() => {
+        const [locale, setLocale] = useState<Intl.LocalesArgument>('en-US')
+        return {
+          formatted: useDateFormat(new Date('2022-01-01 15:05:05'), 'MMMM', { locales: locale }),
+          setLocale,
+        }
+      })
+      expect(result.current.formatted).toBe('January')
+
+      await act(() => result.current.setLocale('fr'))
+      expect(result.current.formatted).toBe('janvier')
     })
   })
 

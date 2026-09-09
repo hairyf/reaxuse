@@ -1,7 +1,4 @@
-import type { RefOrValue } from '../index'
-import { toValue } from '../utils'
-
-export type UseArrayIncludesComparatorFn<T, V> = (element: T, value: V, index: number, array: RefOrValue<T>[]) => boolean
+export type UseArrayIncludesComparatorFn<T, V> = (element: T, value: V, index: number, array: readonly T[]) => boolean
 
 export interface UseArrayIncludesOptions<T, V> {
   fromIndex?: number
@@ -33,18 +30,15 @@ function isArrayIncludesOptions<T, V>(obj: any): obj is UseArrayIncludesOptions<
  * Map from @vueuse/shared `useArrayIncludes`
  * Mapping: upstream wraps `toValue(list).slice(fromIndex).some(...)` in
  * `computed(() => ...)` and returns a `ComputedRef`; React has no reactive
- * value tracking, so this is a plain function recomputed on every render.
- * Vue refs map to the repo's `RefOrValue` refs: the list
- * itself may be a ref, both the elements and the search value are
- * unwrapped before the comparator runs, and the default comparator mirrors
- * `Array.prototype.includes` (strict equality). Mutating a ref element or
- * the array does not trigger anything by itself — the new result shows up
- * on the next render.
+ * value tracking, so this is a plain function recomputed on every render over
+ * the plain `list` array and `value` the caller passes. The default comparator
+ * mirrors `Array.prototype.includes` (strict equality). Hold the array in
+ * `useState` and pass a new array to observe a change.
  *
  * @see https://vueuse.org/shared/useArrayIncludes/
  *
  * @example
- * const list = [useRef(0), useRef(2), useRef(4)]
+ * const list = [0, 2, 4]
  * useArrayIncludes(list, 2) // true
  * useArrayIncludes(list, 8) // false
  * useArrayIncludes([{ id: 1 }, { id: 2 }], 2, 'id') // true
@@ -57,25 +51,25 @@ function isArrayIncludesOptions<T, V>(obj: any): obj is UseArrayIncludesOptions<
  * @returns **true** if the `value` is found in the array. Otherwise, **false**.
  */
 export function useArrayIncludes<T, V = any>(
-  list: RefOrValue<RefOrValue<T>[]>,
-  value: RefOrValue<V>,
+  list: readonly T[],
+  value: V,
   comparator?: UseArrayIncludesComparatorFn<T, V>,
 ): UseArrayIncludesReturn
 export function useArrayIncludes<T, V = any>(
-  list: RefOrValue<RefOrValue<T>[]>,
-  value: RefOrValue<V>,
+  list: readonly T[],
+  value: V,
   comparator?: keyof T,
 ): UseArrayIncludesReturn
 export function useArrayIncludes<T, V = any>(
-  list: RefOrValue<RefOrValue<T>[]>,
-  value: RefOrValue<V>,
+  list: readonly T[],
+  value: V,
   options?: UseArrayIncludesOptions<T, V>,
 ): UseArrayIncludesReturn
 export function useArrayIncludes<T, V = any>(
   ...args: any[]
 ): UseArrayIncludesReturn {
-  const list: RefOrValue<RefOrValue<T>[]> = args[0]
-  const value: RefOrValue<V> = args[1]
+  const list: readonly T[] = args[0]
+  const value: V = args[1]
 
   let comparator: UseArrayIncludesComparatorFn<T, V> = args[2]
   let formIndex = 0
@@ -87,18 +81,12 @@ export function useArrayIncludes<T, V = any>(
 
   if (typeof comparator === 'string') {
     const key = comparator as keyof T
-    comparator = (element: T, value: V) => element[key] === toValue(value)
+    comparator = (element: T, value: V) => element[key] === value
   }
 
-  comparator = comparator ?? ((element: T, value: T) => element === toValue(value))
+  comparator = comparator ?? ((element: T, value: T) => element === value)
 
-  const array = toValue(list)
-  return array
+  return list
     .slice(formIndex)
-    .some((element, index, arr) => comparator(
-      toValue(element),
-      toValue(value),
-      index,
-      arr,
-    ))
+    .some((element, index, arr) => comparator(element, value, index, arr))
 }

@@ -124,17 +124,8 @@ it('useArrayDifference supports the symmetric option with a compare function (re
   expect(result.current.diff).toEqual([])
 })
 
-it('useArrayDifference unwraps ref-like elements and recomputes on re-render (renderHook)', async () => {
-  const item1 = { current: 1 }
-  const item2 = { current: 2 }
-
-  const { result, rerender } = await renderHook(() => useArrayDifference([item1, item2], [{ current: 2 }, { current: 3 }]))
+it('useArrayDifference diffs plain arrays (renderHook)', async () => {
+  const { result } = await renderHook(() => useArrayDifference([1, 2], [2, 3]))
 
   expect(result.current).toEqual([1])
-
-  item1.current = 2
-
-  await rerender()
-
-  expect(result.current).toEqual([])
 })

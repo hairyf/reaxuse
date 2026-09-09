@@ -1,13 +1,11 @@
-import { useReducer, useRef, useState } from 'react'
+import { useState } from 'react'
 import { expect, it } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
 import { useArrayReduce } from '../useArrayReduce'
 
 function ReduceDemo() {
-  const item1 = useRef(1)
-  const item2 = useRef(2)
-  const [, rerender] = useReducer(count => count + 1, 0)
-  const sum = useArrayReduce([item1, item2, 3], (a, b) => a + b)
+  const [list, setList] = useState([1, 2, 3])
+  const sum = useArrayReduce(list, (a, b) => a + b)
 
   return (
     <div>
@@ -15,22 +13,8 @@ function ReduceDemo() {
         {'sum: '}
         {sum}
       </span>
-      <button
-        onClick={() => {
-          item1.current = 4
-          rerender()
-        }}
-      >
-        bump item1
-      </button>
-      <button
-        onClick={() => {
-          item2.current = 3
-          rerender()
-        }}
-      >
-        bump item2
-      </button>
+      <button onClick={() => setList(current => [4, ...current.slice(1)])}>bump item1</button>
+      <button onClick={() => setList(current => [current[0], 3, ...current.slice(2)])}>bump item2</button>
     </div>
   )
 }
@@ -52,20 +36,9 @@ it('useArrayReduce calculates the array sum (component)', async () => {
 })
 
 it('useArrayReduce calculates the array sum (renderHook)', async () => {
-  const item1 = { current: 1 }
-  const item2 = { current: 2 }
-  const { result, rerender } = await renderHook(() => useArrayReduce([item1, item2, 3], (a, b) => a + b))
+  const { result } = await renderHook(() => useArrayReduce([1, 2, 3], (a, b) => a + b))
 
   expect(result.current).toBe(6)
-
-  // mutating a ref element only shows up on the next render
-  item1.current = 4
-  await rerender()
-  expect(result.current).toBe(9)
-
-  item2.current = 3
-  await rerender()
-  expect(result.current).toBe(10)
 })
 
 it('useArrayReduce works with a state array (renderHook)', async () => {

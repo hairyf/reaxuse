@@ -1,6 +1,4 @@
-import type { RefOrValue } from '../utils'
 import { useEffect, useRef } from 'react'
-import { toValue } from '../utils'
 
 export interface SyncRefsOptions {
   /**
@@ -37,51 +35,49 @@ export interface SyncRefsOptions {
 const neverObserved = Symbol('reaxuse.syncRefs.neverObserved')
 
 /**
- * Keep target ref(s) in sync with a source ref — React port of VueUse's
+ * Keep target ref(s) in sync with a source value — React port of VueUse's
  * `syncRefs`.
  *
  * Map from @vueuse/shared `syncRefs`
  * (`source/vueuse/packages/shared/syncRefs/`). One-way synchronization: every
- * source change is copied into each target's `.current`. The source accepts a
- * plain value, a ref-like (`{ current }`) or a getter (upstream: `WatchSource`),
- * the targets are writable ref-likes; upstream's `flush` / `deep` / `immediate`
- * options are kept for signature compatibility.
+ * source change is copied into each target's `.current`. The source is a plain
+ * read-only value — pass `ref.current` or the state value (upstream:
+ * `WatchSource`); the targets are writable ref-likes; upstream's `flush` /
+ * `deep` / `immediate` options are kept for signature compatibility.
  *
  * React Hook adaptation: upstream syncs through Vue's reactive `watch`, and
  * React has no reactive system — so `syncRefs` is implemented as a hook (call
  * it unconditionally at the top of a component, keeping the upstream name, per
  * the porting rules). Internally a `useEffect` that runs after every commit
- * resolves the source value (`toValue`) and compares it with the last observed
- * one via `Object.is`; a change is written through to all targets. Because the
- * observation happens post-commit, external `source.current = ...` mutations
- * land on the targets on the render that follows them — the mutation itself
- * never schedules a render, so a bare `current` write outside of React is not
+ * compares the current plain source with the last observed one via `Object.is`;
+ * a change is written through to all targets. Because the observation happens
+ * post-commit, the caller must re-render (e.g. `setState`) for a new source
+ * value to reach the targets — a bare mutation outside of React is never
  * observed (see the maintainer notes on reaxuse #40 / #41). The returned
  * `stop` function tears the synchronization down; the effect also stops doing
  * any work once the owning component unmounts.
  *
  * @example
- * const source = { current: 'hello' }
+ * const [source, setSource] = useState('hello')
  * const target = { current: 'target' }
  *
  * const stop = syncRefs(source, target)
  *
  * console.log(target.current) // hello
  *
- * source.current = 'foo' // then the component re-renders
- * console.log(target.current) // foo
+ * setSource('foo') // re-render → target.current === 'foo'
  *
  * stop()
  */
 export function syncRefs<T>(
-  source: RefOrValue<T>,
+  source: T,
   targets: { current: T } | Array<{ current: T }>,
   options: SyncRefsOptions = {},
 ): () => void {
   const { immediate = true } = options
 
-  // latest source flushed on every render — the effect always observes fresh
-  // values even when the caller swaps the ref-like object or value between renders
+  // latest source flushed on every render — the effect always observes the
+  // value the caller passed on this render
   const sourceRef = useRef(source)
   sourceRef.current = source
 
@@ -96,7 +92,7 @@ export function syncRefs<T>(
     if (stoppedRef.current)
       return
 
-    const value = toValue(sourceRef.current)
+    const value = sourceRef.current
     const last = lastValueRef.current
     lastValueRef.current = value
 

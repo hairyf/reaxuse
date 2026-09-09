@@ -55,21 +55,20 @@ it('useArrayIncludes works with a state array (renderHook)', async () => {
   expect(result.current.includes).toBe(false)
 })
 
-it('useArrayIncludes unwraps ref-like elements and value (renderHook)', async () => {
-  const item1 = { current: 0 }
-  const item2 = { current: 2 }
-  const search = { current: 2 }
-  const { result, rerender } = await renderHook(() => useArrayIncludes([item1, item2], search))
+it('useArrayIncludes recomputes when the state list and value change (renderHook)', async () => {
+  const { result, act } = await renderHook(() => {
+    const [list, setList] = useState([0, 2])
+    const [search, setSearch] = useState(2)
+    return { includes: useArrayIncludes(list, search), setList, setSearch }
+  })
 
-  expect(result.current).toBe(true)
+  expect(result.current.includes).toBe(true)
 
-  search.current = 8
-  await rerender()
-  expect(result.current).toBe(false)
+  await act(() => result.current.setSearch(8))
+  expect(result.current.includes).toBe(false)
 
-  search.current = 0
-  await rerender()
-  expect(result.current).toBe(true)
+  await act(() => result.current.setSearch(0))
+  expect(result.current.includes).toBe(true)
 })
 
 it('useArrayIncludes works with a key comparator (renderHook)', async () => {

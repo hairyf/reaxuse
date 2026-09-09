@@ -51,36 +51,10 @@ it('useArrayUnique recomputes when the array state changes (renderHook)', async 
   expect(result.current.unique).toEqual([1, 2, 3])
 })
 
-it('useArrayUnique unwraps ref-like elements and recomputes on re-render', async () => {
-  const item1 = { current: 0 }
-  const item2 = { current: 1 }
-  const item3 = { current: 1 }
-  const item4 = { current: 2 }
-  const item5 = { current: 3 }
-
-  const { result, rerender } = await renderHook(() => useArrayUnique([item1, item2, item3, item4, item5]))
+it('useArrayUnique dedupes a plain list', async () => {
+  const { result } = await renderHook(() => useArrayUnique([0, 1, 1, 2, 3]))
 
   expect(result.current).toEqual([0, 1, 2, 3])
-
-  item5.current = 2
-
-  await rerender()
-
-  expect(result.current).toEqual([0, 1, 2])
-})
-
-it('useArrayUnique unwraps a ref-like list and recomputes on re-render', async () => {
-  const list = { current: [1, 2, 2, 3] }
-
-  const { result, rerender } = await renderHook(() => useArrayUnique(list))
-
-  expect(result.current).toEqual([1, 2, 3])
-
-  list.current = [1, 2, 2, 3, 1]
-
-  await rerender()
-
-  expect(result.current).toEqual([1, 2, 3])
 })
 
 it('useArrayUnique dedupes objects by reference identity without compareFn', async () => {

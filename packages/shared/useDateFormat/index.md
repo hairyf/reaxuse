@@ -30,3 +30,6 @@ useDateFormat('2022-01-01 05:05:05', 'hh:mm:ss A', { customMeridiem })
 useDateFormat('2022-01-01 17:05:05', 'hh:mm:ss AA', { customMeridiem })
 // → '05:05:05 Μ.Μ.'
 ```
+
+`date`, `formatStr` and `options.locales` are plain read-only values — pass the
+state value (or `ref.current`) directly; the string is recomputed on every call.

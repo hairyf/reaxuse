@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { renderToString } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
@@ -119,6 +120,48 @@ describe('useStateDefault', () => {
 
     const html = await renderToString(<SSRStateDefault />)
     expect(html).toContain('default')
+  })
+
+  it('accepts a state tuple source and writes through to its setter', async () => {
+    const { result, act } = await renderHook(() => {
+      const [raw, setRaw] = useState<string | null | undefined>(undefined)
+      return { state: useStateDefault([raw, setRaw], 'default'), raw, setRaw }
+    })
+
+    expect(result.current.state[0]).toBe('default')
+
+    await act(async () => {
+      result.current.state[1]('hello')
+    })
+    expect(result.current.state[0]).toBe('hello')
+    expect(result.current.raw).toBe('hello')
+
+    await act(async () => {
+      result.current.state[1](undefined)
+    })
+    expect(result.current.state[0]).toBe('default')
+    expect(result.current.raw).toBeUndefined()
+  })
+
+  it('accepts a { value, onChange } source and writes through to onChange', async () => {
+    const { result, act } = await renderHook(() => {
+      const [raw, setRaw] = useState<string | null | undefined>(undefined)
+      return { state: useStateDefault({ value: raw, onChange: setRaw }, 'default'), raw, setRaw }
+    })
+
+    expect(result.current.state[0]).toBe('default')
+
+    await act(async () => {
+      result.current.state[1]('hello')
+    })
+    expect(result.current.state[0]).toBe('hello')
+    expect(result.current.raw).toBe('hello')
+
+    await act(async () => {
+      result.current.state[1](null)
+    })
+    expect(result.current.state[0]).toBe('default')
+    expect(result.current.raw).toBeNull()
   })
 })
 

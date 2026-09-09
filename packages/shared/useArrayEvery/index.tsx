@@ -1,6 +1,3 @@
-import type { RefOrValue } from '../index'
-import { toValue } from '../utils'
-
 export type UseArrayEveryReturn = boolean
 
 /**
@@ -9,19 +6,18 @@ export type UseArrayEveryReturn = boolean
  * Map from @vueuse/shared `useArrayEvery`
  * Mapping: upstream wraps `toValue(list).every(...)` in `computed(() => ...)`
  * and returns a `ComputedRef`; React has no reactive value tracking, so this
- * is a plain function recomputed on every render. Vue refs map to the repo's
- * `RefOrValue` refs: the list itself may be a ref, every
- * element is unwrapped before the predicate runs, and the predicate may
- * return any value (coerced by truthiness, like `Array.prototype.every`).
- * Mutating a ref element or the array does not trigger anything by itself —
- * the new result shows up on the next render.
+ * is a plain function recomputed on every render over the plain `list` array
+ * the caller passes. Hold the array in `useState` (or any render-scoped value)
+ * and pass a new array to observe a change — the result recomputes on the next
+ * render. The predicate may return any value (coerced by truthiness, like
+ * `Array.prototype.every`).
  *
  * @see https://vueuse.org/shared/useArrayEvery/
  *
  * @example
- * const list = [useRef(0), useRef(2)]
+ * const [list, setList] = useState([0, 2, 4])
  * useArrayEvery(list, val => val % 2 === 0) // true
- * list[0].current = 1 // false on the next render
+ * setList([0, 2, 5]) // false on the next render
  *
  * @param list - the array was called upon.
  * @param fn - a function to test each element.
@@ -29,9 +25,8 @@ export type UseArrayEveryReturn = boolean
  * @returns **true** if the `fn` function returns a **truthy** value for every element from the array. Otherwise, **false**.
  */
 export function useArrayEvery<T>(
-  list: RefOrValue<RefOrValue<T>[]>,
-  fn: (element: T, index: number, array: RefOrValue<T>[]) => unknown,
+  list: readonly T[],
+  fn: (element: T, index: number, array: readonly T[]) => unknown,
 ): UseArrayEveryReturn {
-  const array = toValue(list)
-  return array.every((element, index, arr) => fn(toValue(element), index, arr))
+  return list.every(fn)
 }

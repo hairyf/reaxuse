@@ -1,6 +1,3 @@
-import type { RefOrValue } from '../index'
-import { toValue } from '../utils'
-
 export type DateLike = Date | number | string | undefined
 
 export interface UseDateFormatOptions {
@@ -9,10 +6,10 @@ export interface UseDateFormatOptions {
    *
    * [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#locales_argument).
    *
-   * Accepts a plain value, a ref-like `{ current }` or a getter (upstream:
-   * `RefOrValue<Intl.LocalesArgument>`).
+   * A plain locale (or locale array), matching upstream's
+   * `MaybeRefOrGetter<Intl.LocalesArgument>` resolved to its current value.
    */
-  locales?: RefOrValue<Intl.LocalesArgument>
+  locales?: Intl.LocalesArgument
 
   /**
    * A custom function to re-modify the way to display meridiem
@@ -63,8 +60,8 @@ export function formatDate(date: Date, formatStr: string, options: UseDateFormat
     M: () => month + 1,
     Mo: () => formatOrdinal(month + 1),
     MM: () => `${month + 1}`.padStart(2, '0'),
-    MMM: () => date.toLocaleDateString(toValue(options.locales), { month: 'short' }),
-    MMMM: () => date.toLocaleDateString(toValue(options.locales), { month: 'long' }),
+    MMM: () => date.toLocaleDateString(options.locales, { month: 'short' }),
+    MMMM: () => date.toLocaleDateString(options.locales, { month: 'long' }),
     D: () => String(days),
     Do: () => formatOrdinal(days),
     DD: () => `${days}`.padStart(2, '0'),
@@ -82,17 +79,17 @@ export function formatDate(date: Date, formatStr: string, options: UseDateFormat
     ss: () => `${seconds}`.padStart(2, '0'),
     SSS: () => `${milliseconds}`.padStart(3, '0'),
     d: () => day,
-    dd: () => date.toLocaleDateString(toValue(options.locales), { weekday: 'narrow' }),
-    ddd: () => date.toLocaleDateString(toValue(options.locales), { weekday: 'short' }),
-    dddd: () => date.toLocaleDateString(toValue(options.locales), { weekday: 'long' }),
+    dd: () => date.toLocaleDateString(options.locales, { weekday: 'narrow' }),
+    ddd: () => date.toLocaleDateString(options.locales, { weekday: 'short' }),
+    dddd: () => date.toLocaleDateString(options.locales, { weekday: 'long' }),
     A: () => meridiem(hours, minutes),
     AA: () => meridiem(hours, minutes, false, true),
     a: () => meridiem(hours, minutes, true),
     aa: () => meridiem(hours, minutes, true, true),
-    z: () => stripTimeZone(date.toLocaleDateString(toValue(options.locales), { timeZoneName: 'shortOffset' })),
-    zz: () => stripTimeZone(date.toLocaleDateString(toValue(options.locales), { timeZoneName: 'shortOffset' })),
-    zzz: () => stripTimeZone(date.toLocaleDateString(toValue(options.locales), { timeZoneName: 'shortOffset' })),
-    zzzz: () => stripTimeZone(date.toLocaleDateString(toValue(options.locales), { timeZoneName: 'longOffset' })),
+    z: () => stripTimeZone(date.toLocaleDateString(options.locales, { timeZoneName: 'shortOffset' })),
+    zz: () => stripTimeZone(date.toLocaleDateString(options.locales, { timeZoneName: 'shortOffset' })),
+    zzz: () => stripTimeZone(date.toLocaleDateString(options.locales, { timeZoneName: 'shortOffset' })),
+    zzzz: () => stripTimeZone(date.toLocaleDateString(options.locales, { timeZoneName: 'longOffset' })),
   }
   return formatStr.replace(REGEX_FORMAT, (match, $1) => $1 ?? matches[match]?.() ?? match)
 }
@@ -132,14 +129,12 @@ export type UseDateFormatReturn = string
  *
  * React divergence: upstream wraps the result in a Vue `computed` and returns
  * `ComputedRef<string>` — this port returns a PLAIN STRING. Call it during
- * render and pass your own reactive date state (e.g. a `useState` value); the
- * string is recomputed on every render with fresh inputs. Do not read
- * `.value` from it.
+ * render and pass plain values (e.g. your `useState` date); the string is
+ * recomputed on every render with fresh inputs. Do not read `.value` from it.
  *
- * Input reactivity (house convention replacing upstream's
- * `RefOrValue<T>`): `date`, `formatStr` and `options.locales` each
- * accept a plain value, a ref-like `{ current }` or a getter function, and
- * are re-read on every call.
+ * Inputs (`date`, `formatStr`, `options.locales`) are plain read-only values
+ * — pass `ref.current` or the state value; a `MaybeRefOrGetter` source must be
+ * resolved by the caller (upstream types them `MaybeRefOrGetter`).
  *
  * Supported tokens (mirroring upstream 1:1, default format `HH:mm:ss`):
  * `Yo YY YYYY` — year · `M Mo MM MMM MMMM` — month (locale-aware short/long
@@ -159,9 +154,9 @@ export type UseDateFormatReturn = string
  * @__NO_SIDE_EFFECTS__
  */
 export function useDateFormat(
-  date: RefOrValue<DateLike>,
-  formatStr: RefOrValue<string> = 'HH:mm:ss',
+  date: DateLike,
+  formatStr: string = 'HH:mm:ss',
   options: UseDateFormatOptions = {},
 ): UseDateFormatReturn {
-  return formatDate(normalizeDate(toValue(date)), toValue(formatStr), options)
+  return formatDate(normalizeDate(date), formatStr, options)
 }

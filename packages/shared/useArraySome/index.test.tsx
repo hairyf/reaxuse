@@ -45,19 +45,14 @@ it('useArraySome works with plain state arrays', async () => {
   expect(result.current.some).toBe(true)
 })
 
-it('useArraySome unwraps ref-like elements and recomputes on re-render', async () => {
-  const item1 = { current: 0 }
-  const item2 = { current: 2 }
-
-  const { result, rerender } = await renderHook(() => useArraySome([item1, item2], i => i > 10))
+it('useArraySome works with a plain array', async () => {
+  const { result } = await renderHook(() => useArraySome([0, 2, 4], i => i > 10))
 
   expect(result.current).toBe(false)
 
-  item1.current = 11
+  const { result: hit } = await renderHook(() => useArraySome([0, 2, 11], i => i > 10))
 
-  await rerender()
-
-  expect(result.current).toBe(true)
+  expect(hit.current).toBe(true)
 })
 
 it('useArraySome returns false for an empty array', async () => {
