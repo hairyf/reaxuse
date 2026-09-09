@@ -3,6 +3,26 @@ import { pxValue } from '@reaxuse/shared'
 import { useEffect, useState } from 'react'
 
 /**
+ * Resolve a media query against a simulated viewport width, mirroring the
+ * upstream `ssrSupport` branch. Pure: it never reads `window`, so it is safe
+ * to call while rendering on the server.
+ */
+function resolveSsrMatches(query: string, ssrWidth: number): boolean {
+  const queryStrings = query.split(',')
+  return queryStrings.some((queryString) => {
+    const not = queryString.includes('not all')
+    const minWidth = queryString.match(/\(\s*min-width:\s*(-?\d+(?:\.\d*)?[a-z]+\s*)\)/)
+    const maxWidth = queryString.match(/\(\s*max-width:\s*(-?\d+(?:\.\d*)?[a-z]+\s*)\)/)
+    let res = Boolean(minWidth || maxWidth)
+    if (minWidth && res)
+      res = ssrWidth >= pxValue(minWidth[1])
+    if (maxWidth && res)
+      res = ssrWidth <= pxValue(maxWidth[1])
+    return not ? !res : res
+  })
+}
+
+/**
  * React port of VueUse's `useMediaQuery`.
  *
  * Map from @vueuse/core `useMediaQuery`
@@ -21,13 +41,16 @@ import { useEffect, useState } from 'react'
  * - `query` is a read-only value source and takes a plain `string`
  *   (upstream: `MaybeRefOrGetter<string>`; resolve a React ref or getter at
  *   the call site) and the media query re-binds when it changes;
- * - the initial `matches` sync happens in the mount effect instead of during
- *   setup, so SSR renders the `false` default without touching `window`;
+ * - `window` is a read-only value source (`ConfigurableWindow`) that defaults
+ *   to the global `window` (upstream's `defaultWindow`); pass `window: null`
+ *   to force the `ssrWidth` fallback;
  * - the upstream `ssrSupport` branch (a numeric `ssrWidth` fallback that
- *   approximates the query from a simulated viewport width) is evaluated in
- *   the same effect: it is used only while `matchMedia` is unavailable (e.g.
- *   SSR) and the real `matchMedia` result wins on the client — matching
- *   upstream's post-mount state.
+ *   approximates the query from a simulated viewport width) is resolved
+ *   synchronously during render with no `window` access, so the server markup
+ *   and the first client render both carry the simulated match (upstream does
+ *   the same in its setup-time `watchEffect`); once `matchMedia` is available
+ *   the mount effect replaces it with the real result, matching upstream's
+ *   `ssrSupport` exit on mount.
  *
  * @example
  * const isLargeScreen = useMediaQuery('(min-width: 1024px)')
@@ -38,44 +61,34 @@ export function useMediaQuery(
   options: ConfigurableWindow & { ssrWidth?: number } = {},
 ): boolean {
   const { window: windowOption, ssrWidth } = options
-  const [matches, setMatches] = useState(false)
 
-  // the query is re-read on every render so a changed string re-binds
-  const trackedQuery = query
-  const trackedWindow = windowOption === undefined
-    ? (typeof window === 'undefined' ? undefined : window)
-    : windowOption
+  // SSR and the first client render: resolve `ssrWidth` synchronously without
+  // touching `window`, so server markup hydrates without a mismatch.
+  const [matches, setMatches] = useState(() =>
+    typeof ssrWidth === 'number' ? resolveSsrMatches(query, ssrWidth) : false,
+  )
 
   useEffect(() => {
+    const trackedWindow = windowOption === undefined
+      ? (typeof window === 'undefined' ? undefined : window)
+      : windowOption
     const isSupported = Boolean(
       trackedWindow
       && 'matchMedia' in trackedWindow
       && typeof trackedWindow.matchMedia === 'function',
     )
 
-    // SSR width fallback — upstream `ssrSupport` branch: a numeric `ssrWidth`
-    // approximates the query while `matchMedia` is unavailable; on the client
-    // the real `matchMedia` result wins
+    // SSR width fallback while `matchMedia` is unavailable; on the client the
+    // real `matchMedia` result wins (upstream's `ssrSupport` exit on mount)
     if (typeof ssrWidth === 'number' && !isSupported) {
-      const queryStrings = trackedQuery.split(',')
-      setMatches(queryStrings.some((queryString) => {
-        const not = queryString.includes('not all')
-        const minWidth = queryString.match(/\(\s*min-width:\s*(-?\d+(?:\.\d*)?[a-z]+\s*)\)/)
-        const maxWidth = queryString.match(/\(\s*max-width:\s*(-?\d+(?:\.\d*)?[a-z]+\s*)\)/)
-        let res = Boolean(minWidth || maxWidth)
-        if (minWidth && res)
-          res = ssrWidth >= pxValue(minWidth[1])
-        if (maxWidth && res)
-          res = ssrWidth <= pxValue(maxWidth[1])
-        return not ? !res : res
-      }))
+      setMatches(resolveSsrMatches(query, ssrWidth))
       return
     }
 
     if (!isSupported || !trackedWindow)
       return
 
-    const mediaQuery = trackedWindow.matchMedia(trackedQuery)
+    const mediaQuery = trackedWindow.matchMedia(query)
     const update = (event: MediaQueryListEvent) => {
       setMatches(event.matches)
     }
@@ -86,7 +99,7 @@ export function useMediaQuery(
     return () => {
       mediaQuery.removeEventListener('change', update)
     }
-  }, [trackedQuery, trackedWindow, ssrWidth])
+  }, [query, windowOption, ssrWidth])
 
   return matches
 }
