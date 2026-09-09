@@ -65,7 +65,7 @@ describe('useTextareaAutosize', () => {
     // applied by the mount effect (upstream: `immediate: true` watch)
     expect(node.style.height).toBe('120px')
 
-    await act(() => result.current[2].triggerResize())
+    await act(() => result.current.triggerResize())
     expect(node.style.height).toBe('120px')
   })
 
@@ -110,17 +110,24 @@ describe('useTextareaAutosize', () => {
     expect(node.style.height).toBe('')
   })
 
-  it('should return the React tuple [input, setInput, controls]', async () => {
-    const { result, act } = await renderHook(() => useTextareaAutosize())
+  it('should return an object with paired setInput, textarea and triggerResize', async () => {
+    const { node, element } = createMockTextarea(120)
+    const { result, act } = await renderHook(() => useTextareaAutosize({ element }))
 
-    expect(Array.isArray(result.current)).toBe(true)
-    expect(result.current[0]).toBe('')
-    expect(typeof result.current[1]).toBe('function')
-    expect(result.current[2].textarea.current).toBeNull()
-    expect(typeof result.current[2].triggerResize).toBe('function')
+    expect(Array.isArray(result.current)).toBe(false)
+    expect(Object.keys(result.current)).toEqual(['input', 'setInput', 'textarea', 'triggerResize'])
+    expect(result.current.input).toBe('')
+    expect(result.current.setInput).toBeTypeOf('function')
+    expect(result.current.triggerResize).toBeTypeOf('function')
+    // the `element` option is returned as the `textarea` ref
+    expect(result.current.textarea.current).toBe(node)
 
-    await act(() => result.current[1]('hello'))
-    expect(result.current[0]).toBe('hello')
+    await act(() => result.current.setInput('hello'))
+    expect(result.current.input).toBe('hello')
+
+    Object.defineProperty(node, 'scrollHeight', { configurable: true, value: 200 })
+    await act(() => result.current.triggerResize())
+    expect(node.style.height).toBe('200px')
   })
 
   it('should call onResize when textarea scroll height changes', async () => {
@@ -132,11 +139,11 @@ describe('useTextareaAutosize', () => {
     expect(onResize).toHaveBeenCalledTimes(1)
 
     // same scroll height — no additional call
-    await act(() => result.current[2].triggerResize())
+    await act(() => result.current.triggerResize())
     expect(onResize).toHaveBeenCalledTimes(1)
 
     Object.defineProperty(node, 'scrollHeight', { configurable: true, value: 180 })
-    await act(() => result.current[2].triggerResize())
+    await act(() => result.current.triggerResize())
     expect(onResize).toHaveBeenCalledTimes(2)
   })
 
@@ -153,9 +160,9 @@ describe('useTextareaAutosize', () => {
   it('should do nothing when textarea element is not set', async () => {
     const { result, act } = await renderHook(() => useTextareaAutosize())
 
-    expect(result.current[2].textarea.current).toBeNull()
+    expect(result.current.textarea.current).toBeNull()
     await act(() => {
-      expect(() => result.current[2].triggerResize()).not.toThrow()
+      expect(() => result.current.triggerResize()).not.toThrow()
     })
   })
 
@@ -286,7 +293,7 @@ describe('useTextareaAutosize', () => {
       const { result, act, unmount } = await renderHook(() => useTextareaAutosize({ element }))
       await act(() => {
         node.value = `line\n`.repeat(6)
-        result.current[2].triggerResize()
+        result.current.triggerResize()
       })
       await expect.poll(() => node.style.height).not.toBe('')
       const heightBefore = node.style.height
