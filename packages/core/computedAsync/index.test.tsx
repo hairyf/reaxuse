@@ -1,5 +1,5 @@
 import { promiseTimeout } from '@reaxuse/shared'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { computedAsync } from '../computedAsync'
 
@@ -22,6 +22,15 @@ function createDeferred<T>(): Deferred<T> {
 describe('computedAsync', () => {
   it('should be defined', () => {
     expect(computedAsync).toBeDefined()
+  })
+
+  it('types: initialState is optional and widens the return to T | undefined when omitted', () => {
+    const func = () => Promise.resolve('data')
+    // Declared but never called — type-level assertions only, no hooks run.
+    const withoutInitial = () => computedAsync(func)
+    const withInitial = () => computedAsync(func, 'initial')
+    expectTypeOf(withoutInitial).returns.toEqualTypeOf<string | undefined>()
+    expectTypeOf(withInitial).returns.toEqualTypeOf<string>()
   })
 
   it('returns the initial state (plain value) until the evaluation settles', async () => {
@@ -218,7 +227,29 @@ describe('computedAsync', () => {
     expect(result.current).toBe('kept')
   })
 
-  it('lazy skips the mount evaluation and evaluates on deps change', async () => {
+  it('default onError uses globalThis.reportError', async () => {
+    const originalReportError = globalThis.reportError
+    const mockReportError = vi.fn()
+    globalThis.reportError = mockReportError
+    try {
+      const error = new Error('lookup failed')
+      const { result } = await renderHook(() => computedAsync(
+        async () => {
+          throw error
+        },
+        undefined,
+      ))
+      await vi.waitFor(() => {
+        expect(mockReportError).toHaveBeenCalledWith(error)
+      })
+      expect(result.current).toBeUndefined()
+    }
+    finally {
+      globalThis.reportError = originalReportError
+    }
+  })
+
+  it('deprecated lazy alias skips the mount evaluation and evaluates on deps change', async () => {
     const evaluationCallback = vi.fn((term: string) => Promise.resolve(`lazy:${term}`))
     const onEvaluating = vi.fn()
     const { result, rerender } = await renderHook(
@@ -234,6 +265,52 @@ describe('computedAsync', () => {
       expect(result.current).toBe('lazy:b')
     })
     expect(evaluationCallback).toHaveBeenCalledTimes(1)
+  })
+
+  it('skipInitial + onCancel: cancels a pending evaluation on deps change and discards its late resolution', async () => {
+    const onCancel = vi.fn()
+    const first = createDeferred<string>()
+    const second = createDeferred<string>()
+    let call = 0
+    const pick = () => {
+      call += 1
+      return call === 1 ? first.promise : second.promise
+    }
+    const { result, rerender } = await renderHook(
+      ({ term }: { term: string } = { term: 'a' }) => computedAsync((cancel) => {
+        cancel(onCancel)
+        return pick()
+      }, 'initial', { deps: [term], skipInitial: true }),
+      { initialProps: { term: 'a' } },
+    )
+    // skipInitial: nothing evaluates on mount, so nothing to cancel either
+    expect(call).toBe(0)
+    expect(result.current).toBe('initial')
+    expect(onCancel).not.toHaveBeenCalled()
+
+    // the deps change starts the first (still pending) evaluation
+    await rerender({ term: 'b' })
+    await vi.waitFor(() => {
+      expect(call).toBe(1)
+    })
+
+    // another deps change mid-flight cancels it exactly once
+    await rerender({ term: 'c' })
+    await vi.waitFor(() => {
+      expect(call).toBe(2)
+    })
+    expect(onCancel).toHaveBeenCalledTimes(1)
+
+    // the cancelled evaluation's late resolution is discarded
+    first.resolve('stale')
+    await promiseTimeout(20)
+    expect(result.current).toBe('initial')
+
+    second.resolve('latest')
+    await vi.waitFor(() => {
+      expect(result.current).toBe('latest')
+    })
+    expect(onCancel).toHaveBeenCalledTimes(1)
   })
 
   it('unmount discards a late resolution without state updates or warnings', async () => {
