@@ -136,4 +136,149 @@ describe('useMouseInElement', () => {
 
     unmount()
   })
+
+  it('forwards a custom `type` extractor to useMouse', async () => {
+    const target = createElement(10, 10, 100, 100)
+    const { result, act, unmount } = await renderHook(() =>
+      useMouseInElement(target, {
+        type: event => [event.clientX + 100, event.clientY + 200],
+      }),
+    )
+
+    await act(() => {
+      window.dispatchEvent(new MouseEvent('mousemove', { clientX: 7, clientY: 9 }))
+    })
+
+    expect(result.current.x).toBe(107)
+    expect(result.current.y).toBe(209)
+
+    unmount()
+  })
+
+  it('listens on the `target` option instead of `window`', async () => {
+    const target = createElement(0, 0, 100, 100)
+    const listener = createElement(0, 0, 10, 10)
+    const { result, act, unmount } = await renderHook(() => useMouseInElement(target, { target: listener }))
+
+    // a non-bubbling event reaches only the `target` option element
+    await act(() => {
+      listener.dispatchEvent(new MouseEvent('mousemove', { clientX: 33, clientY: 44 }))
+    })
+    expect(result.current.x).toBe(33)
+    expect(result.current.y).toBe(44)
+
+    // `window` is no longer listened to
+    await act(() => {
+      window.dispatchEvent(mockMouseMoveEvent(1, 2))
+    })
+    expect(result.current.x).toBe(33)
+    expect(result.current.y).toBe(44)
+
+    unmount()
+  })
+
+  it('honors the `eventFilter` option', async () => {
+    const target = createElement(0, 0, 100, 100)
+    let filtered = 0
+    const { result, act, unmount } = await renderHook(() =>
+      useMouseInElement(target, {
+        eventFilter: () => {
+          filtered += 1
+        },
+      }),
+    )
+
+    await act(() => {
+      window.dispatchEvent(mockMouseMoveEvent(20, 20))
+    })
+
+    expect(filtered).toBe(1)
+    expect(result.current.x).toBe(0)
+    expect(result.current.y).toBe(0)
+
+    unmount()
+  })
+
+  it('only registers the `touchend` reset inside the touch gate', async () => {
+    const target = createElement(0, 0, 100, 100)
+    const { result, act, unmount } = await renderHook(() =>
+      useMouseInElement(target, {
+        touch: false,
+        resetOnTouchEnds: true,
+        initialValue: { x: 5, y: 6 },
+      }),
+    )
+
+    await act(() => {
+      window.dispatchEvent(mockMouseMoveEvent(20, 20))
+    })
+    expect(result.current.x).toBe(20)
+    expect(result.current.y).toBe(20)
+
+    // upstream registers the reset listener only when `touch && type !== 'movement'`
+    await act(() => {
+      window.dispatchEvent(new Event('touchend'))
+    })
+    expect(result.current.x).toBe(20)
+    expect(result.current.y).toBe(20)
+
+    unmount()
+  })
+
+  it('resets to `initialValue` on `touchend` when touch is enabled', async () => {
+    const target = createElement(0, 0, 100, 100)
+    const { result, act, unmount } = await renderHook(() =>
+      useMouseInElement(target, {
+        resetOnTouchEnds: true,
+        initialValue: { x: 5, y: 6 },
+      }),
+    )
+
+    await act(() => {
+      window.dispatchEvent(mockMouseMoveEvent(20, 20))
+    })
+    expect(result.current.x).toBe(20)
+
+    await act(() => {
+      window.dispatchEvent(new Event('touchend'))
+    })
+    expect(result.current.x).toBe(5)
+    expect(result.current.y).toBe(6)
+
+    unmount()
+  })
+
+  it('keeps useMouse tracking and document mouseleave alive after stop()', async () => {
+    const target = createElement(10, 10, 100, 100)
+    const { result, act, unmount } = await renderHook(() => useMouseInElement(target))
+
+    await act(() => {
+      window.dispatchEvent(mockMouseMoveEvent(20, 20))
+    })
+    expect(result.current.x).toBe(20)
+    expect(result.current.isOutside).toBe(false)
+
+    await act(() => {
+      result.current.stop()
+    })
+
+    // the composed `useMouse` listeners keep running (upstream parity)
+    await act(() => {
+      window.dispatchEvent(mockMouseMoveEvent(40, 40))
+    })
+    expect(result.current.x).toBe(40)
+    expect(result.current.y).toBe(40)
+    // ...but the element metrics are frozen
+    expect(result.current.elementX).toBe(10)
+    expect(result.current.elementY).toBe(10)
+    expect(result.current.isOutside).toBe(false)
+
+    // the document `mouseleave` handler also survives `stop()`
+    await act(() => {
+      document.dispatchEvent(new MouseEvent('mouseleave'))
+    })
+    expect(result.current.isOutside).toBe(true)
+
+    unmount()
+  })
 })
