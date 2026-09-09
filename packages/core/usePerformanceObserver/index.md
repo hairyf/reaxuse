@@ -10,7 +10,9 @@ Observe performance metrics
 
 ```tsx
 import { usePerformanceObserver } from '@reaxuse/core'
+import { useState } from 'react'
 
+const [entrys, setEntrys] = useState<PerformanceEntry[]>([])
 const { isSupported, start, stop } = usePerformanceObserver(
   { entryTypes: ['paint'] },
   list => setEntrys(list.getEntries()),
