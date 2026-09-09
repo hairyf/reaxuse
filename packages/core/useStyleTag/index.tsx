@@ -119,17 +119,20 @@ export function useStyleTag(
   const [cssValue, setCssValue] = useState(css)
   const [isLoaded, setIsLoaded] = useState(false)
 
+  // auto-generated id is produced by a lazy state initializer, so the module
+  // counter only advances once per mounted instance — never during a render
+  // that is later discarded (upstream assigns eagerly at setup: `id =
+  // \`vueuse_styletag_${++_id}\``)
+  const [id] = useState(() => options.id ?? `reaxuse_styletag_${++_id}`)
+
   // latest-value refs (repo idiom, see useStateManualHistory) so `load`,
   // `unload` and `setCss` stay stable callbacks that always read the newest
   // values; `isLoadedRef` guards the ref-counting against stale state
   const cssRef = useRef(cssValue)
   const isLoadedRef = useRef(false)
   const optionsRef = useRef(options)
-  const idRef = useRef<string>('')
   cssRef.current = cssValue
   optionsRef.current = options
-  if (!idRef.current)
-    idRef.current = options.id ?? `reaxuse_styletag_${++_id}`
 
   const resolveDocument = useCallback(() => {
     const doc = optionsRef.current.document
@@ -143,10 +146,10 @@ export function useStyleTag(
     if (!doc)
       return
 
-    const el = (doc.getElementById(idRef.current) || doc.createElement('style')) as HTMLStyleElement
+    const el = (doc.getElementById(id) || doc.createElement('style')) as HTMLStyleElement
 
     if (!el.isConnected) {
-      el.id = idRef.current
+      el.id = id
       if (optionsRef.current.nonce)
         el.nonce = optionsRef.current.nonce
       if (optionsRef.current.media)
@@ -164,14 +167,14 @@ export function useStyleTag(
     el.textContent = cssRef.current
     isLoadedRef.current = true
     setIsLoaded(true)
-  }, [resolveDocument])
+  }, [id, resolveDocument])
 
   const unload = useCallback(() => {
     const doc = resolveDocument()
     if (!doc || !isLoadedRef.current)
       return
 
-    const el = doc.getElementById(idRef.current) as HTMLStyleElement | null
+    const el = doc.getElementById(id) as HTMLStyleElement | null
     if (el) {
       const count = (_refCount.get(el) ?? 1) - 1
       if (count <= 0) {
@@ -185,7 +188,7 @@ export function useStyleTag(
 
     isLoadedRef.current = false
     setIsLoaded(false)
-  }, [resolveDocument])
+  }, [id, resolveDocument])
 
   const setCss = useCallback<Dispatch<SetStateAction<string>>>((action) => {
     const prev = cssRef.current
@@ -195,10 +198,10 @@ export function useStyleTag(
     if (!isLoadedRef.current)
       return
     const doc = resolveDocument()
-    const el = doc?.getElementById(idRef.current)
+    const el = doc?.getElementById(id)
     if (el)
       el.textContent = next
-  }, [resolveDocument])
+  }, [id, resolveDocument])
 
   useEffect(() => {
     const { immediate = true, manual = false } = optionsRef.current
@@ -211,7 +214,7 @@ export function useStyleTag(
   }, [load, unload])
 
   // stable controls object — new identity only when its members change
-  const controls = useMemo(() => ({ id: idRef.current, load, unload, isLoaded }), [load, unload, isLoaded])
+  const controls = useMemo(() => ({ id, load, unload, isLoaded }), [id, load, unload, isLoaded])
 
   return [cssValue, setCss, controls]
 }

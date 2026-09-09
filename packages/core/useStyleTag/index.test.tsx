@@ -128,6 +128,40 @@ describe('useStyleTag', () => {
     await unmount()
   })
 
+  it('should set the nonce attribute for CSP when nonce is provided', async () => {
+    const { unmount } = await renderHook(() => useStyleTag('body { color: red; }', { id: 'test-nonce', nonce: 'csp-nonce-123' }))
+
+    const el = document.getElementById('test-nonce') as HTMLStyleElement | null
+    expect(el).not.toBeNull()
+    expect(el?.nonce).toBe('csp-nonce-123')
+
+    await unmount()
+  })
+
+  it('should not set the nonce attribute when nonce is omitted', async () => {
+    const { unmount } = await renderHook(() => useStyleTag('body { color: red; }', { id: 'test-no-nonce' }))
+
+    const el = document.getElementById('test-no-nonce') as HTMLStyleElement | null
+    expect(el).not.toBeNull()
+    expect(el?.nonce).toBe('')
+
+    await unmount()
+  })
+
+  it('should use a custom document instance', async () => {
+    const fakeDocument = document.implementation.createHTMLDocument('fake')
+    const { unmount } = await renderHook(() => useStyleTag('body { color: red; }', { id: 'test-doc', document: fakeDocument }))
+
+    // injected into the custom document, not the real one
+    expect(document.getElementById('test-doc')).toBeNull()
+    const el = fakeDocument.getElementById('test-doc') as HTMLStyleElement | null
+    expect(el).not.toBeNull()
+    expect(el?.textContent).toBe('body { color: red; }')
+
+    await unmount()
+    expect(fakeDocument.getElementById('test-doc')).toBeNull()
+  })
+
   it('should not create element when manual is true', async () => {
     const { result, act, unmount } = await renderHook(() => {
       const [, , { isLoaded, load }] = useStyleTag('body { color: red; }', { id: 'test-manual', manual: true })
