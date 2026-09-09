@@ -56,19 +56,6 @@ describe('useJwt', () => {
     expect(result.current.payload?.foo).toBe('bar')
   })
 
-  it('follows ref-like input changes', async () => {
-    const jwt = { current: encodedJwt }
-    const { result, rerender } = await renderHook(() => useJwt<CustomJwtPayload, CustomJwtHeader>(jwt))
-
-    expect(result.current.payload?.foo).toBeUndefined()
-
-    jwt.current = encodedCustomJwt
-    await rerender()
-
-    expect(result.current.header?.foo).toBe('bar')
-    expect(result.current.payload?.foo).toBe('bar')
-  })
-
   it('returns the fallbackValue when decoding fails', async () => {
     const { result } = await renderHook(() => useJwt('bad-token', { fallbackValue: 'fallback' }))
 

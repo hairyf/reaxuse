@@ -14,6 +14,18 @@ import { useEventSource } from '@reaxuse/core'
 const { status, data, error, close } = useEventSource('https://event-source-url')
 ```
 
+### Source Forms
+
+`url` is a read-only value source and takes a plain `string | URL | undefined` (upstream:
+`MaybeRefOrGetter`). Resolve a React ref or state value at the call site:
+
+```tsx
+const [url, setUrl] = useState('https://event-source-url')
+
+useEventSource(url) // reconnects when `url` changes (with `autoConnect`)
+useEventSource(urlRef.current) // resolve a React ref at the call site
+```
+
 ### Return Values
 
 | Property      | Type                                 | Description                             |

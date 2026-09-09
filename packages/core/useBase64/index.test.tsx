@@ -116,4 +116,33 @@ describe('useBase64', () => {
     await result.current.promise
     await expect.poll(() => result.current.base64).toBe('data:application/json;base64,WzEsMiwzXQ==')
   })
+
+  it('should work with blob', async () => {
+    const blob = new Blob(['hello'], { type: 'text/plain' })
+
+    const { result } = await renderHook(() => useBase64(blob))
+
+    await result.current.promise
+
+    await expect.poll(() => result.current.base64).toBe('data:text/plain;base64,aGVsbG8=')
+  })
+
+  it('should work with array buffer', async () => {
+    const buffer = new Uint8Array([1, 2, 3]).buffer
+
+    const { result } = await renderHook(() => useBase64(buffer))
+
+    await result.current.promise
+
+    // the ArrayBuffer branch returns raw base64 without a data URL prefix
+    await expect.poll(() => result.current.base64).toBe('AQID')
+  })
+
+  it('resolves an empty string for a nullish target', async () => {
+    const { result } = await renderHook(() => useBase64(undefined))
+
+    await expect.poll(() => result.current.promise).toBeDefined()
+    expect(await result.current.promise).toBe('')
+    expect(result.current.base64).toBe('')
+  })
 })

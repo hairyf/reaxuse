@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useSum } from '../useSum'
@@ -9,44 +9,30 @@ describe('useSum', () => {
   })
 
   it('array usage', async () => {
-    const array = { current: [1, 2, 3, 4] }
+    const { result, rerender, act } = await renderHook(() => {
+      const [array, setArray] = useState([1, 2, 3, 4])
+      return { sum: useSum(array), setArray }
+    })
 
-    const { result, rerender } = await renderHook(() => useSum(array))
-    expect(result.current).toBe(10)
+    expect(result.current.sum).toBe(10)
 
-    array.current = [-1, -2, 3, 4]
+    await act(() => result.current.setArray([-1, -2, 3, 4]))
     await rerender()
-    expect(result.current).toBe(4)
+    expect(result.current.sum).toBe(4)
   })
 
   it('rest usage', async () => {
-    const a = { current: 1 }
-    const b = { current: 2 }
+    const { result, rerender, act } = await renderHook(() => {
+      const [a, setA] = useState(1)
+      const [b, setB] = useState(2)
+      return { sum: useSum(a, b, 3), setA, setB }
+    })
 
-    const { result, rerender } = await renderHook(() => useSum(a, b, 3))
-    expect(result.current).toBe(6)
+    expect(result.current.sum).toBe(6)
 
-    b.current = 3
+    await act(() => result.current.setB(3))
     await rerender()
-    expect(result.current).toBe(7)
-  })
-
-  it('should accept an array of numbers and refs', async () => {
-    const value = { current: 100 }
-    const array = { current: [10, value, 1000] }
-
-    const { result, rerender } = await renderHook(() => useSum(array))
-    expect(result.current).toBe(1110)
-
-    value.current = 2000
-    await rerender()
-    expect(result.current).toBe(3010)
-  })
-
-  it('should accept React refs', async () => {
-    const { result } = await renderHook(() => useSum(useRef(1), useRef(2), useRef(3)))
-
-    expect(result.current).toBe(6)
+    expect(result.current.sum).toBe(7)
   })
 
   it('should accept a plain array', async () => {
@@ -55,9 +41,15 @@ describe('useSum', () => {
     expect(result.current).toBe(10)
   })
 
-  it('should return 0 with no arguments', async () => {
-    const { result } = await renderHook(() => useSum())
+  it('should accept a readonly array', () => {
+    expect(useSum([1, 2, 3] as const)).toBe(6)
+  })
 
-    expect(result.current).toBe(0)
+  it('should sum both elements of a 2-element array', () => {
+    expect(useSum([1, 2])).toBe(3)
+  })
+
+  it('should return 0 with no arguments', () => {
+    expect(useSum()).toBe(0)
   })
 })

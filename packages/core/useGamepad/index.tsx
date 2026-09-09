@@ -1,5 +1,6 @@
 import type { ConfigurableWindow } from '@reaxuse/shared'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import type { Dispatch, SetStateAction } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useEventListener } from '../useEventListener'
 import { useRafFn } from '../useRafFn'
 import { useSupported } from '../useSupported'
@@ -22,19 +23,17 @@ export interface UseGamepadOptions extends ConfigurableWindow {
   navigator?: Navigator
 }
 
-export interface UseGamepadReturn {
+/**
+ * Reactive companion members of `useGamepad` — the React replacement for the
+ * upstream event hooks, `Pausable` controls and `isSupported` ref.
+ */
+export interface UseGamepadControls {
   /**
    * `true` when the resolved navigator exposes `getGamepads`. Resolved in a
    * mount effect, so it stays `false` during the first render and on the
    * server (SSR-safe).
    */
   isSupported: boolean
-  /**
-   * The current snapshot of connected gamepads, refreshed by a
-   * `requestAnimationFrame` poller once a gamepad connects — `pause` /
-   * `resume` control the polling.
-   */
-  gamepads: Gamepad[]
   /**
    * Register a callback fired with the `index` of a newly connected gamepad.
    * Returns an `off` handle to unsubscribe — compatible with the
@@ -56,7 +55,25 @@ export interface UseGamepadReturn {
    * Resume the `requestAnimationFrame` poller.
    */
   resume: () => void
+  /**
+   * `true` while the `requestAnimationFrame` poller is running (upstream
+   * `useRafFn`'s `isActive` shallow ref as a plain boolean). It starts
+   * `false` and flips to `true` the first time a gamepad connects.
+   */
+  isActive: boolean
 }
+
+/**
+ * React return type: `[gamepads, setGamepads, controls]` — the state-like
+ * tuple family used by `useStateWithControl` and `useStorage`. `gamepads` is
+ * the plain `Gamepad[]` snapshot (upstream: a writable `Ref<Gamepad[]>`) and
+ * `setGamepads` is the React setter for it.
+ */
+export type UseGamepadReturn = readonly [
+  gamepads: Gamepad[],
+  setGamepads: Dispatch<SetStateAction<Gamepad[]>>,
+  controls: UseGamepadControls,
+]
 
 /**
  * Normalize a raw `Gamepad` into a stable snapshot: arrays/buttons are copied
@@ -98,9 +115,17 @@ function stateFromGamepad(gamepad: Gamepad): Gamepad {
  * loop.
  *
  * React divergences:
+ * - the return is the React tuple `[gamepads, setGamepads, controls]` instead
+ *   of upstream's object `{ isSupported, onConnected, onDisconnected,
+ *   gamepads: Ref<Gamepad[]>, pause, resume, isActive }`. `gamepads` is plain
+ *   state and `setGamepads` follows the React immutable-update protocol —
+ *   `setGamepads(next)` or `setGamepads(prev => next)` — replacing upstream's
+ *   writable `gamepads` ref. `setGamepads` refreshes the internal latest-value
+ *   ref synchronously, so the rAF poller and the connect/disconnect handlers
+ *   always build on the newest list;
  * - the Vue `gamepads` ref becomes a plain `Gamepad[]` state refreshed by an
- *   rAF poller (upstream `updateGamepadState`), so read it directly off the
- *   result object instead of `.value`;
+ *   rAF poller (upstream `updateGamepadState`), so read it directly from the
+ *   first tuple slot instead of `.value`;
  * - upstream's `createEventHook()` on* members become stable subscribe
  *   functions with the same `(fn) => { off }` shape, managed with Sets, so
  *   they are identity-stable across renders and compatible with the
@@ -108,6 +133,8 @@ function stateFromGamepad(gamepad: Gamepad): Gamepad {
  *   `tryOnScopeDispose` inside `createEventHook`'s `on`);
  * - `isSupported` (upstream `useSupported`) is a plain boolean resolved in
  *   the mount effect — nothing touches `navigator` during render (SSR-safe);
+ * - `isActive` (upstream `useRafFn`'s shallow ref, missing from the earlier
+ *   reaxuse port) is a plain boolean in `controls`;
  * - the polling loop starts paused (`useRafFn` with `immediate: false`,
  *   mirroring upstream's post-setup `pause()`) and is resumed the first time
  *   a gamepad connects; disconnecting never pauses it, matching upstream;
@@ -116,7 +143,7 @@ function stateFromGamepad(gamepad: Gamepad): Gamepad {
  *   (upstream `tryOnMounted`) runs in a mount effect.
  *
  * @example
- * const { isSupported, gamepads, onConnected, pause, resume } = useGamepad()
+ * const [gamepads, setGamepads, { isSupported, onConnected, pause, resume }] = useGamepad()
  * const gamepad = gamepads.find(g => g.mapping === 'standard')
  *
  * useListener(onConnected, (index) => console.log(`${gamepad.id} connected`))
@@ -126,7 +153,7 @@ export function useGamepad(options: UseGamepadOptions = {}): UseGamepadReturn {
     navigator: customNavigator,
   } = options
 
-  const [gamepads, setGamepads] = useState<Gamepad[]>([])
+  const [gamepads, setGamepadsState] = useState<Gamepad[]>([])
 
   // latest-value refs so the stable rAF callback and event handlers always
   // read the freshest state / navigator without re-subscribing
@@ -137,6 +164,17 @@ export function useGamepad(options: UseGamepadOptions = {}): UseGamepadReturn {
   navigatorRef.current = customNavigator ?? (typeof navigator === 'undefined' ? undefined : navigator)
 
   const isSupported = useSupported(() => navigatorRef.current && 'getGamepads' in navigatorRef.current)
+
+  // React state setter exposed as the tuple's second slot. Wrapped so the
+  // latest-value ref stays in sync synchronously — the rAF poller and the
+  // event handlers read `gamepadsRef.current` and would otherwise keep
+  // building on the stale committed list until the next render.
+  const setGamepads = useCallback<Dispatch<SetStateAction<Gamepad[]>>>((action) => {
+    const prev = gamepadsRef.current
+    const next = typeof action === 'function' ? (action as (value: Gamepad[]) => Gamepad[])(prev) : action
+    gamepadsRef.current = next
+    setGamepadsState(next)
+  }, [])
 
   // Event hooks: upstream `createEventHook()` — one stable subscribe
   // function per event, returning an `off` handle to unsubscribe.
@@ -182,31 +220,28 @@ export function useGamepad(options: UseGamepadOptions = {}): UseGamepadReturn {
       if (index > -1) {
         const next = [...gamepadsRef.current]
         next[index] = stateFromGamepad(gamepad)
-        gamepadsRef.current = next
         setGamepads(next)
       }
     }
-  }, [])
+  }, [setGamepads])
 
-  const { pause, resume } = useRafFn(updateGamepadState, { immediate: false })
+  const { isActive, pause, resume } = useRafFn(updateGamepadState, { immediate: false })
 
   const onGamepadConnected = useCallback((gamepad: Gamepad) => {
     if (!gamepadsRef.current.some(({ index }) => index === gamepad.index)) {
       const next = [...gamepadsRef.current, stateFromGamepad(gamepad)]
-      gamepadsRef.current = next
       setGamepads(next)
       triggerConnected(gamepad.index)
     }
 
     resume()
-  }, [resume, triggerConnected])
+  }, [resume, setGamepads, triggerConnected])
 
   const onGamepadDisconnected = useCallback((gamepad: Gamepad) => {
     const next = gamepadsRef.current.filter(x => x.index !== gamepad.index)
-    gamepadsRef.current = next
     setGamepads(next)
     triggerDisconnected(gamepad.index)
-  }, [triggerDisconnected])
+  }, [setGamepads, triggerDisconnected])
 
   const onGamepadConnectedRef = useRef(onGamepadConnected)
   onGamepadConnectedRef.current = onGamepadConnected
@@ -235,12 +270,11 @@ export function useGamepad(options: UseGamepadOptions = {}): UseGamepadReturn {
     }
   }, [])
 
-  return {
-    isSupported,
-    onConnected,
-    onDisconnected,
-    gamepads,
-    pause,
-    resume,
-  }
+  // stable controls object — new identity only when its members change
+  const controls = useMemo(
+    () => ({ isSupported, onConnected, onDisconnected, pause, resume, isActive }),
+    [isSupported, onConnected, onDisconnected, pause, resume, isActive],
+  )
+
+  return [gamepads, setGamepads, controls]
 }

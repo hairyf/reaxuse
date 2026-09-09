@@ -1,6 +1,3 @@
-import type { RefOrValue } from '@reaxuse/shared'
-import { toValue } from '@reaxuse/shared'
-
 /**
  * React port of VueUse's `useRound`.
  *
@@ -9,23 +6,23 @@ import { toValue } from '@reaxuse/shared'
  *
  * Adjustment for React: upstream wraps the computation in `computed(() => ...)`
  * and returns a `ComputedRef<number>`; the reaxuse version is a pure derived
- * hook — the value is resolved (a plain number or a React ref) at render time
- * and `Math.round` is applied directly, with no
- * effects and no `.value` wrapper (SSR-safe).
+ * hook — the plain `number` argument is read at render time and `Math.round` is
+ * applied directly, with no effects and no `.value` wrapper (SSR-safe).
+ *
+ * React divergence: `value` is a plain read-only `number`, not upstream's
+ * `MaybeRefOrGetter<number>`. The caller re-renders with a new value (e.g. from
+ * `useState`) and the hook recomputes.
  *
  * @see https://vueuse.org/math/useRound/
  *
  * @__NO_SIDE_EFFECTS__
  *
  * @example
- * const value = { current: 20.49 }
- * const result = useRound(value) // 20
+ * const result = useRound(20.49) // 20
  *
- * value.current = -20.51 // result === -21 on the next render
- *
- * @param value - The value to round.
+ * @param value - The number to round.
  * @returns The value rounded to the nearest integer.
  */
-export function useRound(value: RefOrValue<number>): number {
-  return Math.round(toValue(value))
+export function useRound(value: number): number {
+  return Math.round(value)
 }

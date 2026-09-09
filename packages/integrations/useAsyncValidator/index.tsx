@@ -1,6 +1,4 @@
-import type { RefOrValue } from '@reaxuse/shared'
 import type { Rules, ValidateError, ValidateOption } from 'async-validator'
-import { toValue } from '@reaxuse/shared'
 import Schema from 'async-validator'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -65,11 +63,12 @@ interface LiveState {
  * errorFields, execute }`) with the refs unwrapped: every member is a plain
  * value (no `.value`), `pass` starts as `!immediate || manual`, `execute()`
  * flips `isFinished` to `false`, awaits
- * `validator.validate(toValue(value), validateOption)` and settles with
+ * `validator.validate(value, validateOption)` and settles with
  * `pass`, `errorInfo`, `errors` and `errorFields`; `errors` is
  * `errorInfo?.errors || []` and `errorFields` is `errorInfo?.fields || {}`.
- * `value` and `rules` accept plain values, ref-like `{ current }` objects or
- * getters, resolved with `toValue` from `@reaxuse/shared`, and the returned
+ * `value` and `rules` are the hook's **read-only value sources** and take
+ * plain values (`Record<string, any>` and `Rules`; upstream:
+ * `MaybeRefOrGetter`); the returned
  * object is promise-like (`await useAsyncValidator(...)` resolves with the
  * current snapshot), mirroring `useAsyncState`.
  *
@@ -77,7 +76,7 @@ interface LiveState {
  * - upstream re-runs validation from
  *   `watch([valueRef, validator], execute, { immediate, deep: true })`. React
  *   has no deep observation, so this port re-runs from an effect keyed on the
- *   identity of `toValue(value)` / `toValue(rules)` and skips it entirely when
+ *   identity of `value` / `rules` and skips it entirely when
  *   `manual` is `true`. Consequence: mutating the SAME object in place does NOT
  *   re-trigger validation — pass a new object (or new `rules`) or call
  *   `execute()` yourself. In React StrictMode dev builds the initial
@@ -99,8 +98,8 @@ interface LiveState {
  * @see https://github.com/yiminghe/async-validator
  */
 export function useAsyncValidator(
-  value: RefOrValue<Record<string, any>>,
-  rules: RefOrValue<Rules>,
+  value: Record<string, any>,
+  rules: Rules,
   options?: UseAsyncValidatorOptions,
 ): UseAsyncValidatorReturn & PromiseLike<UseAsyncValidatorReturn> {
   const {
@@ -109,8 +108,8 @@ export function useAsyncValidator(
     manual = false,
   } = options || {}
 
-  const valueValue = toValue(value)
-  const rulesValue = toValue(rules)
+  const valueValue = value
+  const rulesValue = rules
 
   const [errorInfo, setErrorInfo] = useState<AsyncValidatorError | null>(null)
   const [isFinished, setIsFinished] = useState(true)
@@ -119,9 +118,7 @@ export function useAsyncValidator(
   const validator = useMemo(() => new AsyncValidatorSchema(rulesValue), [rulesValue])
 
   // latest-value mirrors synced every render so the stable `execute` closure
-  // always reads the newest inputs (house pattern). `value` itself is mirrored
-  // (not the resolved object) because a ref-like input is mutated in place and
-  // never re-renders — `execute` resolves it with `toValue` at call time.
+  // always reads the newest inputs (house pattern)
   const valueRef = useRef(value)
   valueRef.current = value
   const validatorRef = useRef(validator)
@@ -159,7 +156,7 @@ export function useAsyncValidator(
     let nextErrorInfo: AsyncValidatorError | null = null
 
     try {
-      await validatorRef.current.validate(toValue(valueRef.current), validateOptionRef.current)
+      await validatorRef.current.validate(valueRef.current, validateOptionRef.current)
       nextPass = true
       nextErrorInfo = null
     }

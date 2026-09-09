@@ -61,40 +61,18 @@ describe('useFavicon', () => {
     expect(result.current[0]).toBe('v1')
   })
 
-  it('ref const', async () => {
-    const targetRef = { current: 'v1' }
-    const { result, rerender } = await renderHook(() => useFavicon(targetRef))
+  it('treats a plain value as the initial value only (the setter owns the state afterwards)', async () => {
+    const { result, rerender } = await renderHook(
+      (props: { icon: string | null | undefined }) => useFavicon(props.icon),
+      { initialProps: { icon: 'v1' } },
+    )
 
     expect(result.current[0]).toBe('v1')
 
-    targetRef.current = 'v2'
-    await rerender()
-    expect(result.current[0]).toBe('v2')
-  })
-
-  it('ref null', async () => {
-    const targetRef = { current: null }
-    const { result } = await renderHook(() => useFavicon(targetRef))
-
-    expect(result.current[0]).toBe(null)
-  })
-
-  it('ref undefined', async () => {
-    const targetRef = { current: undefined }
-    const { result } = await renderHook(() => useFavicon(targetRef))
-
-    expect(result.current[0]).toBe(undefined)
-  })
-
-  it('computed/readonly', async () => {
-    const target = { current: 'a.jpg' }
-    const { result, rerender } = await renderHook(() => useFavicon(target))
-
-    expect(result.current[0]).toBe('a.jpg')
-
-    target.current = 'b.jpg'
-    await rerender()
-    expect(result.current[0]).toBe('b.jpg')
+    // upstream's `toRef(plainValue)` is static too — a new argument is not
+    // adopted; call the returned setter instead
+    await rerender({ icon: 'v2' })
+    expect(result.current[0]).toBe('v1')
   })
 
   it('plain value/readonly', async () => {

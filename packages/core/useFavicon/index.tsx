@@ -1,6 +1,4 @@
-import type { RefOrValue } from '@reaxuse/shared'
 import type { Dispatch, SetStateAction } from 'react'
-import { isRefLike, toValue } from '@reaxuse/shared'
 import { useEffect, useRef, useState } from 'react'
 
 export interface UseFaviconOptions {
@@ -61,13 +59,12 @@ function resolveDocument(doc: Document | null | undefined): Document | undefined
  *   render (SSR-safe), so the DOM write happens in an effect — the initial
  *   icon is applied on mount instead;
  * - the icon write is a `useEffect` on the state instead of a Vue watcher;
- * - a ref-like (`{ current }`) source is re-read after every render
- *   and written back into the state when it changed (React has no reactive
- *   refs; upstream only watches ref sources) — a plain
- *   `string`/`null`/`undefined` argument is never re-synced, so the setter
- *   stays authoritative there;
- * - for ref-like sources the setter also writes through to the source's
- *   `.current` (upstream returns the very ref it was given);
+ * - `newIcon` is a read-only value source and takes a plain
+ *   `string | null | undefined` (upstream: `MaybeRef<string | null |
+ *   undefined>`; resolve a React ref at the call site). The returned setter
+ *   owns the state from mount on — the argument is only the initial value,
+ *   so the setter stays authoritative (upstream returns the very ref it was
+ *   given and can therefore be written through);
  * - setting `null`/`undefined` through the setter updates the state but
  *   leaves the existing `<link>` untouched (upstream would leave it stale
  *   too, since the watcher only applies string values).
@@ -80,51 +77,22 @@ function resolveDocument(doc: Document | null | undefined): Document | undefined
  * setIcon('light.png') // change current icon
  */
 export function useFavicon(
-  newIcon?: RefOrValue<string | null | undefined>,
+  newIcon?: string | null | undefined,
   options: UseFaviconOptions = {},
 ): UseFaviconReturn {
-  // latest-value refs synced each render so the effects below stay stable
-  // and always read the newest argument/options (house pattern)
-  const newIconRef = useRef(newIcon)
+  // options are read through a latest-value ref so the effects below stay
+  // stable and always read the newest options (house pattern)
   const optionsRef = useRef(options)
-  newIconRef.current = newIcon
   optionsRef.current = options
 
   // upstream: `toRef(newIcon)` — `undefined` falls back to the default `null`
   const [icon, setIcon] = useState<string | null | undefined>(
-    () => newIcon === undefined ? null : toValue(newIcon),
+    () => newIcon === undefined ? null : newIcon,
   )
 
-  // latest state so the re-sync effect can compare without depending on `icon`
-  const iconRef = useRef(icon)
-  iconRef.current = icon
-
-  // Write-through setter: upstream returns the very ref it was given, so
-  // writing to the return is writing to the source — for a ref-like source we
-  // mirror that by also updating its `.current`.
   const setFavicon: Dispatch<SetStateAction<string | null | undefined>> = (next) => {
-    const source = newIconRef.current
-    if (isRefLike(source)) {
-      source.current = typeof next === 'function'
-        ? next(toValue(source))
-        : next
-    }
     setIcon(next)
   }
-
-  // Re-sync ref-like sources (upstream `watch` on the passed ref /
-  // computed). React has no reactive refs, so the source is re-read after
-  // every render and any change is written into the state. A plain-value
-  // argument is never re-synced, keeping the setter authoritative.
-  useEffect(() => {
-    const source = newIconRef.current
-    if (typeof source !== 'function' && !isRefLike(source))
-      return
-
-    const resolved = toValue(source)
-    if (resolved !== iconRef.current)
-      setIcon(resolved)
-  })
 
   // The DOM write is an effect on the state (upstream: `watch` with
   // `immediate: true`, which also covers the initial icon on mount).

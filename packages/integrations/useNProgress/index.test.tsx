@@ -149,20 +149,21 @@ describe('useNProgress', () => {
     expect(document.getElementById('nprogress')).not.toBeNull()
   })
 
-  it('initialises from and follows a ref-like currentProgress', async () => {
-    const progress = { current: 0.25 as number | null }
-    const { result, rerender } = await renderHook(() => useNProgress(progress))
+  it('initialises from and follows a changed currentProgress prop', async () => {
+    const { result, rerender } = await renderHook(
+      ({ currentProgress }: { currentProgress?: number | null } = { currentProgress: 0.25 }) =>
+        useNProgress(currentProgress),
+      { initialProps: { currentProgress: 0.25 as number | null } },
+    )
 
     expect(result.current.progress).toBe(0.25)
     expect(result.current.isLoading).toBe(true)
 
-    progress.current = 0.75
-    await rerender()
+    await rerender({ currentProgress: 0.75 })
     expect(result.current.progress).toBe(0.75)
     expect(result.current.isLoading).toBe(true)
 
-    progress.current = null
-    await rerender()
+    await rerender({ currentProgress: null })
     expect(result.current.progress).toBeNull()
     expect(result.current.isLoading).toBe(false)
   })
@@ -196,5 +197,22 @@ describe('useNProgress', () => {
     })
 
     expect(nprogress.set).toBe(originalSet)
+  })
+
+  it('keeps an internal write when the currentProgress prop did not change', async () => {
+    const { result, act, rerender } = await renderHook(
+      ({ currentProgress }: { currentProgress?: number | null } = { currentProgress: 0.25 }) =>
+        useNProgress(currentProgress),
+      { initialProps: { currentProgress: 0.25 as number | null } },
+    )
+
+    await act(() => {
+      result.current.setProgress(0.8)
+    })
+    expect(result.current.progress).toBe(0.8)
+
+    // the prop is unchanged, so the mirror effect must not clobber the write
+    await rerender({ currentProgress: 0.25 })
+    expect(result.current.progress).toBe(0.8)
   })
 })

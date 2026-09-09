@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useTrunc } from '../useTrunc'
@@ -13,57 +13,46 @@ import { useTrunc } from '../useTrunc'
 //  Infinity ->  Infinity
 // -Infinity -> -Infinity
 //  NaN      ->  NaN
-//  null     ->  0
 
 describe('useTrunc', () => {
   it('should be defined', () => {
     expect(useTrunc).toBeDefined()
   })
 
-  it('should work', async () => {
-    const base = { current: 1.95 }
-    const { result, rerender } = await renderHook(() => useTrunc(base))
-
-    expect(result.current).toBe(1)
-
-    base.current = -7.004
-    await rerender()
-    expect(result.current).toBe(-7)
-
-    base.current = 0
-    await rerender()
-    expect(result.current).toBe(0)
-
-    base.current = -0
-    await rerender()
-    expect(result.current).toBe(-0)
-
-    base.current = 0.2
-    await rerender()
-    expect(result.current).toBe(0)
-
-    base.current = -0.2
-    await rerender()
-    expect(result.current).toBe(-0)
-
-    base.current = Number.POSITIVE_INFINITY
-    await rerender()
-    expect(result.current).toBe(Number.POSITIVE_INFINITY)
-
-    base.current = Number.NEGATIVE_INFINITY
-    await rerender()
-    expect(result.current).toBe(Number.NEGATIVE_INFINITY)
-
-    base.current = Number.NaN
-    await rerender()
-    expect(result.current).toBe(Number.NaN)
+  it('should work', () => {
+    expect(useTrunc(1.95)).toBe(1)
+    expect(useTrunc(-7.004)).toBe(-7)
+    expect(useTrunc(0)).toBe(0)
+    expect(useTrunc(-0)).toBe(-0)
+    expect(useTrunc(0.2)).toBe(0)
+    expect(useTrunc(-0.2)).toBe(-0)
+    expect(useTrunc(Number.POSITIVE_INFINITY)).toBe(Number.POSITIVE_INFINITY)
+    expect(useTrunc(Number.NEGATIVE_INFINITY)).toBe(Number.NEGATIVE_INFINITY)
+    expect(useTrunc(Number.NaN)).toBe(Number.NaN)
   })
 
-  it('should accept plain values and React refs', async () => {
+  it('accepts plain values', async () => {
     const { result } = await renderHook(() => useTrunc(0.95))
     expect(result.current).toBe(0)
 
-    const { result: refResult } = await renderHook(() => useTrunc(useRef(-2.34)))
-    expect(refResult.current).toBe(-2)
+    const { result: negative } = await renderHook(() => useTrunc(-2.34))
+    expect(negative.current).toBe(-2)
+  })
+
+  it('recomputes on the next render when the value changes', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState(1.95)
+      return { trunc: useTrunc(value), setValue }
+    })
+
+    expect(result.current.trunc).toBe(1)
+
+    await act(() => result.current.setValue(-7.004))
+    await rerender()
+    expect(result.current.trunc).toBe(-7)
+
+    await act(() => result.current.setValue(0))
+    await rerender()
+    expect(result.current.trunc).toBe(0)
   })
 })

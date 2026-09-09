@@ -1,9 +1,17 @@
-import { expect, it } from 'vitest'
+import type { Dispatch, SetStateAction } from 'react'
+import { expect, expectTypeOf, it } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
 import { useStepper } from '../useStepper'
 
 const STRING_STEPS = ['First step', 'Second step', 'Last step']
 const NUMBER_STEPS = [1, 2, 3]
+
+// every test spreads the `controls` object back onto `result.current`, so the
+// assertions below read the same members while the hook returns a tuple
+function useStepperResult(steps: string[], initialStep?: string) {
+  const [index, setIndex, controls] = useStepper(steps, initialStep)
+  return { index, setIndex, ...controls }
+}
 
 it('useStepper should be defined', () => {
   expect(useStepper).toBeDefined()
@@ -11,7 +19,7 @@ it('useStepper should be defined', () => {
 
 it('useStepper starts at the first step with derived state', async () => {
   const { result } = await renderHook((props?: { steps?: string[] }) =>
-    useStepper(props?.steps ?? ['billing-address', 'terms', 'payment']))
+    useStepperResult(props?.steps ?? ['billing-address', 'terms', 'payment']))
 
   expect(result.current.current).toBe('billing-address')
   expect(result.current.index).toBe(0)
@@ -22,7 +30,7 @@ it('useStepper starts at the first step with derived state', async () => {
 })
 
 it('useStepper supports navigating through steps', async () => {
-  const { result, act } = await renderHook(() => useStepper(['first', 'second', 'last']))
+  const { result, act } = await renderHook(() => useStepperResult(['first', 'second', 'last']))
 
   expect(result.current.current).toBe('first')
 
@@ -74,7 +82,7 @@ it('useStepper supports navigating through steps', async () => {
 })
 
 it('useStepper can tell the step position', async () => {
-  const { result, act } = await renderHook(() => useStepper(['first', 'second', 'last']))
+  const { result, act } = await renderHook(() => useStepperResult(['first', 'second', 'last']))
 
   // First step
   expect(result.current.isFirst).toBe(true)
@@ -161,7 +169,7 @@ it('useStepper does not navigate to steps that do not exist', async () => {
   // explicitly `string[]` so `goTo` accepts an unknown name (T widens to
   // `string` instead of the literal union) — upstream uses @ts-expect-error
   const steps: string[] = ['first', 'second', 'last']
-  const { result, act } = await renderHook(() => useStepper(steps))
+  const { result, act } = await renderHook(() => useStepperResult(steps))
 
   await act(() => {
     result.current.goTo('unexisting step')
@@ -177,7 +185,7 @@ it('useStepper does not navigate to steps that do not exist', async () => {
 
 it('useStepper exposes the next and previous step names', async () => {
   const { result, act } = await renderHook((props?: { steps?: string[] }) =>
-    useStepper(props?.steps ?? STRING_STEPS))
+    useStepperResult(props?.steps ?? STRING_STEPS))
 
   expect(result.current.next).toBe('Second step')
   expect(result.current.previous).toBeUndefined()
@@ -196,7 +204,7 @@ it('useStepper exposes the next and previous step names', async () => {
 })
 
 it('useStepper supports being initialized with a specific step', async () => {
-  const { result } = await renderHook(() => useStepper(STRING_STEPS, 'Last step'))
+  const { result } = await renderHook(() => useStepperResult(STRING_STEPS, 'Last step'))
 
   expect(result.current.current).toBe('Last step')
   expect(result.current.index).toBe(2)
@@ -205,14 +213,17 @@ it('useStepper supports being initialized with a specific step', async () => {
 })
 
 it('useStepper supports type-specific features (string steps)', async () => {
-  const { result } = await renderHook(() => useStepper(STRING_STEPS))
+  const { result } = await renderHook(() => useStepperResult(STRING_STEPS))
 
   expect(result.current.stepNames).toEqual(['First step', 'Second step', 'Last step'])
   expect(result.current.steps).toEqual(['First step', 'Second step', 'Last step'])
 })
 
 it('useStepper works with number steps (generic)', async () => {
-  const { result, act } = await renderHook(() => useStepper(NUMBER_STEPS))
+  const { result, act } = await renderHook(() => {
+    const [index, setIndex, controls] = useStepper(NUMBER_STEPS)
+    return { index, setIndex, ...controls }
+  })
 
   expect(result.current.current).toBe(1)
   expect(result.current.isFirst).toBe(true)
@@ -241,7 +252,7 @@ it('useStepper works with number steps (generic)', async () => {
 })
 
 it('useStepper can get a step at a specific index', async () => {
-  const { result } = await renderHook(() => useStepper(STRING_STEPS))
+  const { result } = await renderHook(() => useStepperResult(STRING_STEPS))
 
   expect(result.current.at(0)).toBe('First step')
   expect(result.current.at(1)).toBe('Second step')
@@ -250,7 +261,7 @@ it('useStepper can get a step at a specific index', async () => {
 })
 
 it('useStepper can get a step by its name', async () => {
-  const { result } = await renderHook(() => useStepper(STRING_STEPS))
+  const { result } = await renderHook(() => useStepperResult(STRING_STEPS))
 
   expect(result.current.get('First step')).toBe('First step')
   expect(result.current.get('Second step')).toBe('Second step')
@@ -259,7 +270,7 @@ it('useStepper can get a step by its name', async () => {
 })
 
 it('useStepper keeps its control callbacks stable across renders', async () => {
-  const { result, act } = await renderHook(() => useStepper(STRING_STEPS))
+  const { result, act } = await renderHook(() => useStepperResult(STRING_STEPS))
 
   const first = result.current
   await act(() => {
@@ -284,7 +295,7 @@ it('useStepper re-derives when the steps array changes (index preserved)', async
   // mirrors upstream's "steps are reactive": upstream keeps the index while
   // stepNames/current/isLast recompute from the new steps
   const { result, act, rerender } = await renderHook((props?: { steps?: string[] }) =>
-    useStepper(props?.steps ?? STRING_STEPS))
+    useStepperResult(props?.steps ?? STRING_STEPS))
 
   await act(() => {
     result.current.goToNext()
@@ -316,8 +327,137 @@ it('useStepper re-derives when the steps array changes (index preserved)', async
   expect(result.current.next).toBeUndefined()
 })
 
+it('useStepper setIndex updates the returned index', async () => {
+  const { result, act } = await renderHook(() => useStepper(STRING_STEPS))
+
+  expect(result.current[0]).toBe(0)
+  expect(result.current[2].current).toBe('First step')
+
+  await act(() => {
+    result.current[1](2)
+  })
+
+  expect(result.current[0]).toBe(2)
+  expect(result.current[2].current).toBe('Last step')
+  expect(result.current[2].isLast).toBe(true)
+  expect(result.current[2].previous).toBe('Second step')
+
+  // the setter is the plain React `useState` setter: functional updaters work
+  await act(() => {
+    result.current[1](prev => prev - 1)
+  })
+
+  expect(result.current[0]).toBe(1)
+  expect(result.current[2].current).toBe('Second step')
+})
+
+it('useStepper exposes every control on the tuple third slot', async () => {
+  const { result, act } = await renderHook(() => useStepper(STRING_STEPS))
+  const controls = () => result.current[2]
+
+  expect(Object.keys(controls()).sort()).toEqual([
+    'at',
+    'current',
+    'get',
+    'goBackTo',
+    'goTo',
+    'goToNext',
+    'goToPrevious',
+    'isAfter',
+    'isBefore',
+    'isCurrent',
+    'isFirst',
+    'isLast',
+    'isNext',
+    'isPrevious',
+    'next',
+    'previous',
+    'stepNames',
+    'steps',
+  ])
+
+  // value members
+  expect(controls().steps).toEqual(STRING_STEPS)
+  expect(controls().stepNames).toEqual(STRING_STEPS)
+  expect(controls().current).toBe('First step')
+  expect(controls().next).toBe('Second step')
+  expect(controls().previous).toBeUndefined()
+  expect(controls().isFirst).toBe(true)
+  expect(controls().isLast).toBe(false)
+
+  // helper members
+  expect(controls().at(1)).toBe('Second step')
+  expect(controls().get('Last step')).toBe('Last step')
+  expect(controls().isNext('Second step')).toBe(true)
+  expect(controls().isPrevious('Second step')).toBe(false)
+  expect(controls().isCurrent('First step')).toBe(true)
+  expect(controls().isBefore('Second step')).toBe(true)
+  expect(controls().isAfter('Second step')).toBe(false)
+
+  await act(() => {
+    controls().goTo('Last step')
+  })
+  expect(controls().current).toBe('Last step')
+
+  await act(() => {
+    controls().goToPrevious()
+  })
+  expect(controls().current).toBe('Second step')
+
+  await act(() => {
+    controls().goToNext()
+  })
+  expect(controls().current).toBe('Last step')
+
+  await act(() => {
+    controls().goBackTo('First step')
+  })
+  expect(controls().current).toBe('First step')
+})
+
+it('useStepper returns a React tuple [index, setIndex, controls]', async () => {
+  const { result } = await renderHook(() => useStepper(STRING_STEPS))
+
+  expectTypeOf(result.current).toEqualTypeOf<
+    readonly [
+      number,
+      Dispatch<SetStateAction<number>>,
+      {
+        steps: string[]
+        stepNames: string[]
+        current: string
+        next: string | undefined
+        previous: string | undefined
+        isFirst: boolean
+        isLast: boolean
+        at: (index: number) => string | undefined
+        get: (step: string) => string | undefined
+        goTo: (step: string) => void
+        goToNext: () => void
+        goToPrevious: () => void
+        goBackTo: (step: string) => void
+        isNext: (step: string) => boolean
+        isPrevious: (step: string) => boolean
+        isCurrent: (step: string) => boolean
+        isBefore: (step: string) => boolean
+        isAfter: (step: string) => boolean
+      },
+    ]
+  >()
+  expectTypeOf(result.current[0]).toEqualTypeOf<number>()
+  expectTypeOf(result.current[1]).toEqualTypeOf<Dispatch<SetStateAction<number>>>()
+  expectTypeOf(result.current[2].current).toEqualTypeOf<string>()
+
+  expect(Array.isArray(result.current)).toBe(true)
+  expect(result.current).toHaveLength(3)
+  expect(result.current[0]).toBe(0)
+  expect(result.current[1]).toBeTypeOf('function')
+  expect(result.current[2].isFirst).toBe(true)
+  expect(result.current[2].goToNext).toBeTypeOf('function')
+})
+
 function StepperDemo() {
-  const { current, isFirst, isLast, goToNext, goToPrevious } = useStepper(STRING_STEPS)
+  const [, , { current, isFirst, isLast, goToNext, goToPrevious }] = useStepper(STRING_STEPS)
 
   return (
     <div>

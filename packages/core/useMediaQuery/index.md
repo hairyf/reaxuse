@@ -15,6 +15,18 @@ const isLargeScreen = useMediaQuery('(min-width: 1024px)')
 const isPreferredDark = useMediaQuery('(prefers-color-scheme: dark)')
 ```
 
+### Source Forms
+
+`query` is a read-only value source and takes a plain `string` (upstream:
+`MaybeRefOrGetter<string>`). Resolve a React ref or state value at the call site:
+
+```tsx
+const [query, setQuery] = useState('(min-width: 1024px)')
+
+const matches = useMediaQuery(query) // re-binds when `query` changes
+const refMatches = useMediaQuery(queryRef.current) // resolve a React ref at the call site
+```
+
 ### Server Side Rendering
 
 If you are using `useMediaQuery` with SSR enabled, specify which screen size you would like to

@@ -30,8 +30,8 @@ describe('useCycleList', () => {
     expect(result.current.index).toBe(0)
   })
 
-  it('should work with ref', async () => {
-    const list = { current: ['foo', 'bar', 'fooBar'] }
+  it('should work with a plain list and every control', async () => {
+    const list = ['foo', 'bar', 'fooBar']
 
     const { result, act } = await renderHook(() => useCycleList(list))
 
@@ -88,11 +88,8 @@ describe('useCycleList', () => {
 
   describe('when list empty', () => {
     it('returns the correctly data', async () => {
-      const list = { current: ['foo', 'bar', 'fooBar'] }
+      const { result, act } = await renderHook(() => useCycleList<string>([]))
 
-      const { result, act } = await renderHook(() => useCycleList(list))
-
-      list.current = []
       await act(() => result.current.setIndex(2))
 
       expect(result.current.state).toBeUndefined()

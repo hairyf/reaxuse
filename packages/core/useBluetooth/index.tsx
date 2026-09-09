@@ -274,11 +274,16 @@ export function useBluetooth(options: UseBluetoothOptions = {}): UseBluetoothRet
   // Auto-connect to the device's GATT server whenever `device` changes
   // (upstream `watch(device, () => connectToBluetoothGATTServer())`).
   useEffect(() => {
+    // Reset any errors we currently have *before* guarding on the GATT
+    // server (upstream `connectToBluetoothGATTServer` clears the error
+    // unconditionally), so a reset (device becomes undefined) or a
+    // gatt-less device also clears a stale error.
+    setError(null)
+
     if (!device?.gatt)
       return
 
     let cancelled = false
-    setError(null)
     void device.gatt.connect()
       .then((gattServer) => {
         if (cancelled)

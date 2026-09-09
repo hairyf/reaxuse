@@ -102,17 +102,45 @@ describe('useBrowserLocation', () => {
 
   it('should write assigned writable fields through to window.location', async () => {
     const mockWindow = createMockWindow('http://localhost/')
-    const { result } = await renderHook(() => useBrowserLocation({ window: mockWindow as unknown as Window }))
+    const { result, act } = await renderHook(() => useBrowserLocation({ window: mockWindow as unknown as Window }))
 
-    result.current.hash = '#top'
+    await act(() => {
+      result.current.hash = '#top'
+    })
     expect(mockWindow.location.hash).toBe('#top')
 
-    result.current.pathname = '/new-path'
+    await act(() => {
+      result.current.pathname = '/new-path'
+    })
     expect(mockWindow.location.pathname).toBe('/new-path')
 
     // assigning the current value is a no-op
-    result.current.href = 'http://localhost/'
+    await act(() => {
+      result.current.href = 'http://localhost/'
+    })
     expect(mockWindow.location.href).toBe('http://localhost/')
+  })
+
+  it('should read assigned writable fields back from the returned object synchronously', async () => {
+    const mockWindow = createMockWindow('http://localhost/')
+    const { result, act } = await renderHook(() => useBrowserLocation({ window: mockWindow as unknown as Window }))
+
+    // upstream's ref write-back updates the returned reactive object in the same
+    // assignment — no popstate/hashchange event is required
+    await act(() => {
+      result.current.hash = '#top'
+    })
+    expect(result.current.hash).toBe('#top')
+
+    await act(() => {
+      result.current.pathname = '/new-path'
+    })
+    expect(result.current.pathname).toBe('/new-path')
+
+    await act(() => {
+      result.current.search = '?q=1'
+    })
+    expect(result.current.search).toBe('?q=1')
   })
 
   it('should remove its listeners on unmount', async () => {

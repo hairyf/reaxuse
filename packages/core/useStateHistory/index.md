@@ -13,7 +13,7 @@ import { useStateHistory } from '@reaxuse/core'
 import { useState } from 'react'
 
 const [count, setCount] = useState(0)
-const [history, undo, redo, { canUndo, canRedo }] = useStateHistory(count, setCount)
+const [history, undo, redo, { canUndo, canRedo }] = useStateHistory([count, setCount])
 
 setCount(1) // every change commits a history record
 
@@ -34,7 +34,7 @@ is reworked for React hooks:
 
 - **Source as a `[state, setState]` pair** — upstream tracks a writable Vue `Ref` that the hook
   watches and can write synchronously. React state lives in the component, so the source is passed
-  in as the pair `(state, setState)`; commits are driven by an effect on state changes
+  in as the controlled tuple `[state, setState]`; commits are driven by an effect on state changes
   (upstream: `watchIgnorable`).
 - **Watcher becomes an effect** — upstream's `deep` and `flush` watch options don't apply: replace
   the state instead of mutating it, a mutated object does not re-render and stays invisible to the
@@ -64,7 +64,7 @@ import { useStateHistory } from '@reaxuse/core'
 import { useState } from 'react'
 
 const [target, setTarget] = useState({ foo: 1, bar: 2 })
-const [history, undo, redo, controls] = useStateHistory(target, setTarget, { clone: true })
+const [history, undo, redo, controls] = useStateHistory([target, setTarget], { clone: true })
 
 controls.setSource({ foo: 2, bar: 2 }) // committed immediately
 ```
@@ -73,14 +73,14 @@ A full featured clone function can be passed via `clone`, e.g.
 [structuredClone](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone):
 
 ```tsx
-const stateHistory = useStateHistory(target, setTarget, { clone: structuredClone })
+const stateHistory = useStateHistory([target, setTarget], { clone: structuredClone })
 ```
 
 Instead of `clone`, custom `dump` / `parse` functions control serialization and parsing — useful to
 store stringified snapshots:
 
 ```tsx
-const stateHistory = useStateHistory(target, setTarget, {
+const stateHistory = useStateHistory([target, setTarget], {
   dump: JSON.stringify,
   parse: JSON.parse,
 })
@@ -91,7 +91,7 @@ const stateHistory = useStateHistory(target, setTarget, {
 All history is kept by default (unlimited). Set the maximal amount of history with `capacity`:
 
 ```tsx
-const [history, undo, redo, { clear }] = useStateHistory(target, setTarget, {
+const [history, undo, redo, { clear }] = useStateHistory([target, setTarget], {
   capacity: 15, // limit to 15 history records
 })
 

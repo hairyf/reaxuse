@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react'
 import type { UseCssVarReturn } from '../useCssVar'
 import { useEffect, useRef, useState } from 'react'
-import { afterEach, beforeEach, describe, expect, expectTypeOf, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
 import { useCssVar } from '../useCssVar'
 
@@ -93,6 +93,63 @@ describe('useCssVar', () => {
     }
     finally {
       el.remove()
+    }
+  })
+
+  it('builds the observer from the custom window option', async () => {
+    const el = appendElement()
+    // The custom window supplies its own constructor; extending the real one
+    // keeps the observation behavior testable.
+    const observerSpy = vi.fn()
+    class RecordingMutationObserver extends MutationObserver {
+      constructor(callback: MutationCallback) {
+        super(callback)
+        observerSpy()
+      }
+    }
+    const fakeWindow = {
+      MutationObserver: RecordingMutationObserver,
+      getComputedStyle: (target: Element) => window.getComputedStyle(target),
+    } as unknown as Window
+
+    const { result } = await renderHook(() =>
+      useCssVar('--color', el, { initialValue: 'red', observe: true, window: fakeWindow }),
+    )
+
+    expect(result.current[0]).toBe('red')
+    // the global constructor must not be used when a custom window is given
+    expect(observerSpy).toHaveBeenCalledTimes(1)
+
+    el.style.setProperty('--color', 'blue')
+    await expect.poll(() => result.current[0]).toBe('blue')
+  })
+
+  it('silently skips observation when the window has no MutationObserver', async () => {
+    const el = appendElement()
+    const fakeWindow = {
+      getComputedStyle: (target: Element) => window.getComputedStyle(target),
+    } as unknown as Window
+    // The real global constructor exists here, but it must not be used as a
+    // fallback for a window that lacks one.
+    const globalSpy = vi.spyOn(window, 'MutationObserver')
+
+    try {
+      // no throw even though the configured window lacks MutationObserver
+      const { result } = await renderHook(() =>
+        useCssVar('--color', el, { initialValue: 'red', observe: true, window: fakeWindow }),
+      )
+
+      expect(result.current[0]).toBe('red')
+      expect(el.style.getPropertyValue('--color')).toBe('red')
+      expect(globalSpy).not.toHaveBeenCalled()
+
+      // an external change is not observed either
+      el.style.setProperty('--color', 'blue')
+      await new Promise(resolve => setTimeout(resolve, 50))
+      expect(result.current[0]).toBe('red')
+    }
+    finally {
+      globalSpy.mockRestore()
     }
   })
 

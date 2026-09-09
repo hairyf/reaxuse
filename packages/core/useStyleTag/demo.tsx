@@ -1,6 +1,5 @@
 import type { ChangeEvent } from 'react'
 import { useStyleTag } from '@reaxuse/core'
-import { useState } from 'react'
 
 const initialCSS = `
 .react-demo { background: #ad4c2e50; }
@@ -8,19 +7,17 @@ const initialCSS = `
 `.trim()
 
 export default function UseStyleTagDemo() {
-  const [value, setValue] = useState(initialCSS)
-  const { id, css, load, unload, isLoaded } = useStyleTag(initialCSS)
+  const [css, setCss, { id, load, unload, isLoaded }] = useStyleTag(initialCSS)
 
   const updateCss = (event: ChangeEvent<HTMLTextAreaElement>) => {
-    setValue(event.target.value)
-    css(event.target.value)
+    setCss(event.target.value)
   }
 
   return (
     <div>
       <div>
         Edit CSS:
-        <textarea value={value} rows={2} className="w-full" onChange={updateCss} />
+        <textarea value={css} rows={2} className="w-full" onChange={updateCss} />
       </div>
       <button disabled={isLoaded} onClick={load}>
         Load

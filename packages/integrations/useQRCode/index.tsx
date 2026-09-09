@@ -1,5 +1,4 @@
-import type { RefOrValue } from '@reaxuse/shared'
-import { isClient, toValue } from '@reaxuse/shared'
+import { isClient } from '@reaxuse/shared'
 import * as QRCode from 'qrcode'
 import { useEffect, useState } from 'react'
 
@@ -16,9 +15,9 @@ import { useEffect, useState } from 'react'
  *   URL directly (no `.value`, no tuple) — `''` until the first encode
  *   resolves. Exactly like upstream, an empty `text` never encodes, so the
  *   previous data URL is kept (it is not cleared);
- * - `text` accepts a plain value or a ref-like `{ current }` object, resolved
- *   with `toValue` from `@reaxuse/shared` (upstream's `MaybeRefOrGetter`
- *   collapses to `RefOrValue`; zero-argument getters are not supported);
+ * - `text` is the hook's **read-only value source** and takes a plain string
+ *   (upstream: `MaybeRefOrGetter<string>`); a changed `text` prop re-encodes
+ *   on the next render;
  * - the encode is `await`-free but guarded by a `cancelled` flag: when `text`
  *   (or `options`) changes or the component unmounts while an encode is still
  *   pending, the stale promise is ignored, so the last write always wins;
@@ -31,17 +30,17 @@ import { useEffect, useState } from 'react'
  *
  * @__NO_SIDE_EFFECTS__
  * @see https://vueuse.org/useQRCode
- * @param text - the text to encode; plain string or ref-like `{ current }`
+ * @param text - the text to encode (plain string)
  * @param options - `qrcode` `toDataURL` options, memoized by the caller
  * @example
  * const qrcode = useQRCode('https://vueuse.org')
  * qrcode // '' at first, then 'data:image/png;base64,…'
  */
 export function useQRCode(
-  text: RefOrValue<string>,
+  text: string,
   options?: QRCode.QRCodeToDataURLOptions,
 ): string {
-  const value = toValue(text)
+  const value = text
   const [result, setResult] = useState('')
 
   useEffect(() => {

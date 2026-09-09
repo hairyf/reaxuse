@@ -69,13 +69,22 @@ export interface UseConfirmDialogReturn<RevealData, ConfirmData, CancelData> {
  * React divergences:
  * - upstream's `isRevealed` computed ref becomes plain boolean state; the
  *   optional external `shallowRef` parameter becomes a React ref object
- *   (`RefObject<boolean>`) that the controls keep in sync when provided;
+ *   (`RefObject<boolean>`) that the controls keep in sync when provided.
+ *   Upstream's computed reads `revealed.value` live, so an out-of-band write
+ *   is visible immediately; React state re-syncs on the next render only
+ *   (render-time comparison), so a write with no subsequent re-render cannot
+ *   be observed;
  * - `reveal()` still returns a promise that resolves with `{ data,
  *   isCanceled }` when `confirm()` / `cancel()` is called;
  * - upstream's `createEventHook()` on* members become stable subscribe
  *   functions with the `(fn) => { off }` shape, managed with Sets, so they
  *   are identity-stable across renders and compatible with the `useListener`
  *   protocol;
+ * - listener return values are collected with `Promise.all`, mirroring
+ *   upstream `createEventHook().trigger()`: a rejected async listener surfaces
+ *   as an unhandled rejection on the discarded aggregate promise, while a
+ *   synchronous throw propagates to the `reveal()` / `confirm()` / `cancel()`
+ *   caller in both implementations;
  * - the event subscriptions are cleared on unmount (upstream:
  *   `tryOnScopeDispose` inside `createEventHook`'s `on`).
  *
@@ -105,6 +114,15 @@ export function useConfirmDialog<
   revealedRef.current = revealed
 
   const [isRevealed, setIsRevealed] = useState<boolean>(revealed?.current ?? false)
+
+  // Mirror out-of-band writes to the external `revealed` ref (e.g. a modal
+  // closed outside the controls). Upstream's `isRevealed` is
+  // `computed(() => revealed.value)`, so it reflects the ref as soon as it is
+  // read; React state can only re-sync during a render, hence this render-time
+  // comparison (React's "adjusting state when a prop changes" pattern). A
+  // write with no subsequent re-render still cannot be observed.
+  if (revealed && revealed.current !== isRevealed)
+    setIsRevealed(revealed.current)
 
   // Event hooks: upstream `createEventHook()` — one stable subscribe function
   // per event, returning an `off` handle to unsubscribe. The sets are stored
@@ -151,7 +169,12 @@ export function useConfirmDialog<
   const resolveRef = useRef<(result: UseConfirmDialogRevealResult<ConfirmData, CancelData>) => void>(noop)
 
   const reveal = useCallback((data?: RevealData) => {
-    Array.from(revealFns.current).forEach(fn => fn(data as RevealData))
+    // Upstream `createEventHook().trigger()` is
+    // `Promise.all(Array.from(fns).map(fn => fn(...args)))`: collecting the
+    // listener return values lets an async listener's rejection surface on the
+    // (discarded) aggregate promise, exactly as upstream; a synchronous throw
+    // still propagates to this caller.
+    Promise.all(Array.from(revealFns.current).map(fn => fn(data as RevealData)))
     setRevealed(true)
 
     return new Promise<UseConfirmDialogRevealResult<ConfirmData, CancelData>>((resolve) => {
@@ -161,14 +184,16 @@ export function useConfirmDialog<
 
   const confirm = useCallback((data?: ConfirmData) => {
     setRevealed(false)
-    Array.from(confirmFns.current).forEach(fn => fn(data as ConfirmData))
+    // Same `Promise.all` collection as `reveal()` — see the comment there.
+    Promise.all(Array.from(confirmFns.current).map(fn => fn(data as ConfirmData)))
 
     resolveRef.current({ data, isCanceled: false })
   }, [setRevealed])
 
   const cancel = useCallback((data?: CancelData) => {
     setRevealed(false)
-    Array.from(cancelFns.current).forEach(fn => fn(data as CancelData))
+    // Same `Promise.all` collection as `reveal()` — see the comment there.
+    Promise.all(Array.from(cancelFns.current).map(fn => fn(data as CancelData)))
 
     resolveRef.current({ data, isCanceled: true })
   }, [setRevealed])

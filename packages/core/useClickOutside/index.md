@@ -32,7 +32,7 @@ function App() {
 
 ### Return Value
 
-By default, `useClickOutside` returns a `stop` function to remove the event listeners.
+`useClickOutside` returns a `stop` function to remove the event listeners.
 
 ```tsx
 const stop = useClickOutside(target, handler)
@@ -40,6 +40,31 @@ const stop = useClickOutside(target, handler)
 // Later, stop listening
 stop()
 ```
+
+### Controls
+
+If you need more control over triggering the handler, you can use the `controls` option. This returns an object with `stop`, `cancel`, and `trigger` functions.
+
+```tsx
+const { stop, cancel, trigger } = useClickOutside(
+  modalRef,
+  (event) => {
+    setModal(false)
+  },
+  { controls: true },
+)
+
+// cancel prevents the next click from triggering the handler
+cancel()
+
+// trigger manually fires the handler
+trigger(event)
+
+// stop removes all event listeners
+stop()
+```
+
+> As in upstream, `cancel()` suppresses only the next `click` event that reaches the handler: a physical mouse press re-evaluates the flag in the `pointerdown` listener first, so `cancel()` does not block a subsequent physical click.
 
 ### Ignore Elements
 

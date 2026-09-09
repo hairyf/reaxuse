@@ -108,14 +108,16 @@ it('useObjectUrl returns undefined when the object URL API is unavailable', asyn
   }
 })
 
-it('useObjectUrl resolves a ref-like ({ current }) source on re-render', async () => {
-  const source: { current: Blob | null | undefined } = { current: undefined }
-  const { result, rerender } = await renderHook(() => useObjectUrl(source))
+it('useObjectUrl resolves a new object passed on re-render', async () => {
+  const first = new Blob(['a'], { type: 'text/plain' })
+  const { result, rerender } = await renderHook(
+    (props: { object?: Blob | null }) => useObjectUrl(props.object),
+    { initialProps: { object: first as Blob | null } },
+  )
 
-  expect(result.current).toBeUndefined()
+  expect(result.current).toMatch(/^blob:/)
 
-  source.current = new Blob(['hello'], { type: 'text/plain' })
-  await rerender()
+  await rerender({ object: new Blob(['b'], { type: 'text/plain' }) })
 
   expect(result.current).toMatch(/^blob:/)
 })

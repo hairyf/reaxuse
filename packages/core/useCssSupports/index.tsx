@@ -25,7 +25,9 @@ export interface UseCssSupportsReturn {
   /**
    * Whether the current environment supports the given CSS condition /
    * property-value pair. Starts at `options.ssrValue` (default `false`) and
-   * settles once the mount effect runs.
+   * settles once the mount effect runs. When a falsy custom `window` is
+   * passed, the effect never evaluates `CSS.supports`, so the value stays at
+   * `options.ssrValue` (upstream yields `undefined` in that case).
    */
   isSupported: boolean
 }
@@ -62,6 +64,12 @@ type WindowWithCss = Window & {
  *   mount effect, which never runs during render or on the server, so SSR
  *   (and the first client render) produce `options.ssrValue` (default
  *   `false`) without touching `window` — matching upstream's computed;
+ * - a *falsy* custom `window` (e.g. `{ window: null }`) is treated as "no
+ *   window": the mount effect returns early and `isSupported` stays at
+ *   `options.ssrValue` (divergence). Upstream only defaults an `undefined`
+ *   window to `defaultWindow`, so `{ window: null }` reaches
+ *   `window?.CSS.supports(...)` and yields `undefined`; reaxuse deliberately
+ *   keeps the declared `boolean` state instead of surfacing `undefined`;
  * - the two overloads are detected like upstream: a trailing argument that
  *   resolves to an object is treated as the options bag, otherwise two
  *   arguments mean property + value.

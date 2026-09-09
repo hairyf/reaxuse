@@ -21,15 +21,15 @@ const encodedJwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODk
 const { header, payload } = useJwt(encodedJwt)
 ```
 
-or passing a ref-like object to it, the returned values will change along with the source's changes.
+### Value source
+
+`encodedJwt` is the hook's **read-only value source** and takes a plain string (upstream:
+`MaybeRefOrGetter<string>`). The decode is memoized on the token, so a stable token keeps
+`header`/`payload` referentially stable; a changed token re-decodes on the next render:
 
 ```tsx
-import { useJwt } from '@reaxuse/integrations'
-
-const encodedJwt = { current: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.L8i6g3PfcHlioHCCPURC9pmXT7gdJpx3kOoyAfNUwCc' }
-const { header, payload } = useJwt(encodedJwt)
-encodedJwt.current = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImZvbyI6ImJhciJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJmb28iOiJiYXIifQ.S5QwvREUfgEdpB1ljG_xN6NI3HubQ79xx6J1J4dsJmg'
-// header / payload re-decoded on the next render
+const [jwt, setJwt] = useState(encodedJwt)
+const { header, payload } = useJwt(jwt) // setJwt(next) re-decodes on the next render
 ```
 
 Custom header/payload fields via the generic parameters:

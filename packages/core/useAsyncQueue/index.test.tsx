@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
+import { configure } from 'vitest-browser-react/pure'
 import { useAsyncQueue } from '../useAsyncQueue'
 
 describe('useAsyncQueue', () => {
@@ -139,5 +140,39 @@ describe('useAsyncQueue', () => {
     await vi.waitFor(() => {
       expect(onFinishedSpy).toHaveBeenCalledOnce()
     })
+  })
+
+  it.each([null, undefined])('should handle %s tasks gracefully', async (tasks) => {
+    const onFinishedSpy = vi.fn()
+    const { result } = await renderHook(() =>
+      useAsyncQueue(tasks as any, { onFinished: onFinishedSpy }),
+    )
+
+    await vi.waitFor(() => {
+      expect(onFinishedSpy).toHaveBeenCalledOnce()
+    })
+    expect(result.current.activeIndex).toBe(-1)
+    expect(result.current.result).toEqual([])
+  })
+
+  it('should run the queue exactly once under StrictMode', async () => {
+    configure({ reactStrictMode: true })
+    try {
+      const taskSpy = vi.fn(() => Promise.resolve('data'))
+      const onFinishedSpy = vi.fn()
+      const { result } = await renderHook(() =>
+        useAsyncQueue([taskSpy], { onFinished: onFinishedSpy }),
+      )
+
+      await vi.waitFor(() => {
+        expect(result.current.activeIndex).toBe(0)
+        expect(result.current.result[0]).toMatchObject({ state: 'fulfilled', data: 'data' })
+      })
+      expect(taskSpy).toHaveBeenCalledOnce()
+      expect(onFinishedSpy).toHaveBeenCalledOnce()
+    }
+    finally {
+      configure({ reactStrictMode: false })
+    }
   })
 })

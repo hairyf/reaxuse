@@ -35,6 +35,20 @@ const objSorted = useSorted(objArr, (a, b) => a.age - b.age)
 const stateSorted = useSorted(itemsRef)
 ```
 
+### Source Forms
+
+`source` is a read-only value source and takes a plain `readonly T[]` (upstream:
+`MaybeRefOrGetter<T[]>`). Resolve a React ref, state tuple or getter at the call site — the hook
+never writes the source, so no reactive wrapper is accepted:
+
+```tsx
+const [items, setItems] = useState([3, 1, 2])
+
+const sorted = useSorted(items) // re-sorts whenever `items` changes
+const sortedRef = useSorted(itemsRef.current) // resolve a React ref at the call site
+const sortedPlain = useSorted([3, 1, 2]) // a plain literal works too
+```
+
 ### React adjustments
 
 - **Plain value, not a `Ref`** — returns a sorted `T[]` (no `.value`), recomputed with `useMemo`

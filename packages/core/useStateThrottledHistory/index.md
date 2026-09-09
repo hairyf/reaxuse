@@ -13,7 +13,7 @@ import { useStateThrottledHistory } from '@reaxuse/core'
 import { useState } from 'react'
 
 const [count, setCount] = useState(0)
-const [history, undo, redo, { canUndo, canRedo }] = useStateThrottledHistory(count, setCount, { throttle: 1000 })
+const [history, undo, redo, { canUndo, canRedo }] = useStateThrottledHistory([count, setCount], { throttle: 1000 })
 
 setCount(1)
 // first change after a quiet window commits immediately (leading edge)
@@ -37,7 +37,7 @@ is reworked for React hooks:
 
 - **Source as a `[state, setState]` pair** — upstream tracks a writable Vue `Ref` that the hook
   watches and can write synchronously. React state lives in the component, so the source is passed
-  in as the pair `(state, setState)`; commits are driven by an effect on state changes
+  in as the controlled tuple `[state, setState]`; commits are driven by an effect on state changes
   (upstream: `watchIgnorable`).
 - **Watcher becomes an effect** — upstream's `deep` and `flush` watch options don't apply: replace
   the state instead of mutating it, a mutated object does not re-render and stays invisible to the
@@ -71,7 +71,7 @@ import { useStateThrottledHistory } from '@reaxuse/core'
 import { useState } from 'react'
 
 const [target, setTarget] = useState({ foo: 1, bar: 2 })
-const [history, undo, redo, controls] = useStateThrottledHistory(target, setTarget, { clone: true, throttle: 500 })
+const [history, undo, redo, controls] = useStateThrottledHistory([target, setTarget], { clone: true, throttle: 500 })
 
 controls.setSource({ foo: 2, bar: 2 }) // committed on the leading edge
 ```
@@ -81,7 +81,7 @@ controls.setSource({ foo: 2, bar: 2 }) // committed on the leading edge
 All history is kept by default (unlimited). Set the maximal amount of history with `capacity`:
 
 ```tsx
-const [history, undo, redo, { clear }] = useStateThrottledHistory(target, setTarget, {
+const [history, undo, redo, { clear }] = useStateThrottledHistory([target, setTarget], {
   capacity: 15, // limit to 15 history records
 })
 

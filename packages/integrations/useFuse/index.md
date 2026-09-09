@@ -48,14 +48,18 @@ const { results } = useFuse(input, data)
  */
 ```
 
-The inputs can also be ref-like objects (`{ current }`), which stay live across renders:
+### Value sources
+
+`search` and `data` are the hook's **read-only value sources** and take plain values (`string` and
+`readonly DataItem[]`; upstream: `MaybeRefOrGetter`). A changed `search`/`data` prop recomputes on the
+next render:
 
 ```tsx
-const input = { current: 'Jhon D' }
-const { results } = useFuse(input, data)
-input.current = 'Peter'
-// results is recomputed on the next render
+const [search, setSearch] = useState('Jhon D')
+const { results } = useFuse(search, data) // setSearch('Peter') recomputes on the next render
 ```
+
+`options` stays `RefOrValue` (a config object, not a value source).
 
 Options are passed through `fuseOptions`, plus `resultLimit` and `matchAllWhenSearchEmpty`:
 

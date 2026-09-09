@@ -235,20 +235,26 @@ describe('useFetch', () => {
   })
 
   it('should refetch if refetch is set to true', async () => {
-    const url = { current: baseUrl }
-    await renderHook(() => useFetch(url, { refetch: true }))
-    url.current = `${baseUrl}?text`
+    const { rerender } = await renderHook(
+      (props: { url: string }) => useFetch(props.url, { refetch: true }),
+      { initialProps: { url: baseUrl } },
+    )
+    await rerender({ url: `${baseUrl}?text` })
     await vi.waitFor(() => {
       expect(fetchSpy).toBeCalledTimes(2)
     })
   })
 
-  it('should auto refetch when the refetch is set to true and the payload is a ref', async () => {
-    const param = { current: { num: 1 } }
-    await renderHook(() => useFetch(baseUrl, { refetch: true }).post(param))
-    param.current.num = 2
+  it('should auto refetch when refetch is set to true and the payload changes', async () => {
+    const { rerender } = await renderHook(
+      (props: { payload: unknown }) => useFetch(baseUrl, { refetch: true }).post(props.payload),
+      { initialProps: { payload: { num: 1 } } },
+    )
+
+    const callsBefore = fetchSpy.mock.calls.length
+    await rerender({ payload: { num: 2 } })
     await vi.waitFor(() => {
-      expect(fetchSpy).toBeCalledTimes(2)
+      expect(fetchSpy.mock.calls.length).toBeGreaterThan(callsBefore)
     })
   })
 
@@ -820,18 +826,20 @@ describe('useFetch', () => {
     })
   })
 
-  it('should listen url ref change abort previous request', async () => {
-    const url = { current: baseUrl }
+  it('should listen url change abort previous request', async () => {
     const onFetchResponseSpy = vi.fn()
-    const { result } = await renderHook(() => useFetch(url, { refetch: true, immediate: false }))
+    const { result, rerender } = await renderHook(
+      (props: { url: string }) => useFetch(props.url, { refetch: true, immediate: false }),
+      { initialProps: { url: baseUrl } },
+    )
 
     result.current.onFetchResponse(onFetchResponseSpy)
 
-    url.current = `${baseUrl}?t=1`
+    await rerender({ url: `${baseUrl}?t=1` })
     await nextTick()
-    url.current = `${baseUrl}?t=2`
+    await rerender({ url: `${baseUrl}?t=2` })
     await nextTick()
-    url.current = `${baseUrl}?t=3`
+    await rerender({ url: `${baseUrl}?t=3` })
 
     await vi.waitFor(() => {
       expect(onFetchResponseSpy).toBeCalledTimes(1)
@@ -839,10 +847,12 @@ describe('useFetch', () => {
   })
 
   it('should clear error when refetch succeeds after aborting previous request', async () => {
-    const url = { current: `${baseUrl}?delay=50` }
-    const { result } = await renderHook(() => useFetch(url, { refetch: true }).json())
+    const { result, rerender } = await renderHook(
+      (props: { url: string }) => useFetch(props.url, { refetch: true }).json(),
+      { initialProps: { url: `${baseUrl}?delay=50` } },
+    )
     await nextTick()
-    url.current = jsonUrl
+    await rerender({ url: jsonUrl })
     await vi.waitFor(() => {
       expect(result.current.data).toEqual(jsonMessage)
     })
@@ -851,7 +861,6 @@ describe('useFetch', () => {
 
   it('should not overwrite the data of a newer request when a superseded one resolves', async () => {
     const secondMessage = { hello: 'again' }
-    const url = { current: jsonUrl }
     let releaseFirst = () => {}
     const firstReleased = new Promise<void>((resolve) => {
       releaseFirst = resolve
@@ -859,21 +868,24 @@ describe('useFetch', () => {
     const afterFetchSpy = vi.fn()
     const responseSpy = vi.fn()
 
-    const { result } = await renderHook(() => useFetch(url, {
-      refetch: true,
-      async afterFetch(ctx) {
-        afterFetchSpy()
-        if (ctx.data.hello === jsonMessage.hello)
-          await firstReleased
-        return ctx
-      },
-    }).json())
+    const { result, rerender } = await renderHook(
+      (props: { url: string }) => useFetch(props.url, {
+        refetch: true,
+        async afterFetch(ctx) {
+          afterFetchSpy()
+          if (ctx.data.hello === jsonMessage.hello)
+            await firstReleased
+          return ctx
+        },
+      }).json(),
+      { initialProps: { url: jsonUrl } },
+    )
     result.current.onFetchResponse(responseSpy)
 
     await vi.waitFor(() => {
       expect(afterFetchSpy).toHaveBeenCalled()
     })
-    url.current = `${baseUrl}/test?json=${encodeURI(JSON.stringify(secondMessage))}`
+    await rerender({ url: `${baseUrl}/test?json=${encodeURI(JSON.stringify(secondMessage))}` })
     await vi.waitFor(() => {
       expect(result.current.data).toEqual(secondMessage)
     })
@@ -886,29 +898,26 @@ describe('useFetch', () => {
   })
 
   it('should be generated payloadType on execute', async () => {
-    const form: { current: { x: number } | undefined } = { current: undefined }
-    const { result } = await renderHook(() => useFetch(baseUrl).post(form))
+    // `immediate: false` — the payload is a plain value, so the request is
+    // only fired by `execute()` after the payload has been provided.
+    const { result, rerender } = await renderHook(
+      (props: { payload?: unknown }) => useFetch(baseUrl, { immediate: false }).post(props.payload),
+      { initialProps: { payload: undefined as unknown } },
+    )
 
-    await vi.waitFor(() => {
-      expect(fetchSpy).toHaveBeenCalledOnce()
-    })
-    form.current = { x: 1 }
+    await rerender({ payload: { x: 1 } })
     await result.current.execute()
 
     await vi.waitFor(() => {
-      expect(fetchSpyHeaders(1)['Content-Type']).toBe('application/json')
+      expect(fetchSpyHeaders()['Content-Type']).toBe('application/json')
     })
   })
 
   it('should be generated payloadType on execute with formdata', async () => {
-    // `immediate: false` — upstream's immediate request fires on a microtask
-    // after setup (so it already sees the swapped-in FormData); React's mount
-    // effect fires before the test body, so the FormData payload is provided
-    // up-front and only `execute()` runs the request.
-    const form: { current: { x: number } | undefined } = { current: { x: 1 } }
-    const { result } = await renderHook(() => useFetch(baseUrl, { immediate: false }).post(form))
+    // `immediate: false` — the payload is a plain value, so the FormData is
+    // provided up-front and only `execute()` runs the request.
+    const { result } = await renderHook(() => useFetch(baseUrl, { immediate: false }).post(new FormData() as any))
 
-    form.current = new FormData() as any
     await result.current.execute()
 
     await vi.waitFor(() => {

@@ -1,6 +1,4 @@
-import type { RefOrValue } from '@reaxuse/shared'
 import type { JwtDecodeOptions, JwtHeader, JwtPayload } from 'jwt-decode'
-import { toValue } from '@reaxuse/shared'
 import { jwtDecode } from 'jwt-decode'
 import { useMemo, useRef } from 'react'
 
@@ -33,9 +31,9 @@ export interface UseJwtReturn<Payload, Header, Fallback> {
  *
  * Map from @vueuse/integrations `useJwt`
  * (`source/vueuse/packages/integrations/useJwt/`), a wrapper for
- * [`jwt-decode`](https://github.com/auth0/jwt-decode). `encodedJwt` accepts a
- * plain string or a ref-like `{ current }` object, resolved with `toValue`
- * from `@reaxuse/shared`; the decode is memoized on the resolved token, so a
+ * [`jwt-decode`](https://github.com/auth0/jwt-decode). `encodedJwt` is the
+ * hook's **read-only value source** and takes a plain string (upstream:
+ * `MaybeRefOrGetter<string>`); the decode is memoized on the token, so a
  * stable token keeps `header`/`payload` referentially stable across renders.
  *
  * Adjustment for React:
@@ -60,7 +58,7 @@ export function useJwt<
   Header extends object = JwtHeader,
   Fallback = null,
 >(
-  encodedJwt: RefOrValue<string>,
+  encodedJwt: string,
   options: UseJwtOptions<Fallback> = {},
 ): UseJwtReturn<Payload, Header, Fallback> {
   const {
@@ -73,7 +71,7 @@ export function useJwt<
   const onErrorRef = useRef(onError)
   onErrorRef.current = onError
 
-  const token = toValue(encodedJwt)
+  const token = encodedJwt
 
   const decodeWithFallback = <T extends object>(value: string, jwtOptions?: JwtDecodeOptions): T | Fallback => {
     try {

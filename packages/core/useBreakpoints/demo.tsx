@@ -82,7 +82,7 @@ export default function UseBreakpointsDemo() {
       </div>
       <div>
         {' '}
-        greaterThanBreakPoint:
+        isGreaterThanBreakpoint:
         {' '}
         <select
           value={activeBreakpoint}

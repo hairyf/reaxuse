@@ -11,8 +11,18 @@ Reactive `Math.floor`
 ```tsx
 import { useFloor } from '@reaxuse/math'
 
-const value = { current: 45.95 }
+const result = useFloor(45.95) // 45
+```
+
+`value` is a plain read-only `number` (upstream takes `MaybeRefOrGetter<number>`). Re-render with a
+new value — e.g. from `useState` — and the hook recomputes:
+
+```tsx
+import { useFloor } from '@reaxuse/math'
+import { useState } from 'react'
+
+const [value, setValue] = useState(45.95)
 const result = useFloor(value) // 45
 
-value.current = -45.05 // result === -46 on the next render
+setValue(-45.05) // triggers a re-render
 ```

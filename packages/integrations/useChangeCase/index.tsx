@@ -1,7 +1,7 @@
 import type { RefOrValue } from '@reaxuse/shared'
 import type { Options } from 'change-case'
 import type { Dispatch, SetStateAction } from 'react'
-import { isRefLike, toValue } from '@reaxuse/shared'
+import { toValue } from '@reaxuse/shared'
 import * as changeCase from 'change-case'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
@@ -46,20 +46,20 @@ const changeCaseTransforms = /* @__PURE__ */ Object.entries(changeCase)
  * `[value, setValue]` tuple: `value` is the transformed string (`change-case`
  * applied to the internal input state with the current `type`), and
  * `setValue` updates that internal input state like a controlled `useState`.
- * `input`, `type` and `options` accept plain values, ref-like `{ current }`
- * objects or getters, resolved with `toValue` from `@reaxuse/shared`.
+ * `input` is the hook's **read-only value source** and takes a plain `string`
+ * (upstream: `MaybeRef<string>` / `MaybeRefOrGetter<string>`); `type` and
+ * `options` stay `RefOrValue` (format knobs, upstream `MaybeRefOrGetter`) and
+ * are resolved with `toValue` from `@reaxuse/shared`.
  *
  * Adjustment for React:
- * - upstream `ref()` returns the same ref when handed a ref, so Vue ref
- *   inputs are live (read AND written by the computed). Here a ref-like
- *   `{ current }` object or a getter input stays live by re-syncing the
- *   internal state whenever the resolved external value changes between
- *   renders; plain-value inputs are copied once on mount (static, like
- *   upstream's computed captures them at setup). User writes via `setValue`
- *   are never clobbered unless the external source genuinely changed;
- * - upstream's getter overload (read-only `ComputedRef<string>`) collapses
- *   into the same writable tuple — getters are re-evaluated on change, and
- *   `setValue` still writes the internal state;
+ * - upstream's writable computed captures a plain `input` once at setup. Here
+ *   a changed `input` prop re-syncs the internal state on the next render, so
+ *   a parent re-render with a new string is reflected; a `setValue` write is
+ *   never clobbered while the `input` prop is unchanged (the baseline records
+ *   the last externally synced value);
+ * - writes are **not** propagated back to the caller: `setValue` updates the
+ *   internal input state only (upstream's writable computed writes through to
+ *   a ref input). A changed `input` prop always wins over the internal state;
  * - `setValue` writes the RAW string; the transform is re-applied on the next
  *   render (the upstream computed's `get` re-derives from the ref on access).
  *
@@ -71,25 +71,22 @@ const changeCaseTransforms = /* @__PURE__ */ Object.entries(changeCase)
  * changeCase // 'vueUse'
  */
 export function useChangeCase(
-  input: RefOrValue<string>,
+  input: string,
   type: RefOrValue<ChangeCaseType>,
   options?: RefOrValue<Options> | undefined,
 ): UseChangeCaseReturn {
   // internal input state — the writable half of the upstream computed
-  const [text, setText] = useState<string>(() => toValue(input))
+  const [text, setText] = useState<string>(input)
 
-  // keep ref-like inputs live (upstream index.md: "the returned
-  // computed will change along with the source ref's changes"); the baseline
-  // records the last value synced FROM the external source, so a `setValue`
-  // write is only superseded by a genuine external change
-  const lastExternalRef = useRef<string>(toValue(input))
+  // re-sync when the `input` prop changes between renders (upstream's plain
+  // `input` is captured once at setup; React props are the live source). The
+  // baseline records the last value synced FROM the prop, so a `setValue` write
+  // is only superseded by a genuine prop change
+  const lastExternalRef = useRef<string>(input)
   useEffect(() => {
-    if (!isRefLike(input))
-      return
-    const resolved = toValue(input)
-    if (!Object.is(resolved, lastExternalRef.current)) {
-      lastExternalRef.current = resolved
-      setText(resolved)
+    if (!Object.is(input, lastExternalRef.current)) {
+      lastExternalRef.current = input
+      setText(input)
     }
   })
 

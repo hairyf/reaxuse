@@ -11,8 +11,18 @@ Reactive `Math.abs`
 ```tsx
 import { useAbs } from '@reaxuse/math'
 
-const value = { current: -23 }
+const result = useAbs(-23) // 23
+```
+
+`value` is a plain read-only `number` (upstream takes `MaybeRefOrGetter<number>`). Re-render with a
+new value — e.g. from `useState` — and the hook recomputes:
+
+```tsx
+import { useAbs } from '@reaxuse/math'
+import { useState } from 'react'
+
+const [value, setValue] = useState(-23)
 const result = useAbs(value) // 23
 
-value.current = 23 // result === 23 on the next render
+setValue(23) // triggers a re-render
 ```

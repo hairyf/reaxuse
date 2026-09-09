@@ -5,7 +5,7 @@ import { useStateManualHistory } from '../useStateManualHistory'
 
 function ManualHistoryDemo() {
   const [count, setCount] = useState(0)
-  const [history, commit, { setSource, undo, redo, canUndo, canRedo }] = useStateManualHistory(count, setCount)
+  const [history, commit, { setSource, undo, redo, canUndo, canRedo }] = useStateManualHistory([count, setCount])
 
   return (
     <div>
@@ -28,7 +28,7 @@ function ManualHistoryDemo() {
 it('useStateManualHistory should record', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, commit, controls] = useStateManualHistory(v, setV)
+    const [history, commit, controls] = useStateManualHistory([v, setV])
     return { history, commit, controls, v }
   })
 
@@ -48,7 +48,7 @@ it('useStateManualHistory should record', async () => {
 it('useStateManualHistory should be able to undo and redo', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, commit, controls] = useStateManualHistory(v, setV)
+    const [history, commit, controls] = useStateManualHistory([v, setV])
     return { history, commit, controls, v }
   })
 
@@ -111,7 +111,7 @@ it('useStateManualHistory should be able to undo and redo', async () => {
 it('useStateManualHistory object with clone', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState({ foo: 'bar' })
-    const [history, commit, controls] = useStateManualHistory(v, setV, { clone: true })
+    const [history, commit, controls] = useStateManualHistory([v, setV], { clone: true })
     return { history, commit, controls, v }
   })
 
@@ -142,7 +142,7 @@ it('useStateManualHistory object with clone', async () => {
 it('useStateManualHistory object with clone function', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState({ foo: 'bar' })
-    const [history, commit, controls] = useStateManualHistory(v, setV, { clone: x => JSON.parse(JSON.stringify(x)) })
+    const [history, commit, controls] = useStateManualHistory([v, setV], { clone: x => JSON.parse(JSON.stringify(x)) })
     return { history, commit, controls, v }
   })
 
@@ -170,7 +170,7 @@ it('useStateManualHistory object with clone function', async () => {
 it('useStateManualHistory dump + parse', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState({ a: 'bar' })
-    const [history, commit, controls] = useStateManualHistory(v, setV, {
+    const [history, commit, controls] = useStateManualHistory([v, setV], {
       dump: value => JSON.stringify(value),
       parse: value => JSON.parse(value) as { a: string },
     })
@@ -197,7 +197,7 @@ it('useStateManualHistory dump + parse', async () => {
 it('useStateManualHistory reset', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, commit, controls] = useStateManualHistory(v, setV)
+    const [history, commit, controls] = useStateManualHistory([v, setV])
     return { history, commit, controls, v }
   })
 
@@ -258,7 +258,7 @@ it('useStateManualHistory reset', async () => {
 it('useStateManualHistory capacity limits the undo stack', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, commit, controls] = useStateManualHistory(v, setV, { capacity: 2 })
+    const [history, commit, controls] = useStateManualHistory([v, setV], { capacity: 2 })
     return { history, commit, controls, v }
   })
 
@@ -283,7 +283,7 @@ it('useStateManualHistory records are plain objects (upstream: markRaw)', async 
   // by construction in React — there is no reactive proxy to wrap them
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, commit, controls] = useStateManualHistory(v, setV)
+    const [history, commit, controls] = useStateManualHistory([v, setV])
     return { history, commit, controls }
   })
 
@@ -301,7 +301,7 @@ it('useStateManualHistory records are plain objects (upstream: markRaw)', async 
 it('useStateManualHistory commits a value set with the user\'s own setState (cross render)', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, commit, controls] = useStateManualHistory(v, setV)
+    const [history, commit, controls] = useStateManualHistory([v, setV])
     return { history, commit, controls, setV }
   })
 

@@ -18,7 +18,8 @@ export default function UseIDBKeyvalDemo() {
     { name: 'Banana', color: 'Yellow', size: 'Medium', count: 0 },
   )
   const [stateString, setStateString] = useIDBKeyval(`${KEY}-string`, 'foobar')
-  const [stateArray, setStateArray] = useIDBKeyval(`${KEY}-array`, ['foo', 'bar', 'baz'])
+  // explicit generic keeps the array-valued demo state typed as `string[]`
+  const [stateArray, setStateArray] = useIDBKeyval<string[]>(`${KEY}-array`, ['foo', 'bar', 'baz'])
 
   // React has no deep watcher: every edit is an explicit `setData` write
   const patchObject = (patch: Partial<DemoObject>) => {

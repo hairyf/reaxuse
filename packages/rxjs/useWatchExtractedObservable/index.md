@@ -64,6 +64,19 @@ useWatchExtractedObservable(player, (p, onCleanup) => {
 }, setProgress)
 ```
 
+## Source Forms
+
+`value` is a read-only value source and takes a plain `Value | null | undefined` (upstream:
+`T | WatchSource<T>`). Resolve a React ref or state value at the call site; the effect re-runs when
+the value's identity changes or when `deps` change:
+
+```tsx
+const [player, setPlayer] = useState<AudioPlayer | null>(null)
+
+useWatchExtractedObservable(player, p => p.progress$, cb)
+useWatchExtractedObservable(playerRef.current, p => p.progress$, cb) // resolve a ref yourself
+```
+
 ## Subscription Options
 
 | Option       | Type                     | Description                                                 |

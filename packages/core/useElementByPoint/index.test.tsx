@@ -59,21 +59,20 @@ describe('useElementByPoint', () => {
     expect(spy).toHaveBeenCalledWith(50, 60)
   })
 
-  it('resolves x / y as ref-like objects every tick', async () => {
+  it('resolves x / y every tick', async () => {
     const first = createElement('div')
     const second = createElement('span')
     const spy = vi.spyOn(document, 'elementFromPoint').mockReturnValue(first)
 
-    const x = { current: 0 }
-    const y = { current: 0 }
-    const { result, rerender } = await renderHook(() => useElementByPoint({ x, y }))
+    const { result, rerender } = await renderHook(
+      (props: { x: number, y: number }) => useElementByPoint(props),
+      { initialProps: { x: 0, y: 0 } },
+    )
 
     await vi.waitFor(() => expect(result.current.element).toBe(first))
 
     spy.mockReturnValue(second)
-    x.current = 30
-    y.current = 40
-    await rerender()
+    await rerender({ x: 30, y: 40 })
 
     await vi.waitFor(() => expect(result.current.element).toBe(second))
     expect(spy).toHaveBeenCalledWith(30, 40)
