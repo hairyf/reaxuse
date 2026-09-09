@@ -316,7 +316,9 @@ describe('useThrottleFn (component)', () => {
   function UseThrottleFnDemo() {
     const [clicked, setClicked] = useState(0)
     const [updated, setUpdated] = useState(0)
-    const throttledFn = useThrottleFn(() => setUpdated(v => v + 1), 1000, false)
+    // a burst of clicks must stay inside one throttle window even on a loaded
+    // runner, so the window is far larger than any three-click sequence
+    const throttledFn = useThrottleFn(() => setUpdated(v => v + 1), 60_000, false)
 
     return (
       <div>

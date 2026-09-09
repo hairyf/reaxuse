@@ -74,6 +74,10 @@ describe('useWebWorker', () => {
     const messages: string[] = []
     const worker = result.current.worker as Worker
     worker.onerror = (event: ErrorEvent) => {
+      // cancel the event's default action: without this chromium reports the
+      // worker error as an unhandled page error, which leaks into the shared
+      // browser page and fails unrelated tests
+      event.preventDefault()
       messages.push(event.message)
     }
 
@@ -83,6 +87,8 @@ describe('useWebWorker', () => {
 
     await expect.poll(() => messages.length > 0).toBe(true)
     expect(messages[0]).toContain('worker boom')
+
+    worker.terminate()
   })
 
   it('keeps post and terminate stable across re-renders', async () => {

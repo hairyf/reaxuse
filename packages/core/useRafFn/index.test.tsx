@@ -1,8 +1,48 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useRafFn } from '../useRafFn'
 
+/**
+ * Replaces the browser frame clock with a manual one so a test can deliver
+ * exact frame timestamps. The real `requestAnimationFrame` fires at the
+ * display refresh rate: a `vi.waitFor` would resume after an arbitrary number
+ * of frames, so the framerate comparisons observed equal call counts whenever
+ * both loops had only run once.
+ */
+function installManualFrames() {
+  let nextId = 0
+  const callbacks = new Map<number, FrameRequestCallback>()
+
+  vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+    const id = ++nextId
+    callbacks.set(id, callback)
+    return id
+  })
+  vi.spyOn(window, 'cancelAnimationFrame').mockImplementation((id) => {
+    callbacks.delete(id)
+  })
+
+  const frame = (timestamp: number) => {
+    // snapshot first: a callback may schedule the next frame while running
+    const scheduled = [...callbacks.values()]
+    callbacks.clear()
+    for (const callback of scheduled)
+      callback(timestamp)
+  }
+
+  return {
+    /** deliver one frame with `timestamp` to every scheduled callback */
+    frame,
+    /** deliver the frames at each timestamp, in order */
+    frames: (timestamps: number[]) => timestamps.forEach(frame),
+  }
+}
+
 describe('useRafFn', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   it('should be defined', () => {
     expect(useRafFn).toBeDefined()
   })
@@ -67,14 +107,20 @@ describe('useRafFn', () => {
   })
 
   it('should apply a framerate', async () => {
+    const frames = installManualFrames()
     const fn1 = vi.fn()
     const fn2 = vi.fn()
     await renderHook(() => useRafFn(fn1, { fpsLimit: 20 }))
-    await renderHook(() => useRafFn(fn2, { fpsLimit: 60 }))
-    await vi.waitFor(() => {
-      expect(fn1).toHaveBeenCalled()
-      expect(fn2).toHaveBeenCalled()
+    const { act } = await renderHook(() => useRafFn(fn2, { fpsLimit: 60 }))
+
+    // 10ms steps: the 20fps loop (50ms interval) fires twice, the 60fps loop
+    // (16.7ms interval) fires five times — deterministic, not frame-clock bound
+    await act(() => {
+      frames.frames([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110])
     })
+
+    expect(fn1).toHaveBeenCalled()
+    expect(fn2).toHaveBeenCalled()
     expect(fn1.mock.calls.length).toBeLessThan(fn2.mock.calls.length)
   })
 
@@ -87,36 +133,43 @@ describe('useRafFn', () => {
     })
   })
 
-  it('should handle a framerate change', { retry: 3 }, async () => {
+  it('should handle a framerate change', async () => {
+    const frames = installManualFrames()
     const initialFramerate = 60
     const fr = { current: initialFramerate }
     const fn1 = vi.fn()
     const fn2 = vi.fn()
     await renderHook(() => useRafFn(fn1, { fpsLimit: fr }))
-    await renderHook(() => useRafFn(fn2, { fpsLimit: initialFramerate }))
-    await vi.waitFor(() => {
-      expect(fn1).toHaveBeenCalled()
-      expect(fn2).toHaveBeenCalled()
+    const { act } = await renderHook(() => useRafFn(fn2, { fpsLimit: initialFramerate }))
+
+    await act(() => {
+      frames.frames([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110])
     })
-    // potentially flaky ?
+    expect(fn1).toHaveBeenCalled()
+    expect(fn2).toHaveBeenCalled()
     expect(fn1.mock.calls.length).toBe(fn2.mock.calls.length)
+
+    // clearAllMocks drops the call history, not the manual frame clock
     fr.current = 20
     vi.clearAllMocks()
-    await vi.waitFor(() => {
-      expect(fn1).toHaveBeenCalled()
-      expect(fn2).toHaveBeenCalled()
+    await act(() => {
+      frames.frames([200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 310])
     })
+
+    expect(fn1).toHaveBeenCalled()
+    expect(fn2).toHaveBeenCalled()
     expect(fn1.mock.calls.length).toBeLessThan(fn2.mock.calls.length)
   })
 
   it('should only be called once when the once option is set to true', async () => {
+    const frames = installManualFrames()
     const fn = vi.fn()
     const fn1 = vi.fn()
     await renderHook(() => useRafFn(fn, { once: true }))
-    await renderHook(() => useRafFn(fn1))
-    await vi.waitFor(() => {
-      expect(fn).toHaveBeenCalled()
-      expect(fn1).toHaveBeenCalled()
+    const { act } = await renderHook(() => useRafFn(fn1))
+
+    await act(() => {
+      frames.frames([0, 20, 40, 60, 80, 100, 120, 140, 160, 180])
     })
 
     expect(fn.mock.calls.length).toBe(1)

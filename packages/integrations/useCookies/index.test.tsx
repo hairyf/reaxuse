@@ -1,5 +1,5 @@
 import Cookie from 'universal-cookie'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { createCookies, useCookies } from '../useCookies'
 
@@ -28,23 +28,24 @@ vi.mock('universal-cookie', async (importOriginal) => {
   return { ...mod, default: MockedCookie }
 })
 
-const cookieNames = [
-  'testCookie',
-  'testSetRemove',
-  'testDependency',
-  'testEmptyDependencies',
-  'testDoNotParse',
-  'testAutoUpdate',
-  'testCreateCookies',
-]
-
+/**
+ * Removes every cookie on the document. The browser context is shared by all
+ * test files, so a cookie left behind by an earlier test (or a previous run in
+ * the same context) would make the `get()` assertions order-dependent. An
+ * explicit name list is not enough: a test that fails before its cleanup can
+ * leak a name the list does not know about.
+ */
 function clearTestCookies() {
   const cookies = new Cookie()
-  for (const name of cookieNames)
+  for (const name of Object.keys(cookies.getAll()))
     cookies.remove(name)
 }
 
 describe('useCookies', () => {
+  beforeEach(() => {
+    clearTestCookies()
+  })
+
   afterEach(() => {
     clearTestCookies()
   })

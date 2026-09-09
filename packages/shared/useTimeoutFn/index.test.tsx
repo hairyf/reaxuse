@@ -123,11 +123,9 @@ it('useTimeoutFn clears a pending timer on unmount', async () => {
 })
 
 it('useTimeoutFn fires a delayed message in a component', async () => {
-  vi.useRealTimers()
-
   function TimeoutDemo() {
     const [text, setText] = useState('Please wait for 1 second')
-    const { isPending, start } = useTimeoutFn(() => setText('Fired!'), 20, { immediate: false })
+    const { isPending, start } = useTimeoutFn(() => setText('Fired!'), 300, { immediate: false })
 
     return (
       <div>
@@ -142,5 +140,8 @@ it('useTimeoutFn fires a delayed message in a component', async () => {
 
   await screen.getByRole('button', { name: 'Start' }).click()
   await expect.element(screen.getByText('pending')).toBeVisible()
+
+  // the timer is faked: fire it explicitly instead of racing a real delay
+  await vi.advanceTimersByTimeAsync(300)
   await expect.element(screen.getByText('Fired!')).toBeVisible()
 })

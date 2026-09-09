@@ -42,19 +42,16 @@ describe('useWebWorkerFn', () => {
 
   it('tracks workerStatus from RUNNING to SUCCESS', async () => {
     const { result, act } = await renderHook(() => useWebWorkerFn(() => {
-      // busy-wait inside the worker thread so RUNNING stays observable
-      const start = Date.now()
-      while (Date.now() - start < 150) {
-        // noop
-      }
-      return 42
+      // resolve on a worker-side timer so RUNNING is observable without a
+      // busy-wait that could finish before the assertion runs
+      return new Promise<number>(resolve => setTimeout(resolve, 100, 42))
     }))
 
     await act(() => {
       void result.current.workerFn()
     })
 
-    await expect.poll(() => result.current.workerStatus).toBe('RUNNING')
+    expect(result.current.workerStatus).toBe('RUNNING')
     await expect.poll(() => result.current.workerStatus).toBe('SUCCESS')
   })
 
@@ -91,18 +88,15 @@ describe('useWebWorkerFn', () => {
 
   it('rejects a second workerFn call while one is running', async () => {
     const { result, act } = await renderHook(() => useWebWorkerFn(() => {
-      // busy-wait inside the worker thread so the first call stays RUNNING
-      const start = Date.now()
-      while (Date.now() - start < 300) {
-        // noop
-      }
-      return 1
+      // the worker stays RUNNING for 200ms, so the guard is reached long
+      // before the first call could settle
+      return new Promise<number>(resolve => setTimeout(resolve, 200, 1))
     }))
 
     await act(() => {
       void result.current.workerFn()
     })
-    await expect.poll(() => result.current.workerStatus).toBe('RUNNING')
+    expect(result.current.workerStatus).toBe('RUNNING')
 
     const second = result.current.workerFn()
     await expect(second).rejects.toBeUndefined()
@@ -113,18 +107,15 @@ describe('useWebWorkerFn', () => {
 
   it('terminates the running worker and allows a new call afterwards', async () => {
     const { result, act } = await renderHook(() => useWebWorkerFn(() => {
-      // busy-wait inside the worker thread so the first call stays RUNNING
-      const start = Date.now()
-      while (Date.now() - start < 200) {
-        // noop
-      }
-      return 42
+      // resolves on a worker-side timer, so the worker is still RUNNING when
+      // the test terminates it synchronously below
+      return new Promise<number>(resolve => setTimeout(resolve, 100, 42))
     }))
 
     await act(() => {
       void result.current.workerFn()
     })
-    await expect.poll(() => result.current.workerStatus).toBe('RUNNING')
+    expect(result.current.workerStatus).toBe('RUNNING')
 
     await act(() => {
       result.current.workerTerminate('PENDING')
