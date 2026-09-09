@@ -84,3 +84,26 @@ import { useRef } from 'react'
 const show = useRef(false)
 const { isRevealed, reveal, confirm, cancel } = useConfirmDialog(show)
 ```
+
+## Divergences from upstream
+
+- **`isRevealed` is state, not a computed ref.** Upstream returns
+  `computed(() => revealed.value)`, which reads the ref live, so writing to the
+  external ref out of band (for example closing the modal outside the controls)
+  is visible immediately. The React port keeps `isRevealed` in `useState` and
+  re-syncs it from the external ref during render, so an out-of-band write is
+  mirrored on the **next render only** — a write with no subsequent re-render
+  cannot be observed. Prefer driving the dialog through `reveal()` /
+  `confirm()` / `cancel()`, which update state and ref together.
+- **Listener return values are collected with `Promise.all`.** Upstream's
+  `createEventHook().trigger()` is
+  `Promise.all(Array.from(fns).map(fn => fn(...args)))` and the returned
+  promise is discarded, so a rejected async listener becomes an unhandled
+  rejection. The port collects return values the same way: rejections from
+  async listeners surface as unhandled rejections, while a synchronous throw
+  inside a listener propagates out of the calling `reveal()` / `confirm()` /
+  `cancel()` (identical to upstream).
+- **Subscriptions are cleared on unmount.** Upstream relies on
+  `tryOnScopeDispose` inside `createEventHook`'s `on`; React has no effect
+  scope, so the port clears its listener sets in an unmount effect. Use the
+  `off` handle or `useListener` for finer-grained cleanup.

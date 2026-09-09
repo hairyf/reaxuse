@@ -26,6 +26,33 @@ describe('useConfirmDialog', () => {
     expect(result.current.isRevealed).toBe(false)
   })
 
+  it('mirrors an out-of-band external `revealed` write into `isRevealed` on the next render', async () => {
+    const show = { current: false }
+
+    const { result, act, rerender } = await renderHook(() => useConfirmDialog(show))
+
+    await act(async () => {
+      result.current.reveal()
+    })
+    expect(result.current.isRevealed).toBe(true)
+
+    // external write — e.g. the modal was closed outside the controls
+    show.current = false
+
+    await act(async () => {
+      await rerender()
+    })
+    expect(result.current.isRevealed).toBe(false)
+
+    // and the other direction
+    show.current = true
+
+    await act(async () => {
+      await rerender()
+    })
+    expect(result.current.isRevealed).toBe(true)
+  })
+
   it('should close on cancel', async () => {
     const show = { current: false }
 
@@ -263,5 +290,40 @@ describe('useConfirmDialog', () => {
     unmount()
     result.current.cancel()
     expect(calls).toHaveBeenCalledTimes(1)
+  })
+
+  it('collects listener return values with `Promise.all` (upstream trigger parity)', async () => {
+    // a thenable whose `then` is only called if the hook collects the return
+    // value through `Promise.all`, as upstream `createEventHook().trigger()` does
+    const then = vi.fn()
+    const thenable = {
+      then: (resolve: () => void) => {
+        then()
+        resolve()
+      },
+    }
+
+    const { result, act } = await renderHook(() => useConfirmDialog())
+
+    result.current.onConfirm(() => thenable)
+
+    await act(async () => {
+      result.current.reveal()
+    })
+    await act(async () => {
+      result.current.confirm()
+    })
+
+    await vi.waitFor(() => expect(then).toHaveBeenCalledTimes(1))
+  })
+
+  it('propagates a synchronous listener error to the caller (upstream parity)', async () => {
+    const { result } = await renderHook(() => useConfirmDialog())
+
+    result.current.onReveal(() => {
+      throw new Error('listener boom')
+    })
+
+    expect(() => result.current.reveal()).toThrowError('listener boom')
   })
 })
