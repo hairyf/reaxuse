@@ -53,6 +53,9 @@ export interface UseMousePressedOptions extends ConfigurableWindow {
   onReleased?: (event: MouseEvent | TouchEvent | DragEvent) => void
 }
 
+/** @deprecated use {@link UseMousePressedOptions} instead */
+export type MousePressedOptions = UseMousePressedOptions
+
 export interface UseMousePressedReturn {
   pressed: boolean
   sourceType: UseMouseSourceType
@@ -110,7 +113,12 @@ export function useMousePressed(options: UseMousePressedOptions = {}): UseMouseP
   const trackedTarget = toValue(options.target)
 
   useEffect(() => {
-    const instance = win ?? (typeof window === 'undefined' ? undefined : window)
+    // upstream `defaultWindow`: only an `undefined` window falls back to the
+    // global one (SSR-safe); an explicit falsy `window` (e.g. `null`, as
+    // `iframe.contentWindow` can be) is inert and attaches no listeners
+    const instance = win !== undefined
+      ? win
+      : (typeof window === 'undefined' ? undefined : window)
     if (!instance)
       return
 
