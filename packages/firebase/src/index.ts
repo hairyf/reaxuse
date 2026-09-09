@@ -7,5 +7,5 @@
 
 // export * from './useAuth'
 // export * from './useFirestore'
-// export * from './useRTDB'
+export * from './useRTDB'
 export {}
