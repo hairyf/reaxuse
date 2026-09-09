@@ -218,17 +218,16 @@ export function useFileDialog(options: UseFileDialogOptions = {}): UseFileDialog
   const capture = toValue(options.capture)
   const directory = toValue(options.directory)
 
-  // React analog of upstream's `watchEffect(() => applyOptions(options))`.
+  // React analog of upstream's `watchEffect(() => applyOptions(options))` —
+  // reuse `applyOptions` instead of duplicating its assignments. The
+  // unwrapped option values are deps so a ref-like source's `.current` change
+  // across a re-render re-applies the attributes, and `resolvedInput` is a dep
+  // so swapping a ref-like input applies the attributes to the newly wired
+  // element immediately (upstream's `watchEffect` reapplies without waiting
+  // for the next `open()`).
   useEffect(() => {
-    const el = inputRef.current
-    if (!el)
-      return
-    el.multiple = multiple!
-    el.accept = accept!
-    el.webkitdirectory = directory!
-    if (hasOwn(options, 'capture'))
-      el.capture = capture!
-  }, [multiple, accept, capture, directory, options])
+    applyOptions(options)
+  }, [multiple, accept, capture, directory, options, resolvedInput, applyOptions])
 
   const reset = useCallback(() => {
     setFiles(null)
