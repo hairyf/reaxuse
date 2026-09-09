@@ -2,6 +2,11 @@ import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+// `Pausable`'s neutral home (upstream defines it in `@vueuse/shared`).
+// Re-exported here so hooks whose default scheduler is `useRafFn` (e.g.
+// `useElementByPoint`) import it from the scheduler they actually use.
+export type { Pausable } from '../useTimeoutPoll'
+
 export interface UseRafFnCallbackArguments {
   /**
    * Time elapsed between this and the last frame.
