@@ -4,7 +4,7 @@ category: Animation
 
 # useRafFn
 
-Call function on every `requestAnimationFrame`
+Call function on every `requestAnimationFrame`. With controls of pausing and resuming.
 
 ## Usage
 
@@ -16,6 +16,6 @@ const [count, setCount] = useState(0)
 
 const { pause, resume } = useRafFn(() => {
   setCount(c => c + 1)
-  console.log(count)
+  console.log(count + 1)
 })
 ```
