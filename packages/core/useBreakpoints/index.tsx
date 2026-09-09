@@ -210,7 +210,10 @@ export type UseBreakpointReturn<K extends string = string> = Record<K, boolean> 
  * - SSR via the `ssrWidth` option is evaluated inside the `useMediaQuery`
  *   mount effects, so the server renders the `false`/empty default without
  *   touching `window` and the simulated values appear after hydration —
- *   same caveat as `useMediaQuery`.
+ *   same caveat as `useMediaQuery`;
+ * - upstream's global SSR-width store (`useSSRWidth` / `provideSSRWidth`) is
+ *   intentionally not ported: only the per-hook `ssrWidth` option exists, so
+ *   every call that needs SSR rendering must pass it (see `index.md`).
  *
  * @example
  * const breakpoints = useBreakpoints(breakpointsTailwind)

@@ -93,6 +93,9 @@ const breakpoints = useBreakpoints(breakpointsTailwind, {
 })
 ```
 
+Unlike VueUse, reaxuse does not provide a global SSR-width store (`useSSRWidth` / `provideSSRWidth`):
+`ssrWidth` is a per-hook option only, so pass it to every `useBreakpoints` call that needs it.
+
 ## Presets
 
 - Tailwind: `breakpointsTailwind`
@@ -106,8 +109,8 @@ const breakpoints = useBreakpoints(breakpointsTailwind, {
 - Prime Flex: `breakpointsPrimeFlex`
 - ElementUI / ElementPlus: `breakpointsElement`
 
-_Breakpoint presets are deliberately not auto-imported, as they do not start with `use` to have the scope of VueUse. They
-have to be explicitly imported:_
+_Breakpoint presets are standalone exported objects (they are not returned by `useBreakpoints`), so import the preset you
+need explicitly:_
 
 ```js
 import { breakpointsTailwind } from '@reaxuse/core'
