@@ -100,6 +100,39 @@ describe('useDark', () => {
     expect(onChanged).toHaveBeenCalled()
   })
 
+  it('writes through a custom storageRef instead of localStorage', async () => {
+    const storageRef = { current: 'light' as BasicColorSchema }
+    const { result, act } = await renderHook(() => useDark({ initialValue: 'light', storageRef }))
+
+    expect(result.current[0]).toBe(false)
+    expect(localStorage.getItem('vueuse-color-scheme')).toBeNull()
+
+    await act(() => {
+      result.current[1]()
+    })
+
+    expect(result.current[0]).toBe(true)
+    expect(storageRef.current).toBe('dark')
+    // the persistence layer is skipped entirely — nothing reaches localStorage
+    expect(localStorage.getItem('vueuse-color-scheme')).toBeNull()
+  })
+
+  it('isolates storageKey:null instances from each other', async () => {
+    const first = await renderHook(() => useDark({ initialValue: 'light', storageKey: null }))
+    const second = await renderHook(() => useDark({ initialValue: 'light', storageKey: null }))
+
+    expect(first.result.current[0]).toBe(false)
+    expect(second.result.current[0]).toBe(false)
+
+    await first.act(() => {
+      first.result.current[1]()
+    })
+
+    expect(first.result.current[0]).toBe(true)
+    // no shared storage backend/listener — the other instance must NOT flip
+    expect(second.result.current[0]).toBe(false)
+  })
+
   it('component', async () => {
     // The upstream `UseDark` Vue component wrapper has no React port; this
     // exercises the same behavior — a component calling `toggleDark` — through
