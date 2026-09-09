@@ -57,6 +57,20 @@ describe('useDeviceMotion', () => {
     expect(result.current.rotationRate).toEqual({ alpha: 1, beta: 2, gamma: 3 })
   })
 
+  it('should respect a suppressing eventFilter', async () => {
+    const filter = vi.fn(() => {}) // never invokes the wrapped handler
+    const { result, act } = await renderHook(() => useDeviceMotion({ eventFilter: filter }))
+
+    await act(() => {
+      dispatchDeviceMotion({ acceleration: { x: 9, y: 9, z: 9 }, interval: 100 })
+    })
+
+    expect(filter).toHaveBeenCalledTimes(1)
+    expect(result.current.acceleration).toEqual(DEFAULT_ACCELERATION)
+    expect(result.current.rotationRate).toEqual(DEFAULT_ROTATION_RATE)
+    expect(result.current.interval).toBe(0)
+  })
+
   it('should resolve isSupported matching the current environment', async () => {
     const { result } = await renderHook(() => useDeviceMotion())
 
