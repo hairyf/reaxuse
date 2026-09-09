@@ -1,6 +1,3 @@
-import type { RefOrValue } from '@reaxuse/shared'
-import { toValue } from '@reaxuse/shared'
-
 /**
  * Projection function type — `ProjectorFunction<F, T>` maps an input from the
  * source domain to the target domain.
@@ -19,17 +16,13 @@ function defaultNumericProjector(input: number, from: readonly [number, number],
  * value on every render; pure derived value — no reactive `.value`, the caller
  * drives re-renders.
  *
- * `input` is a plain read-only `number`, not upstream's
- * `MaybeRefOrGetter<number>`; the caller re-renders with a new value.
- *
- * `fromDomain` and `toDomain` stay `RefOrValue<readonly [number, number]>`
- * (plain tuple or React ref): their value *is* a 2-element array, which
- * collides with the React state-tuple form and would make the domain ambiguous
- * with a controlled state pair.
+ * React divergence: `input`, `fromDomain` and `toDomain` are all plain
+ * read-only values, not upstream's `MaybeRefOrGetter<...>`. The caller
+ * re-renders with new values (e.g. from `useState`) and the hook recomputes.
  *
  * @param input - The input value to project.
- * @param fromDomain - The source domain (plain `readonly [number, number]` or React ref).
- * @param toDomain - The target domain (plain `readonly [number, number]` or React ref).
+ * @param fromDomain - The source domain (a plain `readonly [number, number]`).
+ * @param toDomain - The target domain (a plain `readonly [number, number]`).
  * @param projector - The projector function (defaults to the linear numeric projector).
  * @returns The projected number.
  *
@@ -39,9 +32,9 @@ function defaultNumericProjector(input: number, from: readonly [number, number],
  */
 export function useProjection(
   input: number,
-  fromDomain: RefOrValue<readonly [number, number]>,
-  toDomain: RefOrValue<readonly [number, number]>,
+  fromDomain: readonly [number, number],
+  toDomain: readonly [number, number],
   projector: ProjectorFunction<number, number> = defaultNumericProjector,
 ): number {
-  return projector(input, toValue(fromDomain), toValue(toDomain))
+  return projector(input, fromDomain, toDomain)
 }

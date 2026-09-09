@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useProjection } from '../useProjection'
@@ -34,22 +34,26 @@ describe('useProjection', () => {
     expect(result.current.projected).toBe(80)
   })
 
-  it('accepts React refs for the domains', async () => {
+  it('recomputes on the next render when the domains change', async () => {
     const { result, rerender, act } = await renderHook(() => {
-      const [input, setInput] = useState(5)
-      const from = useRef<readonly [number, number]>([0, 10])
-      const to = useRef<readonly [number, number]>([0, 100])
-      return { projected: useProjection(input, from, to), setInput, from, to }
+      const [input, setInput] = useState(10)
+      const [from, setFrom] = useState<readonly [number, number]>([0, 10])
+      const [to, setTo] = useState<readonly [number, number]>([0, 100])
+      return { projected: useProjection(input, from, to), setInput, setFrom, setTo }
     })
 
-    expect(result.current.projected).toBe(50)
+    expect(result.current.projected).toBe(100)
 
-    await act(() => {
-      result.current.from.current = [0, 20]
-      result.current.to.current = [0, 200]
-    })
-    await act(() => result.current.setInput(10))
+    await act(() => result.current.setTo([0, 200]))
+    await rerender()
+    expect(result.current.projected).toBe(200)
+
+    await act(() => result.current.setFrom([0, 20]))
     await rerender()
     expect(result.current.projected).toBe(100)
+
+    await act(() => result.current.setInput(5))
+    await rerender()
+    expect(result.current.projected).toBe(50)
   })
 })

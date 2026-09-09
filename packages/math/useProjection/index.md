@@ -19,16 +19,15 @@ setInput(5) // projected === 50 on the next render
 setInput(10) // projected === 100 on the next render
 ```
 
-`input` is a plain read-only `number` (upstream takes `MaybeRefOrGetter<number>`); re-render with a
-new value and the hook recomputes.
-
-`fromDomain` and `toDomain` stay `RefOrValue<readonly [number, number]>` — a plain tuple or a React
-ref — because their value _is_ a 2-element array, which would be ambiguous with a React state tuple:
+`input`, `fromDomain` and `toDomain` are plain read-only values (upstream takes `MaybeRefOrGetter<...>`).
+Re-render with new values — e.g. from `useState` — and the hook recomputes:
 
 ```tsx
 import { useProjection } from '@reaxuse/math'
-import { useRef } from 'react'
+import { useState } from 'react'
 
-const from = useRef<readonly [number, number]>([0, 10])
+const [from, setFrom] = useState<readonly [number, number]>([0, 10])
 const projected = useProjection(5, from, [0, 100])
+
+setFrom([0, 20]) // triggers a re-render
 ```
