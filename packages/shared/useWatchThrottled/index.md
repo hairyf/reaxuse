@@ -23,11 +23,12 @@ useWatchThrottled(
 
 ### Options
 
-| Option     | Type                                   | Default | Description                               |
-| ---------- | -------------------------------------- | ------- | ----------------------------------------- |
-| `throttle` | `RefOrValue<number> \| (() => number)` | `0`     | Throttle interval in ms (can be reactive) |
-| `trailing` | `boolean`                              | `true`  | Invoke on the trailing edge               |
-| `leading`  | `boolean`                              | `true`  | Invoke on the leading edge                |
+| Option      | Type                 | Default | Description                                                              |
+| ----------- | -------------------- | ------- | ------------------------------------------------------------------------ |
+| `throttle`  | `RefOrValue<number>` | `0`     | Throttle interval in ms (can be reactive)                                |
+| `trailing`  | `boolean`            | `true`  | Invoke on the trailing edge                                              |
+| `leading`   | `boolean`            | `true`  | Invoke on the leading edge                                               |
+| `immediate` | `boolean`            | `false` | Fire the callback once on mount with the current value (still throttled) |
 
 ### Leading and Trailing
 

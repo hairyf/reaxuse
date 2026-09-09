@@ -5,8 +5,8 @@ import { useWatch } from '../useWatch'
 
 export interface UseWatchThrottledOptions {
   /**
-   * Throttle interval in milliseconds. Accepts a plain number, a ref-like
-   * `{ current }` or a getter — re-read on every source change.
+   * Throttle interval in milliseconds. Accepts a plain number or a ref-like
+   * `{ current }` — re-read on every source change.
    *
    * @default 0
    */
