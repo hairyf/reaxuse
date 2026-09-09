@@ -1,3 +1,4 @@
+import { useLayoutEffect } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useScrollLock } from '../useScrollLock'
@@ -164,6 +165,75 @@ describe('useScrollLock', () => {
       result.current[1](false)
     })
     expect(targetEl.style.overflow).toBe('')
+  })
+
+  it('locks a ref attached after mount', async () => {
+    const el: { current: HTMLElement | null } = { current: null }
+
+    const { result, act } = await renderHook(() => useScrollLock(el))
+
+    // no element yet — the call is a no-op (upstream parity)
+    await act(() => {
+      result.current[1](true)
+    })
+    expect(result.current[0]).toBe(false)
+    expect(targetEl.style.overflow).toBe('')
+
+    // attach after mount without a re-render: the target is resolved at call
+    // time, so the lock lands (upstream re-resolves `toValue(element)` in the
+    // setter)
+    el.current = targetEl
+    await act(() => {
+      result.current[1](true)
+    })
+    expect(targetEl.style.overflow).toBe('hidden')
+    expect(result.current[0]).toBe(true)
+
+    await act(() => {
+      result.current[1](false)
+    })
+    expect(targetEl.style.overflow).toBe('')
+    expect(result.current[0]).toBe(false)
+  })
+
+  it('records the initial overflow for a ref attached during the mount commit', async () => {
+    targetEl.style.overflow = 'auto'
+    const el: { current: HTMLElement | null } = { current: null }
+
+    const { result, act } = await renderHook(() => {
+      // React attaches element refs before passive effects run, so this mirrors
+      // the documented `ref={el}` usage: empty at render time, populated by the
+      // time the hook's sync effect runs
+      useLayoutEffect(() => {
+        el.current = targetEl
+      }, [])
+      return useScrollLock(el)
+    })
+
+    await act(() => {
+      result.current[1](true)
+    })
+    expect(targetEl.style.overflow).toBe('hidden')
+
+    await act(() => {
+      result.current[1](false)
+    })
+    expect(targetEl.style.overflow).toBe('auto')
+  })
+
+  it('treats a callback ref as unreadable instead of throwing', async () => {
+    // `Ref<T>` includes `RefCallback<T>`, which cannot be read synchronously
+    const { result, act } = await renderHook(() => useScrollLock(() => {}))
+
+    await act(() => {
+      result.current[1](true)
+    })
+    expect(result.current[0]).toBe(false)
+
+    await act(() => {
+      result.current[1](false)
+    })
+    expect(result.current[0]).toBe(false)
   })
 
   it('re-syncs the lock when the element changes', async () => {

@@ -53,11 +53,17 @@ function resolveTargetElement(
 }
 
 /**
- * Unwraps the hook's target input: a React ref contributes its `current`,
- * anything else passes through (callback refs are not readable and pass
- * through unchanged, matching `toValue` semantics).
+ * Unwraps the hook's target input: a React ref object (`{ current }`)
+ * contributes its `current`, a plain element / `Window` / `Document` passes
+ * through. A function target is the `RefCallback` arm of `Ref<T>` — a setter,
+ * not the zero-argument getter upstream's `toValue` would invoke — so it
+ * cannot be read synchronously and resolves to no element instead of being
+ * called or mistaken for an element.
  */
 function unwrapTarget(target: ScrollLockTarget): ScrollLockElement {
+  if (typeof target === 'function')
+    return undefined
+
   if (target !== null && typeof target === 'object' && 'current' in target)
     return target.current ?? undefined
 
@@ -142,13 +148,20 @@ const elInitialOverflow = new WeakMap<HTMLElement, CSSStyleDeclaration['overflow
  *   setter is stable, and the internal lock flag updates synchronously so
  *   repeated calls in one tick behave like upstream's sync ref.
  * - the element is accepted as a plain element (or `Window` / `Document`) or
- *   a ref-like `{ current }` object. Mutating a ref-like
- *   `.current` does not re-render — re-render with the new element for the
- *   lock to re-sync, mirroring upstream's `watch` re-firing on ref change.
+ *   a ref-like `{ current }` object, and is re-resolved when `lock` /
+ *   `unlock` run and when the sync / cleanup effects run, so a ref attached
+ *   after the first render is locked and unlocked exactly as upstream does
+ *   (upstream re-resolves `toValue(element)` inside `lock`/`unlock`). A
+ *   function target is the `RefCallback` arm of `Ref<T>` and cannot be read
+ *   synchronously, so it resolves to no element. Mutating a ref-like
+ *   `.current` while locked does not re-sync the DOM without a re-render —
+ *   re-render for the sync effect to run again, mirroring upstream's `watch`
+ *   re-firing on ref change.
  * - the immediate `watch(element, …)` sync becomes an effect keyed on the
- *   resolved element identity: it records the element's initial overflow,
- *   adopts an already-`hidden` element as locked (external CSS or another
- *   hook instance), and applies `hidden` while locked.
+ *   render-time resolved element identity that re-resolves the target when it
+ *   runs (commit time): it records the element's initial overflow, adopts an
+ *   already-`hidden` element as locked (external CSS or another hook
+ *   instance), and applies `hidden` while locked.
  * - `tryOnScopeDispose(unlock)` becomes an unmount cleanup restoring the
  *   element's initial overflow. The state flip is skipped in the cleanup on
  *   purpose: it is unobservable after a real unmount, and keeping the
@@ -174,20 +187,29 @@ export function useScrollLock(
 ): UseScrollLockReturn {
   const [isLocked, setIsLocked] = useState(initialState)
 
-  // latest-value refs synced each render so the stable lock/unlock callbacks
-  // and the unmount cleanup always operate on the newest resolved element
-  const elementRef = useRef<HTMLElement | SVGElement | null | undefined>(undefined)
+  // latest-value mirror of the raw target, synced each render (house pattern):
+  // the element is resolved from it when `lock` / `unlock` run and when the
+  // effects run (commit time), so a ref attached after the first render is
+  // still honoured — upstream re-resolves `toValue(element)` the same way
+  const targetRef = useRef<ScrollLockTarget>(element)
+  targetRef.current = element
+
   const isLockedRef = useRef(initialState)
   const initialOverflowRef = useRef<CSSStyleDeclaration['overflow']>('')
   const stopTouchMoveRef = useRef<(() => void) | null>(null)
 
-  // resolve the target during render — a pure unwrap (ref-like `.current`
-  // read), no DOM access — so SSR renders the bare state
+  // resolved during render only to key the sync effect on the element identity
+  // (a pure unwrap — ref-like `.current` read — no DOM access, so SSR renders
+  // the bare state)
   const target = resolveTargetElement(unwrapTarget(element))
-  elementRef.current = target
+
+  const resolveCurrentElement = useCallback(
+    () => resolveTargetElement(unwrapTarget(targetRef.current)),
+    [],
+  )
 
   const lock = useCallback(() => {
-    const ele = elementRef.current
+    const ele = resolveCurrentElement()
     if (!ele || isLockedRef.current)
       return
 
@@ -204,10 +226,10 @@ export function useScrollLock(
     ele.style.overflow = 'hidden'
     isLockedRef.current = true
     setIsLocked(true)
-  }, [])
+  }, [resolveCurrentElement])
 
   const unlock = useCallback(() => {
-    const ele = elementRef.current
+    const ele = resolveCurrentElement()
     if (!ele || !isLockedRef.current)
       return
 
@@ -218,7 +240,7 @@ export function useScrollLock(
     elInitialOverflow.delete(ele as HTMLElement)
     isLockedRef.current = false
     setIsLocked(false)
-  }, [])
+  }, [resolveCurrentElement])
 
   const setIsLockedStable = useCallback((value: boolean) => {
     if (value)
@@ -229,9 +251,11 @@ export function useScrollLock(
 
   // mirror of upstream's immediate `watch(element, …)`: record the element's
   // initial overflow, adopt an already-`hidden` element as locked, and apply
-  // `hidden` while locked — re-runs when the resolved element changes
+  // `hidden` while locked — re-runs when the rendered element identity
+  // changes, and resolves the target at commit time so an element attached
+  // during this commit is picked up
   useEffect(() => {
-    const ele = elementRef.current as HTMLElement | null | undefined
+    const ele = resolveCurrentElement() as HTMLElement | null | undefined
     if (!ele)
       return
 
@@ -249,14 +273,14 @@ export function useScrollLock(
 
     if (isLockedRef.current)
       ele.style.overflow = 'hidden'
-  }, [target])
+  }, [target, resolveCurrentElement])
 
   // mirror of upstream's `tryOnScopeDispose(unlock)` — restore the element's
   // initial overflow on unmount. The state flip is intentionally skipped: it
   // is unobservable after a real unmount, and keeping `isLockedRef` intact
   // lets React StrictMode's effect remount re-apply the lock above.
   useEffect(() => () => {
-    const ele = elementRef.current as HTMLElement | null | undefined
+    const ele = resolveCurrentElement() as HTMLElement | null | undefined
     if (!ele || !isLockedRef.current)
       return
 
@@ -265,7 +289,7 @@ export function useScrollLock(
 
     ele.style.overflow = initialOverflowRef.current
     elInitialOverflow.delete(ele)
-  }, [])
+  }, [resolveCurrentElement])
 
   return [isLocked, setIsLockedStable]
 }
