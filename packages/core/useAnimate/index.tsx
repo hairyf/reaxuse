@@ -1,6 +1,6 @@
 import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
 import type { ElementTarget } from '../useResizeObserver'
-import { isObject, objectOmit, toValue } from '@reaxuse/shared'
+import { deepEqual, isObject, objectOmit, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useEventListener } from '../useEventListener'
 import { useRafFn } from '../useRafFn'
@@ -79,8 +79,8 @@ type AnimateStore = Pick<Animation, 'startTime' | 'currentTime' | 'timeline' | '
 export interface UseAnimateReturn {
   /**
    * Whether the current environment supports the Web Animations API
-   * (`Element.animate`). Starts `false` and settles in a mount effect
-   * (SSR-safe).
+   * (`Element.animate`), probed on the resolved `window` option. Starts
+   * `false` and settles in a mount effect (SSR-safe).
    */
   isSupported: boolean
   /**
@@ -127,11 +127,13 @@ function unrefElement(value: unknown): Element | undefined {
 }
 
 /**
- * Upstream probes `window && HTMLElement && 'animate' in HTMLElement.prototype`
- * on the global scope; the same probe runs once in the mount effect here.
+ * Upstream `useSupported(() => window && HTMLElement && 'animate' in
+ * HTMLElement.prototype)` gates the probe on the configurable `window` but
+ * reads the global `HTMLElement` prototype; the same probe runs in the mount
+ * effect here, re-running when the resolved window changes.
  */
-function supportsElementAnimate(): boolean {
-  return typeof window !== 'undefined' && typeof HTMLElement !== 'undefined' && 'animate' in HTMLElement.prototype
+function supportsElementAnimate(win: Window | undefined): boolean {
+  return Boolean(win) && typeof HTMLElement !== 'undefined' && 'animate' in HTMLElement.prototype
 }
 
 /**
@@ -154,12 +156,15 @@ function supportsElementAnimate(): boolean {
  * - the returned `ComputedRef` / `WritableComputedRef` members become plain
  *   values re-rendered per frame — the writable setters (e.g. seeking through
  *   `currentTime`) are dropped, use the returned `animate` object for that;
- * - `keyframes` re-resolves with `toValue` on every render, so a ref-like
- *   `{ current }` object keyframes input updates live without an
- *   explicit subscription (upstream: a deep watcher);
- * - `isSupported` is plain `boolean` state settled in the mount effect, and
- *   internal gating reads a ref mirror so effects decide synchronously
- *   (upstream `useSupported` computed);
+ * - `keyframes` re-resolves with `toValue` on every render and is compared
+ *   with deep equality, so a ref-like `{ current }` object keyframes input
+ *   updates live without an explicit subscription while a deep-equal
+ *   reassignment (e.g. reordered keys) stays silent (upstream: a deep
+ *   watcher);
+ * - `isSupported` is plain `boolean` state settled in the mount effect
+ *   (re-probing when the resolved `window` option changes), and internal
+ *   gating reads a ref mirror so effects decide synchronously (upstream
+ *   `useSupported` computed);
  * - the `finish` / `cancel` / `remove` event listeners are bound to the
  *   `Animation` object through `useEventListener` (upstream:
  *   `useEventListener(animate, ...)`), which rebinds when the animation is
@@ -356,14 +361,14 @@ export function useAnimate(
     }
   }, [syncPause])
 
-  // Feature detection (upstream: `useSupported` on mount, gated on
-  // `tryOnMounted`). The ref mirror lets `update` / `sync*` gate synchronously
-  // in the same effect run.
+  // Feature detection (upstream: `useSupported` gated on the resolved
+  // `window` option, evaluated in `tryOnMounted`). The ref mirror lets
+  // `update` / `sync*` gate synchronously in the same effect run.
   useEffect(() => {
-    const supported = supportsElementAnimate()
+    const supported = supportsElementAnimate(win)
     supportedRef.current = supported
     setIsSupported(supported)
-  }, [])
+  }, [win])
 
   // Resolved target element, recomputed every render so a changed `current`
   // re-runs the effect below.
@@ -384,25 +389,30 @@ export function useAnimate(
 
   // upstream `watch(() => keyframes, ..., { deep: true })`: when the resolved
   // keyframes change, re-apply the animation options and swap the animation's
-  // effect onto the target element with the new keyframes. The first run is
-  // skipped — the animation is created with the initial keyframes already.
-  const keyframesKey = JSON.stringify(toValue(keyframes))
-  const previousKeyframesKeyRef = useRef(keyframesKey)
+  // effect onto the target element with the new keyframes. The resolved value
+  // is compared with `deepEqual` on every render, so a reordered keyframe
+  // object (or any deep-equal reassignment) does not recreate the effect
+  // (upstream: a deep watcher). The first run is skipped — the animation is
+  // created with the initial keyframes already.
+  const resolvedKeyframes = toValue(keyframes)
+  const previousKeyframesRef = useRef(resolvedKeyframes)
 
   useEffect(() => {
-    if (!animateRef.current || previousKeyframesKeyRef.current === keyframesKey)
+    if (deepEqual(previousKeyframesRef.current, resolvedKeyframes))
       return
-    previousKeyframesKeyRef.current = keyframesKey
+    previousKeyframesRef.current = resolvedKeyframes
+    if (!animateRef.current)
+      return
     update()
     const el = unrefElement(targetRef.current)
     if (el && animateRef.current) {
       animateRef.current.effect = new KeyframeEffect(
         el,
-        toValue(keyframesRef.current) ?? null,
+        resolvedKeyframes ?? null,
         animateOptionsRef.current,
       )
     }
-  }, [keyframesKey, update])
+  })
 
   // Round-trip the animation events into the store loop and commit the end
   // styling state when requested (upstream `useEventListener` on the
