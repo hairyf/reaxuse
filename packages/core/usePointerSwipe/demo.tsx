@@ -48,7 +48,7 @@ export default function UsePointerSwipeDemo() {
 
   return (
     <div>
-      <div className="us-pointer-swipe-container">
+      <div ref={container} className="us-pointer-swipe-container">
         <button onClick={reset}>
           Reset
         </button>

@@ -169,29 +169,34 @@ describe('usePointerSwipe', () => {
     expect(result.current.distanceY).toBe(0)
   })
 
-  it('stop', async () => {
+  it('stop detaches the pointer listeners', async () => {
     const el = createTarget()
-    const { result, act } = await renderHook(() => usePointerSwipe(el, { threshold, pointerTypes: ['touch'] }))
+    const onSwipeStart = vi.fn()
+    const onSwipe = vi.fn()
+    const onSwipeEnd = vi.fn()
+    const { result, act } = await renderHook(() => usePointerSwipe(el, { threshold, onSwipeStart, onSwipe, onSwipeEnd }))
 
+    // a real swipe while listening fires the callbacks
     await act(() => {
-      el.dispatchEvent(mockPointerDown(0, 0))
+      mockPointerEvents(el, [[0, 0], [threshold, 0], [threshold, 0]])
     })
+    expect(onSwipeStart).toHaveBeenCalledOnce()
+    expect(onSwipe).toHaveBeenCalledOnce()
+    expect(onSwipeEnd).toHaveBeenCalledOnce()
     expect(result.current.isSwiping).toBeFalsy()
-    expect(result.current.direction).toBe('none')
-    expect(result.current.distanceX).toBe(0)
-    expect(result.current.distanceY).toBe(0)
 
     await act(() => {
       result.current.stop()
     })
 
+    // after stop() the same swipe must no longer reach the callbacks
     await act(() => {
-      el.dispatchEvent(mockPointerMove(threshold, threshold / 2))
+      mockPointerEvents(el, [[0, 0], [threshold, 0], [threshold, 0]])
     })
+    expect(onSwipeStart).toHaveBeenCalledOnce()
+    expect(onSwipe).toHaveBeenCalledOnce()
+    expect(onSwipeEnd).toHaveBeenCalledOnce()
     expect(result.current.isSwiping).toBeFalsy()
-    expect(result.current.direction).toBe('none')
-    expect(result.current.distanceX).toBe(0)
-    expect(result.current.distanceY).toBe(0)
   })
 
   const directionTests: Array<[UseSwipeDirection, Array<[number, number]>]> = [

@@ -47,11 +47,11 @@ export interface UsePointerSwipeOptions {
 
 export interface UsePointerSwipeReturn {
   readonly isSwiping: boolean
-  direction: UseSwipeDirection
+  readonly direction: UseSwipeDirection
   readonly posStart: Readonly<Position>
   readonly posEnd: Readonly<Position>
-  distanceX: number
-  distanceY: number
+  readonly distanceX: number
+  readonly distanceY: number
   stop: () => void
 }
 
@@ -200,10 +200,10 @@ export function usePointerSwipe(
       posEndRef.current = { x, y }
       setPosEnd(posEndRef.current)
 
-      const { onSwipe, threshold: moveThreshold = 50 } = optionsRef.current
+      const { onSwipe } = optionsRef.current
       const diffX = startX - posEndRef.current.x
       const diffY = startY - posEndRef.current.y
-      const isThresholdExceeded = Math.max(Math.abs(diffX), Math.abs(diffY)) >= moveThreshold
+      const isThresholdExceeded = Math.max(Math.abs(diffX), Math.abs(diffY)) >= threshold
 
       if (!isSwipingRef.current && isThresholdExceeded) {
         isSwipingRef.current = true
@@ -217,8 +217,8 @@ export function usePointerSwipe(
       if (!eventIsAllowed(e))
         return
       if (isSwipingRef.current) {
-        const { onSwipeEnd, threshold: endThreshold = 50 } = optionsRef.current
-        onSwipeEnd?.(e, getSwipeDirection(posStartRef.current, posEndRef.current, endThreshold))
+        const { onSwipeEnd } = optionsRef.current
+        onSwipeEnd?.(e, getSwipeDirection(posStartRef.current, posEndRef.current, threshold))
       }
 
       isPointerDownRef.current = false
@@ -251,7 +251,7 @@ export function usePointerSwipe(
     detachRef.current = detach
 
     return detach
-  }, [trackedTarget, disableTextSelect])
+  }, [trackedTarget, disableTextSelect, threshold])
 
   const distanceX = posStart.x - posEnd.x
   const distanceY = posStart.y - posEnd.y
