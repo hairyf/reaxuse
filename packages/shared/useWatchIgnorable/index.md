@@ -4,12 +4,13 @@ category: Watch
 
 # useWatchIgnorable
 
-Extended watch that returns `ignoreUpdates(updater)` / `ignorePrevAsyncUpdates()` / `stop` to ignore particular updates to the source
+Ignorable watch — extended watch that returns `ignoreUpdates(updater)` / `ignorePrevAsyncUpdates()` / `stop` to ignore particular updates to the source
 
 ## Usage
 
 ```tsx
 import { useWatchIgnorable } from '@reaxuse/shared'
+import { useState } from 'react'
 
 const [source, setSource] = useState('foo')
 
@@ -25,15 +26,28 @@ ignoreUpdates(() => {
 }) // (nothing logged)
 
 setSource('hello') // logs: Changed to hello!
+```
 
+> React batches state updates within one event handler, so an ignored update and
+> a non-ignored update in the same batch collapse into a single render, which
+> the ignore barrier skips as a whole. Let the ignored update's batch commit
+> (return from the event handler) before making changes that must fire.
+
+```tsx
 ignoreUpdates(() => {
   setSource('ignored')
 })
-setSource('logged') // logs: Changed to logged!
+
+// same batch as the ignored update → collapsed into it and skipped
+setSource('logged') // (nothing logged)
+
+// separate batch → the barrier was consumed, so this fires
+setSource('after') // logs: Changed to after!
 ```
 
-`ignorePrevAsyncUpdates()` ignores the changes made since the last time the callback
-fired — as long as no other changes follow:
+## `ignorePrevAsyncUpdates`
+
+`ignorePrevAsyncUpdates()` ignores the changes made since the last time the callback fired — as long as no other changes follow:
 
 ```tsx
 const { ignorePrevAsyncUpdates } = useWatchIgnorable(
@@ -49,3 +63,11 @@ setSource('prev')
 ignorePrevAsyncUpdates()
 setSource('after') // logs: Changed to after!
 ```
+
+## Options
+
+`useWatchIgnorable` accepts `immediate` (fire the callback once on mount) and `once` (stop the watch after the first fired change; ignored fires do not count). Upstream's `deep`, `flush`, and `eventFilter` watch options are not supported — they are not expressible in React (no reactive graph, no configurable commit, no filter pipeline), and passing them fails type checking.
+
+## Recommended Readings
+
+- [Ignorable Watch](https://patak.dev/vue/ignorable-watch.html) - by [@patak-dev](https://github.com/patak-dev)

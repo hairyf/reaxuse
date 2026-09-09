@@ -172,6 +172,61 @@ it('useWatchIgnorable fires on mount with immediate: true (renderHook)', async (
   expect(calls).toEqual([{ value: 7, oldValue: undefined }, { value: 8, oldValue: 7 }])
 })
 
+it('useWatchIgnorable disarms the barrier when a commit carries no source change', async () => {
+  const calls: WatchCall[] = []
+  let setValue: Dispatch<SetStateAction<number>> = () => {}
+  let setOther: Dispatch<SetStateAction<number>> = () => {}
+  let ignoreUpdates: IgnoredUpdater = () => {}
+
+  const { act } = await renderHook(() => {
+    const [value, update] = useState(0)
+    const [, updateOther] = useState(0)
+    setValue = update
+    setOther = updateOther
+    ignoreUpdates = useWatchIgnorable(value, (next, prev) => calls.push({ value: next, oldValue: prev })).ignoreUpdates
+  })
+
+  // a no-op updater arms the barrier, but the next commit carries no source
+  // change, so the barrier is disarmed — a later genuine change still fires
+  await act(() => ignoreUpdates(() => setValue(0)))
+  await act(() => setOther(1))
+  await act(() => setValue(1))
+  expect(calls).toEqual([{ value: 1, oldValue: 0 }])
+})
+
+it('useWatchIgnorable with once: true stops after the first fired change', async () => {
+  const calls: WatchCall[] = []
+  let setValue: Dispatch<SetStateAction<number>> = () => {}
+
+  const { act } = await renderHook(() => {
+    const [value, update] = useState(0)
+    setValue = update
+    useWatchIgnorable(value, (next, prev) => calls.push({ value: next, oldValue: prev }), { once: true })
+  })
+
+  await act(() => setValue(1))
+  expect(calls).toEqual([{ value: 1, oldValue: 0 }])
+
+  await act(() => setValue(2))
+  expect(calls).toEqual([{ value: 1, oldValue: 0 }])
+})
+
+it('useWatchIgnorable with immediate + once fires only on mount', async () => {
+  const calls: WatchCall[] = []
+  let setValue: Dispatch<SetStateAction<number>> = () => {}
+
+  const { act } = await renderHook(() => {
+    const [value, update] = useState(7)
+    setValue = update
+    useWatchIgnorable(value, (next, prev) => calls.push({ value: next, oldValue: prev }), { immediate: true, once: true })
+  })
+
+  expect(calls).toEqual([{ value: 7, oldValue: undefined }])
+
+  await act(() => setValue(8))
+  expect(calls).toEqual([{ value: 7, oldValue: undefined }])
+})
+
 it('useWatchIgnorable ignores button-driven ignored updates (component)', async () => {
   const calls: number[] = []
 
