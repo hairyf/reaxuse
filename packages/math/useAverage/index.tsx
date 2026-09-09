@@ -1,16 +1,12 @@
-import type { RefOrValue } from '@reaxuse/shared'
-import { toValue } from '@reaxuse/shared'
-
-type RefOrValueArgs<T> = RefOrValue<T>[] | [RefOrValue<RefOrValue<T>[]>]
-
-function toValueArgsFlat<T>(args: RefOrValueArgs<T>): T[] {
-  return args
-    .flatMap((i: any) => {
-      const v = toValue(i)
-      if (Array.isArray(v))
-        return v.map(i => toValue(i))
-      return [v]
-    })
+/**
+ * Flatten the composable arguments into a plain number array.
+ * Mirrors VueUse math's `toValueArgsFlat` (`source/vueuse/packages/math/utils.ts`),
+ * narrowed to plain values because the arguments are read-only value sources.
+ *
+ * @__NO_SIDE_EFFECTS__
+ */
+function toArgsFlat(args: readonly (number | readonly number[])[]): number[] {
+  return args.flatMap(item => (Array.isArray(item) ? [...item] : [item as number]))
 }
 
 /**
@@ -21,9 +17,13 @@ function toValueArgsFlat<T>(args: RefOrValueArgs<T>): T[] {
  *
  * Adjustment for React: upstream wraps the computation in `computed(() => ...)`
  * and returns a `ComputedRef<number>`; the reaxuse version is a pure derived
- * hook — the values (plain numbers or React refs) are resolved at render time
- * and the average is returned directly as a `number`,
+ * hook — the plain numbers (variadic arguments or a single `readonly number[]`)
+ * are read at render time and the average is returned directly as a `number`,
  * with no `.value` wrapper (SSR-safe).
+ *
+ * React divergence: arguments are plain read-only numbers, not upstream's
+ * `MaybeRefOrGetter<number>[]`. The caller re-renders with new values (e.g. from
+ * `useState`) and the hook recomputes.
  *
  * @see https://vueuse.org/math/useAverage/
  *
@@ -33,17 +33,14 @@ function toValueArgsFlat<T>(args: RefOrValueArgs<T>): T[] {
  * const array = [1, 2, 3, 4]
  * const average = useAverage(array) // 2.5
  *
- * const [a, setA] = useState(1)
- * const [b, setB] = useState(3)
- * const average2 = useAverage(a, b, 2) // 2
+ * const average2 = useAverage(1, 3, 2) // 2
  *
- * @param array - An array of numbers, each either a plain number or a React
- * ref.
+ * @param array - An array of numbers.
  * @returns The average of the given numbers (`0` when called with no arguments).
  */
-export function useAverage(array: RefOrValue<RefOrValue<number>[]>): number
-export function useAverage(...args: RefOrValue<number>[]): number
-export function useAverage(...args: RefOrValueArgs<number>): number {
-  const array = toValueArgsFlat(args)
-  return array.length === 0 ? 0 : array.reduce((sum, v) => sum + v, 0) / array.length
+export function useAverage(array: readonly number[]): number
+export function useAverage(...args: number[]): number
+export function useAverage(...args: readonly (number | readonly number[])[]): number {
+  const values = toArgsFlat(args)
+  return values.length === 0 ? 0 : values.reduce((sum, v) => sum + v, 0) / values.length
 }

@@ -11,9 +11,19 @@ Reactive `Math.trunc`
 ```tsx
 import { useTrunc } from '@reaxuse/math'
 
-const value = { current: 0.95 }
-const result1 = useTrunc(value) // 0
+const result1 = useTrunc(0.95) // 0
+const result2 = useTrunc(-2.34) // -2
+```
 
-value.current = -2.34
-const result2 = useTrunc(value) // -2
+`value` is a plain read-only `number` (upstream takes `MaybeRefOrGetter<number>`). Re-render with a
+new value — e.g. from `useState` — and the hook recomputes:
+
+```tsx
+import { useTrunc } from '@reaxuse/math'
+import { useState } from 'react'
+
+const [value, setValue] = useState(0.95)
+const result = useTrunc(value) // 0
+
+setValue(-2.34) // triggers a re-render
 ```

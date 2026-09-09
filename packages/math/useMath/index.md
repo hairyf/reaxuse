@@ -23,16 +23,14 @@ setNum(4) // triggers a re-render
 // root === 2
 ```
 
-Plain values and React refs are both accepted:
+Arguments are plain read-only numbers (upstream takes `MaybeRefOrGetter`):
 
 ```tsx
 import { useMath } from '@reaxuse/math'
 
 const power = useMath('pow', 2, 3) // 8
-
-const base = { current: 2 }
-const exponent = { current: 3 }
-const refPower = useMath('pow', base, exponent) // 8
-
-const rounded = useMath('round', { current: 2.5 }) // 3
+const root = useMath('sqrt', 4) // 2
+const rounded = useMath('round', 2.5) // 3
 ```
+
+Re-render with new arguments — e.g. from `useState` — and the hook recomputes.
