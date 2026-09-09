@@ -132,6 +132,21 @@ describe('useZoomFactor', () => {
       .toThrow('the factor must be greater than 0.0.')
   })
 
+  it('throws when a ref factor transitions to 0 mid-flight', async () => {
+    const webFrame = createWebFrame(1)
+    const factor = { current: 2 }
+
+    const { result, rerender } = await renderHook(() => useZoomFactor(asWebFrame(webFrame), factor))
+
+    expect(result.current[0]).toBe(2)
+    expect(webFrame.setZoomFactor).toHaveBeenCalledWith(2)
+
+    factor.current = 0
+
+    // the render-time guard rejects on the next render, before any write
+    await expect(rerender()).rejects.toThrow('the factor must be greater than 0.0.')
+  })
+
   it('throws the upstream message when the setter is called with 0', async () => {
     const webFrame = createWebFrame(1)
 

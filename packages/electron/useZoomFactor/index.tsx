@@ -36,11 +36,13 @@ function isFactorArgument(value: WebFrame | RefOrValue<number> | undefined): val
  * - the writable ref becomes `const [factor, setFactor] = useZoomFactor()` —
  *   `setFactor(value)` validates the value, calls
  *   `webFrame.setZoomFactor(value)` and updates the returned factor;
- * - upstream's `watch(factor, cb, { immediate: true })` splits into a mount
- *   effect (applies an explicitly passed factor once, upstream's immediate
- *   run) and a sync effect keyed on `[webFrame, external factor]` (re-applies
- *   when the source value changes). The last factor written to `webFrame` is
- *   tracked in a ref, so a redundant render never re-writes the same factor;
+ * - upstream's `watch(factor, cb, { immediate: true })` maps to a single
+ *   effect keyed on `[webFrame, external factor]`: because the last-written ref
+ *   starts as `null`, the immediate run is covered by the first effect run,
+ *   which applies an explicitly passed factor once on mount and re-applies
+ *   whenever the source value changes. The last factor written to `webFrame`
+ *   is tracked in a ref, so a redundant render never re-writes the same
+ *   factor;
  * - upstream's `0` guard is kept verbatim — `useZoomFactor(webFrame, 0)` and
  *   `setFactor(0)` both throw `the factor must be greater than 0.0.`;
  * - the `WebFrame` instance is resolved once per render through the internal
@@ -86,19 +88,10 @@ export function useZoomFactor(
   // write, so an explicit factor is still applied on mount
   const lastAppliedRef = useRef<number | null>(null)
 
-  // upstream `watch(..., { immediate: true })` first run: apply an explicit
-  // factor once on mount (a factor-less call keeps `getZoomFactor()`).
-  useEffect(() => {
-    if (resolvedFactor === undefined || resolvedFactor === lastAppliedRef.current)
-      return
-
-    assertZoomFactor(resolvedFactor)
-    instance.setZoomFactor(resolvedFactor)
-    lastAppliedRef.current = resolvedFactor
-  }, [])
-
-  // upstream watcher: re-apply when the external source value changes to a
-  // number that differs from what was last written to `webFrame`.
+  // upstream watcher: the first run (with `lastAppliedRef` still `null`) is
+  // upstream's `immediate: true` run — it applies an explicitly passed factor
+  // once on mount and re-applies whenever the external source value changes to
+  // a number that differs from what was last written to `webFrame`.
   useEffect(() => {
     if (resolvedFactor === undefined || resolvedFactor === lastAppliedRef.current)
       return
