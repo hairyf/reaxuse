@@ -1,18 +1,26 @@
 /** String keys of `Math` that are methods (callables), mirroring upstream's `UseMathKeys`. */
 export type UseMathKeys = keyof { [K in keyof Math as Math[K] extends (...args: any) => any ? K : never]: unknown }
 
-/** Return type — `Math` methods always return a `number`. */
-export type UseMathReturn<K extends keyof Math> = ReturnType<Reactified<Math[K]>>
+/**
+ * Return type — `Math` methods always return a `number`. The arguments stay
+ * plain values (see `PlainMathMethod`), not upstream's reactified ones.
+ */
+export type UseMathReturn<K extends keyof Math> = ReturnType<PlainMathMethod<Math[K]>>
 
-/** Arguments of a plain function. */
+/**
+ * Arguments of a plain function — a local copy of VueUse shared's
+ * `ArgumentsType` (reaxuse has no shared equivalent).
+ */
 type ArgumentsType<T> = T extends (...args: infer U) => any ? U : never
 
 /**
- * The React analog of VueUse's `Reactified<T, Computed>`: same configuration
- * (plain arguments) but the result is the plain return value instead of a
- * `ComputedRef` — the reaxuse hook returns the computed number directly.
+ * A `Math` method whose arguments stay plain values — deliberately NOT VueUse's
+ * `Reactified<T, Computed>` (which wraps every argument in `MaybeRefOrGetter`
+ * and resolves getters via `toValue`). Getters as data sources are rejected
+ * repo-wide (rule 1, issue #462); the reaxuse hook reads the plain arguments at
+ * render time and returns the computed `number` directly.
  */
-type Reactified<T> = T extends (...args: infer A) => infer R
+type PlainMathMethod<T> = T extends (...args: infer A) => infer R
   ? (...args: A) => R
   : never
 
@@ -32,8 +40,9 @@ type Reactified<T> = T extends (...args: infer A) => infer R
  * the latest values.
  *
  * React divergence: arguments are plain numbers, not upstream's
- * `MaybeRefOrGetter`. The caller re-renders with new values (e.g. from
- * `useState`).
+ * `MaybeRefOrGetter`. In particular the getter form (`() => number`) is NOT
+ * accepted — getters as data sources are rejected repo-wide (issue #462). The
+ * caller re-renders with new values (e.g. from `useState`).
  *
  * @see https://vueuse.org/math/useMath/
  *
@@ -54,7 +63,7 @@ type Reactified<T> = T extends (...args: infer A) => infer R
  */
 export function useMath<K extends keyof Math>(
   key: K,
-  ...args: ArgumentsType<Reactified<Math[K]>>
+  ...args: ArgumentsType<PlainMathMethod<Math[K]>>
 ): UseMathReturn<K> {
   const fn = Math[key] as unknown as (...args: number[]) => number
   return fn(...args) as UseMathReturn<K>
