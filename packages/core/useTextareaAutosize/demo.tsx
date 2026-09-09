@@ -1,7 +1,7 @@
 import { useTextareaAutosize } from '@reaxuse/core'
 
 export default function UseTextareaAutosizeDemo() {
-  const [input, setInput, { textarea }] = useTextareaAutosize()
+  const { input, setInput, textarea } = useTextareaAutosize()
 
   return (
     <div>

@@ -16,7 +16,7 @@ Automatically update the height of a textarea depending on the content.
 ```tsx
 import { useTextareaAutosize } from '@reaxuse/core'
 
-const [input, setInput, { textarea }] = useTextareaAutosize()
+const { input, setInput, textarea } = useTextareaAutosize()
 // <textarea ref={textarea} value={input} onChange={e => setInput(e.target.value)} />
 ```
 
@@ -44,7 +44,7 @@ If you need support for the rows attribute on a textarea element, then you shoul
 ```tsx
 import { useTextareaAutosize } from '@reaxuse/core'
 
-const [input, setInput, { textarea }] = useTextareaAutosize({ styleProp: 'minHeight' })
+const { input, setInput, textarea } = useTextareaAutosize({ styleProp: 'minHeight' })
 // <textarea ref={textarea} value={input} onChange={e => setInput(e.target.value)} rows={3} />
 ```
 
@@ -55,7 +55,7 @@ Use the `maxHeight` option to cap the textarea height in pixels while keeping au
 ```tsx
 import { useTextareaAutosize } from '@reaxuse/core'
 
-const [input, setInput, { textarea }] = useTextareaAutosize({
+const { input, setInput, textarea } = useTextareaAutosize({
   maxHeight: 180,
   styleProp: 'minHeight',
 })
@@ -64,21 +64,20 @@ const [input, setInput, { textarea }] = useTextareaAutosize({
 
 ## Return Values
 
-`useTextareaAutosize` returns the React tuple `[input, setInput, controls]` (upstream returns the
-object `{ textarea, input, triggerResize }`):
+`useTextareaAutosize` returns the object `{ input, setInput, textarea, triggerResize }`:
 
-| Element                  | Type                                     | Description                                                                                                                        |
-| ------------------------ | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `input`                  | `string`                                 | Current textarea content — the `input` option when provided, otherwise the hook-owned state.                                       |
-| `setInput`               | `Dispatch<SetStateAction<string>>`       | Updates the hook-owned content (upstream: writing `input.value`). Has no effect on the resize while an `input` option is provided. |
-| `controls.textarea`      | `RefObject<HTMLTextAreaElement \| null>` | Bind it to the `<textarea>` with `ref={controls.textarea}` when the `element` option is omitted (upstream: the `textarea` ref).    |
-| `controls.triggerResize` | `() => void`                             | Manually trigger a textarea resize (upstream: `triggerResize`).                                                                    |
+| Property        | Type                                     | Description                                                                                                                        |
+| --------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `input`         | `string`                                 | Current textarea content — the `input` option when provided, otherwise the hook-owned state.                                       |
+| `setInput`      | `Dispatch<SetStateAction<string>>`       | Updates the hook-owned content (upstream: writing `input.value`). Has no effect on the resize while an `input` option is provided. |
+| `textarea`      | `RefObject<HTMLTextAreaElement \| null>` | Bind it to the `<textarea>` with `ref={textarea}` when the `element` option is omitted (upstream: the `textarea` ref).             |
+| `triggerResize` | `() => void`                             | Manually trigger a textarea resize (upstream: `triggerResize`).                                                                    |
 
 ## React divergence from upstream
 
 Upstream returns `{ textarea: Ref<HTMLTextAreaElement | undefined | null>, input: Ref<string>, triggerResize }`,
-so consumers read and write `input.value`. This port follows the React tuple rule required by
-`AGENTS.md` and returns `[input, setInput, { textarea, triggerResize }]`.
+so consumers read and write `input.value`. This port mirrors that object and pairs the writable content
+with a setter — `{ input, setInput, textarea, triggerResize }`.
 
 The `element` and `styleTarget` options accept a plain element or a ref-like `{ current }` object
 (`RefOrValue`), and the textarea is resolved at commit time, so an element attached after mount

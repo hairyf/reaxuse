@@ -14,7 +14,7 @@ export interface UseTextareaAutosizeOptions {
   window?: Window
   /**
    * Textarea element to autosize — a plain element or a ref-like `{ current }`
-   * object. When omitted, bind the returned `controls.textarea` ref instead.
+   * object. When omitted, bind the returned `textarea` ref instead.
    */
   element?: RefOrValue<HTMLTextAreaElement | null | undefined>
   /**
@@ -47,30 +47,26 @@ export interface UseTextareaAutosizeOptions {
   styleProp?: 'height' | 'minHeight'
 }
 
-export interface UseTextareaAutosizeControls {
-  /**
-   * Ref to bind to the `<textarea>` — the `element` option when it is a
-   * ref-like object, otherwise a hook-owned ref.
-   */
-  textarea: RefObject<HTMLTextAreaElement | null>
-  /** Manually trigger a textarea resize. */
-  triggerResize: () => void
-}
-
-export type UseTextareaAutosizeReturn = readonly [
+export interface UseTextareaAutosizeReturn {
   /**
    * Current textarea content — the `input` option when provided, otherwise the
    * hook-owned state.
    */
-  input: string,
+  readonly input: string
   /**
-   * Content setter for the hook-owned state. Has no effect on the resize
-   * while an `input` option is provided.
+   * Content setter for the hook-owned state — the React mapping of upstream's
+   * writable `input` ref. Has no effect on the resize while an `input` option
+   * is provided.
    */
-  setInput: Dispatch<SetStateAction<string>>,
-  /** Element ref and manual resize controls. */
-  controls: UseTextareaAutosizeControls,
-]
+  readonly setInput: Dispatch<SetStateAction<string>>
+  /**
+   * Ref to bind to the `<textarea>` — the `element` option when it is a
+   * ref-like object, otherwise a hook-owned ref.
+   */
+  readonly textarea: RefObject<HTMLTextAreaElement | null>
+  /** Manually trigger a textarea resize. */
+  readonly triggerResize: () => void
+}
 
 /**
  * Call window.requestAnimationFrame(), if not available, just call the function
@@ -91,10 +87,10 @@ function tryRequestAnimationFrame(window: Window | undefined, fn: () => void) {
  *
  * React divergences:
  * - upstream returns `{ textarea, input, triggerResize }` with writable refs;
- *   this port follows the React tuple rule and returns
- *   `[input, setInput, { textarea, triggerResize }]` — the content is element
- *   0, `setInput` element 1, and the element ref plus the manual resize live
- *   in the `controls` object;
+ *   this port returns the object `{ input, setInput, textarea, triggerResize }`
+ *   — the content is a plain value paired with the `setInput` setter (the React
+ *   mapping of upstream's writable `input` ref), and `textarea` stays an
+ *   element ref;
  * - the `element` and `styleTarget` options accept a plain element or a
  *   ref-like `{ current }` object (`RefOrValue`). The textarea is resolved at
  *   commit time, so an element attached after mount (conditional or async
@@ -112,7 +108,7 @@ function tryRequestAnimationFrame(window: Window | undefined, fn: () => void) {
  *   and is disconnected on unmount.
  *
  * @example
- * const [input, setInput, { textarea }] = useTextareaAutosize()
+ * const { input, setInput, textarea } = useTextareaAutosize()
  * // <textarea ref={textarea} value={input} onChange={e => setInput(e.target.value)} />
  */
 export function useTextareaAutosize(options: UseTextareaAutosizeOptions = {}): UseTextareaAutosizeReturn {
@@ -144,7 +140,7 @@ export function useTextareaAutosize(options: UseTextareaAutosizeOptions = {}): U
 
   // Resolve the target element at commit time (upstream resolves the reactive
   // `textarea` ref): a plain element or a ref-like `.current`, falling back to
-  // the hook-owned ref bound through `controls.textarea`.
+  // the hook-owned ref bound through the returned `textarea`.
   const resolveTextarea = useCallback(() => {
     return toValue(optionsRef.current.element) ?? fallbackTextarea.current ?? null
   }, [])
@@ -238,5 +234,5 @@ export function useTextareaAutosize(options: UseTextareaAutosizeOptions = {}): U
     }
   }, [resolvedTextarea, triggerResize, windowOption])
 
-  return [input, setInternalInput, { textarea, triggerResize }]
+  return { input, setInput: setInternalInput, textarea, triggerResize }
 }
