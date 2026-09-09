@@ -23,5 +23,8 @@
   "peerDependencies": {
     "electron": ">=9.0.0",
     "react": ">=18"
+  },
+  "dependencies": {
+    "@reaxuse/shared": "workspace:*"
   }
 }

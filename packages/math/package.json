@@ -22,5 +22,8 @@
   },
   "peerDependencies": {
     "react": ">=18"
+  },
+  "dependencies": {
+    "@reaxuse/shared": "workspace:*"
   }
 }
