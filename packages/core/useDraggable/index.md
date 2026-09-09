@@ -21,7 +21,19 @@ const { x, y, style } = useDraggable(el, {
 ```
 
 ```tsx
-<div ref={el} style={{ position: 'fixed', ...parseStyle(style) }}>
+// `style` is a helper string for `left: ?px; top: ?px;` — convert it into a
+// React style object for the `style` prop (or use `x` / `y` directly)
+function styleStringToObject(style: string): Record<string, string> {
+  const result: Record<string, string> = {}
+  for (const declaration of style.split(';')) {
+    const [key, value] = declaration.split(':').map(part => part.trim())
+    if (key && value)
+      result[key] = value
+  }
+  return result
+}
+
+<div ref={el} style={{ position: 'fixed', ...styleStringToObject(style) }}>
   Drag me! I am at
   {' '}
   {x}
@@ -30,6 +42,16 @@ const { x, y, style } = useDraggable(el, {
   {y}
 </div>
 ```
+
+### Return Values
+
+| State        | Type       | Description                             |
+| ------------ | ---------- | --------------------------------------- |
+| `x`          | `number`   | Current x position                      |
+| `y`          | `number`   | Current y position                      |
+| `position`   | `Position` | Current position object                 |
+| `isDragging` | `boolean`  | Whether currently dragging              |
+| `style`      | `string`   | CSS style string `left: ?px; top: ?px;` |
 
 ### Options
 

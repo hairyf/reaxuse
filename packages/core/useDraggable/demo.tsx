@@ -113,7 +113,10 @@ export default function UseDraggableDemo() {
 
       <div ref={el3} style={{ ...boxStyle, ...styleStringToObject(noCapture.style) }}>
         Not Use Captured Element
-        <div style={{ fontSize: 12, opacity: 0.6, cursor: 'default' }}>
+        <div
+          style={{ fontSize: 12, opacity: 0.6, cursor: 'default' }}
+          onPointerDown={e => e.stopPropagation()}
+        >
           Dragging here will not work
         </div>
         <div style={{ fontSize: 12, opacity: 0.6 }}>

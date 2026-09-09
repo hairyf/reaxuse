@@ -166,6 +166,18 @@ export interface UseDraggableReturn {
   position: Position
   isDragging: boolean
   style: string
+  /**
+   * Set the x position — the React equivalent of assigning upstream's writable
+   * `x` ref. Updates the returned `x`, `position` and `style` together with
+   * the internal drag position.
+   */
+  setX: (value: number) => void
+  /**
+   * Set the y position — the React equivalent of assigning upstream's writable
+   * `y` ref. Updates the returned `y`, `position` and `style` together with
+   * the internal drag position.
+   */
+  setY: (value: number) => void
 }
 
 interface ScrollSettings {
@@ -253,7 +265,10 @@ function isPointerNearEdge(
  * - the Vue refs returned by upstream (`x`, `y`, `position`, `isDragging`,
  *   `style`) become a plain object backed by React state: `x` / `y` are
  *   numbers, `position` the `{ x, y }` pair, `isDragging` a boolean and
- *   `style` a ready-to-use CSS string (`left: ?px; top: ?px;`);
+ *   `style` a ready-to-use CSS string (`left: ?px; top: ?px;`); `x` and `y`
+ *   are writable through the paired `setX` / `setY` setters (the React
+ *   equivalent of assigning upstream's writable refs), which update the
+ *   returned state and the internal drag position together;
  * - upstream's `useEventListener` becomes a self-contained mount `useEffect`
  *   that re-subscribes when the resolved `handle` / `draggingElement` or the
  *   `capture` / `preventDefault` flags change, and removes all listeners on
@@ -301,6 +316,25 @@ export function useDraggable(
   targetRef.current = target
   const positionRef = useRef(initial)
   const pressedDeltaRef = useRef<Position | undefined>(undefined)
+
+  // Writable `x` / `y` — the React equivalent of assigning upstream's writable
+  // `x` / `y` refs. Functional updates keep the internal mirror and the state
+  // in sync even when both setters are called in the same render batch.
+  const setX = useCallback((value: number) => {
+    setPosition((prev) => {
+      const next = { x: value, y: prev.y }
+      positionRef.current = next
+      return next
+    })
+  }, [])
+
+  const setY = useCallback((value: number) => {
+    setPosition((prev) => {
+      const next = { x: prev.x, y: value }
+      positionRef.current = next
+      return next
+    })
+  }, [])
 
   // latest-value ref synced each render so the listeners registered in the
   // mount effect always read the newest options (stable handler identities),
@@ -554,5 +588,7 @@ export function useDraggable(
     position: positionValue,
     isDragging,
     style,
+    setX,
+    setY,
   }
 }
