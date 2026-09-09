@@ -1,12 +1,10 @@
+import { createProjection } from '../createProjection'
+
 /**
  * Projection function type — `ProjectorFunction<F, T>` maps an input from the
  * source domain to the target domain.
  */
 export type ProjectorFunction<F, T> = (input: F, from: readonly [F, F], to: readonly [T, T]) => T
-
-function defaultNumericProjector(input: number, from: readonly [number, number], to: readonly [number, number]) {
-  return (input - from[0]) / (from[1] - from[0]) * (to[1] - to[0]) + to[0]
-}
 
 /**
  * React port of VueUse's `useProjection`.
@@ -17,8 +15,12 @@ function defaultNumericProjector(input: number, from: readonly [number, number],
  * drives re-renders.
  *
  * React divergence: `input`, `fromDomain` and `toDomain` are all plain
- * read-only values, not upstream's `MaybeRefOrGetter<...>`. The caller
- * re-renders with new values (e.g. from `useState`) and the hook recomputes.
+ * read-only values, not upstream's `MaybeRefOrGetter<...>`. In particular the
+ * getter form (`() => number`) is NOT accepted — getters as data sources are
+ * rejected repo-wide (issue #462). The caller re-renders with new values (e.g.
+ * from `useState`) and the hook recomputes. Like upstream, the projection is
+ * delegated to `createProjection` (its default projector is the linear numeric
+ * projector), so the projector function is not duplicated here.
  *
  * @param input - The input value to project.
  * @param fromDomain - The source domain (a plain `readonly [number, number]`).
@@ -34,7 +36,7 @@ export function useProjection(
   input: number,
   fromDomain: readonly [number, number],
   toDomain: readonly [number, number],
-  projector: ProjectorFunction<number, number> = defaultNumericProjector,
+  projector?: ProjectorFunction<number, number>,
 ): number {
-  return projector(input, fromDomain, toDomain)
+  return createProjection(fromDomain, toDomain, projector)(input)
 }
