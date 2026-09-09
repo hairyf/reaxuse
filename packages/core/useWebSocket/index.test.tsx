@@ -1,3 +1,4 @@
+import type { WebSocketHeartbeatMessage } from '../useWebSocket'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useWebSocket } from '../useWebSocket'
@@ -393,6 +394,57 @@ describe('useWebSocket', () => {
         await vi.advanceTimersByTimeAsync(500)
       })
       expect(mockWebSocket.prototype.send).toBeCalledWith('ping')
+    })
+
+    it('should not send heartbeats or force-close before the socket opens with the default scheduler', async () => {
+      const { result, act } = await renderHook(() => useWebSocket('wss://server.example.com', {
+        heartbeat: true,
+      }))
+
+      expect(result.current.status).toBe('CONNECTING')
+      mockWebSocket.prototype.send.mockClear()
+      mockWebSocket.prototype.close.mockClear()
+
+      // upstream's default `useIntervalFn(cb, 1000, { immediate: false })`
+      // stays inert until `ws.onopen` calls `resume()` — a never-opening
+      // socket must not ping nor hit the pong-timeout force-close
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(3000)
+      })
+      expect(mockWebSocket.prototype.send).not.toHaveBeenCalled()
+      expect(mockWebSocket.prototype.close).not.toHaveBeenCalled()
+      expect(result.current.status).toBe('CONNECTING')
+
+      // once the socket opens, the default heartbeat resumes
+      await act(() => {
+        result.current.ws?.onopen?.(new Event('open'))
+      })
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1000)
+      })
+      expect(mockWebSocket.prototype.send).toBeCalledWith('ping')
+    })
+
+    it('should unwrap a ref-like responseMessage', async () => {
+      const { result, act } = await renderHook(() => useWebSocket('ws://localhost', {
+        heartbeat: {
+          responseMessage: { current: 'pong' } as unknown as WebSocketHeartbeatMessage,
+        },
+      }))
+
+      await act(() => {
+        result.current.ws?.onopen?.(new Event('open'))
+      })
+
+      const ev = new MessageEvent('message', {
+        data: 'pong',
+      })
+
+      await act(() => {
+        result.current.ws?.onmessage?.(ev)
+      })
+
+      expect(result.current.data).toBe(null)
     })
 
     it('should not send a heartbeat if heartbeat=false', async () => {
