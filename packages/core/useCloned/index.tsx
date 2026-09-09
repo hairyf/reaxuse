@@ -1,6 +1,7 @@
 import type { State } from '@reaxuse/shared'
+import type { Dispatch, SetStateAction } from 'react'
 import { deepClone, deepEqual, isRefLike, toValue } from '@reaxuse/shared'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 export interface UseClonedOptions<T = any> {
   /**
@@ -34,20 +35,28 @@ export interface UseClonedOptions<T = any> {
   immediate?: boolean
 }
 
-export interface UseClonedReturn<T> {
+export type UseClonedReturn<T> = readonly [
   /**
    * Cloned value — React state holding a (deep) copy of the source.
    */
-  cloned: T
+  cloned: T,
   /**
-   * Whether the cloned value has been modified since the last sync.
+   * Replace the clone state with the React immutable-update protocol:
+   * `setCloned(next)` or `setCloned(prev => next)`. It does not re-sync from
+   * the source — use `controls.sync()` for that.
    */
-  isModified: boolean
-  /**
-   * Sync cloned data with source manually
-   */
-  sync: () => void
-}
+  setCloned: Dispatch<SetStateAction<T>>,
+  controls: {
+    /**
+     * Whether the cloned value has been modified since the last sync.
+     */
+    isModified: boolean
+    /**
+     * Sync cloned data with source manually
+     */
+    sync: () => void
+  },
+]
 
 export type CloneFn<F, T = F> = (x: F) => T
 
@@ -82,9 +91,8 @@ function isReactiveState<T>(source: State<T>): boolean {
  *
  * Map from @vueuse/core `useCloned`
  * (`source/vueuse/packages/core/useCloned/`). Returns a deep clone of the
- * source as state — `{ cloned, sync, isModified }`, mirroring the upstream
- * object return. The clone follows the source automatically: it re-syncs
- * whenever the resolved source changes, unless `manual` is set.
+ * source as React state. The clone follows the source automatically: it
+ * re-syncs whenever the resolved source changes, unless `manual` is set.
  *
  * `source` accepts a React `State<T>` — a plain value, a getter
  * (`() => value`), a React ref (`{ current }`), a `[value, setter]` tuple, or
@@ -94,8 +102,17 @@ function isReactiveState<T>(source: State<T>): boolean {
  * through `toValue`.
  *
  * React divergences:
- * - upstream's writable `Ref<T>` becomes a plain state value. Edit the clone
- *   in place and the modification is picked up on the next render
+ * - the return is a React tuple `[cloned, setCloned, { isModified, sync }]`
+ *   instead of upstream's object `{ cloned: Ref<T>, isModified, sync }`.
+ *   `cloned` is plain state and `setCloned` replaces it with the React
+ *   immutable-update protocol — `setCloned(next)` or
+ *   `setCloned(prev => next)`. `setCloned` never re-syncs from the source
+ *   (use `sync()` for that); it recomputes `isModified` against the last
+ *   synced source (`deepEqual` for `deep: true`, `Object.is` for
+ *   `deep: false`). The `controls` object keeps a stable identity while
+ *   `isModified` and `sync` are unchanged;
+ * - `setCloned` is the idiomatic way to edit the clone. In-place mutation of
+ *   `cloned` is still detected on the next render as a legacy fallback
  *   (structural comparison — upstream: `watch(cloned, ..., { deep: true })`),
  *   flipping `isModified` to `true`; `sync()` re-clones from the source and
  *   resets it;
@@ -112,9 +129,10 @@ function isReactiveState<T>(source: State<T>): boolean {
  *   — with `deep: false` a new object in `.current` re-syncs on every render.
  *
  * @example
- * const { cloned, isModified, sync } = useCloned(original)
+ * const [cloned, setCloned, { isModified, sync }] = useCloned(original)
  *
- * cloned.key = 'new value' // next render sets isModified to true
+ * setCloned({ key: 'new value' }) // isModified → true
+ * setCloned(prev => ({ ...prev, key: 'another' })) // functional update
  * sync() // re-clone from the source, isModified back to false
  */
 export function useCloned<T>(
@@ -143,12 +161,17 @@ export function useCloned<T>(
   const isReactiveSource = isReactiveState(source)
   const initialSync = manual || !isReactiveSource || immediate
 
-  const [cloned, setCloned] = useState<T>(() => {
+  const [cloned, setClonedState] = useState<T>(() => {
     if (!initialSync)
       return {} as T
     return clone(toValue(sourceRef.current))
   })
   const [isModified, setIsModified] = useState(false)
+
+  // latest clone state — the wrapped `setCloned` resolves functional updaters
+  // against this, so consecutive calls in one handler compose correctly
+  const clonedRef = useRef(cloned)
+  clonedRef.current = cloned
 
   // isolated baselines for the two detectors below — deep copies, so an
   // in-place mutation of the live source (or of `cloned`) stays visible to
@@ -172,14 +195,31 @@ export function useCloned<T>(
     // clone and an up-to-date source (upstream: `_lastSync` flag)
     sourceBaselineRef.current = deep ? deepClone(current) : current
     clonedBaselineRef.current = deepClone(next)
-    setCloned(next)
+    clonedRef.current = next
+    setClonedState(next)
     setIsModified(false)
   }, [clone, deep])
 
-  // modification detector (upstream: `watch(cloned, cb, { deep: true,
-  // flush: 'sync' })`) — runs after every render comparing the clone against
-  // its last-synced snapshot: React has no way to observe in-place mutations
-  // except by re-comparing on a re-render
+  // idiomatic modification path (React immutable updates): replace the clone
+  // without re-syncing from the source, and keep `isModified` in sync by
+  // comparing the new value against the last synced baseline (`deepEqual` for
+  // `deep: true`, `Object.is` for `deep: false`)
+  const setCloned = useCallback<Dispatch<SetStateAction<T>>>((action) => {
+    const prev = clonedRef.current
+    const next = typeof action === 'function' ? (action as (value: T) => T)(prev) : action
+    clonedRef.current = next
+    setClonedState(next)
+    const changed = deep
+      ? !deepEqual(next, clonedBaselineRef.current)
+      : !Object.is(next, clonedBaselineRef.current)
+    setIsModified(changed)
+  }, [deep])
+
+  // legacy fallback for in-place mutation (upstream: `watch(cloned, cb,
+  // { deep: true, flush: 'sync' })`) — `setCloned` is the idiomatic path and
+  // already maintains `isModified`; this render-time comparison keeps
+  // mutating `cloned` directly working, since React cannot observe an
+  // in-place mutation except by re-comparing on a re-render
   useEffect(() => {
     if (!deepEqual(cloned, clonedBaselineRef.current))
       setIsModified(true)
@@ -199,5 +239,8 @@ export function useCloned<T>(
       sync()
   })
 
-  return { cloned, isModified, sync }
+  // stable controls object — new identity only when its members change
+  const controls = useMemo(() => ({ isModified, sync }), [isModified, sync])
+
+  return [cloned, setCloned, controls]
 }
