@@ -60,8 +60,8 @@ export interface UseVirtualListReturn<T> {
   containerProps: {
     /**
      * Ref callback to attach to the scroll container element. Spread
-     * `containerProps` onto the container `<div>` (or a ref-like object is
-     * exposed through `containerProps.ref`).
+     * `containerProps` onto the container `<div>` — `ref` is a ref callback
+     * exposing the container element.
      */
     ref: (element: HTMLElement | null) => void
     onScroll: () => void
@@ -200,7 +200,7 @@ function getTotalSize<T>(source: readonly T[], itemSize: UseVirtualListItemSize)
  *   },
  * )
  *
- * // <div {...containerProps} style={{ height: '300px' }}>
+ * // <div {...containerProps} style={{ ...containerProps.style, height: '300px' }}>
  * //   <div {...wrapperProps}>
  * //     {list.map(item => <div key={item.index} style={{ height: 22 }}>Row: {item.data}</div>)}
  * //   </div>

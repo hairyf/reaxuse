@@ -27,7 +27,7 @@ const { list, containerProps, wrapperProps } = useVirtualList(
 ```
 
 ```tsx
-<div {...containerProps} style={{ height: '300px' }}>
+<div {...containerProps} style={{ ...containerProps.style, height: '300px' }}>
   <div {...wrapperProps}>
     {list.map(item => (
       // `item` is `{ data, index }` — `index` is the absolute index
@@ -40,6 +40,16 @@ const { list, containerProps, wrapperProps } = useVirtualList(
   </div>
 </div>
 ```
+
+### Config
+
+| State      | Type     | Description                                                                                     |
+| ---------- | -------- | ----------------------------------------------------------------------------------------------- |
+| itemHeight | `number` | ensure that the total height of the `wrapper` element is calculated correctly.\*                |
+| itemWidth  | `number` | ensure that the total width of the `wrapper` element is calculated correctly.\*                 |
+| overscan   | `number` | number of pre-rendered DOM nodes. Prevents whitespace between items if you scroll very quickly. |
+
+\* The `itemHeight` or `itemWidth` must be kept in sync with the height of each row rendered. If you are seeing extra whitespace or jitter when scrolling to the bottom of the list, ensure the `itemHeight` or `itemWidth` is the same height as the row.
 
 ### Source Forms
 
@@ -83,7 +93,7 @@ const { list, containerProps, wrapperProps } = useVirtualList(
 ```
 
 ```tsx
-<div {...containerProps} style={{ height: '300px' }}>
+<div {...containerProps} style={{ ...containerProps.style, height: '300px' }}>
   <div {...wrapperProps}>
     {list.map(item => (
       <div key={item.index} style={{ width: 200 }}>
