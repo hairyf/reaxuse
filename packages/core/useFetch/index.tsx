@@ -1,4 +1,5 @@
 import type { RefOrValue } from '@reaxuse/shared'
+import type { Dispatch, SetStateAction } from 'react'
 import { isClient, isRefLike, toValue, useTimeoutFn } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -14,9 +15,23 @@ export interface UseFetchReturn<T> {
   statusCode: number | null
 
   /**
+   * Set `statusCode` directly — the React equivalent of writing upstream's
+   * writable `statusCode` shallowRef. Accepts the React immutable-update
+   * protocol: `setStatusCode(next)` or `setStatusCode(prev => next)`.
+   */
+  setStatusCode: Dispatch<SetStateAction<number | null>>
+
+  /**
    * The raw response of the fetch response
    */
   response: Response | null
+
+  /**
+   * Set `response` directly — the React equivalent of writing upstream's
+   * writable `response` shallowRef. Accepts the React immutable-update
+   * protocol: `setResponse(next)` or `setResponse(prev => next)`.
+   */
+  setResponse: Dispatch<SetStateAction<Response | null>>
 
   /**
    * Any fetch errors that may have occurred
@@ -24,9 +39,24 @@ export interface UseFetchReturn<T> {
   error: any
 
   /**
+   * Set `error` directly — the React equivalent of writing upstream's
+   * writable `error` shallowRef. Accepts the React immutable-update protocol:
+   * `setError(next)` or `setError(prev => next)`.
+   */
+  setError: Dispatch<SetStateAction<any>>
+
+  /**
    * The fetch response body on success, may either be JSON or text
    */
   data: T | null
+
+  /**
+   * Set `data` directly, without triggering a request — the React equivalent
+   * of writing upstream's writable `data` shallowRef (`data.value = next`).
+   * Accepts the React immutable-update protocol: `setData(next)` or
+   * `setData(prev => next)`.
+   */
+  setData: Dispatch<SetStateAction<T | null>>
 
   /**
    * Indicates if the request is currently being fetched.
@@ -42,6 +72,14 @@ export interface UseFetchReturn<T> {
    * Indicates if the fetch request was aborted
    */
   aborted: boolean
+
+  /**
+   * Set `aborted` directly, without triggering a request — the React
+   * equivalent of writing upstream's writable `aborted` shallowRef. Accepts
+   * the React immutable-update protocol: `setAborted(next)` or
+   * `setAborted(prev => next)`.
+   */
+  setAborted: Dispatch<SetStateAction<boolean>>
 
   /**
    * Abort the fetch request
@@ -395,6 +433,14 @@ export function createFetch(config: CreateFetchOptions = {}) {
  *   fresh), plus the chained methods (`.get()` / `.post()` / `.json()` / …)
  *   and a `then` for PromiseLike semantics — `await useFetch(url).json()` is
  *   supported;
+ * - upstream's writable shallow refs (`data`, `error`, `statusCode`,
+ *   `response`, `aborted`) are each paired with a setter (`setData`,
+ *   `setError`, `setStatusCode`, `setResponse`, `setAborted`) following the
+ *   React immutable-update protocol (`setData(next)` / `setData(prev =>
+ *   next)`), the same way `useAsyncState` pairs `setState` with its `state`;
+ * - like upstream, chaining a method or return-type setter while a request is
+ *   in-flight returns `undefined` instead of the shell (the mutation is
+ *   ignored until the request finishes);
  * - requests are fired from a mount effect (upstream fires synchronously
  *   during setup): with `immediate` the first request starts after mount, and
  *   any in-flight request is aborted on unmount;
@@ -471,11 +517,11 @@ export function useFetch<T>(url: string, ...args: any[]): UseFetchReturn<T> & Pr
 
   const [isFinished, setIsFinished] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
-  const [aborted, setAborted] = useState(false)
-  const [statusCode, setStatusCode] = useState<number | null>(null)
-  const [response, setResponse] = useState<Response | null>(null)
-  const [error, setError] = useState<any>(null)
-  const [data, setData] = useState<T | null>(optionsRef.current.initialData ?? null)
+  const [aborted, setAbortedState] = useState(false)
+  const [statusCode, setStatusCodeState] = useState<number | null>(null)
+  const [response, setResponseState] = useState<Response | null>(null)
+  const [error, setErrorState] = useState<any>(null)
+  const [data, setDataState] = useState<T | null>(optionsRef.current.initialData || null)
 
   // Event hooks — inlined `createEventHook` (see module-level helper).
   const responseEventRef = useRef(createEventHook<Response>())
@@ -488,7 +534,11 @@ export function useFetch<T>(url: string, ...args: any[]): UseFetchReturn<T> & Pr
   const waitersRef = useRef<Array<{ resolve: (value: UseFetchReturn<T>) => void }>>([])
 
   // fetch is captured once at setup (upstream destructures it once too).
-  const fetchRef = useRef<typeof window.fetch | undefined>(optionsRef.current.fetch ?? (isClient ? window.fetch : undefined))
+  const fetchRef = useRef<typeof window.fetch | undefined>(
+    optionsRef.current.fetch
+    ?? (isClient ? window.fetch : undefined)
+    ?? (typeof globalThis !== 'undefined' ? globalThis.fetch : undefined),
+  )
 
   const lastUrlRef = useRef(url)
   const lastRefetchRef = useRef(toValue(refetchOption))
@@ -534,7 +584,7 @@ export function useFetch<T>(url: string, ...args: any[]): UseFetchReturn<T> & Pr
     if (supportsAbort) {
       controllerRef.current?.abort(reason)
       controllerRef.current = new AbortController()
-      controllerRef.current.signal.onabort = () => setAborted(true)
+      controllerRef.current.signal.onabort = () => setAbortedState(true)
       fetchOptionsRef.current = {
         ...fetchOptionsRef.current,
         signal: controllerRef.current.signal,
@@ -545,6 +595,45 @@ export function useFetch<T>(url: string, ...args: any[]): UseFetchReturn<T> & Pr
   const timeoutTimer = useTimeoutFn(abort, optionsRef.current.timeout ?? 0, { immediate: false })
   const timerRef = useRef(timeoutTimer)
   timerRef.current = timeoutTimer
+
+  // Public setters paired with the writable members — the React equivalent of
+  // writing upstream's writable shallow refs (`data.value = next`, …). Each
+  // writes the live mirror synchronously (so a captured shell reads the new
+  // value immediately) and commits the React state for the next render.
+  const setData = useCallback<Dispatch<SetStateAction<T | null>>>((action) => {
+    const prev = liveRef.current.data
+    const next = typeof action === 'function' ? (action as (value: T | null) => T | null)(prev) : action
+    liveRef.current.data = next
+    setDataState(next)
+  }, [])
+
+  const setError = useCallback<Dispatch<SetStateAction<any>>>((action) => {
+    const prev = liveRef.current.error
+    const next = typeof action === 'function' ? (action as (value: any) => any)(prev) : action
+    liveRef.current.error = next
+    setErrorState(next)
+  }, [])
+
+  const setStatusCode = useCallback<Dispatch<SetStateAction<number | null>>>((action) => {
+    const prev = liveRef.current.statusCode
+    const next = typeof action === 'function' ? (action as (value: number | null) => number | null)(prev) : action
+    liveRef.current.statusCode = next
+    setStatusCodeState(next)
+  }, [])
+
+  const setResponse = useCallback<Dispatch<SetStateAction<Response | null>>>((action) => {
+    const prev = liveRef.current.response
+    const next = typeof action === 'function' ? (action as (value: Response | null) => Response | null)(prev) : action
+    liveRef.current.response = next
+    setResponseState(next)
+  }, [])
+
+  const setAborted = useCallback<Dispatch<SetStateAction<boolean>>>((action) => {
+    const prev = liveRef.current.aborted
+    const next = typeof action === 'function' ? (action as (value: boolean) => boolean)(prev) : action
+    liveRef.current.aborted = next
+    setAbortedState(next)
+  }, [])
 
   const executeRef = useRef<(throwOnFailed?: boolean) => Promise<any>>(() => Promise.resolve(null))
 
@@ -558,9 +647,9 @@ export function useFetch<T>(url: string, ...args: any[]): UseFetchReturn<T> & Pr
     executingRef.current = true
     setIsFetching(true)
     setIsFinished(false)
-    setError(null)
-    setStatusCode(null)
-    setAborted(false)
+    setErrorState(null)
+    setStatusCodeState(null)
+    setAbortedState(false)
 
     executeCounterRef.current += 1
     const currentExecuteCounter = executeCounterRef.current
@@ -628,8 +717,8 @@ export function useFetch<T>(url: string, ...args: any[]): UseFetchReturn<T> & Pr
     )
       .then(async (fetchResponse) => {
         if (currentExecuteCounter === executeCounterRef.current) {
-          setResponse(fetchResponse)
-          setStatusCode(fetchResponse.status)
+          setResponseState(fetchResponse)
+          setStatusCodeState(fetchResponse.status)
         }
 
         responseData = await fetchResponse.clone()[configRef.current.type]()
@@ -637,7 +726,7 @@ export function useFetch<T>(url: string, ...args: any[]): UseFetchReturn<T> & Pr
         // see: https://www.tjvantoll.com/2015/09/13/fetch-and-errors/
         if (!fetchResponse.ok) {
           if (currentExecuteCounter === executeCounterRef.current)
-            setData(optionsRef.current.initialData ?? null)
+            setDataState(optionsRef.current.initialData || null)
           throw new Error(fetchResponse.statusText)
         }
 
@@ -650,7 +739,7 @@ export function useFetch<T>(url: string, ...args: any[]): UseFetchReturn<T> & Pr
           }))
         }
         if (currentExecuteCounter === executeCounterRef.current)
-          setData(responseData)
+          setDataState(responseData)
 
         responseEventRef.current.trigger(fetchResponse)
         return fetchResponse
@@ -673,9 +762,9 @@ export function useFetch<T>(url: string, ...args: any[]): UseFetchReturn<T> & Pr
         }
 
         if (currentExecuteCounter === executeCounterRef.current) {
-          setError(errorData)
+          setErrorState(errorData)
           if (optionsRef.current.updateDataOnError)
-            setData(responseData)
+            setDataState(responseData)
         }
 
         errorEventRef.current.trigger(fetchError)
@@ -726,19 +815,22 @@ export function useFetch<T>(url: string, ...args: any[]): UseFetchReturn<T> & Pr
 
   function setMethod(method: HttpMethod) {
     return (payload?: unknown, payloadType?: string) => {
-      if (!executingRef.current) {
-        configRef.current.method = method
-        configRef.current.payload = payload
-        configRef.current.payloadType = payloadType
-      }
+      if (executingRef.current)
+        // upstream returns `undefined` while a request is in-flight
+        return undefined as unknown as UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+      configRef.current.method = method
+      configRef.current.payload = payload
+      configRef.current.payloadType = payloadType
       return shellRef.current as UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
     }
   }
 
   function setType(type: DataType) {
     return () => {
-      if (!executingRef.current)
-        configRef.current.type = type
+      if (executingRef.current)
+        // upstream returns `undefined` while a request is in-flight
+        return undefined as unknown as UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+      configRef.current.type = type
       return shellRef.current as UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
     }
   }
@@ -757,21 +849,26 @@ export function useFetch<T>(url: string, ...args: any[]): UseFetchReturn<T> & Pr
       get statusCode() {
         return liveRef.current.statusCode
       },
+      setStatusCode,
       get response() {
         return liveRef.current.response
       },
+      setResponse,
       get error() {
         return liveRef.current.error
       },
+      setError,
       get data() {
         return liveRef.current.data
       },
+      setData,
       get canAbort() {
         return liveRef.current.canAbort
       },
       get aborted() {
         return liveRef.current.aborted
       },
+      setAborted,
       abort,
       execute,
       onFetchResponse: responseEventRef.current.on,

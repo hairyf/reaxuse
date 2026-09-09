@@ -50,7 +50,6 @@ const { data: refData } = useFetch(urlRef.current, { refetch: true }) // resolve
 
 Using a React ref object for the url parameter will allow the
 `useFetch` function to automatically trigger another request when the url changes.
-A plain string url re-fetches when the render value changes.
 
 ```ts
 import { useFetch } from '@reaxuse/core'
@@ -252,6 +251,84 @@ const { isFetching, error, data } = useMyFetch('users', {
     }
   },
 })
+```
+
+You can re-execute the request by calling the `execute` method in `afterFetch` or `onFetchError`. Here is a simple example of refreshing a token:
+
+```ts
+import { createFetch } from '@reaxuse/core'
+// ---cut---
+let isRefreshing = false
+const refreshSubscribers: Array<() => void> = []
+
+const useMyFetch = createFetch({
+  baseUrl: 'https://my-api.com',
+  options: {
+    async beforeFetch({ options }) {
+      const myToken = await getMyToken()
+      options.headers.Authorization = `Bearer ${myToken}`
+
+      return { options }
+    },
+    afterFetch({ data, response, context, execute }) {
+      if (needRefreshToken) {
+        if (!isRefreshing) {
+          isRefreshing = true
+          refreshToken().then((newToken) => {
+            if (newToken) {
+              isRefreshing = false
+              setMyToken(newToken)
+              onRefreshed()
+            }
+            else {
+              refreshSubscribers.length = 0
+              // handle refresh token error
+            }
+          })
+        }
+
+        return new Promise((resolve) => {
+          addRefreshSubscriber(() => {
+            execute().then((response) => {
+              resolve({ data, response })
+            })
+          })
+        })
+      }
+
+      return { data, response }
+    },
+    // or use onFetchError with updateDataOnError
+    updateDataOnError: true,
+    onFetchError({ error, data, response, context, execute }) {
+      // same as afterFetch
+      return { error, data }
+    },
+  },
+  fetchOptions: {
+    mode: 'cors',
+  },
+})
+
+async function refreshToken() {
+  const { data, execute } = useFetch<string>('refresh-token', {
+    immediate: false,
+  })
+
+  await execute()
+  return data
+}
+
+function onRefreshed() {
+  refreshSubscribers.forEach(callback => callback())
+  refreshSubscribers.length = 0
+}
+
+function addRefreshSubscriber(callback: () => void) {
+  refreshSubscribers.push(callback)
+}
+
+const { isFetching, error, data } = useMyFetch('users')
 ```
 
 ### Events

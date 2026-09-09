@@ -236,7 +236,7 @@ describe('useFetch', () => {
 
   it('should refetch if refetch is set to true', async () => {
     const { rerender } = await renderHook(
-      (props: { url: string }) => useFetch(props.url, { refetch: true }),
+      (props: { url: string } = { url: baseUrl }) => useFetch(props.url, { refetch: true }),
       { initialProps: { url: baseUrl } },
     )
     await rerender({ url: `${baseUrl}?text` })
@@ -247,7 +247,7 @@ describe('useFetch', () => {
 
   it('should auto refetch when refetch is set to true and the payload changes', async () => {
     const { rerender } = await renderHook(
-      (props: { payload: unknown }) => useFetch(baseUrl, { refetch: true }).post(props.payload),
+      (props: { payload: unknown } = { payload: { num: 1 } }) => useFetch(baseUrl, { refetch: true }).post(props.payload),
       { initialProps: { payload: { num: 1 } } },
     )
 
@@ -741,21 +741,24 @@ describe('useFetch', () => {
   })
 
   it('setting the request method w/ get and return type w/ json', async () => {
-    const { result } = await renderHook(() => useFetch(jsonUrl).get().json())
+    const { result } = await renderHook(() => useFetch(jsonUrl, { immediate: false }))
+    result.current.get().json()
+    await result.current.execute()
     await vi.waitFor(() => {
       expect(result.current.data).toEqual(jsonMessage)
     })
   })
 
   it('setting the request method w/ post and return type w/ text', async () => {
-    const { result } = await renderHook(() => useFetch(jsonUrl).post().text())
+    const { result } = await renderHook(() => useFetch(jsonUrl, { immediate: false }))
+    result.current.post().text()
+    await result.current.execute()
     await vi.waitFor(() => expect(result.current.data).toEqual(JSON.stringify(jsonMessage)))
   })
 
   it('allow setting response type before doing request', async () => {
-    const { result } = await renderHook(() => useFetch(jsonUrl, {
-      immediate: false,
-    }).get().text())
+    const { result } = await renderHook(() => useFetch(jsonUrl, { immediate: false }))
+    result.current.get().text()
     result.current.json()
     await result.current.execute()
     await vi.waitFor(() => {
@@ -764,12 +767,13 @@ describe('useFetch', () => {
   })
 
   it('not allowed setting request method and response type while doing request', async () => {
-    const { result } = await renderHook(() => useFetch(jsonUrl).get().text())
-    await vi.waitFor(() => {
-      expect(fetchSpy).toHaveBeenCalledOnce()
-    })
-    result.current.post()
-    result.current.json()
+    const { result } = await renderHook(() => useFetch(jsonUrl, { immediate: false }))
+    result.current.get().text()
+    // start the request without awaiting — keep it in-flight
+    result.current.execute()
+    // while in-flight, the method/type setters are ignored and return undefined
+    expect(result.current.post()).toBeUndefined()
+    expect(result.current.json()).toBeUndefined()
     await vi.waitFor(() => {
       expect(fetchSpy).toHaveBeenCalledOnce()
       expect(result.current.data).toEqual(JSON.stringify(jsonMessage))
@@ -794,14 +798,18 @@ describe('useFetch', () => {
   })
 
   it('should await request', async () => {
-    const { result } = await renderHook(() => useFetch(jsonUrl).get())
+    const { result } = await renderHook(() => useFetch(jsonUrl, { immediate: false }))
+    result.current.get()
+    void result.current.execute()
     const { data } = await result.current
     expect(data).toEqual(JSON.stringify(jsonMessage))
     expect(fetchSpy).toBeCalledTimes(1)
   })
 
   it('should await json response', async () => {
-    const { result } = await renderHook(() => useFetch(jsonUrl).json())
+    const { result } = await renderHook(() => useFetch(jsonUrl, { immediate: false }))
+    result.current.json()
+    void result.current.execute()
 
     await result.current
     expect(result.current.data).toEqual(jsonMessage)
@@ -829,7 +837,7 @@ describe('useFetch', () => {
   it('should listen url change abort previous request', async () => {
     const onFetchResponseSpy = vi.fn()
     const { result, rerender } = await renderHook(
-      (props: { url: string }) => useFetch(props.url, { refetch: true, immediate: false }),
+      (props: { url: string } = { url: baseUrl }) => useFetch(props.url, { refetch: true, immediate: false }),
       { initialProps: { url: baseUrl } },
     )
 
@@ -848,7 +856,7 @@ describe('useFetch', () => {
 
   it('should clear error when refetch succeeds after aborting previous request', async () => {
     const { result, rerender } = await renderHook(
-      (props: { url: string }) => useFetch(props.url, { refetch: true }).json(),
+      (props: { url: string } = { url: `${baseUrl}?delay=50` }) => useFetch(props.url, { refetch: true }).json(),
       { initialProps: { url: `${baseUrl}?delay=50` } },
     )
     await nextTick()
@@ -869,7 +877,8 @@ describe('useFetch', () => {
     const responseSpy = vi.fn()
 
     const { result, rerender } = await renderHook(
-      (props: { url: string }) => useFetch(props.url, {
+      (props: { url: string } = { url: jsonUrl }) => useFetch(props.url, {
+        immediate: false,
         refetch: true,
         async afterFetch(ctx) {
           afterFetchSpy()
@@ -877,11 +886,13 @@ describe('useFetch', () => {
             await firstReleased
           return ctx
         },
-      }).json(),
+      }),
       { initialProps: { url: jsonUrl } },
     )
+    result.current.json()
     result.current.onFetchResponse(responseSpy)
 
+    void result.current.execute()
     await vi.waitFor(() => {
       expect(afterFetchSpy).toHaveBeenCalled()
     })
@@ -901,7 +912,7 @@ describe('useFetch', () => {
     // `immediate: false` — the payload is a plain value, so the request is
     // only fired by `execute()` after the payload has been provided.
     const { result, rerender } = await renderHook(
-      (props: { payload?: unknown }) => useFetch(baseUrl, { immediate: false }).post(props.payload),
+      (props: { payload?: unknown } = { payload: undefined }) => useFetch(baseUrl, { immediate: false }).post(props.payload),
       { initialProps: { payload: undefined as unknown } },
     )
 
@@ -1013,5 +1024,60 @@ describe('useFetch', () => {
       expect(result.current.aborted).toBe(true)
       expect(error).toBe(reason)
     })
+  })
+
+  it('coerces falsy initialData to null like upstream', async () => {
+    const { result } = await renderHook(() => useFetch(baseUrl, { immediate: false, initialData: '' }))
+    expect(result.current.data).toBeNull()
+
+    const { result: zeroResult } = await renderHook(() => useFetch(baseUrl, { immediate: false, initialData: 0 }))
+    expect(zeroResult.current.data).toBeNull()
+
+    const { result: falseResult } = await renderHook(() => useFetch(baseUrl, { immediate: false, initialData: false }))
+    expect(falseResult.current.data).toBeNull()
+  })
+
+  it('setData / setError / setStatusCode / setResponse / setAborted write their state', async () => {
+    const { result, act } = await renderHook(() => useFetch<{ hello: string }>(baseUrl, { immediate: false }))
+
+    await act(() => {
+      result.current.setData({ hello: 'world' })
+      result.current.setError(new Error('boom'))
+      result.current.setStatusCode(418)
+      result.current.setResponse(new Response('payload', { status: 200 }))
+      result.current.setAborted(true)
+    })
+
+    expect(result.current.data).toEqual({ hello: 'world' })
+    expect(result.current.error).toEqual(new Error('boom'))
+    expect(result.current.statusCode).toBe(418)
+    expect(result.current.response?.status).toBe(200)
+    expect(result.current.aborted).toBe(true)
+
+    // the React immutable-update protocol — functional updaters see the latest value
+    await act(() => {
+      result.current.setData(prev => ({ hello: prev?.hello ?? 'world', again: true }))
+    })
+    expect(result.current.data).toEqual({ hello: 'world', again: true })
+    await act(() => {
+      result.current.setAborted(prev => !prev)
+    })
+    expect(result.current.aborted).toBe(false)
+  })
+
+  it('returns undefined from method/type setters while a request is in-flight', async () => {
+    const { result } = await renderHook(() => useFetch(`${baseUrl}?delay=100`, { immediate: false }))
+
+    // in-flight: the chain methods are no-ops and return undefined (upstream behavior)
+    result.current.execute()
+    expect(result.current.post({ x: 1 })).toBeUndefined()
+    expect(result.current.json()).toBeUndefined()
+
+    await vi.waitFor(() => {
+      expect(result.current.isFinished).toBe(true)
+    })
+    // once finished, chaining returns the shell again
+    expect(result.current.post({ x: 1 })).toBeTruthy()
+    expect(result.current.json()).toBeTruthy()
   })
 })
