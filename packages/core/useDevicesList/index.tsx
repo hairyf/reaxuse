@@ -1,9 +1,14 @@
 import type { ConfigurableNavigator } from '../useUserMedia'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { usePermission } from '../usePermission'
 import { useSupported } from '../useSupported'
 
 export interface UseDevicesListOptions extends ConfigurableNavigator {
+  /**
+   * Fired after every successful device enumeration (`devices` update).
+   *
+   * @default undefined
+   */
+  onUpdated?: (devices: MediaDeviceInfo[]) => void
   /**
    * Request for permissions immediately if it's not granted,
    * otherwise label and deviceIds could be empty
@@ -61,14 +66,15 @@ export interface UseDevicesListReturn {
  *   `devicechange` listener, runs the initial enumeration and optionally
  *   requests permissions (upstream: `if (isSupported.value)` setup block +
  *   `useEventListener`);
- * - upstream's `onUpdated` option becomes an `onUpdated` registration
- *   function in the return (`(fn) => { off }`, `useListener` protocol),
- *   invoked after every successful enumeration;
- * - upstream calls `usePermission` lazily inside `ensurePermissions`; React
- *   hooks can't be called on demand, so the permission query is hoisted to
- *   the hook top and `ensurePermissions` re-queries through its stable
- *   `query` handle (upstream re-created the hook per call, re-querying the
- *   same status);
+ * - upstream's `onUpdated` option is kept as an option (fired after every
+ *   successful enumeration), and an `onUpdated` registration function in the
+ *   return (`(fn) => { off }`, `useListener` protocol) is additionally
+ *   provided for the same event;
+ * - upstream calls `usePermission` lazily inside `ensurePermissions`; the
+ *   permission query is inlined here and likewise only runs when
+ *   `ensurePermissions` is called — no `navigator.permissions.query` fires on
+ *   mount (upstream re-created the hook per call, re-querying the same
+ *   status);
  * - the transient `getUserMedia` stream that triggers the permission prompt
  *   is held in a ref (upstream: closure variable) and stopped after the next
  *   enumeration.
@@ -90,10 +96,6 @@ export function useDevicesList(options: UseDevicesListOptions = {}): UseDevicesL
     return Boolean(nav?.mediaDevices?.enumerateDevices)
   })
 
-  // Hoisted upstream's lazy `usePermission` inside `ensurePermissions` — the
-  // stable `query` handle re-queries on demand.
-  const { query } = usePermission(constraints.video ? 'camera' : 'microphone', { controls: true })
-
   // Latest-value refs keep the stable callbacks fresh without re-creating
   // their identities across renders.
   const isSupportedRef = useRef(false)
@@ -101,6 +103,8 @@ export function useDevicesList(options: UseDevicesListOptions = {}): UseDevicesL
   const permissionGrantedRef = useRef(false)
   const constraintsRef = useRef(constraints)
   constraintsRef.current = constraints
+  const onUpdatedRef = useRef(options.onUpdated)
+  onUpdatedRef.current = options.onUpdated
   const navigatorRef = useRef<Navigator | undefined>(
     options.navigator ?? (typeof navigator === 'undefined' ? undefined : navigator),
   )
@@ -109,8 +113,9 @@ export function useDevicesList(options: UseDevicesListOptions = {}): UseDevicesL
   // closure variable — a ref survives React renders and stays stop-able).
   const streamRef = useRef<MediaStream | null>(null)
 
-  // `onUpdated` — upstream's option callback becomes a `useListener`-style
-  // registration function fired after every successful enumeration.
+  // `onUpdated` — upstream's option callback, plus a `useListener`-style
+  // registration function exposed on the return, both fired after every
+  // successful enumeration.
   const updatedFns = useRef(new Set<(devices: MediaDeviceInfo[]) => void>())
 
   const onUpdated = useCallback((fn: (devices: MediaDeviceInfo[]) => void) => {
@@ -123,7 +128,26 @@ export function useDevicesList(options: UseDevicesListOptions = {}): UseDevicesL
   }, [])
 
   const updateTrigger = useCallback((nextDevices: MediaDeviceInfo[]) => {
+    onUpdatedRef.current?.(nextDevices)
     Array.from(updatedFns.current).forEach(fn => fn(nextDevices))
+  }, [])
+
+  // Inlined upstream's lazy `usePermission(...).query()` inside
+  // `ensurePermissions` — the query only runs on demand, so no
+  // `navigator.permissions.query` fires on mount (`usePermission` is a hook
+  // and would run its own mount query, which upstream avoids by creating it
+  // per `ensurePermissions` call).
+  const queryPermissionStatus = useCallback(async (): Promise<PermissionStatus | undefined> => {
+    const permissions = navigatorRef.current?.permissions
+    if (!permissions)
+      return undefined
+    const deviceName = constraintsRef.current.video ? 'camera' : 'microphone'
+    try {
+      return await permissions.query({ name: deviceName })
+    }
+    catch {
+      return undefined
+    }
   }, [])
 
   // Unmount cleanup of the event subscriptions (upstream `tryOnScopeDispose`).
@@ -159,7 +183,7 @@ export function useDevicesList(options: UseDevicesListOptions = {}): UseDevicesL
     if (permissionGrantedRef.current)
       return true
 
-    const status = await query()
+    const status = await queryPermissionStatus()
     if (status?.state !== 'granted') {
       let granted = true
       try {
@@ -167,7 +191,11 @@ export function useDevicesList(options: UseDevicesListOptions = {}): UseDevicesL
         const allDevices = await nav!.mediaDevices.enumerateDevices()
         const hasCamera = allDevices.some(device => device.kind === 'videoinput')
         const hasMicrophone = allDevices.some(device => device.kind === 'audioinput' || device.kind === 'audiooutput')
+        // upstream mutates the caller's `constraints` object; here the
+        // adjustments are applied to a fresh copy so extra top-level
+        // constraint keys are preserved and the caller's object is untouched
         streamRef.current = await nav!.mediaDevices.getUserMedia({
+          ...currentConstraints,
           video: hasCamera ? currentConstraints.video : false,
           audio: hasMicrophone ? currentConstraints.audio : false,
         })
@@ -186,7 +214,7 @@ export function useDevicesList(options: UseDevicesListOptions = {}): UseDevicesL
     }
 
     return permissionGrantedRef.current
-  }, [query, update])
+  }, [queryPermissionStatus, update])
 
   // Initial enumeration + `devicechange` listener + optional permission
   // request, once supported (upstream: `if (isSupported.value)` setup block +
