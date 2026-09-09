@@ -253,4 +253,67 @@ describe('useMutationObserver', () => {
 
     await unmount()
   })
+
+  it('should return undefined from takeRecords without a target', async () => {
+    const cb = vi.fn()
+
+    const { result, unmount } = await renderHook(() => useMutationObserver([], cb, {
+      attributes: true,
+    }))
+
+    await flush()
+    expect(result.current.takeRecords()).toBeUndefined()
+
+    await unmount()
+  })
+
+  it('should not build an observer while the target ref is empty', async () => {
+    const element: { current: HTMLDivElement | null } = { current: null }
+    const cb = vi.fn()
+
+    const { rerender, result, unmount } = await renderHook(
+      (props?: { target: { current: HTMLDivElement | null } }) =>
+        useMutationObserver(props?.target ?? element, cb, {
+          attributes: true,
+        }),
+      { initialProps: { target: element } },
+    )
+
+    await flush()
+    expect(result.current.takeRecords()).toBeUndefined()
+
+    element.current = document.createElement('div')
+    await rerender({ target: element })
+    await flush()
+    expect(result.current.takeRecords()).toEqual([])
+
+    await unmount()
+  })
+
+  it('should pin the callback at observer construction', async () => {
+    const target = document.createElement('div')
+    const first = vi.fn()
+    const second = vi.fn()
+
+    const { rerender, unmount } = await renderHook(
+      (props?: { callback: Parameters<typeof useMutationObserver>[1] }) =>
+        useMutationObserver(target, props?.callback ?? first, {
+          attributes: true,
+        }),
+      { initialProps: { callback: first } },
+    )
+
+    target.setAttribute('id', 'first')
+    await flush()
+    expect(first).toHaveBeenCalledTimes(1)
+
+    await rerender({ callback: second })
+    target.setAttribute('id', 'second')
+    await flush()
+    // upstream parity: a new callback alone does not rebuild the observer
+    expect(first).toHaveBeenCalledTimes(2)
+    expect(second).not.toHaveBeenCalled()
+
+    await unmount()
+  })
 })

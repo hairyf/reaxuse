@@ -38,7 +38,7 @@ export interface UseMutationObserverReturn {
   /**
    * Return all pending mutations records that have not yet been delivered to
    * the callback, then clear them. Returns `undefined` when no observer is
-   * active (e.g. after `stop()`).
+   * active — no target resolved yet, or after `stop()`.
    */
   takeRecords: () => MutationRecord[] | undefined
 }
@@ -91,8 +91,6 @@ function resolveTargets(target: ElementTargetOrArray): Element[] {
  *   re-render that swaps `target.current` re-observes (mirroring the
  *   upstream reactivity) while unchanged renders never do, so pending
  *   mutation records are never dropped on an unnecessary reconnect;
- * - `callback` is read through a ref, so changing it does not re-observe and
- *   the returned `stop` stays referentially stable;
  * - `isSupported` is plain `boolean` state settled in the mount effect
  *   (upstream composes `useSupported`, a `ComputedRef<boolean>`);
  * - `tryOnScopeDispose(stop)` becomes an unmount effect that disconnects;
@@ -119,8 +117,11 @@ export function useMutationObserver(
   callback: MutationCallback,
   options: UseMutationObserverOptions = {},
 ): UseMutationObserverReturn {
-  // Latest-value refs synced each render, so effects always observe with the
-  // newest target/callback/options without re-observing on their identity.
+  // Latest-value refs synced each render, so the effect always observes with
+  // the newest target/options without re-observing on their identity. The
+  // callback is different: upstream pins it when the observer is constructed
+  // (`new MutationObserver(callback)`), so a new callback alone does not
+  // rebuild the observer — `callbackRef` is only re-read on a rebuild.
   const targetRef = useRef(target)
   const callbackRef = useRef(callback)
   const optionsRef = useRef(options)
@@ -163,13 +164,17 @@ export function useMutationObserver(
     observerRef.current?.disconnect()
     observerRef.current = undefined
 
-    if (supported && win) {
+    if (supported && win && elements.length) {
       // The constructor is reached through the resolved window so a custom
       // `window` option can provide its own; the global `MutationObserver`
       // var is not a `Window` member in TS's DOM lib, hence the structural
-      // cast.
+      // cast. An empty target set never builds an observer (upstream:
+      // `if (isSupported.value && newTargets.size)`), so `takeRecords()`
+      // stays `undefined` while nothing is observed.
       const winWithObserver = win as unknown as { MutationObserver: typeof MutationObserver }
-      const observer = new winWithObserver.MutationObserver((mutations, instance) => callbackRef.current(mutations, instance))
+      // Upstream pins the callback at construction; it is only re-read when
+      // the observer is rebuilt after a target/`window` change.
+      const observer = new winWithObserver.MutationObserver(callbackRef.current)
       observerRef.current = observer
       for (const element of elements)
         observer.observe(element, mutationOptions)
