@@ -1,10 +1,10 @@
 ---
-category: State
+category: Utilities
 ---
 
 # useToggle
 
-A Boolean (or value) toggler with controllable state support.
+A boolean (or value) toggler with controllable state support.
 
 ## Usage
 
@@ -22,4 +22,52 @@ toggle() // false → true
 toggle() // true → false
 toggle(false) // force to false
 toggle(c => !c) // functional update
+```
+
+### Toggle Function
+
+The toggle function can be called in two ways:
+
+```tsx
+const [value, toggle] = useToggle()
+
+toggle() // toggle between true and false
+toggle(true) // set to specific value
+```
+
+Unlike upstream, the toggle function does not return the new value — React
+state updates are asynchronous, so read it from `value` on the next render.
+
+### Custom Values
+
+You can use custom truthy and falsy values instead of `true` and `false`:
+
+```tsx
+import { useToggle } from '@reaxuse/shared'
+
+const [value, toggle] = useToggle('on', {
+  truthyValue: 'on',
+  falsyValue: 'off',
+})
+
+toggle() // 'off'
+toggle() // 'on'
+```
+
+Upstream allows the custom values to be reactive refs; this port accepts plain
+values only.
+
+## Caution
+
+Be aware that the toggle function accepts the first argument as the override
+value. You might want to avoid directly passing the function to event handlers,
+as the event object will be passed in:
+
+```tsx
+<>
+  {/* caution: the click event will be passed in as the forced value */}
+  <button onClick={toggle} />
+  {/* recommended to do this */}
+  <button onClick={() => toggle()} />
+</>
 ```

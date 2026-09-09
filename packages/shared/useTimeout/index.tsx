@@ -53,13 +53,11 @@ export interface UseTimeoutReturn {
  * Mapping: upstream `useTimeout` wraps `useTimeoutFn` and derives
  * `ready` as `!isPending`; since `useTimeoutFn` is mapped in its own module,
  * this port inlines the timer logic to stay self-contained — `ref` →
- * `useState` for `isPending`, the setup-time `start()` (immediate) becomes an
- * empty-dependency `useEffect` on mount, and `tryOnScopeDispose(stop)` becomes
- * the effect cleanup. Unlike upstream's `!isPending` derivation, `ready` only
- * becomes `true` when the timeout actually fires — so `stop()` keeps it `false`
- * and `immediate: false` starts with `ready === false`. `interval` accepts a
- * number or a React ref (upstream: `RefOrValue<number>`); `start` / `stop`
- * are stable `useCallback`s.
+ * `useState` for `isPending`, `ready` derived as `!isPending` like upstream,
+ * the setup-time `start()` (immediate) becomes an empty-dependency `useEffect`
+ * on mount, and `tryOnScopeDispose(stop)` becomes the effect cleanup.
+ * `interval` accepts a number or a React ref (upstream: `RefOrValue<number>`);
+ * `start` / `stop` are stable `useCallback`s.
  *
  * @example
  * const ready = useTimeout(1000) // boolean, becomes true after 1s
@@ -79,7 +77,6 @@ export function useTimeout(
     immediateCallback = false,
   } = options
 
-  const [ready, setReady] = useState(false)
   const [isPending, setIsPending] = useState(immediate)
 
   // keep the latest interval / callbacks in refs so `start` and `stop`
@@ -108,13 +105,11 @@ export function useTimeout(
       clearTimeout(timerRef.current)
       timerRef.current = null
     }
-    setReady(false)
     setIsPending(true)
     const delay = toValue(intervalRef.current)
     timerRef.current = setTimeout(() => {
       timerRef.current = null
       setIsPending(false)
-      setReady(true)
       callbackRef.current?.()
     }, delay)
   }, [])
@@ -127,6 +122,10 @@ export function useTimeout(
       start()
     return stop
   }, [])
+
+  // upstream derives `ready` as `!isPending` (computed); React has no computed
+  // refs, so it is derived during render
+  const ready = !isPending
 
   if (exposeControls)
     return { ready, isPending, start, stop }

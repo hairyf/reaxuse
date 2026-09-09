@@ -23,6 +23,15 @@ export interface UseWatchAtMostReturn {
    * Stop watching before the limit is reached.
    */
   stop: () => void
+  /**
+   * Pause the watch — source changes do not fire the callback nor count
+   * towards the limit until `resume` is called.
+   */
+  pause: () => void
+  /**
+   * Resume a paused watch.
+   */
+  resume: () => void
 }
 
 // overloads
@@ -46,11 +55,15 @@ export function useWatchAtMost<T>(source: T, callback: UseWatchCallback<T>, opti
  *   `nextTick`; this port keeps the effect registered but the wrapped callback
  *   becomes a no-op — observable behavior is identical (the callback fires at
  *   most `count` times).
- * - upstream's `pause` / `resume` controls (inherited from
- *   `watchWithFilter`) are not ported — house `useWatch` has no pausable
- *   infrastructure.
+ * - `pause` / `resume` (upstream: inherited from `watchWithFilter`) are ported
+ *   as a skip flag on the wrapped callback — React has no watcher to detach,
+ *   but the observable behavior matches the Pausable controls.
  * - upstream's `count` return is a shallow ref; here it is React state so
  *   reads re-render.
+ * - upstream's `WatchWithFilterOptions` members beyond `immediate` (`deep`,
+ *   `flush`, `onTrack`, `onTrigger`) are not accepted — they are not
+ *   expressible in React (no reactive graph, no configurable commit, no
+ *   reactivity bookkeeping), and the option type rejects them.
  *
  * @example
  * ```tsx
@@ -65,6 +78,7 @@ export function useWatchAtMost(source: any, callback: UseWatchCallback, options:
   const [count, setCount] = useState(0)
   const firedRef = useRef(0)
   const stoppedRef = useRef(false)
+  const pausedRef = useRef(false)
 
   // keep the latest limit so a changing `count` option is honored on each fire
   const maxCountRef = useRef(maxCount)
@@ -74,8 +88,16 @@ export function useWatchAtMost(source: any, callback: UseWatchCallback, options:
     stoppedRef.current = true
   }, [])
 
+  const pause = useCallback(() => {
+    pausedRef.current = true
+  }, [])
+
+  const resume = useCallback(() => {
+    pausedRef.current = false
+  }, [])
+
   function wrapped(value: any, oldValue: any) {
-    if (stoppedRef.current)
+    if (stoppedRef.current || pausedRef.current)
       return
 
     firedRef.current += 1
@@ -88,5 +110,5 @@ export function useWatchAtMost(source: any, callback: UseWatchCallback, options:
 
   useWatch(source, wrapped, watchOptions)
 
-  return { count, stop }
+  return { count, stop, pause, resume }
 }

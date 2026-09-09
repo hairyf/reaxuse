@@ -31,6 +31,13 @@ export interface UseWatchIgnorableOptions {
    * @default false
    */
   immediate?: boolean
+
+  /**
+   * Stop the watch after the callback has fired once (upstream: Vue's `once`
+   * watch option). Ignored fires do not count towards the limit.
+   * @default false
+   */
+  once?: boolean
 }
 
 /**
@@ -74,10 +81,16 @@ export interface UseWatchIgnorableOptions {
  *   commit (upstream `flush: 'pre'` timing); where upstream's
  *   `flush: 'sync'` makes `ignorePrevAsyncUpdates` a no-op, here it always
  *   applies.
- * - `eventFilter` and the other `WatchWithFilterOptions` members (`deep`,
- *   pause/resume) are not ported.
+ * - Upstream's other `WatchWithFilterOptions` members are rejected:
+ *   `deep` (no reactive graph to traverse — the source is compared by
+ *   identity), `flush` (React commits are not configurable), and
+ *   `eventFilter` (no filter pipeline); the option type does not accept them,
+ *   so passing them fails type checking. `once` IS ported — the watch stops
+ *   after the first fired change.
  * - `stop()` keeps the effect registered but the callback becomes a no-op —
  *   observable behavior is identical (the callback never fires again).
+ * - The deprecated upstream alias `ignorableWatch` is not ported (house
+ *   `useWatch*` naming convention).
  *
  * @example
  * ```ts
@@ -90,7 +103,7 @@ export interface UseWatchIgnorableOptions {
 export function useWatchIgnorable<T extends any[]>(source: readonly [...T], callback: UseWatchCallback<[...T]>, options?: UseWatchIgnorableOptions): UseWatchIgnorableReturn
 export function useWatchIgnorable<T>(source: T, callback: UseWatchCallback<T>, options?: UseWatchIgnorableOptions): UseWatchIgnorableReturn
 export function useWatchIgnorable(source: any, callback: UseWatchCallback, options: UseWatchIgnorableOptions = {}): UseWatchIgnorableReturn {
-  const { immediate } = options
+  const { immediate, once } = options
 
   // — ignore barrier — the React equivalent of upstream's counters —
   const lastSeenRef = useRef(source) // value observed at the last watch fire
@@ -105,6 +118,8 @@ export function useWatchIgnorable(source: any, callback: UseWatchCallback, optio
     if (ignore || stoppedRef.current)
       return
     callback(value, oldValue)
+    if (once)
+      stoppedRef.current = true
   }, { immediate })
 
   // Disarm the barrier when a commit carries no source change (the updater

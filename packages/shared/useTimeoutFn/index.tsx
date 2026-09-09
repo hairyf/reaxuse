@@ -9,6 +9,13 @@ export interface UseTimeoutFnOptions {
    * @default true
    */
   immediate?: boolean
+
+  /**
+   * Execute the callback immediately after calling `start`
+   *
+   * @default false
+   */
+  immediateCallback?: boolean
 }
 
 export interface UseTimeoutFnReturn<CallbackFn extends AnyFn> {
@@ -23,12 +30,15 @@ export interface UseTimeoutFnReturn<CallbackFn extends AnyFn> {
  *
  * Map from @vueuse/shared `useTimeoutFn`
  * Mapping: upstream accepts `RefOrValue<number>` for the interval — this
- * port accepts a plain `number`. `isPending` becomes a boolean state (upstream:
- * a readonly shallow ref) initialized to `immediate`; the timer is scheduled in
- * a mount effect (upstream starts synchronously during setup) and a pending
- * timer is cleared on unmount via effect cleanup. The latest callback and
- * interval are kept in refs so restarts always use the newest ones. Upstream's
- * `immediateCallback` option is not ported.
+ * port accepts a plain `number`. `isPending` becomes a boolean state
+ * (upstream: a readonly shallow ref) that starts `false` and is set inside
+ * the mount effect — like upstream's `shallowRef(false)` + `isClient` gate,
+ * the server render does not report pending. `immediateCallback` runs the
+ * callback synchronously on `start` (before the timer is armed). The timer
+ * is scheduled in a mount effect (upstream starts synchronously during
+ * setup) and a pending timer is cleared on unmount via effect cleanup. The
+ * latest callback and interval are kept in refs so restarts always use the
+ * newest ones.
  *
  * @example
  * const { isPending, start, stop } = useTimeoutFn(() => { ... }, 3000)
@@ -38,18 +48,20 @@ export function useTimeoutFn<CallbackFn extends AnyFn>(
   interval: number,
   options: UseTimeoutFnOptions = {},
 ): UseTimeoutFnReturn<CallbackFn> {
-  const { immediate = true } = options
+  const { immediate = true, immediateCallback = false } = options
 
-  const [isPending, setIsPending] = useState(immediate)
+  const [isPending, setIsPending] = useState(false)
 
   const cbRef = useRef(cb)
   const intervalRef = useRef(interval)
+  const immediateCallbackRef = useRef(immediateCallback)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // update the refs each render so a (re)start always uses the newest
   // callback and interval
   cbRef.current = cb
   intervalRef.current = interval
+  immediateCallbackRef.current = immediateCallback
 
   function clear() {
     if (timerRef.current) {
@@ -64,6 +76,8 @@ export function useTimeoutFn<CallbackFn extends AnyFn>(
   }, [])
 
   const start = useCallback((...args: Parameters<CallbackFn> | []) => {
+    if (immediateCallbackRef.current)
+      cbRef.current()
     clear()
     setIsPending(true)
     timerRef.current = setTimeout(() => {

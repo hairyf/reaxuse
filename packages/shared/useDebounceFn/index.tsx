@@ -49,12 +49,14 @@ export interface UseDebounceFnReturn<T extends FunctionArgs> {
  * so every call returns a promise and the wrapper carries `cancel` / `flush` /
  * `isPending`. This port builds the same wrapper once (`useMemo`) so its
  * identity is stable across renders; the latest `fn` / `ms` / `options` are
- * mirrored into refs so every call sees fresh values. `ms` accepts a number, a
- * ref-like `{ current }` or a getter (upstream: `RefOrValue<number>`) and
- * is re-read on every call. `isPending` becomes a non-reactive getter (React
- * has no reactive refs), the promise settlement plumbing is simplified (the
- * pending promise always settles with the result when the call fires), and
- * pending timers are cleared when the component unmounts (upstream leaves
+ * mirrored into refs so every call sees fresh values. `ms` accepts a number or
+ * a ref-like `{ current }` (upstream: `RefOrValue<number>`) and is re-read on
+ * every call. `isPending` becomes a non-reactive getter (React has no reactive
+ * refs); promise settlement mirrors upstream — a regular debounce resolves
+ * with the result, a superseded/canceled call settles with `undefined` (or
+ * rejects with `rejectOnCancel`), and the `maxWait` trailing edge runs the
+ * latest invocation but settles the pending promise without its result.
+ * Pending timers are cleared when the component unmounts (upstream leaves
  * disposal to the effect scope).
  *
  * @example
@@ -86,6 +88,8 @@ export function useDebounceFn<T extends FunctionArgs>(
   // `lastInvoker`)
   const onCancelRef = useRef<() => void>(noop)
   const onFlushRef = useRef<() => void>(noop)
+  // the latest pending invocation (upstream: `lastInvoker`)
+  const lastInvokeRef = useRef<() => unknown>(noop)
 
   // build the debounced wrapper once so its identity is stable across renders
   const debounced = useMemo(() => {
@@ -124,7 +128,14 @@ export function useDebounceFn<T extends FunctionArgs>(
       if (duration === undefined || duration <= 0 || (maxDuration !== undefined && maxDuration <= 0)) {
         clearTimers()
         pendingRef.current = false
-        return Promise.resolve(invoke())
+        // upstream wraps the invocation in a Promise executor, so a synchronous
+        // throw becomes a rejection instead of propagating to the caller
+        try {
+          return Promise.resolve(invoke())
+        }
+        catch (error) {
+          return Promise.reject(error)
+        }
       }
 
       pendingRef.current = true
@@ -132,6 +143,7 @@ export function useDebounceFn<T extends FunctionArgs>(
       return new Promise((resolve, reject) => {
         onCancelRef.current = optionsRef.current.rejectOnCancel ? reject : () => resolve(undefined)
         onFlushRef.current = () => resolve(invoke())
+        lastInvokeRef.current = invoke
 
         // create the maxWait timer — it clears the regular timer on fire
         if (maxDuration !== undefined && maxTimerRef.current === null) {
@@ -141,7 +153,12 @@ export function useDebounceFn<T extends FunctionArgs>(
               clearTimeout(timerRef.current)
               timerRef.current = null
             }
-            settleCurrent(onFlushRef)
+            // upstream maxTimer settles the pending promise via `lastRejector`
+            // (undefined, or rejects with `rejectOnCancel`) and then runs the
+            // latest invocation on the trailing edge — its result is discarded
+            const invoke = lastInvokeRef.current
+            settleCurrent(onCancelRef)
+            invoke()
           }, maxDuration)
         }
 

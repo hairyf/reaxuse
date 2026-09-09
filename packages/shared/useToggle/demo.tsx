@@ -6,12 +6,13 @@ export default function UseToggleDemo() {
   return (
     <div>
       <p>
-        value:
+        Value:
         {' '}
-        <strong>{String(value)}</strong>
+        {value ? 'ON' : 'OFF'}
       </p>
-      <button onClick={() => toggle()}>toggle</button>
-      <button onClick={() => toggle(false)}>set false</button>
+      <button onClick={() => toggle()}>Toggle</button>
+      <button onClick={() => toggle(true)}>Set ON</button>
+      <button onClick={() => toggle(false)}>Set OFF</button>
     </div>
   )
 }

@@ -122,6 +122,23 @@ it('useTimeoutFn clears a pending timer on unmount', async () => {
   expect(callback).not.toBeCalled()
 })
 
+it('useTimeoutFn immediateCallback fires the callback synchronously on start', async () => {
+  const callback = vi.fn()
+  const { result, act, unmount } = await renderHook(() =>
+    useTimeoutFn(callback, 50, { immediateCallback: true }))
+
+  // mount with immediate → start() fires the callback synchronously
+  expect(callback).toHaveBeenCalledTimes(1)
+  expect(result.current.isPending).toBe(true)
+
+  await act(() => {
+    vi.advanceTimersByTime(100)
+  })
+  expect(callback).toHaveBeenCalledTimes(2)
+
+  await unmount()
+})
+
 it('useTimeoutFn fires a delayed message in a component', async () => {
   function TimeoutDemo() {
     const [text, setText] = useState('Please wait for 1 second')

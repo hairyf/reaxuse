@@ -64,7 +64,10 @@ describe('useStateAutoReset', () => {
     expect(result.current[0]).toBe('update')
 
     await act(() => vi.advanceTimersByTime(101))
-    expect(onChange).toHaveBeenLastCalledWith('default')
+    // the reset re-resolves the defaultValue at fire time (upstream:
+    // `toValue(defaultValue)`), so the controlled object's current value is
+    // written back through onChange
+    expect(onChange).toHaveBeenLastCalledWith('update')
     await unmount()
   })
 
@@ -108,6 +111,42 @@ describe('useStateAutoReset', () => {
     await act(() => {
       result.current[1]('update')
     })
+
+    await act(() => {
+      vi.advanceTimersByTime(101)
+    })
+    expect(result.current[0]).toBe('default')
+
+    await unmount()
+  })
+
+  it('should re-resolve a lazy-getter defaultValue when the timer fires', async () => {
+    let fallback = 'default'
+    const { result, act, unmount } = await renderHook(() => useStateAutoReset(() => fallback, 100))
+
+    await act(() => {
+      result.current[1]('update')
+    })
+    expect(result.current[0]).toBe('update')
+
+    // upstream re-resolves `toValue(defaultValue)` at fire time, so the newest
+    // default wins — not the first-render value
+    fallback = 'new default'
+    await act(() => {
+      vi.advanceTimersByTime(101)
+    })
+    expect(result.current[0]).toBe('new default')
+
+    await unmount()
+  })
+
+  it('should support the updater-form setter', async () => {
+    const { result, act, unmount } = await renderHook(() => useStateAutoReset('default', 100))
+
+    await act(() => {
+      result.current[1](prev => `${prev}!`)
+    })
+    expect(result.current[0]).toBe('default!')
 
     await act(() => {
       vi.advanceTimersByTime(101)

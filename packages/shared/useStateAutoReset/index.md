@@ -13,7 +13,7 @@ import { useStateAutoReset } from '@reaxuse/shared'
 
 const [message, setMessage] = useStateAutoReset('default message', 1000)
 
-function setMessage() {
+function handleMessage() {
   // here the value will change to 'message has set' but after 1000ms, it will change to 'default message'
   setMessage('message has set')
 }

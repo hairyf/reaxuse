@@ -54,7 +54,22 @@ describe('useTimeout', () => {
     expect(calls).toEqual([1])
   })
 
-  it('stop() prevents ready from flipping', async () => {
+  it('immediateCallback fires the callback synchronously on start', async () => {
+    const calls: number[] = []
+    const { result, act } = await renderHook(() =>
+      useTimeout(10, { controls: true, immediateCallback: true, callback: () => calls.push(1) }))
+
+    // mount with immediate → start() fires the callback synchronously
+    expect(calls).toEqual([1])
+    expect(result.current.isPending).toBe(true)
+
+    await act(async () => {
+      vi.advanceTimersByTime(10)
+    })
+    expect(calls).toEqual([1, 1])
+  })
+
+  it('stop() cancels the timer and ready follows isPending', async () => {
     const calls: number[] = []
     const { result, act } = await renderHook(() =>
       useTimeout(10, { controls: true, callback: () => calls.push(1) }))
@@ -62,12 +77,14 @@ describe('useTimeout', () => {
     await act(async () => {
       result.current.stop()
     })
-    expect(result.current.ready).toBe(false)
+    // upstream derives ready as `!isPending` — stopping leaves ready === true
+    expect(result.current.ready).toBe(true)
+    expect(result.current.isPending).toBe(false)
 
     await act(async () => {
       vi.advanceTimersByTime(100)
     })
-    expect(result.current.ready).toBe(false)
+    expect(result.current.ready).toBe(true)
     expect(calls).toEqual([])
   })
 
@@ -83,6 +100,7 @@ describe('useTimeout', () => {
       result.current.start()
     })
     expect(result.current.ready).toBe(false)
+    expect(result.current.isPending).toBe(true)
 
     await act(async () => {
       vi.advanceTimersByTime(10)
@@ -94,17 +112,19 @@ describe('useTimeout', () => {
     const { result, act } = await renderHook(() =>
       useTimeout(10, { controls: true, immediate: false }))
 
-    expect(result.current.ready).toBe(false)
+    // upstream: ready is `!isPending` — nothing is pending before start()
+    expect(result.current.ready).toBe(true)
     expect(result.current.isPending).toBe(false)
 
     await act(async () => {
       vi.advanceTimersByTime(1000)
     })
-    expect(result.current.ready).toBe(false)
+    expect(result.current.ready).toBe(true)
 
     await act(async () => {
       result.current.start()
     })
+    expect(result.current.ready).toBe(false)
     expect(result.current.isPending).toBe(true)
 
     await act(async () => {
@@ -123,28 +143,31 @@ describe('useTimeout', () => {
     vi.advanceTimersByTime(100)
     expect(calls).toEqual([])
   })
-})
 
-describe('useTimeout (component)', () => {
-  function UseTimeoutDemo() {
-    const { ready, start } = useTimeout(100, { controls: true })
-    return (
-      <div>
-        <span>{ready ? 'ready!' : 'waiting...'}</span>
-        <button disabled={!ready} onClick={() => start()}>Start Again</button>
-      </div>
-    )
-  }
+  describe('useTimeout (component)', () => {
+    function UseTimeoutDemo() {
+      const { ready, start } = useTimeout(100, { controls: true })
+      return (
+        <div>
+          <span>{ready ? 'ready!' : 'waiting...'}</span>
+          <button disabled={!ready} onClick={() => start()}>Start Again</button>
+        </div>
+      )
+    }
 
-  it('becomes ready after the interval and restarts on demand', async () => {
-    const screen = await render(<UseTimeoutDemo />)
+    it('becomes ready after the interval and restarts on demand', async () => {
+      const screen = await render(<UseTimeoutDemo />)
 
-    await expect.element(screen.getByText('waiting...')).toBeVisible()
-    await expect.element(screen.getByRole('button', { name: 'Start Again' })).toBeDisabled()
+      await expect.element(screen.getByText('waiting...')).toBeVisible()
+      await expect.element(screen.getByRole('button', { name: 'Start Again' })).toBeDisabled()
 
-    await expect.element(screen.getByText('ready!')).toBeVisible()
-    await screen.getByRole('button', { name: 'Start Again' }).click()
+      // the timer is faked: fire it explicitly instead of racing a real delay
+      await vi.advanceTimersByTimeAsync(100)
+      await expect.element(screen.getByText('ready!')).toBeVisible()
 
-    await expect.element(screen.getByText('waiting...')).toBeVisible()
+      await screen.getByRole('button', { name: 'Start Again' }).click()
+
+      await expect.element(screen.getByText('waiting...')).toBeVisible()
+    })
   })
 })
