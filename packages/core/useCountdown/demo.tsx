@@ -25,7 +25,7 @@ const rocketStyles = `
 export default function UseCountdownDemo() {
   const rocketRef = useRef<HTMLDivElement>(null)
   const [countdownSeconds, setCountdownSeconds] = useState(5)
-  const { remaining, start, stop, pause, resume } = useCountdown(countdownSeconds, {
+  const [remaining, , { start, stop, pause, resume }] = useCountdown(countdownSeconds, {
     onComplete() {
       rocketRef.current?.classList.add('launching')
     },

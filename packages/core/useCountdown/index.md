@@ -12,26 +12,27 @@ Reactive countdown timer in seconds
 import { useCountdown } from '@reaxuse/core'
 
 const countdownSeconds = 5
-const { remaining, start, stop, pause, resume } = useCountdown(countdownSeconds, {
+const [remaining, setRemaining, { start, stop, pause, resume }] = useCountdown(countdownSeconds, {
   onComplete() {
 
   },
   onTick() {
 
-  },
+  }
 })
 
 start() // begins counting down from 5
+setRemaining(10) // jump to 10 on the next render
 ```
 
-The initial countdown can also be a React ref,
-and `start()`/`reset()` accept a new countdown value for the next countdown.
+You can use a `ref` to change the initial countdown.
+`start()` and `reset()` also accept a new countdown value for the next countdown.
 
 ```tsx
 import { useCountdown } from '@reaxuse/core'
 
 const countdown = { current: 5 }
-const { start, reset } = useCountdown(countdown)
+const [, , { start, reset }] = useCountdown(countdown)
 
 // change the countdown value
 countdown.current = 10
@@ -56,19 +57,18 @@ start()
 
 ### Return Values
 
-| Property    | Type                                       | Description                                             |
-| ----------- | ------------------------------------------ | ------------------------------------------------------- |
-| `remaining` | `number`                                   | Current countdown value (upstream: a shallow ref)       |
-| `reset`     | `(countdown?: RefOrValue<number>) => void` | Reset the countdown to its initial value                |
-| `stop`      | `() => void`                               | Stop the countdown and reset its state                  |
-| `start`     | `(countdown?: RefOrValue<number>) => void` | Reset the countdown and start it again                  |
-| `pause`     | `() => void`                               | Pause the countdown — `remaining` stays put             |
-| `resume`    | `() => void`                               | Resume a paused countdown (no-op at 0 or while running) |
-| `isActive`  | `boolean`                                  | Whether the countdown interval is currently active      |
+- `remaining` — current countdown value (plain React state; upstream: a shallow ref).
+- `setRemaining(next | prev => next)` — writes the countdown state directly, with no `.value` and no Vue-style ref object; the next tick decrements from the written value.
+- `controls.reset(countdown?)` — reset the countdown to its initial value.
+- `controls.stop()` — stop the countdown and reset its state.
+- `controls.start(countdown?)` — reset the countdown and start it again.
+- `controls.pause()` — pause the countdown; `remaining` stays put.
+- `controls.resume()` — resume a paused countdown (no-op at 0 or while running).
+- `controls.isActive` — whether the countdown interval is currently active.
 
 ## React divergences
 
-- The Vue shallow refs become plain values on the result object: `remaining` is a `number` and `isActive` is a `boolean` (no `.value`).
+- The return is a React tuple `[remaining, setRemaining, { reset, stop, start, pause, resume, isActive }]` instead of upstream's object: `remaining` is a `number` and `controls.isActive` a `boolean` (no `.value`), and `setRemaining` is the React state setter writing the internal state directly.
 - Upstream accepts a `scheduler` option (`UseCountdownOptions extends ConfigurableScheduler`, defaulting to `useIntervalFn(cb, 1000, { immediate: false })`). There is no React equivalent, so `scheduler` is not ported; the reaxuse-only `interval` option sets the tick rate instead (default `1000` ms, matching upstream's default scheduler).
 - A plain-number `initialCountdown` is captured once at setup, like upstream's `toValue(initialCountdown)` closure — a later no-arg `start()`/`reset()` keeps using the setup value. Pass a ref-like `{ current }` to read the latest value.
 - `start()`/`resume()` begin the interval from event handlers/effects only, so no timers run during SSR.
