@@ -19,7 +19,9 @@ function fetchData({ currentPage, currentPageSize }: { currentPage: number, curr
 
 const {
   currentPage,
+  setCurrentPage,
   currentPageSize,
+  setCurrentPageSize,
   pageCount,
   isFirstPage,
   isLastPage,
@@ -56,3 +58,23 @@ const pagination = useOffsetPagination({
 `{ value, onChange }` pair. A reactive `page` is kept in two-way sync with the internal state
 (upstream's `syncRef`); the tuple and `{ value, onChange }` forms are the React state protocol and
 have no upstream equivalent.
+
+## Return Values
+
+The return is an object mirroring upstream's `UseOffsetPaginationReturn`, with every writable value
+paired with its setter — upstream returns writable refs, so consumers write `currentPage.value` /
+`currentPageSize.value`:
+
+| Property             | Type                               | Description                                                                                                 |
+| -------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `currentPage`        | `number`                           | Current page number, clamped to `[1, pageCount]`.                                                           |
+| `setCurrentPage`     | `Dispatch<SetStateAction<number>>` | Sets `currentPage` (value or updater), clamped to `[1, pageCount]` (upstream: writing `currentPage.value`). |
+| `currentPageSize`    | `number`                           | Current number of items displayed per page, clamped to `>= 1`.                                              |
+| `setCurrentPageSize` | `Dispatch<SetStateAction<number>>` | Sets `currentPageSize` (value or updater), clamped to `>= 1` (upstream: writing `currentPageSize.value`).   |
+| `pageCount`          | `number`                           | Total number of pages.                                                                                      |
+| `isFirstPage`        | `boolean`                          | Whether the current page is the first one.                                                                  |
+| `isLastPage`         | `boolean`                          | Whether the current page is the last one.                                                                   |
+| `prev`               | `() => void`                       | Go to the previous page (no-op on the first page).                                                          |
+| `next`               | `() => void`                       | Go to the next page (no-op on the last page).                                                               |
+
+When `total` is omitted, `isLastPage` is not returned (`UseOffsetPaginationInfinityPageReturn`).

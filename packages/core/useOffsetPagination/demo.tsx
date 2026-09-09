@@ -34,6 +34,7 @@ export default function UseOffsetPaginationDemo() {
     prev,
     next,
     setCurrentPage,
+    setCurrentPageSize,
   } = useOffsetPagination({
     total: database.length,
     page: 1,
@@ -93,6 +94,20 @@ export default function UseOffsetPaginationDemo() {
         <button type="button" disabled={isLastPage} onClick={next}>
           next
         </button>
+      </div>
+
+      <div style={{ margin: '0 0 16px' }}>
+        <span style={{ opacity: 0.5 }}>pageSize: </span>
+        {[5, 10, 20].map(size => (
+          <button
+            key={size}
+            type="button"
+            disabled={currentPageSize === size}
+            onClick={() => setCurrentPageSize(size)}
+          >
+            {size}
+          </button>
+        ))}
       </div>
 
       <table style={{ margin: 'auto' }}>
