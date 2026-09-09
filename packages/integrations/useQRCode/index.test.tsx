@@ -73,14 +73,15 @@ describe('useQRCode', () => {
     expect(toDataURLMock).toHaveBeenCalledWith(TEXT, undefined)
   })
 
-  it('accepts a ref-like { current } text and follows its changes', async () => {
-    const text = { current: TEXT }
-    const { result, rerender } = await renderHook(() => useQRCode(text))
+  it('follows a changed text prop', async () => {
+    const { result, rerender } = await renderHook(
+      ({ text }: { text: string } = { text: TEXT }) => useQRCode(text),
+      { initialProps: { text: TEXT } },
+    )
 
     await expect.poll(() => result.current).toMatch(DATA_URL_PREFIX)
 
-    text.current = 'hello'
-    await rerender()
+    await rerender({ text: 'hello' })
 
     await expect.poll(() => result.current).toBe(await actualToDataURL('hello'))
   })

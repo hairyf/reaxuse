@@ -40,6 +40,12 @@ function done() {
 
 > To change the progress percentage, call `setProgress(n)`, where n is a number between 0..1.
 
+`currentProgress` is the hook's **read-only value source** and takes a plain `number | null | undefined`
+(upstream: `MaybeRefOrGetter`). A changed value is mirrored into the hook's internal `progress` on the
+next render. Writes through `setProgress` / `start` / `done` / `remove` are **not** propagated back to
+the caller (upstream's `toRef` writes through to a ref input), and an external change always wins over
+an internal write.
+
 ### Customization
 
 Just edit [nprogress.css](https://github.com/rstacruz/nprogress/blob/master/nprogress.css) to your liking. Tip: you probably only want to find and replace occurrences of #29d.

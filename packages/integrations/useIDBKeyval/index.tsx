@@ -1,5 +1,3 @@
-import type { RefOrValue } from '@reaxuse/shared'
-import { toValue } from '@reaxuse/shared'
 import { del, get, set, update } from 'idb-keyval'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -134,9 +132,10 @@ function defaultSerializer<T>(): UseIDBKeyvalSerializer<T> {
  *   computed synchronously (`typeof window !== 'undefined' && 'BroadcastChannel'
  *   in window`) instead of going through `useSupported`, so a `BroadcastChannel`
  *   is available on the first mount effect;
- * - `initialValue` accepts a plain value or a React ref (`RefOrValue`) — no
- *   zero-argument getters, matching `@reaxuse/shared`'s `toValue`; it is
- *   resolved once at mount, as upstream's `toValue(initialValue)` is;
+ * - `initialValue` is the hook's **read-only value source** and takes a plain
+ *   `T` (upstream: `MaybeRefOrGetter<T>`); it is resolved once at mount, as
+ *   upstream's `toValue(initialValue)` is — the hook owns writes, so later
+ *   prop changes are ignored;
  * - a `delete` message from another tab resets `data` to the initial value
  *   (upstream parity) but does not re-write the store: incoming syncs never
  *   write back, mirroring upstream's paused watcher;
@@ -156,16 +155,16 @@ function defaultSerializer<T>(): UseIDBKeyvalSerializer<T> {
  */
 export function useIDBKeyval<T>(
   key: IDBValidKey,
-  initialValue: RefOrValue<T>,
+  initialValue: T,
   options: UseIDBOptions<T> = {},
 ): UseIDBKeyvalReturn<T> {
   // captured once at mount — mirrors upstream's one-time options destructuring
   const optionsRef = useRef(options)
   // upstream resolves `initialValue` once at setup; frozen here the same way
   const rawInitRef = useRef<{ value: T | undefined } | undefined>(undefined)
-  rawInitRef.current ??= { value: toValue(initialValue) }
+  rawInitRef.current ??= { value: initialValue }
 
-  const [data, setDataState] = useState<T | null>(() => toValue(initialValue) ?? null)
+  const [data, setDataState] = useState<T | null>(() => initialValue ?? null)
   const [isFinished, setIsFinished] = useState(false)
 
   // latest committed value — read by the stable `write` callback

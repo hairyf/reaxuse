@@ -40,8 +40,10 @@ console.log('IDB transaction finished!')
 await setStoredObject(null)
 ```
 
-`initialValue` accepts a plain value or a React ref (`RefOrValue`); it is resolved once at mount with
-`toValue` from `@reaxuse/shared`.
+`initialValue` is the hook's **read-only value source** and takes a plain `T` (upstream:
+`MaybeRefOrGetter<T>`). It is read **once at mount** (upstream's `toValue(initialValue)`); the hook owns
+writes, so later `initialValue` prop changes are ignored. Because it is a plain value, an object-valued
+`T` with a `value` key is stored as-is and a function-valued `T` is stored (not invoked).
 
 ## Cross-tab syncing
 

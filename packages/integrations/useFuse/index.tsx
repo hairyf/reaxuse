@@ -50,9 +50,10 @@ export interface UseFuseReturn<DataItem> {
  *
  * Map from @vueuse/integrations `useFuse`
  * (`source/vueuse/packages/integrations/useFuse/`), a reactive wrapper around
- * a `Fuse` instance. `search`, `data` and `options` accept plain values or
- * React ref-like `{ current }` objects, resolved with `toValue` from
- * `@reaxuse/shared`.
+ * a `Fuse` instance. `search` and `data` are the hook's **read-only value
+ * sources** and take plain values (`string` and `readonly DataItem[]`; upstream:
+ * `MaybeRefOrGetter`). `options` stays `RefOrValue` (a config object, upstream
+ * `MaybeRefOrGetter`).
  *
  * Adjustment for React:
  * - upstream returns `{ fuse: Ref<Fuse>, results: ComputedRef<FuseResult[]> }`;
@@ -62,12 +63,15 @@ export interface UseFuseReturn<DataItem> {
  *   …, { deep: true })` and refreshes the collection in `watch(() => toValue(data), …)`.
  *   React has no deep watcher, and serializing `fuseOptions` to compare them by
  *   value would break function-valued options (`sortFn`, `getFn`, `keys[].getFn`),
- *   so the `Fuse` instance is memoized on the identity of the resolved `data`
+ *   so the `Fuse` instance is memoized on the identity of the `data`
  *   array and of `fuseOptions` instead: pass a NEW array reference when the data
  *   changes, and a memoized `fuseOptions` object for best performance. Mutating
  *   the data array in place is not detected (upstream's deep watch was);
- * - `results` is memoized on the resolved search string, so ref-like `search`
- *   objects stay live across renders.
+ * - `results` is memoized on the search string and the `data` identity, so a
+ *   changed `search`/`data` prop recomputes on the next render;
+ * - `options` is NOT widened: it is a config object (upstream
+ *   `MaybeRefOrGetter`, a maintainer decision), so a plain options object, a
+ *   ref-like `{ current }` object or a getter are the accepted forms.
  *
  * @param search - the search query
  * @param data - the collection to search
@@ -85,11 +89,11 @@ export interface UseFuseReturn<DataItem> {
  * fuse.search('john') // search the same index directly
  */
 export function useFuse<DataItem>(
-  search: RefOrValue<string>,
-  data: RefOrValue<DataItem[]>,
+  search: string,
+  data: readonly DataItem[],
   options?: RefOrValue<UseFuseOptions<DataItem>>,
 ): UseFuseReturn<DataItem> {
-  const dataValue = toValue(data) ?? []
+  const dataValue = data
   const optionsValue = toValue(options)
 
   const fuse = useMemo(
@@ -97,7 +101,7 @@ export function useFuse<DataItem>(
     [dataValue, optionsValue?.fuseOptions],
   )
 
-  const searchValue = toValue(search)
+  const searchValue = search
 
   const results = useMemo(() => {
     // upstream: recomputed whenever `data` changes too, since a new `Fuse`

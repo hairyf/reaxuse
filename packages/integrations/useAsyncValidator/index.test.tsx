@@ -171,21 +171,23 @@ describe('useAsyncValidator', () => {
     expect(result.current.errors).toMatchObject([])
   })
 
-  it('follows a ref-like value object', async () => {
-    const value = { current: createForm() }
-    const { result, rerender } = await renderHook(() => useAsyncValidator(value, failingRules, {
-      validateOption: {
-        suppressWarning: true,
-      },
+  it('validates a form with a top-level `value` key as a whole object', async () => {
+    const rules: Rules = {
+      name: { type: 'string', min: 5, max: 20, message: 'name length must be 5-20' },
+    }
+    // a STABLE identity — an inline literal would re-validate on every render
+    const formData = { value: 'jelf', name: 'jelf' }
+    // `value` is a plain read-only value source: the object is validated as-is,
+    // so a form field literally named `value` is not unwrapped
+    const { result } = await renderHook(() => useAsyncValidator(formData, rules, {
+      validateOption: { suppressWarning: true },
     }))
-    await vi.waitFor(() => expect(result.current.pass).toBe(false))
-    expect(result.current.errors).toMatchObject(expectedNameError)
+    await vi.waitFor(() => expect(result.current.isFinished).toBe(true))
 
-    value.current = { name: 'okxiaoliang4', age: 24 }
-    await rerender()
-    await vi.waitFor(() => expect(result.current.pass).toBe(true))
-
-    expect(result.current.errors).toMatchObject([])
+    expect(result.current.pass).toBe(false)
+    expect(result.current.errorFields.name).toMatchObject([
+      { field: 'name', fieldValue: 'jelf', message: 'name length must be 5-20' },
+    ])
   })
 })
 
@@ -214,11 +216,14 @@ describe('set manual true', () => {
   })
 
   it('manual trigger validator', async () => {
-    const value = { current: createForm() }
-    const { result } = await renderHook(() => useAsyncValidator(value, failingRules, {
-      manual: true,
-      validateOption: { suppressWarning: true },
-    }))
+    const { result, rerender } = await renderHook(
+      ({ value }: { value: Record<string, any> } = { value: createForm() }) =>
+        useAsyncValidator(value, failingRules, {
+          manual: true,
+          validateOption: { suppressWarning: true },
+        }),
+      { initialProps: { value: createForm() } },
+    )
 
     expect(result.current.pass).toBe(true)
     expect(result.current.errors).toMatchObject([])
@@ -228,8 +233,8 @@ describe('set manual true', () => {
     await vi.waitFor(() => expect(result.current.pass).toBe(false))
     expect(result.current.errors).toMatchObject(expectedNameError)
 
-    // second trigger
-    value.current = { name: 'okxiaoliang4', age: 24 }
+    // second trigger — `execute` reads the latest `value` prop
+    await rerender({ value: { name: 'okxiaoliang4', age: 24 } })
     await result.current.execute()
     await vi.waitFor(() => expect(result.current.pass).toBe(true))
     expect(result.current.errors).toMatchObject([])

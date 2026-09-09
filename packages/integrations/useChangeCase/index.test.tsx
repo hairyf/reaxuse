@@ -97,16 +97,15 @@ describe('useChangeCase', () => {
       expect(result.current[0]).toBe(obj[key].vueuse)
     })
 
-    it(`ref ${key}`, async () => {
-      const input = { current: helloWorld }
-      const { result, act } = await renderHook(() => useChangeCase(input, key))
+    it(`prop change ${key}`, async () => {
+      const { result, rerender } = await renderHook(
+        ({ input }: { input: string } = { input: helloWorld }) => useChangeCase(input, key),
+        { initialProps: { input: helloWorld } },
+      )
 
       expect(result.current[0]).toBe(obj[key].helloWorld)
 
-      await act(() => {
-        result.current[1](vueuse)
-      })
-
+      await rerender({ input: vueuse })
       expect(result.current[0]).toBe(obj[key].vueuse)
     })
 
@@ -153,14 +152,15 @@ describe('useChangeCase', () => {
     expect(result.current[0]).toBe('HELLO_WORLD')
   })
 
-  it('follows ref-like input changes (upstream: computed changes along with the source ref)', async () => {
-    const input = { current: 'helloWorld' }
-    const { result, rerender } = await renderHook(() => useChangeCase(input, 'kebabCase'))
+  it('follows a changed input prop (upstream: computed changes along with the source)', async () => {
+    const { result, rerender } = await renderHook(
+      ({ input }: { input: string } = { input: helloWorld }) => useChangeCase(input, 'kebabCase'),
+      { initialProps: { input: helloWorld } },
+    )
 
     expect(result.current[0]).toBe('hello-world')
 
-    input.current = 'vue use'
-    await rerender()
+    await rerender({ input: vueuse })
 
     expect(result.current[0]).toBe('vue-use')
   })
@@ -169,5 +169,21 @@ describe('useChangeCase', () => {
     const { result } = await renderHook(() => useChangeCase('istanbul', 'capitalCase', { locale: 'tr' }))
 
     expect(result.current[0]).toBe('İstanbul')
+  })
+
+  it('keeps a setValue write when the input prop did not change', async () => {
+    const { result, act, rerender } = await renderHook(
+      ({ input }: { input: string } = { input: helloWorld }) => useChangeCase(input, 'kebabCase'),
+      { initialProps: { input: helloWorld } },
+    )
+
+    await act(() => {
+      result.current[1](vueuse)
+    })
+    expect(result.current[0]).toBe('vue-use')
+
+    // the prop is unchanged, so the sync effect must not clobber the write
+    await rerender({ input: helloWorld })
+    expect(result.current[0]).toBe('vue-use')
   })
 })

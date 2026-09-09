@@ -1,6 +1,5 @@
-import type { RefOrValue } from '@reaxuse/shared'
 import type { NProgress, NProgressOptions } from 'nprogress'
-import { isClient, toValue } from '@reaxuse/shared'
+import { isClient } from '@reaxuse/shared'
 import nprogress from 'nprogress'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -60,8 +59,8 @@ export interface UseNProgressReturn {
  * Map from @vueuse/integrations `useNProgress`
  * (`source/vueuse/packages/integrations/useNProgress/index.ts`), a reactive
  * wrapper around the [`nprogress`](https://github.com/rstacruz/nprogress)
- * progress bar. `currentProgress` accepts a plain number or a React ref-like
- * object (`{ current }`), resolved with `toValue` from `@reaxuse/shared`.
+ * progress bar. `currentProgress` is the hook's **read-only value source** and
+ * takes a plain `number | null | undefined` (upstream: `MaybeRefOrGetter`).
  *
  * Adjustment for React:
  * - the writable `WritableComputedRef<boolean>` `isLoading` and the
@@ -84,10 +83,11 @@ export interface UseNProgressReturn {
  *   `options` changes are not re-applied, matching the upstream setup
  *   semantics;
  * - a provided `currentProgress` is mirrored into the internal state (upstream's
- *   `toRef`): a ref-like object is followed through its `.current` changes and
- *   a plain number re-syncs when the argument changes between renders; a write
+ *   `toRef`): a changed plain number re-syncs between renders, and a write
  *   through `setProgress` / `start` / `done` is only superseded by a genuine
- *   external change;
+ *   external change. Writes are **not** propagated back to the caller
+ *   (upstream's `toRef` writes through to a ref input); the source is
+ *   read-only here;
  * - unmount runs `nprogress.remove()`, mirroring upstream's
  *   `tryOnScopeDispose(nprogress.remove)`. `nprogress` is a module singleton,
  *   so unmounting one hook instance removes the shared bar — the same
@@ -96,8 +96,8 @@ export interface UseNProgressReturn {
  * SSR-safe: `nprogress.set` is only called when `isClient` (upstream's
  * `watchEffect` guard).
  *
- * @param currentProgress - initial progress percentage (`0..1`), or a
- *   ref-like object whose changes are followed
+ * @param currentProgress - initial progress percentage (`0..1`); a changed
+ *   plain value re-syncs on the next render
  * @param options - `nprogress.configure` options, applied once on mount
  *
  * @__NO_SIDE_EFFECTS__
@@ -109,24 +109,21 @@ export interface UseNProgressReturn {
  * remove() // progress === null, the #nprogress element is gone
  */
 export function useNProgress(
-  currentProgress: RefOrValue<number | null | undefined> = null,
+  currentProgress: number | null | undefined = null,
   options?: UseNProgressOptions,
 ): UseNProgressReturn {
-  const [progress, setProgressState] = useState<number | null | undefined>(
-    () => toValue(currentProgress),
-  )
+  const [progress, setProgressState] = useState<number | null | undefined>(currentProgress)
 
-  // mirror the incoming `currentProgress` into the internal state whenever the
-  // resolved value changes between renders — upstream's `toRef(currentProgress)`.
-  // The baseline records the last value synced FROM the outside, so a
-  // `setProgress` / `start` / `done` write is never clobbered by a render that
-  // did not actually change the external source.
-  const lastExternalRef = useRef<number | null | undefined>(toValue(currentProgress))
+  // mirror the incoming `currentProgress` prop into the internal state whenever
+  // it changes between renders — upstream's `toRef(currentProgress)`. The
+  // baseline records the last value synced FROM the prop, so a `setProgress` /
+  // `start` / `done` write is never clobbered by a render that did not actually
+  // change the external value.
+  const lastExternalRef = useRef<number | null | undefined>(currentProgress)
   useEffect(() => {
-    const resolved = toValue(currentProgress)
-    if (!Object.is(resolved, lastExternalRef.current)) {
-      lastExternalRef.current = resolved
-      setProgressState(resolved)
+    if (!Object.is(currentProgress, lastExternalRef.current)) {
+      lastExternalRef.current = currentProgress
+      setProgressState(currentProgress)
     }
   })
 

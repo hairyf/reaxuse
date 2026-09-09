@@ -11,10 +11,8 @@ const transforms = Object.keys(ChangeCase).filter(v => v.endsWith('Case'))
 export default function UseChangeCaseDemo() {
   const [inputValue, setInputValue] = useState('helloWorld')
   const [type, setType] = useState<ChangeCaseType>(transforms[0] as ChangeCaseType)
-  // ref-like wrapper mirrors the upstream demo's `shallowRef` input — the hook
-  // re-syncs whenever the resolved value changes
-  const input = { current: inputValue }
-  const [changeCase] = useChangeCase(input, type)
+  // `input` is a plain read-only value source: a changed prop re-syncs the hook
+  const [changeCase] = useChangeCase(inputValue, type)
 
   return (
     <div>
