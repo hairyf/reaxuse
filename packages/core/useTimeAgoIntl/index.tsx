@@ -1,3 +1,4 @@
+import { useIntervalFn } from '@reaxuse/shared'
 import { useNow } from '../useNow'
 
 export interface TimeAgoUnit {
@@ -74,10 +75,11 @@ const UNITS: TimeAgoUnit[] = [
  * - upstream returns `ComputedRef<string>` (or controls + `parts` with
  *   `controls: true`); this port returns a **plain string** recomputed on
  *   every render (house pattern, see `useDateFormat`). The refresh timer
- *   lives in the house `useNow`, whose `setInterval` is cleaned up on
- *   unmount — pass new `time` values to re-render, the interval keeps the
- *   result fresh in between. Raw `Intl.RelativeTimeFormatPart[]` access is
- *   available through `formatTimeAgoIntlParts`.
+ *   lives in the house `useNow`, driven by a `useIntervalFn` scheduler that
+ *   is cleaned up on unmount — pass new `time` values to re-render, the
+ *   interval keeps the result fresh in between. Raw
+ *   `Intl.RelativeTimeFormatPart[]` access is available through
+ *   `formatTimeAgoIntlParts`.
  * - upstream `ConfigurableScheduler` → `updateInterval` option (default
  *   `30_000` ms, matching upstream's default `useIntervalFn(cb, 30_000)`).
  * - upstream `RefOrValue<Date | number | string>` → plain
@@ -89,7 +91,7 @@ const UNITS: TimeAgoUnit[] = [
 export function useTimeAgoIntl(time: Date | number | string, options: UseTimeAgoIntlOptions = {}): string {
   const { updateInterval = 30_000 } = options
 
-  const now = useNow(updateInterval)
+  const now = useNow({ scheduler: cb => useIntervalFn(cb, updateInterval) })
 
   return formatTimeAgoIntl(new Date(time), options, now)
 }

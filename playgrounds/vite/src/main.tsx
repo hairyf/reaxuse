@@ -6,7 +6,7 @@ import { useNow } from '@reaxuse/core'
 function App() {
   const [value, toggle] = useToggle()
   const { count, inc, dec, reset } = useCounter(0, { min: 0 })
-  const now = useNow(1000)
+  const now = useNow()
 
   return (
     <main style={{ fontFamily: 'system-ui, sans-serif', padding: '2rem' }}>
@@ -28,7 +28,7 @@ function App() {
 
       <section>
         <h2>useNow</h2>
-        <p>now: <strong>{new Date(now).toLocaleTimeString()}</strong></p>
+        <p>now: <strong>{now.toLocaleTimeString()}</strong></p>
       </section>
     </main>
   )

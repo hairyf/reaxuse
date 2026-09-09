@@ -10,8 +10,8 @@ function BooleanDisplay({ value }: { value: boolean }) {
 
 export default function UseIdleDemo() {
   const { idle, lastActive } = useIdle(5000)
-  const now = useNow(1000)
-  const idledFor = Math.max(0, Math.floor((now - lastActive) / 1000))
+  const now = useNow()
+  const idledFor = Math.max(0, Math.floor((now.getTime() - lastActive) / 1000))
 
   return (
     <div>
