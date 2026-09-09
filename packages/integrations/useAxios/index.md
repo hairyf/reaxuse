@@ -4,17 +4,7 @@ category: '@Integrations'
 
 # useAxios
 
-Wrapper for [`axios`](https://github.com/axios/axios) — React port of VueUse's
-[`useAxios`](https://vueuse.org/integrations/useAxios/).
-
-**Mapping:** upstream returns an object of refs (`data`, `isLoading`, …); the React port returns an
-object whose members are plain values (no `.value`) — they are live getters over the hook's state, so
-a shell captured earlier still reads fresh values. All 12 upstream overloads are kept
-(`(url, config?, options?)`, `(url, instance?, options?)`, `(url, config, instance, options?)`,
-`(config)`, `(instance)`, `(config, instance)`): the url-ful forms return `StrictUseAxiosReturn` and
-their `execute` takes `(url?, config?)`, the url-less forms return `EasyUseAxiosReturn` and require
-`execute(url, config?)`. `execute` resolves with the `AxiosResponse` and rejects with the caught
-error, and the returned object is thenable (`await useAxios(url)` resolves with the shell).
+Wrapper for [`axios`](https://github.com/axios/axios)
 
 ## Install
 
@@ -141,18 +131,6 @@ const { data } = useAxios('/api/posts', config, instance, {
 })
 ```
 
-## React divergences
-
-- `shallow` is accepted for API parity but has **no effect**: React state is never deep-wrapped, so
-  there is no `shallowRef`/`ref` distinction to mirror.
-- A request still in flight when the component unmounts is **aborted** from the unmount cleanup, so a
-  late response can never populate `data`/`response` after unmount. Upstream only relies on the
-  `isAborted` guard.
-- The `immediate` request fires from a mount effect (upstream fires during setup) and its rejection is
-  swallowed with `void execute().catch(noop)`; `execute` itself rejects so callers can `try`/`catch`.
-- `immediate` defaults to `!!url` only when no `options` object is passed at all (upstream's
-  destructuring has no default) — pass `immediate: true` explicitly if you supply options with a url.
-
 ## Testing strategy
 
 Upstream's `index.test.ts` hits `https://jsonplaceholder.typicode.com`; `useAxios.test.tsx` never
@@ -161,55 +139,3 @@ an immediate adapter (resolves a fake response, records the request config), a f
 (rejects), and a deferred adapter that keeps requests pending until the test settles them — which is
 what makes the `isLoading`/`isFinished` transitions, `abort()`, `abortPrevious` and the
 late-response-after-abort guard deterministic.
-
-## Type Declarations
-
-```ts
-export interface UseAxiosReturn<T, R = AxiosResponse<T>, D = any, O extends UseAxiosOptions = UseAxiosOptions<T>> {
-  response: R | undefined
-  data: O extends UseAxiosOptionsWithInitialData<T> ? T : T | undefined
-  isFinished: boolean
-  isLoading: boolean
-  isAborted: boolean
-  error: unknown | undefined
-  abort: (message?: string | undefined) => void
-  cancel: (message?: string | undefined) => void
-  isCanceled: boolean
-}
-
-export interface StrictUseAxiosReturn<T, R, D, O extends UseAxiosOptions = UseAxiosOptions<T>> extends UseAxiosReturn<T, R, D, O> {
-  execute: (url?: string | AxiosRequestConfig<D>, config?: AxiosRequestConfig<D>) => Promise<R | undefined>
-}
-
-export interface EasyUseAxiosReturn<T, R, D> extends UseAxiosReturn<T, R, D> {
-  execute: (url: string, config?: AxiosRequestConfig<D>) => Promise<R | undefined>
-}
-
-export interface UseAxiosOptionsBase<T = any> {
-  immediate?: boolean
-  shallow?: boolean
-  abortPrevious?: boolean
-  onError?: (e: unknown) => void
-  onSuccess?: (data: T) => void
-  resetOnExecute?: boolean
-  onFinish?: () => void
-}
-
-export interface UseAxiosOptionsWithInitialData<T> extends UseAxiosOptionsBase<T> {
-  initialData: T
-}
-
-export type UseAxiosOptions<T = any> = UseAxiosOptionsBase<T> | UseAxiosOptionsWithInitialData<T>
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/integrations/useAxios/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/integrations/useAxios/index.ts) (implementation),
-  [`index.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/integrations/useAxios/index.test.ts) (mirrored in `useAxios.test.tsx`),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/integrations/useAxios/demo.vue) (ported to `demo.tsx` below)
-- reaxuse: [`packages/integrations/src/useAxios.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/integrations/src/useAxios.ts), docs + demo co-located in `packages/integrations/useAxios/`
-
-<DemoContainer name="useAxios" />
-
-<Contributors name="useAxios" />

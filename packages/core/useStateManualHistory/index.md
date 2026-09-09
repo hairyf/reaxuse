@@ -6,12 +6,7 @@ description: Manually track the change history of a state when the user calls co
 
 # useStateManualHistory
 
-Manually track the change history of a state when the user calls `commit()`, also provides undo and redo functionality —
-React port of VueUse's [`useManualRefHistory`](https://vueuse.org/core/useManualRefHistory/).
-
-**Mapping:** `useManualRefHistory(ref)` → `useStateManualHistory(state, setState)`. The Vue `Ref`
-source becomes the `(state, setState)` pair of an existing `useState`; snapshots live in refs and a
-version counter re-renders the component.
+Manually track the change history of a state when the user calls `commit()`, also provides undo and redo functionality
 
 ## Usage
 
@@ -104,57 +99,3 @@ const [history, commit, { clear }] = useStateManualHistory(target, setTarget, {
 
 clear() // explicitly clear all the history
 ```
-
-<DemoContainer name="UseStateManualHistory" />
-
-## Type Declarations
-
-```ts
-export interface UseRefHistoryRecord<T> {
-  snapshot: T
-  timestamp: number
-}
-
-export interface UseStateManualHistoryOptions<Raw, Serialized = Raw> {
-  capacity?: number
-  clone?: boolean | ((value: Raw) => Raw)
-  dump?: (value: Raw) => Serialized
-  parse?: (value: Serialized) => Raw
-}
-
-export interface UseStateManualHistoryControls<Raw, Serialized = Raw> {
-  source: Raw
-  last: UseRefHistoryRecord<Serialized>
-  undoStack: UseRefHistoryRecord<Serialized>[]
-  redoStack: UseRefHistoryRecord<Serialized>[]
-  canUndo: boolean
-  canRedo: boolean
-  undo: () => void
-  redo: () => void
-  clear: () => void
-  reset: () => void
-  setSource: Dispatch<SetStateAction<Raw>>
-}
-
-export type UseStateManualHistoryReturn<Raw, Serialized = Raw> = [
-  history: UseRefHistoryRecord<Serialized>[],
-  commit: () => void,
-  controls: UseStateManualHistoryControls<Raw, Serialized>,
-]
-
-export function useStateManualHistory<Raw, Serialized = Raw>(
-  source: Raw,
-  setSource: Dispatch<SetStateAction<Raw>>,
-  options?: UseStateManualHistoryOptions<Raw, Serialized>,
-): UseStateManualHistoryReturn<Raw, Serialized>
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useManualRefHistory/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useManualRefHistory/index.ts) (implementation),
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useManualRefHistory/index.browser.test.ts) (tests mirrored in `packages/core/src/useStateManualHistory.test.tsx`),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useManualRefHistory/demo.vue) (ported to `demo.tsx` below)
-- reaxuse: [`packages/core/src/useStateManualHistory.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useStateManualHistory.ts), docs + demo co-located in `packages/core/useStateManualHistory/`
-
-<Contributors name="useStateManualHistory" />

@@ -4,9 +4,7 @@ category: Browser
 
 # useGamepad
 
-Provides reactive bindings for the [Gamepad API](https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API) — React port of VueUse's [`useGamepad`](https://vueuse.org/core/useGamepad/).
-
-`gamepads` is a plain `Gamepad[]` state refreshed by a `requestAnimationFrame` poller. The polling loop stays paused until a gamepad connects; `pause` / `resume` give manual control over the refresh.
+Provides reactive bindings for the [Gamepad API](https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API)
 
 ## Usage
 
@@ -88,40 +86,3 @@ if (gamepad) {
   }
 }
 ```
-
-<DemoContainer name="UseGamepad" />
-
-## Type Declarations
-
-```ts
-export interface UseGamepadOptions extends ConfigurableWindow {
-  /**
-   * Specify a custom `navigator` instance, e.g. working with iframes or in
-   * testing environments.
-   *
-   * @default typeof navigator !== 'undefined' ? navigator : undefined
-   */
-  navigator?: Navigator
-}
-
-export interface UseGamepadReturn {
-  isSupported: boolean
-  gamepads: Gamepad[]
-  onConnected: (fn: (index: number) => void) => { off: () => void }
-  onDisconnected: (fn: (index: number) => void) => { off: () => void }
-  pause: () => void
-  resume: () => void
-}
-
-export function useGamepad(options?: UseGamepadOptions): UseGamepadReturn
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useGamepad/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useGamepad/index.ts) (implementation),
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useGamepad/index.browser.test.ts) (mirrored in `packages/core/src/useGamepad.test.tsx`),
-  [`demo.client.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useGamepad/demo.client.vue) (ported to `demo.tsx` below).
-- reaxuse: [`packages/core/src/useGamepad.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useGamepad.ts), docs + demo co-located in `packages/core/useGamepad/`
-
-<Contributors name="useGamepad" />

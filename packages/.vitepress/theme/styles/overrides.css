@@ -54,3 +54,13 @@
   padding: 0.25rem 0.75rem;
   cursor: pointer;
 }
+
+/* Custom block titles — mirrors VueUse's overrides.css */
+.custom-block-title {
+  opacity: 0.5;
+  font-size: 12px;
+  margin-top: -5px !important;
+  margin-bottom: -10px !important;
+  filter: saturate(0.6);
+  letter-spacing: 0.5px;
+}

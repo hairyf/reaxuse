@@ -24,19 +24,3 @@ useListener(onCancel, () => {
 ```
 
 The callback is registered on mount and automatically unregistered on unmount, so listeners never leak and callbacks never fire after the component is gone.
-
-## Types
-
-```ts
-export type ListenerOn<T extends (...args: any[]) => void> = (fn: T) => { off: () => void } | void
-
-export function useListener<T extends (...args: any[]) => void>(
-  on: ListenerOn<T>,
-  cb: T,
-): void
-```
-
-## Source
-
-- reaxuse: `packages/shared/src/useListener.ts`
-- Protocol: [issue #129 comment](https://github.com/hairyf/reaxuse/issues/129) — all return listener callbacks go through `useListener`

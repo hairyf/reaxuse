@@ -72,39 +72,3 @@ The callback only fires when:
 This allows users to start typing anywhere on the page without accidentally triggering the callback when using keyboard shortcuts or interacting with form fields.
 
 Both `isFocusedElementEditable` and `isTypedCharValid` are also exported as utility functions, so you can reuse them when writing custom options.
-
-<DemoContainer name="UseStartTyping" />
-
-## Type Declarations
-
-```ts
-export function isFocusedElementEditable(): boolean
-
-export function isTypedCharValid({
-  keyCode,
-  metaKey,
-  ctrlKey,
-  altKey,
-}: KeyboardEvent): boolean
-
-export interface UseStartTypingOptions {
-  document?: Document
-  isTypedCharValid?: (event: KeyboardEvent) => boolean
-  isFocusedElementEditable?: () => boolean
-}
-
-export function useStartTyping(
-  callback: (event: KeyboardEvent) => void,
-  options: UseStartTypingOptions = {},
-): () => void
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/onStartTyping/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/onStartTyping/index.ts) (implementation),
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/onStartTyping/index.browser.test.ts) (mirrored in `packages/core/src/useStartTyping.test.tsx`),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/onStartTyping/demo.vue) (ported to `packages/core/useStartTyping/demo.tsx` below)
-- reaxuse: [`packages/core/src/useStartTyping.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useStartTyping.ts), docs + demo co-located in `packages/core/useStartTyping/`
-
-<Contributors name="useStartTyping" />

@@ -4,9 +4,7 @@ category: Elements
 
 # useDropZone
 
-Create a zone where files can be dropped — React port of VueUse's [`useDropZone`](https://vueuse.org/core/useDropZone/).
-
-The hook attaches `dragenter` / `dragover` / `dragleave` / `drop` listeners to a target element (a plain element, a React ref) in a mount effect and tracks whether a valid drag is currently over the zone. Dropped files flow through the `onDrop` callback — either the `onDrop` option or the returned `onDrop` subscription.
+Create a zone where files can be dropped
 
 ::: warning
 
@@ -65,44 +63,3 @@ useListener(onDragLeave, () => {
   console.log('drag left')
 })
 ```
-
-<DemoContainer name="UseDropZone" />
-
-## Type Declarations
-
-```ts
-export type UseDropZoneCallback = (files: File[] | null, event: DragEvent) => void
-
-export interface UseDropZoneOptions {
-  dataTypes?: RefOrValue<readonly string[]> | ((types: readonly string[]) => boolean)
-  checkValidity?: (items: DataTransferItemList) => boolean
-  onDrop?: UseDropZoneCallback
-  onEnter?: UseDropZoneCallback
-  onLeave?: UseDropZoneCallback
-  onOver?: UseDropZoneCallback
-  multiple?: RefOrValue<boolean>
-  preventDefaultForUnhandled?: RefOrValue<boolean>
-}
-
-export interface UseDropZoneReturn {
-  isOverDropZone: boolean
-  onDrop: (fn: UseDropZoneCallback) => { off: () => void }
-  onDragEnter: (fn: UseDropZoneCallback) => { off: () => void }
-  onDragLeave: (fn: UseDropZoneCallback) => { off: () => void }
-}
-
-export function useDropZone(
-  target: RefOrValue<HTMLElement | Document | null | undefined>,
-  options?: UseDropZoneOptions | UseDropZoneOptions['onDrop'],
-): UseDropZoneReturn
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useDropZone/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useDropZone/index.ts) (implementation),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useDropZone/demo.vue) (ported to `demo.tsx` below).
-  Upstream has no tests, so `packages/core/src/useDropZone.test.tsx` covers the initial state, drag-enter/leave transitions, drop callbacks, `useListener` subscriptions and SSR safety.
-- reaxuse: [`packages/core/src/useDropZone.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useDropZone.ts), docs + demo co-located in `packages/core/useDropZone/`
-
-<Contributors name="useDropZone" />

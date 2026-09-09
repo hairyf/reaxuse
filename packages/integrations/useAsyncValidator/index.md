@@ -4,19 +4,7 @@ category: '@Integrations'
 
 # useAsyncValidator
 
-Wrapper for [`async-validator`](https://github.com/yiminghe/async-validator) — React port of
-VueUse's [`useAsyncValidator`](https://vueuse.org/integrations/useAsyncValidator/). Validates a form
-object against a rule descriptor and exposes the result as plain values.
-
-**Mapping:** upstream returns refs (`pass`, `isFinished`, `errors`, `errorInfo`, `errorFields`) plus
-`execute`, and is promise-like (`then`). The React port keeps the same object shape with the refs
-unwrapped — every member is a plain value (no `.value`) — and keeps the promise-like contract, so
-`await useAsyncValidator(...)` resolves with the current snapshot. `pass` starts as
-`!immediate || manual`; `execute()` sets `isFinished` to `false`, awaits
-`validator.validate(toValue(value), validateOption)`, then settles with `pass`, `errorInfo`,
-`errors` (`errorInfo?.errors || []`) and `errorFields` (`errorInfo?.fields || {}`). `value` and
-`rules` accept plain values, ref-like `{ current }` objects or getters, resolved with `toValue` from
-`@reaxuse/shared`.
+Wrapper for [`async-validator`](https://github.com/yiminghe/async-validator)
 
 ## Install
 
@@ -83,52 +71,3 @@ of `toValue(value)` / `toValue(rules)` and skips the automatic run entirely when
   extra run is idempotent;
 - `errors` and `errorFields` are derived during render from `errorInfo` (upstream computes them with
   `computed`), and `execute` is stable and ignores results that arrive after unmount.
-
-## Type Declarations
-
-```ts
-export type AsyncValidatorError = Error & {
-  errors: ValidateError[]
-  fields: Record<string, ValidateError[]>
-}
-
-export interface UseAsyncValidatorExecuteReturn {
-  pass: boolean
-  errors: ValidateError[] | undefined
-  errorInfo: AsyncValidatorError | null
-  errorFields: Record<string, ValidateError[]> | undefined
-}
-
-export interface UseAsyncValidatorReturn {
-  pass: boolean
-  isFinished: boolean
-  errors: ValidateError[]
-  errorInfo: AsyncValidatorError | null
-  errorFields: Record<string, ValidateError[]>
-  execute: () => Promise<UseAsyncValidatorExecuteReturn>
-}
-
-export interface UseAsyncValidatorOptions {
-  validateOption?: ValidateOption
-  immediate?: boolean // default true
-  manual?: boolean
-}
-
-export function useAsyncValidator(
-  value: RefOrValue<Record<string, any>>,
-  rules: RefOrValue<Rules>,
-  options?: UseAsyncValidatorOptions,
-): UseAsyncValidatorReturn & PromiseLike<UseAsyncValidatorReturn>
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/integrations/useAsyncValidator/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/integrations/useAsyncValidator/index.ts) (implementation),
-  [`index.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/integrations/useAsyncValidator/index.test.ts) (mirrored in `useAsyncValidator.test.tsx`),
-  [`demo.client.vue`](https://github.com/vueuse/vueuse/blob/main/packages/integrations/useAsyncValidator/demo.client.vue) (ported to `demo.tsx` below)
-- reaxuse: [`packages/integrations/src/useAsyncValidator.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/integrations/src/useAsyncValidator.ts), docs + demo co-located in `packages/integrations/useAsyncValidator/`
-
-<DemoContainer name="useAsyncValidator" />
-
-<Contributors name="useAsyncValidator" />

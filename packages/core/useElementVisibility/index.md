@@ -4,19 +4,7 @@ category: Elements
 
 # useElementVisibility
 
-Tracks the visibility of an element within the viewport — React port of
-VueUse's [`useElementVisibility`](https://vueuse.org/core/useElementVisibility/).
-
-**Mapping:** upstream observes the target with an `IntersectionObserver` rooted at the viewport
-(or a custom `scrollTarget`) and maps the latest entry's `isIntersecting` onto a reactive boolean.
-The reaxuse port returns a plain `boolean` state (the upstream `ShallowRef<boolean>` becomes React
-state; the `controls: true` variant is dropped together with the Pausable members
-`isActive`/`pause`/`resume`, consistent with this repo's `useIntersectionObserver` contract).
-Observation re-uses `useIntersectionObserver`, so target/root/rootMargin re-resolution and observer
-teardown follow that hook. When `IntersectionObserver` is unavailable (SSR, older browsers) the hook
-falls back to `scroll`/`resize` listeners that recompute the intersection of the target and
-viewport (or `scrollTarget`) bounding boxes, honoring `rootMargin` and `threshold`. SSR-safe —
-nothing touches `window` during render.
+Tracks the visibility of an element within the viewport
 
 ## Usage
 
@@ -65,35 +53,3 @@ const targetIsVisible = useElementVisibility(target, {
   once: true,
 })
 ```
-
-<DemoContainer name="UseElementVisibility" />
-
-## Type Declarations
-
-```ts
-interface UseElementVisibilityOptions extends ConfigurableWindow {
-  initialValue?: boolean
-  scrollTarget?: ElementTarget | Document
-  threshold?: number | number[]
-  rootMargin?: RefOrValue<string>
-  once?: boolean
-}
-
-export function useElementVisibility(
-  element: ElementTarget,
-  options?: UseElementVisibilityOptions,
-): boolean
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useElementVisibility/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useElementVisibility/index.ts) (implementation),
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useElementVisibility/index.browser.test.ts) (mirrored as behavioral browser tests),
-  [`directive.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useElementVisibility/directive.test.ts) (directive variant — not ported, no React equivalent),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useElementVisibility/demo.vue) (ported to `demo.tsx` below; the `controls: true` badge variant is dropped — the React contract is a plain `boolean`),
-  [`component.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useElementVisibility/component.ts) (component variant — not ported, no React equivalent),
-  [`directive.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useElementVisibility/directive.ts) (directive variant — not ported, no React equivalent)
-- reaxuse: [`packages/core/src/useElementVisibility.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useElementVisibility.ts), docs + demo co-located in `packages/core/useElementVisibility/`
-
-<Contributors name="useElementVisibility" />

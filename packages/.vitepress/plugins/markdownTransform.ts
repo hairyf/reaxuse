@@ -1,14 +1,25 @@
 import type { Plugin } from 'vite'
+import { existsSync } from 'node:fs'
+import { upstreamPaths } from '../../metadata/src/upstream'
+import { findSourceFile, getTypeDefinitions, resetTypeCache } from './type-definitions'
 
 /**
  * Inline-markdown transformer for VitePress pages.
  *
  * React adaptation of VueUse's `packages/.vitepress/plugins/markdownTransform.ts`:
  * - backticked function names (`` `useToggle` ``) that match the registry are
- *   auto-linked to their docs page (`[\`useToggle\`](/core/useToggle)`).
- * - VueUse's Vue-specific injections (twoslash code blocks, function-page
- *   metadata) do not apply to the React port and are omitted.
+ *   auto-linked to their docs page (`[\`useToggle\`](/core/useToggle)`);
+ * - function pages get VueUse's auto-generated chrome injected at build time,
+ *   so `index.md` files stay minimal and uniform: a `## Demo` block right
+ *   after the description (demo on top), and a footer with `## Type
+ *   Declarations` (extracted from the hook's source module), `## Source`
+ *   links and the `Contributors` component.
+ *
+ * Everything a hook page once declared by hand — `**Mapping:**` notes, copied
+ * type blocks, source-link sections — is either dropped from the markdown or
+ * derived automatically here, mirroring how VueUse's pages are generated.
  */
+
 export interface FunctionRef {
   name: string
   pkg: string
@@ -16,24 +27,47 @@ export interface FunctionRef {
   file?: string
 }
 
+const REPO = 'https://github.com/hairyf/reaxuse'
+const VUEUSE_REPO = 'https://github.com/vueuse/vueuse'
+
+/** Map a docs-page id (`.../packages/<pkg>/<Fn>/index.md`) to its parts. */
+const PAGE_RE = /packages\/(core|shared|math|integrations|electron|firebase|rxjs)\/([^/]+)\/index\.md$/
+
+/** Wrap a long code block in a collapsible <details> (mirrors VueUse). */
+function collapsible(code: string): string {
+  if (code.length <= 1000)
+    return `\`\`\`ts\n${code}\n\`\`\``
+  return `<details>\n<summary>Toggle</summary>\n\n\`\`\`ts\n${code}\n\`\`\`\n\n</details>`
+}
+
 /**
- * Docs route of a function: the page lives next to the module that exports it,
- * named after that module — not after the function. For one-hook-per-file
- * modules the two coincide (`useToggle` -> `/core/useToggle/index`), but helper
- * modules export several functions from one page (`toValue` lives in
- * `packages/shared/src/utils.ts` -> `/shared/utils/index`).
+ * Build the `## Source` link row for a function page:
+ * reaxuse source file · co-located demo · upstream VueUse module.
  */
-function functionRoute(fn: FunctionRef): string {
-  const module = fn.file
-    ?.replace(/\\/g, '/')
-    .split('/')
-    .pop()
-    ?.replace(/\.ts$/, '')
-  return `/${fn.pkg}/${module || fn.name}/index`
+function sourceLinks(pkg: string, dir: string): string {
+  const rel = `packages/${pkg}/src/${dir}`
+  const src = (['.ts', '.tsx'] as const).map(ext => `${rel}${ext}`).find(p => existsSync(p))
+  const demo = `packages/${pkg}/${dir}/demo.tsx`
+  const upstream = upstreamPaths[`${pkg}/${dir}`]
+
+  const links = []
+  if (src)
+    links.push(`[Source](${REPO}/blob/main/${src})`)
+  if (existsSync(demo))
+    links.push(`[Demo](${REPO}/blob/main/${demo})`)
+  if (upstream)
+    links.push(`[VueUse](${VUEUSE_REPO}/blob/main/${upstream})`)
+  return links.join(' · ')
 }
 
 export function MarkdownTransform(functions: FunctionRef[]): Plugin {
-  const registered = new Map(functions.map(fn => [fn.name, functionRoute(fn)]))
+  const registered = new Map(functions.map((fn) => {
+    const page = (fn.file ?? `packages/${fn.pkg}/src/${fn.name}.ts`)
+      .replace(/^packages\//, '')
+      .replace('/src/', '/')
+      .replace(/\.ts$/, '')
+    return [fn.name, `/${page}/`]
+  }))
 
   return {
     name: 'reaxuse-markdown-transform',
@@ -42,24 +76,54 @@ export function MarkdownTransform(functions: FunctionRef[]): Plugin {
       if (!id.endsWith('.md'))
         return
 
+      const page = id.replace(/\\/g, '/').match(PAGE_RE)
       const lines = code.split('\n')
 
-      const out = lines.map((line) => {
+      // Linkify backticked function names — outside fenced code blocks and raw
+      // HTML, and skipping tokens already inside a markdown link label.
+      const linked = lines.map((line) => {
         const trimmed = line.trimStart()
-        // Keep fenced code blocks and raw HTML untouched.
         if (trimmed.startsWith('```') || trimmed.startsWith('<'))
           return line
-        // Only linkify known function names in prose/table cells, and skip
-        // tokens that are already part of a markdown link label (`[`useX`]`).
         return line.replace(/`([\w-]+)`/g, (raw, name) => {
           if (line.includes(`[\`${name}\`]`))
             return raw
           const link = registered.get(name)
           return link ? `[\`${name}\`](${link})` : raw
         })
-      })
+      }).join('\n')
 
-      return out.join('\n')
+      if (!page)
+        return linked
+
+      const [, pkg, dir] = page
+
+      // --- Header: demo on top, right after the description/notes -----------
+      let out = linked
+      const hasDemo = existsSync(`packages/${pkg}/${dir}/demo.tsx`)
+      if (hasDemo) {
+        const header = `\n## Demo\n\n<DemoContainer name="${dir}" />\n\n`
+        const sliceIndex = out.search(/^#{2,6} /m)
+        out = sliceIndex === -1
+          ? `${out.trimEnd()}\n${header}`
+          : `${out.slice(0, sliceIndex)}${header}${out.slice(sliceIndex)}`
+      }
+
+      // --- Footer: Type Declarations + Source + Contributors ----------------
+      const footer: string[] = []
+      const srcFile = findSourceFile(pkg, dir)
+      // The extractor's module-level cycle guards must not leak between
+      // transform passes (client build vs SSR render): reset them first so
+      // every page gets its full type block.
+      resetTypeCache()
+      const types = srcFile ? getTypeDefinitions(srcFile) : ''
+      if (types)
+        footer.push('## Type Declarations', '', collapsible(types), '')
+      const links = sourceLinks(pkg, dir)
+      if (links)
+        footer.push('## Source', '', links, '')
+      footer.push(`<Contributors name="${dir}" />`)
+      return `${out.trimEnd()}\n\n${footer.join('\n')}\n`
     },
   }
 }

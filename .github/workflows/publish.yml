@@ -4,7 +4,7 @@ permissions:
   id-token: write
   contents: write
 
-# Releases are cut with `npm run release` (bumpp --pr), which opens a `release/*`
+# Releases are cut with `pnpm run release` (bumpp --pr), which opens a `release/*`
 # pull request. Merging that PR tags the merge commit and publishes from here.
 # Mirror of VueUse's `.github/workflows/publish.yml`.
 on:
@@ -35,17 +35,22 @@ jobs:
           submodules: recursive
           persist-credentials: false
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+
       - name: Set node
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
           registry-url: https://registry.npmjs.org/
-          cache: npm
+          cache: pnpm
 
       - name: Install
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Publish
-        run: npm run publish:ci
+        run: pnpm run publish:ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

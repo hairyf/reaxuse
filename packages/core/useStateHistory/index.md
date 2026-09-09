@@ -4,14 +4,7 @@ category: State
 
 # useStateHistory
 
-Track the change history of a state automatically — every change commits a history record — also
-provides undo and redo functionality — React port of VueUse's
-[`useRefHistory`](https://vueuse.org/core/useRefHistory/).
-
-**Mapping:** `useRefHistory(ref)` → `useStateHistory(state, setState)`. The Vue `Ref` source becomes
-the `(state, setState)` pair of an existing `useState`; commits are driven by an effect on state
-changes (upstream: `watchIgnorable`), and history records live in refs with a version counter
-re-rendering the component.
+Track the change history of a state automatically — every change commits a history record — also provides undo and redo functionality
 
 ## Usage
 
@@ -104,60 +97,3 @@ const [history, undo, redo, { clear }] = useStateHistory(target, setTarget, {
 
 clear() // explicitly clear all the history
 ```
-
-<DemoContainer name="UseStateHistory" />
-
-## Type Declarations
-
-History records reuse `UseRefHistoryRecord` (`{ snapshot, timestamp }`) from
-[`useStateManualHistory`](/core/useStateManualHistory/).
-
-```ts
-export interface UseStateHistoryOptions<Raw, Serialized = Raw> {
-  capacity?: number
-  clone?: boolean | ((value: Raw) => Raw)
-  dump?: (value: Raw) => Serialized
-  parse?: (value: Serialized) => Raw
-  shouldCommit?: (oldValue: Raw, newValue: Raw) => boolean
-}
-
-export interface UseStateHistoryControls<Raw, Serialized = Raw> {
-  source: Raw
-  last: UseRefHistoryRecord<Serialized>
-  undoStack: UseRefHistoryRecord<Serialized>[]
-  redoStack: UseRefHistoryRecord<Serialized>[]
-  canUndo: boolean
-  canRedo: boolean
-  isTracking: boolean
-  setSource: Dispatch<SetStateAction<Raw>>
-  commit: () => void
-  clear: () => void
-  reset: () => void
-  pause: () => void
-  resume: (commitNow?: boolean) => void
-  batch: (fn: (cancel: () => void) => void) => void
-}
-
-export type UseStateHistoryReturn<Raw, Serialized = Raw> = [
-  history: UseRefHistoryRecord<Serialized>[],
-  undo: () => void,
-  redo: () => void,
-  controls: UseStateHistoryControls<Raw, Serialized>,
-]
-
-export function useStateHistory<Raw, Serialized = Raw>(
-  source: Raw,
-  setSource: Dispatch<SetStateAction<Raw>>,
-  options?: UseStateHistoryOptions<Raw, Serialized>,
-): UseStateHistoryReturn<Raw, Serialized>
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useRefHistory/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useRefHistory/index.ts) (implementation),
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useRefHistory/index.browser.test.ts) (tests mirrored in `packages/core/src/useStateHistory.test.tsx`),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useRefHistory/demo.vue) (ported to `demo.tsx` below)
-- reaxuse: [`packages/core/src/useStateHistory.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useStateHistory.ts), docs + demo co-located in `packages/core/useStateHistory/`
-
-<Contributors name="useStateHistory" />

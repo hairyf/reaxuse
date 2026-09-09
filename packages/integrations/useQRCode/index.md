@@ -4,14 +4,7 @@ category: '@Integrations'
 
 # useQRCode
 
-Wrapper for [`qrcode`](https://github.com/soldair/node-qrcode) — React port of VueUse's
-[`useQRCode`](https://vueuse.org/integrations/useQRCode/). Encodes `text` into a PNG data URL.
-
-**Mapping:** upstream returns a `shallowRef<string>` holding the data URL; the React port returns
-the plain `string` data URL directly (no `.value`, no tuple) — `''` until the first encode
-resolves. `text` accepts a plain string or a ref-like `{ current }` object, resolved with `toValue`
-from `@reaxuse/shared` (upstream's `MaybeRefOrGetter`; zero-argument getters are not supported).
-An empty `text` never encodes, so like upstream the previous data URL is kept rather than cleared.
+Wrapper for [`qrcode`](https://github.com/soldair/node-qrcode)
 
 ## Install
 
@@ -65,27 +58,3 @@ const qrcode = useQRCode('text-to-encode', options)
 non-JSON values (`toSJISFunc`, color functions…), which serialization would break. The
 `cancelled` guard makes the last text/options write win, so a stale encode never overwrites a
 newer one, and unmounting mid-encode does not set state.
-
-<DemoContainer name="useQRCode" />
-
-## Type Declarations
-
-```ts
-export function useQRCode(
-  text: RefOrValue<string>,
-  options?: QRCode.QRCodeToDataURLOptions,
-): string
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/integrations/useQRCode/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/integrations/useQRCode/index.ts) (implementation),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/integrations/useQRCode/demo.vue) (ported to `demo.tsx` below),
-  [`index.md`](https://github.com/vueuse/vueuse/blob/main/packages/integrations/useQRCode/index.md) (docs).
-  Upstream ships **no** `index.test.ts` for `useQRCode`, so the browser tests in
-  `packages/integrations/src/useQRCode.test.tsx` are self-authored (empty text, plain string,
-  ref-like input, last-write-wins on text change, options forwarding, unmount mid-encode).
-- reaxuse: [`packages/integrations/src/useQRCode.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/integrations/src/useQRCode.ts), docs + demo co-located in `packages/integrations/useQRCode/`
-
-<Contributors name="useQRCode" />

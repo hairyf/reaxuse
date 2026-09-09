@@ -4,21 +4,7 @@ category: '@Integrations'
 
 # useIDBKeyval
 
-Reactive [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) store — React port of
-VueUse's [`useIDBKeyval`](https://vueuse.org/integrations/useIDBKeyval/). Wrapper for
-[`idb-keyval`](https://www.npmjs.com/package/idb-keyval).
-
-**Mapping:** upstream returns `{ data, isFinished, isSupported, set }`; the React port returns the
-state-like tuple `[data, setData, controls]` (§2B family, precedent `useStorage` → `[value, setValue]`,
-`useStateWithControl` → `[value, setValue, controls]`). `data` is `T | null` where `null` means the key
-was removed; `setData(null)` deletes the key with `del`. `isFinished` / `isSupported` move into the
-third slot as plain booleans (upstream: `ShallowRef` / `ComputedRef`).
-
-**No deep watcher (React deviation):** upstream writes on _any_ mutation of `data.value`
-(`watchPausable(data, write, { deep: true })`), so `data.value.count++` persists by itself. React state
-has no deep observation, so writes happen **explicitly through `setData`** — that is the React contract.
-Mutating an object held in `data` in place does _not_ persist; pass a new value to `setData` instead.
-The `deep` / `shallow` options are accepted for upstream parity and have no effect.
+Reactive [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) store
 
 ## Install
 
@@ -69,54 +55,3 @@ message resets `data` to the initial value.
 // disable cross-tab syncing
 const [data] = useIDBKeyval('my-key', 'default', { listenToStorageChanges: false })
 ```
-
-## Type Declarations
-
-```ts
-export interface UseIDBKeyvalSerializer<T> {
-  read: (raw: unknown) => T
-  write: (value: T) => unknown
-}
-
-export interface UseIDBOptions<T> {
-  window?: Window
-  onError?: (error: unknown) => void
-  writeDefaults?: boolean
-  serializer?: UseIDBKeyvalSerializer<T>
-  listenToStorageChanges?: boolean
-  /** accepted for parity only — no effect */
-  deep?: boolean
-  /** accepted for parity only — no effect */
-  shallow?: boolean
-}
-
-export interface UseIDBKeyvalControls {
-  isFinished: boolean
-  isSupported: boolean
-}
-
-export type UseIDBKeyvalReturn<T> = [
-  data: T | null,
-  setData: (value: T | null) => Promise<void>,
-  controls: UseIDBKeyvalControls,
-]
-
-export function useIDBKeyval<T>(
-  key: IDBValidKey,
-  initialValue: RefOrValue<T>,
-  options?: UseIDBOptions<T>,
-): UseIDBKeyvalReturn<T>
-```
-
-<DemoContainer name="useIDBKeyval" />
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/integrations/useIDBKeyval/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/integrations/useIDBKeyval/index.ts) (implementation),
-  [`index.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/integrations/useIDBKeyval/index.test.ts) and
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/integrations/useIDBKeyval/index.browser.test.ts) (mirrored in `useIDBKeyval.test.tsx`),
-  [`demo.client.vue`](https://github.com/vueuse/vueuse/blob/main/packages/integrations/useIDBKeyval/demo.client.vue) (ported to `demo.tsx` below)
-- reaxuse: [`packages/integrations/src/useIDBKeyval.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/integrations/src/useIDBKeyval.ts), docs + demo co-located in `packages/integrations/useIDBKeyval/`
-
-<Contributors name="useIDBKeyval" />

@@ -4,9 +4,7 @@ category: State
 
 # useAsyncState
 
-Reactive async state. Will not block your component and will trigger changes once the promise is ready — React port of VueUse's [`useAsyncState`](https://vueuse.org/core/useAsyncState/).
-
-**Mapping:** object-mirror hook — the members (`state`, `isReady`, `isLoading`, `error`) are live React state values (upstream: shallow refs read as `.value`), `execute(delay?, ...args)` re-runs the promise (waiting for `delay` ms first) and `executeImmediate(...args)` is shorthand for `execute(0, ...args)`. The first execution fires from a mount effect when `immediate` is `true` (upstream fires during setup); an execution counter guarantees an outdated execution can never mutate the state after a newer one has started.
+Reactive async state. Will not block your component and will trigger changes once the promise is ready
 
 ## Usage
 
@@ -80,82 +78,3 @@ const { state } = useAsyncState(promise, initialState, {
   },
 })
 ```
-
-<DemoContainer name="UseAsyncState" />
-
-## Type Declarations
-
-```ts
-export interface UseAsyncStateOptions<Shallow extends boolean = true, D = any> {
-  /**
-   * Delay for the first execution of the promise when "immediate" is true. In milliseconds.
-   *
-   * @default 0
-   */
-  delay?: number
-  /**
-   * Execute the promise right after the function is invoked.
-   * Will apply the delay if any.
-   *
-   * When set to false, you will need to execute it manually.
-   *
-   * @default true
-   */
-  immediate?: boolean
-  /**
-   * Callback when error is caught.
-   */
-  onError?: (e: unknown) => void
-  /**
-   * Callback when success is caught.
-   */
-  onSuccess?: (data: D) => void
-  /**
-   * Sets the state to initialState before executing the promise.
-   *
-   * @default true
-   */
-  resetOnExecute?: boolean
-  /**
-   * Use shallowRef.
-   *
-   * @default true
-   */
-  shallow?: Shallow
-  /**
-   * An error is thrown when executing the execute function.
-   *
-   * @default false
-   */
-  throwError?: boolean
-}
-
-export interface UseAsyncStateReturnBase<Data, Params extends any[], Shallow extends boolean> {
-  state: Data
-  isReady: boolean
-  isLoading: boolean
-  error: unknown
-  execute: (delay?: number, ...args: Params) => Promise<Data | undefined>
-  executeImmediate: (...args: Params) => Promise<Data | undefined>
-}
-
-export type UseAsyncStateReturn<Data, Params extends any[], Shallow extends boolean>
-  = UseAsyncStateReturnBase<Data, Params, Shallow>
-    & PromiseLike<UseAsyncStateReturnBase<Data, Params, Shallow>>
-
-export function useAsyncState<Data, Params extends any[] = any[], Shallow extends boolean = true>(
-  promise: Promise<Data> | ((...args: Params) => Promise<Data>),
-  initialState: RefOrValue<Data>,
-  options?: UseAsyncStateOptions<Shallow, Data>,
-): UseAsyncStateReturn<Data, Params, Shallow>
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useAsyncState/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useAsyncState/index.ts) (implementation),
-  [`index.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useAsyncState/index.test.ts) (mirrored in `useAsyncState.test.tsx`),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useAsyncState/demo.vue) (ported to `demo.tsx` below)
-- reaxuse: [`packages/core/src/useAsyncState.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useAsyncState.ts), docs + demo co-located in `packages/core/useAsyncState/`
-
-<Contributors name="useAsyncState" />

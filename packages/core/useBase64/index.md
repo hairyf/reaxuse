@@ -4,9 +4,7 @@ category: Utilities
 
 # useBase64
 
-Reactive base64 transforming — React port of VueUse's [`useBase64`](https://vueuse.org/core/useBase64/). Supports plain text, blobs/files, buffers, canvas elements, images and JSON-serializable objects, maps and sets.
-
-**Mapping:** upstream returns an object of shallow refs (`base64`, `promise`) plus the `execute` control function → a plain object of plain values held in `useState`s. The target is transformed to a base64 data URL automatically whenever it changes, `promise` holds the promise of the current transformation and `execute` re-triggers it manually.
+Reactive base64 transforming
 
 ## Usage
 
@@ -68,49 +66,3 @@ const { base64 } = useBase64(data, {
   serializer: v => JSON.stringify(v, null, 2),
 })
 ```
-
-<DemoContainer name="UseBase64" />
-
-## Type Declarations
-
-```ts
-export interface UseBase64Options {
-  dataUrl?: boolean
-}
-
-export interface ToDataURLOptions extends UseBase64Options {
-  type?: string | undefined
-  quality?: any
-}
-
-export interface UseBase64ObjectOptions<T> extends UseBase64Options {
-  serializer?: (v: T) => string
-}
-
-export interface UseBase64Return {
-  base64: string
-  promise: Promise<string> | undefined
-  execute: () => Promise<string> | undefined
-}
-
-export function useBase64(target: RefOrValue<string | undefined>, options?: UseBase64Options): UseBase64Return
-export function useBase64(target: RefOrValue<Blob | undefined>, options?: UseBase64Options): UseBase64Return
-export function useBase64(target: RefOrValue<ArrayBuffer | undefined>, options?: UseBase64Options): UseBase64Return
-export function useBase64(target: RefOrValue<HTMLCanvasElement | undefined>, options?: ToDataURLOptions): UseBase64Return
-export function useBase64(target: RefOrValue<HTMLImageElement | undefined>, options?: ToDataURLOptions): UseBase64Return
-export function useBase64<T extends Record<string, unknown>>(target: RefOrValue<T>, options?: UseBase64ObjectOptions<T>): UseBase64Return
-export function useBase64<T extends Map<string, unknown>>(target: RefOrValue<T>, options?: UseBase64ObjectOptions<T>): UseBase64Return
-export function useBase64<T extends Set<unknown>>(target: RefOrValue<T>, options?: UseBase64ObjectOptions<T>): UseBase64Return
-export function useBase64<T>(target: RefOrValue<T[]>, options?: UseBase64ObjectOptions<T[]>): UseBase64Return
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useBase64/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useBase64/index.ts) (implementation),
-  [`serialization.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useBase64/serialization.ts) (inlined as `getDefaultSerialization`),
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useBase64/index.browser.test.ts) (mirrored in `packages/core/src/useBase64.test.tsx`),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useBase64/demo.vue) (ported to `demo.tsx` below).
-- reaxuse: [`packages/core/src/useBase64.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useBase64.ts), docs + demo co-located in `packages/core/useBase64/`
-
-<Contributors name="useBase64" />

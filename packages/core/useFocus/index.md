@@ -4,18 +4,9 @@ category: Sensors
 
 # useFocus
 
-Reactive utility to track or set the focus state of a DOM element — React port of VueUse's
-[`useFocus`](https://vueuse.org/core/useFocus/).
+Reactive utility to track or set the focus state of a DOM element
 
-**Mapping:** upstream returns a writable computed ref (`focused.value = true` focuses the target) →
-reaxuse returns `{ focused, isFocused }`: `focused` keeps the upstream `.value` read/write contract
-(assign `focused.value = true` / `false` to focus / blur the target; the `focus` / `blur` events
-update the state), and `isFocused` is the same state as a plain boolean, convenient for rendering.
-The target `focus` / `blur` listeners attach in an effect (passive) and re-attach when the resolved
-element changes; upstream's immediate `watch(targetElement, …)` becomes a mount / target-change
-effect that applies the `initialValue` option.
-
-## Basic Usage
+## Usage
 
 ```tsx
 import { useFocus } from '@reaxuse/core'
@@ -62,39 +53,3 @@ function Component() {
   )
 }
 ```
-
-<DemoContainer name="UseFocus" />
-
-## Type Declarations
-
-```ts
-export interface UseFocusOptions extends ConfigurableWindow {
-  initialValue?: boolean
-  focusVisible?: boolean
-  preventScroll?: boolean
-}
-
-export interface UseFocusRef {
-  value: boolean
-}
-
-export interface UseFocusReturn {
-  focused: UseFocusRef
-  isFocused: boolean
-}
-
-export function useFocus(
-  target: RefOrValue<HTMLElement | null | undefined>,
-  options?: UseFocusOptions,
-): UseFocusReturn
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useFocus/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useFocus/index.ts) (implementation),
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useFocus/index.browser.test.ts) (tests mirrored in `packages/core/src/useFocus.test.tsx`),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useFocus/demo.vue) (ported to `demo.tsx` below)
-- reaxuse: [`packages/core/src/useFocus.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useFocus.ts), docs + demo co-located in `packages/core/useFocus/`
-
-<Contributors name="useFocus" />

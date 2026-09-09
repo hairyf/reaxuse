@@ -4,13 +4,7 @@ category: Array
 
 # useArrayUnique
 
-Reactive `Array.unique` — React port of VueUse's [`useArrayUnique`](https://vueuse.org/shared/useArrayUnique/).
-
-**Mapping:** `computed(...)` → recompute on every render (the result is a plain deduped array — no `.value`, no caching);
-`RefOrValue` → the repo's the repo's `RefOrValue` (`T | Ref<T>`), unwrapped on read — the list itself may be a ref and
-every element is unwrapped before the dedupe, so mutate `ref.current` and re-render to update the result. Duplicate
-detection uses a `Set` of the unwrapped values (reference identity for objects) unless a custom `compareFn` is provided,
-same as upstream.
+Reactive `Array.unique`
 
 ## Usage
 
@@ -25,23 +19,3 @@ const result = useArrayUnique(list)
 setList([0, 2, 4, 6, 6])
 // result: [0, 2, 4, 6] on the next render
 ```
-
-<DemoContainer name="UseArrayUnique" />
-
-## Type Declarations
-
-```ts
-export type UseArrayUniqueReturn<T = any> = T[]
-
-export function useArrayUnique<T>(
-  list: RefOrValue<RefOrValue<T>[]>,
-  compareFn?: (a: T, b: T, array: T[]) => boolean,
-): UseArrayUniqueReturn<T>
-```
-
-## Source
-
-- VueUse: [`packages/shared/useArrayUnique`](https://github.com/vueuse/vueuse/tree/main/packages/shared/useArrayUnique) (source + tests)
-- reaxuse: [`packages/shared/src/useArrayUnique.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/shared/src/useArrayUnique.ts)
-
-<Contributors name="useArrayUnique" />

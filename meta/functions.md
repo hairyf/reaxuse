@@ -20,8 +20,10 @@
 | `clamp`                           | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `cloneFnJSON`                     | —                                             | `packages/core/src/useCloned.ts`                       | 🚧 ported (no upstream match) |
 | `computedAsync`                   | packages/core/computedAsync                   | `packages/core/src/computedAsync.ts`                   | ✅ ported                     |
+| `createCookies`                   | —                                             | `packages/integrations/src/useCookies.ts`              | 🚧 ported (no upstream match) |
 | `createEventHook`                 | packages/shared/createEventHook               | `packages/shared/src/createEventHook.ts`               | ✅ ported                     |
 | `createFetch`                     | —                                             | `packages/core/src/useFetch.ts`                        | 🚧 ported (no upstream match) |
+| `createGlobalState`               | packages/shared/createGlobalState             | `packages/shared/src/createGlobalState.ts`             | ✅ ported                     |
 | `createSingletonPromise`          | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `customStorageEventName`          | —                                             | `packages/core/src/useStorage.ts`                      | 🚧 ported (no upstream match) |
 | `debounceFilter`                  | —                                             | `packages/shared/src/useWatchWithFilter.ts`            | 🚧 ported (no upstream match) |
@@ -39,6 +41,7 @@
 | `increaseWithUnit`                | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `increaseWithUnit`                | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `increaseWithUnit`                | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
+| `insertNodeAt`                    | —                                             | `packages/integrations/src/useSortable.ts`             | 🚧 ported (no upstream match) |
 | `isClient`                        | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `isDef`                           | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `isDefined`                       | packages/shared/isDefined                     | `packages/shared/src/isDefined.ts`                     | ✅ ported                     |
@@ -53,6 +56,7 @@
 | `logicNot`                        | packages/math/logicNot                        | `packages/math/src/logicNot.ts`                        | ✅ ported                     |
 | `logicOr`                         | packages/math/logicOr                         | `packages/math/src/logicOr.ts`                         | ✅ ported                     |
 | `makeDestructurable`              | packages/shared/makeDestructurable            | `packages/shared/src/makeDestructurable.ts`            | ✅ ported                     |
+| `moveArrayElement`                | —                                             | `packages/integrations/src/useSortable.ts`             | 🚧 ported (no upstream match) |
 | `noop`                            | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `normalizeDate`                   | —                                             | `packages/shared/src/useDateFormat.ts`                 | 🚧 ported (no upstream match) |
 | `now`                             | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
@@ -61,6 +65,9 @@
 | `promiseTimeout`                  | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `pxValue`                         | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
 | `rand`                            | —                                             | `packages/shared/src/utils.ts`                         | 🚧 ported (no upstream match) |
+| `removeNode`                      | —                                             | `packages/integrations/src/useSortable.ts`             | 🚧 ported (no upstream match) |
+| `resolveIpcRenderer`              | —                                             | `packages/electron/src/_resolve.ts`                    | 🚧 ported (no upstream match) |
+| `resolveWebFrame`                 | —                                             | `packages/electron/src/_resolve.ts`                    | 🚧 ported (no upstream match) |
 | `syncRef`                         | packages/shared/syncRef                       | `packages/shared/src/syncRef.ts`                       | ✅ ported                     |
 | `syncRefs`                        | packages/shared/syncRefs                      | `packages/shared/src/syncRefs.ts`                      | ✅ ported                     |
 | `throttleFilter`                  | —                                             | `packages/shared/src/useWatchWithFilter.ts`            | 🚧 ported (no upstream match) |
@@ -102,9 +109,20 @@
 | `useArrayUnique`                  | packages/shared/useArrayUnique                | `packages/shared/src/useArrayUnique.ts`                | ✅ ported                     |
 | `useAsyncQueue`                   | packages/core/useAsyncQueue                   | `packages/core/src/useAsyncQueue.ts`                   | ✅ ported                     |
 | `useAsyncState`                   | packages/core/useAsyncState                   | `packages/core/src/useAsyncState.ts`                   | ✅ ported                     |
+| `useAsyncValidator`               | packages/integrations/useAsyncValidator       | `packages/integrations/src/useAsyncValidator.ts`       | ✅ ported                     |
 | `useAverage`                      | packages/math/useAverage                      | `packages/math/src/useAverage.ts`                      | ✅ ported                     |
 | `useAverage`                      | packages/math/useAverage                      | `packages/math/src/useAverage.ts`                      | ✅ ported                     |
 | `useAverage`                      | packages/math/useAverage                      | `packages/math/src/useAverage.ts`                      | ✅ ported                     |
+| `useAxios`                        | packages/integrations/useAxios                | `packages/integrations/src/useAxios.ts`                | ✅ ported                     |
+| `useAxios`                        | packages/integrations/useAxios                | `packages/integrations/src/useAxios.ts`                | ✅ ported                     |
+| `useAxios`                        | packages/integrations/useAxios                | `packages/integrations/src/useAxios.ts`                | ✅ ported                     |
+| `useAxios`                        | packages/integrations/useAxios                | `packages/integrations/src/useAxios.ts`                | ✅ ported                     |
+| `useAxios`                        | packages/integrations/useAxios                | `packages/integrations/src/useAxios.ts`                | ✅ ported                     |
+| `useAxios`                        | packages/integrations/useAxios                | `packages/integrations/src/useAxios.ts`                | ✅ ported                     |
+| `useAxios`                        | packages/integrations/useAxios                | `packages/integrations/src/useAxios.ts`                | ✅ ported                     |
+| `useAxios`                        | packages/integrations/useAxios                | `packages/integrations/src/useAxios.ts`                | ✅ ported                     |
+| `useAxios`                        | packages/integrations/useAxios                | `packages/integrations/src/useAxios.ts`                | ✅ ported                     |
+| `useAxios`                        | packages/integrations/useAxios                | `packages/integrations/src/useAxios.ts`                | ✅ ported                     |
 | `useBase64`                       | packages/core/useBase64                       | `packages/core/src/useBase64.ts`                       | ✅ ported                     |
 | `useBase64`                       | packages/core/useBase64                       | `packages/core/src/useBase64.ts`                       | ✅ ported                     |
 | `useBase64`                       | packages/core/useBase64                       | `packages/core/src/useBase64.ts`                       | ✅ ported                     |
@@ -134,6 +152,7 @@
 | `useCloned`                       | packages/core/useCloned                       | `packages/core/src/useCloned.ts`                       | ✅ ported                     |
 | `useColorMode`                    | packages/core/useColorMode                    | `packages/core/src/useColorMode.ts`                    | ✅ ported                     |
 | `useConfirmDialog`                | packages/core/useConfirmDialog                | `packages/core/src/useConfirmDialog.ts`                | ✅ ported                     |
+| `useCookies`                      | packages/integrations/useCookies              | `packages/integrations/src/useCookies.ts`              | ✅ ported                     |
 | `useCountdown`                    | packages/core/useCountdown                    | `packages/core/src/useCountdown.ts`                    | ✅ ported                     |
 | `useCounter`                      | packages/shared/useCounter                    | `packages/shared/src/useCounter.ts`                    | ✅ ported                     |
 | `useCssSupports`                  | packages/core/useCssSupports                  | `packages/core/src/useCssSupports.ts`                  | ✅ ported                     |
@@ -151,6 +170,7 @@
 | `useDisplayMedia`                 | packages/core/useDisplayMedia                 | `packages/core/src/useDisplayMedia.ts`                 | ✅ ported                     |
 | `useDocumentVisibility`           | packages/core/useDocumentVisibility           | `packages/core/src/useDocumentVisibility.ts`           | ✅ ported                     |
 | `useDraggable`                    | packages/core/useDraggable                    | `packages/core/src/useDraggable.ts`                    | ✅ ported                     |
+| `useDrauu`                        | packages/integrations/useDrauu                | `packages/integrations/src/useDrauu.ts`                | ✅ ported                     |
 | `useDropZone`                     | packages/core/useDropZone                     | `packages/core/src/useDropZone.ts`                     | ✅ ported                     |
 | `useElementBounding`              | packages/core/useElementBounding              | `packages/core/src/useElementBounding.ts`              | ✅ ported                     |
 | `useElementByPoint`               | packages/core/useElementByPoint               | `packages/core/src/useElementByPoint.ts`               | ✅ ported                     |
@@ -187,8 +207,10 @@
 | `useFocusWithin`                  | packages/core/useFocusWithin                  | `packages/core/src/useFocusWithin.ts`                  | ✅ ported                     |
 | `useFps`                          | packages/core/useFps                          | `packages/core/src/useFps.ts`                          | ✅ ported                     |
 | `useFullscreen`                   | packages/core/useFullscreen                   | `packages/core/src/useFullscreen.ts`                   | ✅ ported                     |
+| `useFuse`                         | packages/integrations/useFuse                 | `packages/integrations/src/useFuse.ts`                 | ✅ ported                     |
 | `useGamepad`                      | packages/core/useGamepad                      | `packages/core/src/useGamepad.ts`                      | ✅ ported                     |
 | `useGeolocation`                  | packages/core/useGeolocation                  | `packages/core/src/useGeolocation.ts`                  | ✅ ported                     |
+| `useIDBKeyval`                    | packages/integrations/useIDBKeyval            | `packages/integrations/src/useIDBKeyval.ts`            | ✅ ported                     |
 | `useIdle`                         | packages/core/useIdle                         | `packages/core/src/useIdle.ts`                         | ✅ ported                     |
 | `useImage`                        | packages/core/useImage                        | `packages/core/src/useImage.ts`                        | ✅ ported                     |
 | `useInfiniteScroll`               | packages/core/useInfiniteScroll               | `packages/core/src/useInfiniteScroll.ts`               | ✅ ported                     |
@@ -197,6 +219,14 @@
 | `useInterval`                     | packages/shared/useInterval                   | `packages/shared/src/useInterval.ts`                   | ✅ ported                     |
 | `useInterval`                     | packages/shared/useInterval                   | `packages/shared/src/useInterval.ts`                   | ✅ ported                     |
 | `useIntervalFn`                   | packages/shared/useIntervalFn                 | `packages/shared/src/useIntervalFn.ts`                 | ✅ ported                     |
+| `useIpcRenderer`                  | packages/electron/useIpcRenderer              | `packages/electron/src/useIpcRenderer.ts`              | ✅ ported                     |
+| `useIpcRendererInvoke`            | packages/electron/useIpcRendererInvoke        | `packages/electron/src/useIpcRendererInvoke.ts`        | ✅ ported                     |
+| `useIpcRendererInvoke`            | packages/electron/useIpcRendererInvoke        | `packages/electron/src/useIpcRendererInvoke.ts`        | ✅ ported                     |
+| `useIpcRendererInvoke`            | packages/electron/useIpcRendererInvoke        | `packages/electron/src/useIpcRendererInvoke.ts`        | ✅ ported                     |
+| `useIpcRendererOn`                | packages/electron/useIpcRendererOn            | `packages/electron/src/useIpcRendererOn.ts`            | ✅ ported                     |
+| `useIpcRendererOn`                | packages/electron/useIpcRendererOn            | `packages/electron/src/useIpcRendererOn.ts`            | ✅ ported                     |
+| `useIpcRendererOn`                | packages/electron/useIpcRendererOn            | `packages/electron/src/useIpcRendererOn.ts`            | ✅ ported                     |
+| `useJwt`                          | packages/integrations/useJwt                  | `packages/integrations/src/useJwt.ts`                  | ✅ ported                     |
 | `useKeyModifier`                  | packages/core/useKeyModifier                  | `packages/core/src/useKeyModifier.ts`                  | ✅ ported                     |
 | `useKeyStroke`                    | —                                             | `packages/core/src/useKeyStroke.ts`                    | 🚧 ported (no upstream match) |
 | `useKeyStroke`                    | —                                             | `packages/core/src/useKeyStroke.ts`                    | 🚧 ported (no upstream match) |
@@ -234,6 +264,7 @@
 | `useNavigatorLanguage`            | packages/core/useNavigatorLanguage            | `packages/core/src/useNavigatorLanguage.ts`            | ✅ ported                     |
 | `useNetwork`                      | packages/core/useNetwork                      | `packages/core/src/useNetwork.ts`                      | ✅ ported                     |
 | `useNow`                          | packages/core/useNow                          | `packages/core/src/useNow.ts`                          | ✅ ported                     |
+| `useNProgress`                    | packages/integrations/useNProgress            | `packages/integrations/src/useNProgress.ts`            | ✅ ported                     |
 | `useObjectUrl`                    | packages/core/useObjectUrl                    | `packages/core/src/useObjectUrl.ts`                    | ✅ ported                     |
 | `useOffsetPagination`             | packages/core/useOffsetPagination             | `packages/core/src/useOffsetPagination.ts`             | ✅ ported                     |
 | `useOffsetPagination`             | packages/core/useOffsetPagination             | `packages/core/src/useOffsetPagination.ts`             | ✅ ported                     |
@@ -258,10 +289,12 @@
 | `usePreferredReducedTransparency` | packages/core/usePreferredReducedTransparency | `packages/core/src/usePreferredReducedTransparency.ts` | ✅ ported                     |
 | `usePrevious`                     | packages/core/usePrevious                     | `packages/core/src/usePrevious.ts`                     | ✅ ported                     |
 | `useProjection`                   | packages/math/useProjection                   | `packages/math/src/useProjection.ts`                   | ✅ ported                     |
+| `useQRCode`                       | packages/integrations/useQRCode               | `packages/integrations/src/useQRCode.ts`               | ✅ ported                     |
 | `useRafFn`                        | packages/core/useRafFn                        | `packages/core/src/useRafFn.ts`                        | ✅ ported                     |
 | `useRefsList`                     | —                                             | `packages/core/src/useRefsList.ts`                     | 🚧 ported (no upstream match) |
 | `useResizeObserver`               | packages/core/useResizeObserver               | `packages/core/src/useResizeObserver.ts`               | ✅ ported                     |
 | `useRound`                        | packages/math/useRound                        | `packages/math/src/useRound.ts`                        | ✅ ported                     |
+| `useRTDB`                         | packages/firebase/useRTDB                     | `packages/firebase/src/useRTDB.ts`                     | ✅ ported                     |
 | `useScreenOrientation`            | packages/core/useScreenOrientation            | `packages/core/src/useScreenOrientation.ts`            | ✅ ported                     |
 | `useScreenSafeArea`               | packages/core/useScreenSafeArea               | `packages/core/src/useScreenSafeArea.ts`               | ✅ ported                     |
 | `useScriptTag`                    | packages/core/useScriptTag                    | `packages/core/src/useScriptTag.ts`                    | ✅ ported                     |
@@ -274,6 +307,7 @@
 | `useSessionStorage`               | packages/core/useSessionStorage               | `packages/core/src/useSessionStorage.ts`               | ✅ ported                     |
 | `useSessionStorage`               | packages/core/useSessionStorage               | `packages/core/src/useSessionStorage.ts`               | ✅ ported                     |
 | `useShare`                        | packages/core/useShare                        | `packages/core/src/useShare.ts`                        | ✅ ported                     |
+| `useSortable`                     | packages/integrations/useSortable             | `packages/integrations/src/useSortable.ts`             | ✅ ported                     |
 | `useSorted`                       | packages/core/useSorted                       | `packages/core/src/useSorted.ts`                       | ✅ ported                     |
 | `useSpeechRecognition`            | packages/core/useSpeechRecognition            | `packages/core/src/useSpeechRecognition.ts`            | ✅ ported                     |
 | `useSpeechSynthesis`              | packages/core/useSpeechSynthesis              | `packages/core/src/useSpeechSynthesis.ts`              | ✅ ported                     |
@@ -350,6 +384,7 @@
 | `useWatchDeep`                    | —                                             | `packages/shared/src/useWatchDeep.ts`                  | 🚧 ported (no upstream match) |
 | `useWatchDeep`                    | —                                             | `packages/shared/src/useWatchDeep.ts`                  | 🚧 ported (no upstream match) |
 | `useWatchDeep`                    | —                                             | `packages/shared/src/useWatchDeep.ts`                  | 🚧 ported (no upstream match) |
+| `useWatchExtractedObservable`     | —                                             | `packages/rxjs/src/useWatchExtractedObservable.ts`     | 🚧 ported (no upstream match) |
 | `useWatchIgnorable`               | —                                             | `packages/shared/src/useWatchIgnorable.ts`             | 🚧 ported (no upstream match) |
 | `useWatchIgnorable`               | —                                             | `packages/shared/src/useWatchIgnorable.ts`             | 🚧 ported (no upstream match) |
 | `useWatchIgnorable`               | —                                             | `packages/shared/src/useWatchIgnorable.ts`             | 🚧 ported (no upstream match) |
@@ -381,3 +416,9 @@
 | `useWindowFocus`                  | packages/core/useWindowFocus                  | `packages/core/src/useWindowFocus.ts`                  | ✅ ported                     |
 | `useWindowScroll`                 | packages/core/useWindowScroll                 | `packages/core/src/useWindowScroll.ts`                 | ✅ ported                     |
 | `useWindowSize`                   | packages/core/useWindowSize                   | `packages/core/src/useWindowSize.ts`                   | ✅ ported                     |
+| `useZoomFactor`                   | packages/electron/useZoomFactor               | `packages/electron/src/useZoomFactor.ts`               | ✅ ported                     |
+| `useZoomFactor`                   | packages/electron/useZoomFactor               | `packages/electron/src/useZoomFactor.ts`               | ✅ ported                     |
+| `useZoomFactor`                   | packages/electron/useZoomFactor               | `packages/electron/src/useZoomFactor.ts`               | ✅ ported                     |
+| `useZoomLevel`                    | packages/electron/useZoomLevel                | `packages/electron/src/useZoomLevel.ts`                | ✅ ported                     |
+| `useZoomLevel`                    | packages/electron/useZoomLevel                | `packages/electron/src/useZoomLevel.ts`                | ✅ ported                     |
+| `useZoomLevel`                    | packages/electron/useZoomLevel                | `packages/electron/src/useZoomLevel.ts`                | ✅ ported                     |

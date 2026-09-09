@@ -4,7 +4,7 @@ category: Browser
 
 # useLiveAnnouncer
 
-Accessible way to announce messages to screen reader users (ARIA live regions) — React port of VueUse's [`useLiveAnnouncer`](https://vueuse.org/core/useLiveAnnouncer/).
+Accessible way to announce messages to screen reader users (ARIA live regions)
 
 ## Usage
 
@@ -69,30 +69,3 @@ Prefix for the id of the announcer elements. The generated elements will have ID
 - Default: `defaultWindow`
 
 The window object where the announcer elements will be created.
-
-## Type Declarations
-
-```ts
-export interface UseLiveAnnouncerOptions extends ConfigurableWindow {
-  idPrefix?: string
-}
-
-export interface UseLiveAnnouncerReturn {
-  announce: (message: string, mode?: 'polite' | 'assertive', timeout?: number) => void
-  polite: (message: string, timeout?: number) => void
-  assertive: (message: string, timeout?: number) => void
-}
-
-export function useLiveAnnouncer(options?: UseLiveAnnouncerOptions): UseLiveAnnouncerReturn
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useLiveAnnouncer/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useLiveAnnouncer/index.ts) (implementation),
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useLiveAnnouncer/index.browser.test.ts) (mirrored in `packages/core/src/useLiveAnnouncer.test.tsx`),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useLiveAnnouncer/demo.vue) (ported to `demo.tsx` below).
-- reaxuse: [`packages/core/src/useLiveAnnouncer.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useLiveAnnouncer.ts), docs + demo co-located in `packages/core/useLiveAnnouncer/`
-
-<DemoContainer name="UseLiveAnnouncer" />
-<Contributors name="useLiveAnnouncer" />

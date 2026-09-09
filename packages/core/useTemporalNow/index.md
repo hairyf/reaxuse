@@ -4,11 +4,7 @@ category: Time
 
 # useTemporalNow
 
-Reactive [Temporal API](https://tc39.es/proposal-temporal/docs/) with timezone conversion and calendar system support — React port of VueUse's [`useTemporalNow`](https://vueuse.org/core/useTemporalNow/).
-
-Uses the modern Temporal API instead of the legacy `Date` object, providing better timezone handling, calendar systems, and date/time operations.
-
-**Mapping:** `shallowRef(now)` + `useRafFn` scheduler → `useState(now)` + a scheduler composed during render (default: an internal `requestAnimationFrame` loop, cleaned up on unmount). Upstream's writable `timezone`/`calendar` refs become plain values plus `setTimezone`/`setCalendar` setters, and changing either refreshes the current `Temporal.ZonedDateTime` immediately (upstream: `watch([timezone, calendar], updateNow)`). The Temporal surface is typed with minimal inline structural types (`TemporalZonedDateTime`, `TemporalImplementation`, ...) because this repo's TypeScript libs do not ship `Temporal` types yet.
+Reactive [Temporal API](https://tc39.es/proposal-temporal/docs/) with timezone conversion and calendar system support
 
 ## Requirements
 
@@ -141,63 +137,3 @@ pause() // stop auto-update
 
 console.log(isActive) // true/false
 ```
-
-<DemoContainer name="UseTemporalNow" />
-
-## Type Declarations
-
-```ts
-export interface UseTemporalNowOptions {
-  /**
-   * Initial timezone
-   * @default 'UTC'
-   */
-  timezone?: string
-  /**
-   * Calendar system to use
-   * @default 'gregory'
-   */
-  calendar?: string
-  /**
-   * Custom `Temporal` implementation to use instead of the global `Temporal`
-   * object
-   * @default globalThis.Temporal
-   */
-  temporal?: TemporalImplementation
-  /**
-   * Custom scheduler driving the `now` updates; must follow the Rules of
-   * Hooks
-   * @default requestAnimationFrame loop, started immediately
-   */
-  scheduler?: UseTemporalNowScheduler
-}
-
-export interface UseTemporalNowReturn extends UseTemporalNowControls {
-  now: TemporalZonedDateTime
-  timezone: string
-  calendar: string
-  setTimezone: Dispatch<SetStateAction<string>>
-  setCalendar: Dispatch<SetStateAction<string>>
-  toTimezone: (timezone: string) => TemporalZonedDateTime
-  toCalendar: (calendar: string) => TemporalZonedDateTime
-  toPlainDate: () => TemporalPlainDate
-  toPlainTime: () => TemporalPlainTime
-  toPlainDateTime: () => TemporalPlainDateTime
-  format: (options?: Intl.DateTimeFormatOptions) => string
-  add: (duration: TemporalDurationLike | string) => TemporalZonedDateTime
-  subtract: (duration: TemporalDurationLike | string) => TemporalZonedDateTime
-  compare: (other: TemporalZonedDateTime | string) => number
-}
-
-export function useTemporalNow(options?: UseTemporalNowOptions): UseTemporalNowReturn
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useTemporalNow/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useTemporalNow/index.ts) (implementation),
-  [`index.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useTemporalNow/index.test.ts) (mirrored to `useTemporalNow.test.tsx`),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useTemporalNow/demo.vue) (ported to `demo.tsx` below)
-- reaxuse: [`packages/core/src/useTemporalNow.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useTemporalNow.ts), docs + demo co-located in `packages/core/useTemporalNow/`
-
-<Contributors name="useTemporalNow" />

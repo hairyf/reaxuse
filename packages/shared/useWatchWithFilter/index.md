@@ -4,17 +4,7 @@ category: Watch
 
 # useWatchWithFilter
 
-`watch` with additional EventFilter control — React port of VueUse's
-[`watchWithFilter`](https://vueuse.org/shared/watchWithFilter/).
-
-**Mapping:** upstream builds `watch(source, createFilterWrapper(eventFilter, cb))` —
-the event filter wraps the watch trigger. This port builds the same wrapper on the
-house `useWatch` (the effect dependency list replaces Vue's reactive dependency
-tracking): every source change hands the latest `(value, oldValue)` pair to the
-captured filter, which decides whether and when the callback runs. It returns a
-`stop` function (upstream's `WatchHandle`, reduced to the stop capability) — after
-`stop()`, further source changes and pending filtered invocations no longer fire
-the callback.
+`watch` with additional EventFilter control
 
 ## Usage
 
@@ -96,37 +86,3 @@ useWatchWithFilter(input, () => console.log('changed!'), { immediate: true })
 - **Promise plumbing:** the house `EventFilter` contract returns `void`, so
   upstream's `rejectOnCancel` has no observable effect and filters carry no promise
   settlement.
-
-<DemoContainer name="UseWatchWithFilter" />
-
-## Type Declarations
-
-```ts
-export type EventFilter = (invoke: FunctionArgs) => void
-
-export interface CancelableEventFilter extends EventFilter {
-  cancel: () => void
-  flush: () => void
-  readonly isPending: boolean
-}
-
-export interface UseWatchWithFilterOptions {
-  eventFilter?: EventFilter
-  immediate?: boolean
-}
-
-export type UseWatchWithFilterReturn = () => void
-
-export function useWatchWithFilter<T extends any[]>(source: readonly [...T], callback: UseWatchCallback<[...T]>, options?: UseWatchWithFilterOptions): UseWatchWithFilterReturn
-export function useWatchWithFilter<T>(source: T, callback: UseWatchCallback<T>, options?: UseWatchWithFilterOptions): UseWatchWithFilterReturn
-
-export function debounceFilter(ms?: RefOrValue<number> | (() => number), options?: DebounceFilterOptions): CancelableEventFilter
-export function throttleFilter(ms?: RefOrValue<number> | (() => number), trailing?: boolean, leading?: boolean): EventFilter
-```
-
-## Source
-
-- VueUse: [`packages/shared/watchWithFilter`](https://github.com/vueuse/vueuse/tree/main/packages/shared/watchWithFilter) — source [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/shared/watchWithFilter/index.ts) (no upstream tests)
-- reaxuse: [`packages/shared/src/useWatchWithFilter.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/shared/src/useWatchWithFilter.ts), tests in [`packages/shared/src/useWatchWithFilter.test.tsx`](https://github.com/hairyf/reaxuse/blob/main/packages/shared/src/useWatchWithFilter.test.tsx)
-
-<Contributors name="useWatchWithFilter" />

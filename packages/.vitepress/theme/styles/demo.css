@@ -1,18 +1,267 @@
 /* Demo styles — co-located React demos mounted by DemoContainer.vue.
-   Mirrors VueUse's packages/.vitepress/theme/styles/demo.css. */
+   Port of VueUse's packages/.vitepress/theme/styles/demo.css, scoped to the
+   `.react-demo` container (VueUse's `.demo` wrapper); the UnoCSS `@apply`
+   utilities are inlined as plain CSS. Per-demo extras (slider, click target)
+   are ported from the corresponding VueUse demo.vue scoped styles. */
+
+/* Expand the UnoCSS utility classes used by the co-located demos
+   (packages/<pkg>/<fn>/demo.tsx) via the `unocss/postcss` plugin; `default`
+   emits utilities only (no preflights, which would fight VitePress's reset). */
+@unocss default;
+
 .react-demo {
-  margin: 1rem 0;
-  padding: 1rem 1.25rem;
-  border: 1px solid var(--vp-c-divider);
+  font-size: var(--vp-code-font-size, 14px);
+  background: rgba(125, 125, 125, 0.04);
+  padding: 2em;
+  position: relative;
+  margin-bottom: 10px;
   border-radius: 8px;
-  background-color: var(--vp-c-bg-soft);
+  transition: background-color 0.5s;
+}
+
+html.dark .react-demo {
+  background: var(--vp-c-bg-alt);
 }
 
 .react-demo p {
-  margin: 0.25rem 0;
+  margin: 0.5rem 0;
 }
 
+/* Buttons — VueUse's .demo button styles */
 .react-demo button {
-  margin-right: 0.5rem;
-  margin-top: 0.5rem;
+  padding: 3px 15px;
+  background-color: var(--vp-c-brand);
+  border: none;
+  outline: none;
+  color: white;
+  margin: 0.5rem 0;
+  border-bottom: 2px solid var(--vp-c-brand-2);
+  text-shadow: 1px 1px 1px var(--vp-c-brand-2);
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+
+.react-demo button.small {
+  padding: 0.25em 0.7em 0.2em 0.7em;
+}
+
+.react-demo button.orange {
+  --vp-c-brand: #db8742;
+  --vp-c-brand-2: #ad6e39;
+  --vp-c-brand-3: #d67e36;
+}
+
+.react-demo button.red {
+  --vp-c-brand: #f56c6c;
+  --vp-c-brand-2: #e41c1c;
+  --vp-c-brand-3: #e94c4c;
+}
+
+.react-demo button:hover {
+  background-color: var(--vp-c-brand-2);
+}
+
+.react-demo button:active {
+  border-bottom: 0;
+  border-top: 2px solid var(--vp-c-brand-2);
+}
+
+.react-demo button ~ button {
+  margin-left: 0.5rem;
+}
+
+.react-demo button[disabled],
+.react-demo button.disabled {
+  cursor: default;
+  background-color: var(--vp-c-disabled-bg);
+  color: var(--vp-c-disabled-fg);
+  border-bottom: 2px solid var(--vp-c-disabled-bg);
+  pointer-events: none;
+  text-shadow: none;
+  border-top: 0;
+  opacity: 0.8;
+}
+
+.react-demo textarea {
+  display: block;
+  min-width: min(20rem, 100%);
+  font-size: 1.05rem;
+  padding: 0.5em 1em 0.4em 1em;
+  border-radius: 4px;
+  box-shadow: var(--vp-c-divider) 0 0 0 1px;
+  margin: 0.5rem 0;
+  outline: none;
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text);
+  transition: background-color 0.5s;
+}
+
+.react-demo textarea[readonly] {
+  background: var(--vp-c-bg-soft);
+}
+
+.react-demo input[type='text'],
+.react-demo input[type='search'],
+.react-demo input[type='number'] {
+  display: block;
+  font-size: 0.9rem;
+  padding: 0.5em 1em 0.4em 1em;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 4px;
+  outline: none;
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text);
+  min-width: min(20rem, 100%);
+  margin: 0.5rem 0;
+}
+
+.react-demo input[type='number'] {
+  min-width: 15rem;
+  outline: none;
+}
+
+.react-demo input:focus {
+  border: 1px solid var(--vp-c-border);
+}
+
+/* Radio labels — VueUse's .radio rules with the UnoCSS @apply utilities
+   inlined */
+.react-demo .radio {
+  display: inline-flex;
+  align-items: center;
+  margin: auto 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.react-demo .radio input {
+  appearance: none;
+  padding: 0;
+  -webkit-print-color-adjust: exact;
+  color-adjust: exact;
+  display: inline-block;
+  vertical-align: middle;
+  background-origin: border-box;
+  user-select: none;
+  flex-shrink: 0;
+  height: 1rem;
+  width: 1rem;
+  background: rgb(156 163 175 / 0.3);
+  border-radius: 9999px;
+  margin-right: 0.25rem;
+  position: relative;
+}
+
+.react-demo .radio input:checked::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 9999px;
+  background: var(--vp-c-brand-1);
+}
+
+.react-demo .radio span {
+  margin-left: 0.375rem;
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.react-demo pre,
+.react-demo .code-block {
+  opacity: 0.8;
+  overflow: auto;
+}
+
+.react-demo .code-block {
+  background-color: var(--vp-c-bg-soft) !important;
+  padding: 4px 8px;
+  margin: 12px 0;
+  border-radius: 4px;
+}
+
+.react-demo code {
+  background-color: var(--vp-c-bg-soft) !important;
+}
+
+.react-demo .resizer {
+  resize: both;
+  padding: 1rem;
+  width: 200px;
+  height: 200px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 4px;
+  background: white;
+  outline: none;
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+html.dark .react-demo .resizer {
+  background: #222;
+  color: white;
+}
+
+.react-demo .float {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  padding: 1rem 2rem;
+  border: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg);
+  z-index: 100;
+  min-width: 100px;
+}
+
+.react-demo .area {
+  border-width: 2px;
+  border-style: dashed;
+  padding: 1rem;
+}
+
+.react-demo dialog {
+  z-index: 1000000;
+  background: var(--vp-c-bg);
+}
+
+/* Per-demo extras — ported from VueUse demo.vue scoped styles */
+
+/* useTimeAgo / useTimeAgoIntl range slider */
+.react-demo .slider {
+  -webkit-appearance: none;
+  width: 100%;
+  background: rgba(125, 125, 125, 0.1);
+  border-radius: 1rem;
+  height: 1rem;
+  opacity: 0.8;
+  margin: 0.5rem 0;
+  outline: none !important;
+  transition: opacity 0.2s;
+}
+
+.react-demo .slider:hover {
+  opacity: 1;
+}
+
+.react-demo .slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1.3rem;
+  height: 1.3rem;
+  background: var(--vp-c-brand);
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+/* useEventListener — click target box (no upstream VueUse demo) */
+.react-demo .us-event-listener-target {
+  border: 2px dashed var(--vp-c-divider);
+  border-radius: 4px;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  background: var(--vp-c-bg-soft);
 }
