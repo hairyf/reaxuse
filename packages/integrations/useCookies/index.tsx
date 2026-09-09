@@ -147,8 +147,11 @@ export function useCookies(
   )
 
   // upstream: `let previousCookies = cookies.getAll<RawCookies>({ doNotParse: true })`
-  // (only the first snapshot is kept; re-evaluated eagerly like any useRef arg)
-  const previousCookiesRef = useRef<RawCookies>(cookies.getAll<RawCookies>({ doNotParse: true }))
+  // (only the first snapshot is kept; initialised lazily instead of eagerly so
+  // `cookies.getAll` does not run on every render)
+  const previousCookiesRef = useRef<RawCookies | null>(null)
+  if (previousCookiesRef.current === null)
+    previousCookiesRef.current = cookies.getAll<RawCookies>({ doNotParse: true })
 
   // upstream: `const touches = shallowRef(0)` — reading `touches` in the render
   // body is what makes `get`/`getAll` reactive
@@ -157,19 +160,31 @@ export function useCookies(
 
   // re-sync the watch list when the caller hands a different `dependencies`
   // prop; with `autoUpdateDependencies` the accumulated names are kept, exactly
-  // like upstream's setup-time snapshot
+  // like upstream's setup-time snapshot. The refresh is gated: an inline array
+  // gets a new identity on every render and must not wipe the names `get()`
+  // has pushed, otherwise a cookie watched through `get()` stops being watched
+  // after the first re-render.
   const previousDependenciesRef = useRef(dependencies)
   useEffect(() => {
     if (previousDependenciesRef.current === dependencies)
       return
     previousDependenciesRef.current = dependencies
-    watchingDependenciesRef.current = autoUpdateDependencies ? [...dependencies || []] : dependencies
+    if (!autoUpdateDependencies)
+      watchingDependenciesRef.current = dependencies
   }, [dependencies, autoUpdateDependencies])
 
   const onChange = useCallback(() => {
     const newCookies = cookies.getAll<RawCookies>({ doNotParse: true })
+    const previous = previousCookiesRef.current
 
-    if (shouldUpdate(watchingDependenciesRef.current ?? null, newCookies, previousCookiesRef.current))
+    // defensive: the lazy init in the render body already snapshotted, so a
+    // change listener can never observe a null previous
+    if (previous === null) {
+      previousCookiesRef.current = newCookies
+      return
+    }
+
+    if (shouldUpdate(watchingDependenciesRef.current ?? null, newCookies, previous))
       setTouches(n => n + 1)
 
     previousCookiesRef.current = newCookies

@@ -163,6 +163,38 @@ describe('useCookies', () => {
     expect(result.current.get('testAutoUpdate')).toBe('testValue')
   })
 
+  it('should keep watching a get-ed cookie across a dependencies identity change', async () => {
+    // Arrange — an inline array gets a new identity on every render, so the
+    // deps re-sync effect used to reset the watch list and drop the name
+    // pushed by `get()`
+    let renders = 0
+    const { result, act } = await renderHook(() => {
+      renders++
+      return useCookies(['testAutoUpdateInline'], { autoUpdateDependencies: true })
+    })
+
+    // Act — 1. get a cookie that is not in the initial array
+    expect(result.current.get('testAutoUpdateInline2')).toBeUndefined()
+    const rendersBefore = renders
+
+    await act(() => {
+      result.current.set('testAutoUpdateInline', 'v1')
+    })
+
+    // Assert — the watched cookie still re-renders
+    expect(renders).toBeGreaterThan(rendersBefore)
+
+    // Act — 2. change the cookie that was get-ed before the re-render above
+    const rendersBeforeSecond = renders
+    await act(() => {
+      result.current.set('testAutoUpdateInline2', 'v2')
+    })
+
+    // Assert — the pushed name survived the dependencies re-sync
+    expect(renders).toBeGreaterThan(rendersBeforeSecond)
+    expect(result.current.get('testAutoUpdateInline2')).toBe('v2')
+  })
+
   it('should create a cookies instance from a request', async () => {
     // Arrange
     cookieConstructorSpy.mockClear()
