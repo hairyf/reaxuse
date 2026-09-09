@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 // TypeScript dropped the inline types for these types in 5.2
 // We vendor them here to avoid the dependency
@@ -75,8 +75,11 @@ function resolveScreenOrientation(customWindow?: Window): { win: Window, screenO
  *   (upstream reads it during setup);
  * - the window `orientationchange` listener (upstream `useEventListener`,
  *   passive) lives in a self-contained `useEffect` and is removed on unmount;
- * - `lockOrientation`/`unlockOrientation` resolve `screen.orientation` fresh
- *   on each call instead of capturing it once during setup.
+ * - `lockOrientation`/`unlockOrientation` use the `screen.orientation`
+ *   instance captured once by that mount effect, mirroring upstream's
+ *   setup-time capture (gated on `isSupported`): a later replacement or
+ *   polyfill of `screen.orientation` is ignored and lock rejects
+ *   `'Not supported'`, exactly as upstream does.
  *
  * @example
  * const { isSupported, orientation, angle, lockOrientation, unlockOrientation } = useScreenOrientation()
@@ -87,15 +90,21 @@ export function useScreenOrientation(options: UseScreenOrientationOptions = {}):
   const [isSupported, setIsSupported] = useState(false)
   const [orientation, setOrientation] = useState<OrientationType>()
   const [angle, setAngle] = useState(0)
+  // upstream captures `screen.orientation` once during setup (gated on
+  // `isSupported`) and lock/unlock keep using that instance; capture it in the
+  // mount effect for SSR safety instead of re-resolving on every call
+  const screenOrientationRef = useRef<ScreenOrientation | undefined>(undefined)
 
   useEffect(() => {
     const resolved = resolveScreenOrientation(options.window)
     if (!resolved) {
+      screenOrientationRef.current = undefined
       setIsSupported(false)
       return
     }
 
     const { win, screenOrientation } = resolved
+    screenOrientationRef.current = screenOrientation
     setIsSupported(true)
     setOrientation(screenOrientation.type)
     setAngle(screenOrientation.angle || 0)
@@ -108,21 +117,22 @@ export function useScreenOrientation(options: UseScreenOrientationOptions = {}):
 
     return () => {
       win.removeEventListener('orientationchange', onOrientationChange)
+      screenOrientationRef.current = undefined
     }
   }, [options.window])
 
   const lockOrientation = (type: OrientationLockType) => {
-    const resolved = resolveScreenOrientation(options.window)
-    if (resolved && typeof resolved.screenOrientation.lock === 'function')
-      return resolved.screenOrientation.lock(type)
+    const screenOrientation = screenOrientationRef.current
+    if (screenOrientation && typeof screenOrientation.lock === 'function')
+      return screenOrientation.lock(type)
 
     return Promise.reject(new Error('Not supported'))
   }
 
   const unlockOrientation = () => {
-    const resolved = resolveScreenOrientation(options.window)
-    if (resolved && typeof resolved.screenOrientation.unlock === 'function')
-      resolved.screenOrientation.unlock()
+    const screenOrientation = screenOrientationRef.current
+    if (screenOrientation && typeof screenOrientation.unlock === 'function')
+      screenOrientation.unlock()
   }
 
   return {
