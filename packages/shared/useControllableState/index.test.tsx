@@ -14,7 +14,7 @@ describe('useControllableState', () => {
 
   it('writes through tuple state', async () => {
     const setState = vi.fn()
-    const { result, act } = await renderHook(() => useControllableState([1, setState] as const))
+    const { result, act } = await renderHook(() => useControllableState<number>([1, setState] as const))
     await act(async () => result.current[1](2))
     expect(setState).toHaveBeenCalledWith(2)
     expect(result.current[0]).toBe(1)
@@ -35,10 +35,47 @@ describe('useControllableState', () => {
 
   it('honors shouldUpdate as a commit predicate', async () => {
     const shouldUpdate = (prev: number, next: number) => next > prev
-    const { result, act } = await renderHook(() => useControllableState(1, { passive: true, shouldUpdate }))
+    const { result, act } = await renderHook(() => useControllableState<number>(1, { passive: true, shouldUpdate }))
     await act(async () => result.current[1](0))
     expect(result.current[0]).toBe(1)
     await act(async () => result.current[1](2))
     expect(result.current[0]).toBe(2)
+  })
+
+  it('treats a plain-value source with passive: false as controlled (external wins)', async () => {
+    const { result, rerender } = await renderHook(
+      ({ source }: { source: string } = { source: 'a' }) => useControllableState(source),
+      { initialProps: { source: 'a' } },
+    )
+    expect(result.current[0]).toBe('a')
+    await rerender({ source: 'b' })
+    expect(result.current[0]).toBe('b')
+  })
+
+  it('warns instead of silently discarding setValue on a controlled plain-value source', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      const { result, act } = await renderHook(() => useControllableState('a'))
+      await act(async () => result.current[1]('b'))
+      // the write has no channel back to the caller — a no-op, but loudly surfaced
+      expect(warn).toHaveBeenCalled()
+    }
+    finally {
+      warn.mockRestore()
+    }
+  })
+
+  it('passive sync honors shouldUpdate', async () => {
+    const shouldUpdate = (prev: number, next: number) => next > prev
+    const { result, rerender } = await renderHook(
+      ({ source }: { source: number } = { source: 3 }) => useControllableState(source, { passive: true, shouldUpdate }),
+      { initialProps: { source: 3 } },
+    )
+    expect(result.current[0]).toBe(3)
+    // the external value drops below the internal one — rejected by shouldUpdate
+    await rerender({ source: 1 })
+    expect(result.current[0]).toBe(3)
+    await rerender({ source: 5 })
+    expect(result.current[0]).toBe(5)
   })
 })
