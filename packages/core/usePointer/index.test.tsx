@@ -6,6 +6,36 @@ function createPointerEvent(type: string, init: PointerEventInit = {}) {
   return new PointerEvent(type, { bubbles: true, pointerType: 'mouse', ...init })
 }
 
+/**
+ * Minimal `Window` test double that records listeners so a custom `window`
+ * option can be exercised without touching the real global window.
+ */
+function createFakeWindow() {
+  const listeners = new Map<string, Set<EventListenerOrEventListenerObject>>()
+
+  return {
+    window: {
+      addEventListener(type: string, listener: EventListenerOrEventListenerObject) {
+        const set = listeners.get(type) ?? new Set<EventListenerOrEventListenerObject>()
+        set.add(listener)
+        listeners.set(type, set)
+      },
+      removeEventListener(type: string, listener: EventListenerOrEventListenerObject) {
+        listeners.get(type)?.delete(listener)
+      },
+    } as unknown as Window,
+    dispatch(type: string, init: PointerEventInit = {}) {
+      const event = createPointerEvent(type, init)
+      listeners.get(type)?.forEach(listener =>
+        typeof listener === 'function' ? listener(event) : listener.handleEvent(event),
+      )
+    },
+    listenerCount(type: string) {
+      return listeners.get(type)?.size ?? 0
+    },
+  }
+}
+
 describe('usePointer', () => {
   it('returns the default state before any pointer event', async () => {
     const { result } = await renderHook(() => usePointer())
@@ -158,6 +188,110 @@ describe('usePointer', () => {
 
     unmount()
     element.remove()
+  })
+
+  it('attaches its listeners to a ref-like target object', async () => {
+    const first = document.createElement('div')
+    const second = document.createElement('div')
+    document.body.append(first, second)
+
+    const target = { current: first as EventTarget | null }
+
+    const { result, act, rerender, unmount } = await renderHook(
+      (props?: { target?: { current: EventTarget | null } }) => usePointer(props),
+      { initialProps: { target } },
+    )
+
+    await act(() => {
+      first.dispatchEvent(createPointerEvent('pointermove', { clientX: 3, clientY: 4 }))
+    })
+    await expect.poll(() => result.current.x).toBe(3)
+
+    // mutating `.current` plus a re-render re-resolves the target (React
+    // ref semantics: the ref object itself is a stable dependency)
+    target.current = second
+    await rerender({ target })
+
+    await act(() => {
+      first.dispatchEvent(createPointerEvent('pointermove', { clientX: 99, clientY: 99 }))
+    })
+    expect(result.current.x).toBe(3)
+
+    await act(() => {
+      second.dispatchEvent(createPointerEvent('pointermove', { clientX: 7, clientY: 8 }))
+    })
+    await expect.poll(() => result.current.x).toBe(7)
+
+    unmount()
+    first.remove()
+    second.remove()
+  })
+
+  it('disables listening when target is explicitly null', async () => {
+    const { result, act } = await renderHook(() => usePointer({ target: null }))
+
+    await act(() => {
+      window.dispatchEvent(createPointerEvent('pointermove', { clientX: 500, clientY: 500 }))
+    })
+
+    expect(result.current.x).toBe(0)
+    expect(result.current.y).toBe(0)
+    expect(result.current.isInside).toBe(false)
+  })
+
+  it('supports the window option instead of the global window', async () => {
+    const fake = createFakeWindow()
+
+    const { result, act } = await renderHook(() => usePointer({ window: fake.window }))
+
+    await act(() => {
+      window.dispatchEvent(createPointerEvent('pointermove', { clientX: 500, clientY: 500 }))
+    })
+    expect(result.current.x).toBe(0)
+    expect(result.current.isInside).toBe(false)
+
+    await act(() => {
+      fake.dispatch('pointermove', { clientX: 12, clientY: 34, pointerId: 9 })
+    })
+    await expect.poll(() => result.current.x).toBe(12)
+    expect(result.current.y).toBe(34)
+    expect(result.current.pointerId).toBe(9)
+    expect(result.current.isInside).toBe(true)
+
+    await act(() => {
+      fake.dispatch('pointerleave')
+    })
+    await expect.poll(() => result.current.isInside).toBe(false)
+  })
+
+  it('rebinds its listeners when the window option changes', async () => {
+    const first = createFakeWindow()
+    const second = createFakeWindow()
+
+    const { result, act, rerender } = await renderHook(
+      (props?: { window?: Window }) => usePointer(props),
+      { initialProps: { window: first.window } },
+    )
+
+    await act(() => {
+      first.dispatch('pointermove', { clientX: 10, clientY: 20 })
+    })
+    await expect.poll(() => result.current.x).toBe(10)
+    expect(first.listenerCount('pointermove')).toBe(1)
+
+    await rerender({ window: second.window })
+
+    expect(first.listenerCount('pointermove')).toBe(0)
+
+    await act(() => {
+      first.dispatch('pointermove', { clientX: 99, clientY: 99 })
+    })
+    expect(result.current.x).toBe(10)
+
+    await act(() => {
+      second.dispatch('pointermove', { clientX: 30, clientY: 40 })
+    })
+    await expect.poll(() => result.current.x).toBe(30)
   })
 
   it('re-subscribes when the target option changes', async () => {

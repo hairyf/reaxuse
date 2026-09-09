@@ -1,3 +1,5 @@
+import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
+import { toValue } from '@reaxuse/shared'
 import { useEffect, useState } from 'react'
 
 /**
@@ -18,7 +20,7 @@ export interface UsePointerState {
   pointerType: PointerType | null
 }
 
-export interface UsePointerOptions {
+export interface UsePointerOptions extends ConfigurableWindow {
   /**
    * Pointer types that listen to.
    *
@@ -32,9 +34,12 @@ export interface UsePointerOptions {
   initialValue?: Partial<UsePointerState>
 
   /**
+   * Element that listens to pointer events; an explicit `null` disables
+   * listening, while an omitted target falls back to `window`.
+   *
    * @default window
    */
-  target?: EventTarget | null | undefined
+  target?: RefOrValue<EventTarget | null | undefined>
 }
 
 export interface UsePointerReturn extends UsePointerState {
@@ -68,17 +73,25 @@ const defaultState: UsePointerState = {
  * - the Vue refs returned by upstream become a plain object of plain values —
  *   read `x`, `y`, `pressure`, `pointerType`, ... directly off the result;
  * - upstream's `useEventListener` becomes a self-contained mount `useEffect`
- *   that re-subscribes when `target`/`pointerTypes` change and removes all
- *   listeners on unmount;
+ *   that re-subscribes when the resolved `target`/`pointerTypes` change and
+ *   removes all listeners on unmount;
  * - `initialValue` is folded into the `useState` initializer, so SSR renders
  *   the defaults (`x: 0`, `y: 0`, ..., `pointerType: null`, `isInside: false`)
- *   without touching `window`.
+ *   without touching `window`;
+ * - `target` accepts a plain `EventTarget` or a ref-like `{ current }` object
+ *   (`RefOrValue`) and an explicit `null` disables listening, while an omitted
+ *   `target` falls back to the `window` option (upstream `target = defaultWindow`
+ *   plus `if (target)`).
+ *
+ * @param options - `pointerTypes` / `initialValue` / `target` plus a custom
+ *   `window` instance (`ConfigurableWindow`) used when `target` is omitted,
+ *   e.g. an iframe window or a test double; listeners rebind when it changes.
  *
  * @example
  * const { x, y, pressure, pointerType, isInside } = usePointer()
  */
 export function usePointer(options: UsePointerOptions = {}): UsePointerReturn {
-  const { pointerTypes, target, initialValue } = options
+  const { pointerTypes, target, initialValue, window: win } = options
 
   const [state, setState] = useState<UsePointerState>(() => ({
     ...defaultState,
@@ -86,9 +99,16 @@ export function usePointer(options: UsePointerOptions = {}): UsePointerReturn {
   }))
   const [isInside, setIsInside] = useState(false)
 
+  // `ConfigurableWindow` support: fall back to the global `window` on the client
+  const instance = win ?? (typeof window === 'undefined' ? undefined : window)
+
+  // dependency-tracking read: refs populate before effects run, so the first
+  // render resolves `null` for ref-like targets — the effect below re-resolves
+  // fresh and re-binds whenever the resolved target changes
+  const trackedTarget = target === undefined ? instance : toValue(target)
+
   useEffect(() => {
-    const instance = target ?? (typeof window === 'undefined' ? undefined : window)
-    if (!instance)
+    if (!trackedTarget)
       return
 
     const handler = (event: Event) => {
@@ -113,20 +133,20 @@ export function usePointer(options: UsePointerOptions = {}): UsePointerReturn {
     const leave = () => setIsInside(false)
 
     const listenerOptions = { passive: true }
-    instance.addEventListener('pointerdown', handler, listenerOptions)
-    instance.addEventListener('pointermove', handler, listenerOptions)
-    instance.addEventListener('pointerup', handler, listenerOptions)
-    instance.addEventListener('pointerleave', leave, listenerOptions)
-    instance.addEventListener('pointercancel', leave, listenerOptions)
+    trackedTarget.addEventListener('pointerdown', handler, listenerOptions)
+    trackedTarget.addEventListener('pointermove', handler, listenerOptions)
+    trackedTarget.addEventListener('pointerup', handler, listenerOptions)
+    trackedTarget.addEventListener('pointerleave', leave, listenerOptions)
+    trackedTarget.addEventListener('pointercancel', leave, listenerOptions)
 
     return () => {
-      instance.removeEventListener('pointerdown', handler)
-      instance.removeEventListener('pointermove', handler)
-      instance.removeEventListener('pointerup', handler)
-      instance.removeEventListener('pointerleave', leave)
-      instance.removeEventListener('pointercancel', leave)
+      trackedTarget.removeEventListener('pointerdown', handler)
+      trackedTarget.removeEventListener('pointermove', handler)
+      trackedTarget.removeEventListener('pointerup', handler)
+      trackedTarget.removeEventListener('pointerleave', leave)
+      trackedTarget.removeEventListener('pointercancel', leave)
     }
-  }, [pointerTypes, target])
+  }, [pointerTypes, trackedTarget])
 
   return { ...state, isInside }
 }
