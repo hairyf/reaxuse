@@ -208,10 +208,18 @@ describe('useEventSource', () => {
 
     const source = result.current.eventSource!
 
+    // mock SSE API to trigger message event and onmessage callback — the
+    // `dispatchEvent` reaches the hook's registered `message` listener (the
+    // bare `onmessage!` call only touches the mock's no-op handler). The
+    // browser normalizes `{ data: undefined }` to `null` on the MessageEvent,
+    // so the serializer is fed `null` and the `?? null` fallback keeps
+    // `data` null.
     await act(() => {
       source.onmessage!(new MessageEvent('message', { data: undefined }))
+      source.dispatchEvent(new MessageEvent('message', { data: undefined }))
     })
 
+    expect(deserialize).toHaveBeenCalledWith(null)
     expect(result.current.data).toBeNull()
   })
 
