@@ -1,7 +1,7 @@
 import { usePrecision } from '@reaxuse/math'
 import { useState } from 'react'
 
-const MATH_METHODS = ['round', 'floor', 'ceil', 'trunc'] as const
+const MATH_METHODS = ['round', 'floor', 'ceil'] as const
 
 export default function UsePrecisionDemo() {
   const [value, setValue] = useState(3.1415)

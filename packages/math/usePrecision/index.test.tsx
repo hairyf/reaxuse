@@ -55,19 +55,6 @@ describe('usePrecision', () => {
     expect(result.current.precision).toBe(-2.3)
   })
 
-  it('out trunc should work', async () => {
-    const { result, rerender, act } = await renderHook(() => {
-      const [value, setValue] = useState(45.129)
-      return { precision: usePrecision(value, 2, { math: 'trunc' }), setValue }
-    })
-
-    expect(result.current.precision).toBe(45.12)
-
-    await act(() => result.current.setValue(-45.159))
-    await rerender()
-    expect(result.current.precision).toBe(-45.15)
-  })
-
   it('should accept plain values', async () => {
     const { result } = await renderHook(() => usePrecision(3.1415, 2))
 

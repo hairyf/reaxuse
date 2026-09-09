@@ -6,7 +6,7 @@ export interface UsePrecisionOptions {
    *
    * @default 'round'
    */
-  math?: 'floor' | 'ceil' | 'round' | 'trunc'
+  math?: 'floor' | 'ceil' | 'round'
 }
 
 /**
