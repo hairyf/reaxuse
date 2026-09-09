@@ -131,3 +131,58 @@ it('useWhenever does not fire on mount with immediate when the value is falsy (r
 
   expect(calls).toEqual([])
 })
+
+it('useWhenever fires only once with once: true (component)', async () => {
+  // mirrors upstream `once`: falsy changes never fire, the first truthy change
+  // fires and stops the watch, later truthy changes are ignored
+  const calls: number[] = []
+
+  function UseWheneverDemo() {
+    const [number, setNumber] = useState<number | null>(1)
+
+    useWhenever(number, (value) => {
+      calls.push(value)
+    }, { once: true })
+
+    return (
+      <>
+        <button onClick={() => setNumber(0)}>to-0</button>
+        <button onClick={() => setNumber(1)}>to-1</button>
+        <button onClick={() => setNumber(2)}>to-2</button>
+      </>
+    )
+  }
+
+  const screen = await render(<UseWheneverDemo />)
+
+  // no fire on mount without immediate
+  expect(calls).toEqual([])
+
+  await screen.getByRole('button', { name: 'to-0' }).click()
+  expect(calls).toEqual([])
+
+  await screen.getByRole('button', { name: 'to-1' }).click()
+  expect(calls).toEqual([1])
+
+  // the watch stopped after the first truthy fire
+  await screen.getByRole('button', { name: 'to-2' }).click()
+  expect(calls).toEqual([1])
+})
+
+it('useWhenever returns a stop function that stops future fires (renderHook)', async () => {
+  // upstream returns `WatchHandle` (stop); the port returns the bare stop
+  // function (house `useWatch` pattern)
+  const calls: number[] = []
+
+  const { result, rerender } = await renderHook<{ value: number }, () => void>(({ value } = { value: 0 }) => {
+    return useWhenever(value, v => calls.push(v))
+  }, { initialProps: { value: 0 } })
+
+  await rerender({ value: 1 })
+  expect(calls).toEqual([1])
+
+  result.current()
+
+  await rerender({ value: 2 })
+  expect(calls).toEqual([1])
+})
