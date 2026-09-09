@@ -1,10 +1,7 @@
 import { useTextareaAutosize } from '@reaxuse/core'
-import { useRef, useState } from 'react'
 
 export default function UseTextareaAutosizeDemo() {
-  const textarea = useRef<HTMLTextAreaElement>(null)
-  const [input, setInput] = useState('')
-  useTextareaAutosize({ element: textarea, input })
+  const [input, setInput, { textarea }] = useTextareaAutosize()
 
   return (
     <div>
