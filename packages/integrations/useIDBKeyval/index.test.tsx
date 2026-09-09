@@ -4,6 +4,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useIDBKeyval } from '../useIDBKeyval'
 
+// `get` is wrapped in a mock that delegates to the real implementation by
+// default, so a single test can intercept a specific read (the key-change
+// race) with `mockImplementationOnce` without touching any other behavior.
+vi.mock('idb-keyval', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('idb-keyval')>()
+  return {
+    ...actual,
+    get: vi.fn(actual.get),
+  }
+})
+
 // Mirrors upstream `index.test.ts` (read/write, defaults, serializer, errors)
 // and `index.browser.test.ts` (cross-tab BroadcastChannel syncing). The store
 // is cleared before and after every test so the keys stay deterministic.
@@ -233,6 +244,36 @@ describe('useIDBKeyval', () => {
     await rerender({ key: KEY_2 })
 
     await expect.poll(() => result.current[0]).toBe('second')
+  })
+
+  it('does not let a stale read from the old key clobber the new key after a key change', async () => {
+    await set(KEY_3, 'old-value')
+    await set(KEY_2, 'new-value')
+
+    // the old key's read stays pending until we release it — the new key's
+    // read goes through the real `get`
+    const getMock = vi.mocked(get)
+    let releaseOldRead: (value: string) => void = () => {}
+    const slowOldRead = new Promise<string>((resolve) => {
+      releaseOldRead = resolve
+    })
+    getMock.mockImplementationOnce(() => slowOldRead)
+
+    const { result, rerender } = await renderHook(
+      ({ key = KEY_3 }: { key?: string } = {}) => useIDBKeyval(key, 'initial'),
+      { initialProps: { key: KEY_3 } },
+    )
+
+    await rerender({ key: KEY_2 })
+
+    await expect.poll(() => result.current[0]).toBe('new-value')
+
+    // the old key's read resolves late — the per-key token must discard it.
+    // The wait lets a (fixed-bug) stale write flush before the assertion.
+    releaseOldRead('old-value')
+    await new Promise(resolve => setTimeout(resolve, 200))
+
+    expect(result.current[0]).toBe('new-value')
   })
 
   it('stores an object- or function-valued initial value as-is (plain value source)', async () => {
