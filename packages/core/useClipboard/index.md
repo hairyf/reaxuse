@@ -25,3 +25,30 @@ const { text, copy, copied } = useClipboard({ source })
 setSource('World')
 copy() // copies 'World'
 ```
+
+### Options
+
+| Option         | Type                    | Default | Description                                                       |
+| -------------- | ----------------------- | ------- | ----------------------------------------------------------------- |
+| `source`       | `string \| Ref<string>` | —       | Default content to copy when `copy()` is called without arguments |
+| `read`         | `boolean`               | `false` | Enable reading clipboard content on copy/cut events               |
+| `copiedDuring` | `number`                | `1500`  | Milliseconds before `copied` resets to `false`                    |
+| `legacy`       | `boolean`               | `false` | Fallback to `document.execCommand` if Clipboard API unavailable   |
+
+### Return Values
+
+| Property      | Type                               | Description                                       |
+| ------------- | ---------------------------------- | ------------------------------------------------- |
+| `isSupported` | `boolean`                          | Whether clipboard is supported (native or legacy) |
+| `text`        | `string`                           | Current clipboard content (when `read: true`)     |
+| `copied`      | `boolean`                          | `true` after successful copy, auto-resets         |
+| `copyPending` | `boolean`                          | `true` while a `copy` call is in flight           |
+| `copy`        | `(text?: string) => Promise<void>` | Copy text to clipboard                            |
+
+### Legacy Mode
+
+Set `legacy: true` to keep the ability to copy if [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API) is not available. It will handle copy with [execCommand](https://developer.mozilla.org/en-US/docs/Web/API/Document/execCommand) as fallback.
+
+```tsx
+const { copy, isSupported } = useClipboard({ legacy: true })
+```
