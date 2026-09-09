@@ -69,14 +69,27 @@ export function useFocusWithin(
   // (upstream: `watch` over `unrefElement(target)` + `useEventListener`).
   useEffect(() => {
     const win = options.window ?? (typeof window === 'undefined' ? undefined : window)
-    if (!win)
+
+    // Tear down previously bound listeners on every early-return path, so a
+    // later render flipping `window` / `activeElement` validity cannot leave
+    // stale element listeners firing `setFocused` (upstream binds once at
+    // setup, so it has no such path).
+    const teardown = () => {
+      listenersRef.current?.cleanup()
+      listenersRef.current = null
+    }
+
+    if (!win) {
+      teardown()
       return
+    }
 
     // upstream: `if (!window || !activeElement.value) return { focused }` —
     // with no valid active element, focus tracking is unreliable, so no
     // listeners attach and `focused` stays `false`.
     if (!win.document.activeElement) {
       setFocused(false)
+      teardown()
       return
     }
 

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useFocusWithin } from '../useFocusWithin'
 
@@ -128,6 +128,87 @@ describe('useFocusWithin', () => {
 
     await act(() => {
       child.focus()
+    })
+    expect(result.current.focused).toBeFalsy()
+  })
+
+  it('should support the ref form ({ current })', async () => {
+    const elementRef = { current: parent }
+    const { result, act } = await renderHook(() => useFocusWithin(elementRef))
+
+    expect(result.current.focused).toBeFalsy()
+
+    await act(() => {
+      parent.focus()
+    })
+    expect(result.current.focused).toBeTruthy()
+
+    await act(() => {
+      parent.blur()
+    })
+    expect(result.current.focused).toBeFalsy()
+  })
+
+  it('should start tracking once a null ref is populated after the first render', async () => {
+    const elementRef = { current: null as HTMLFormElement | null }
+    const { result, rerender, act } = await renderHook(() => useFocusWithin(elementRef))
+
+    // null on the first render — no listeners attach yet
+    expect(result.current.focused).toBeFalsy()
+
+    await act(() => {
+      elementRef.current = parent
+    })
+    await rerender()
+    // the binding effect re-ran and attached the listeners to the element
+
+    await act(() => {
+      parent.focus()
+    })
+    expect(result.current.focused).toBeTruthy()
+
+    await act(() => {
+      parent.blur()
+    })
+    expect(result.current.focused).toBeFalsy()
+  })
+
+  it('should remove the listeners on unmount', async () => {
+    const removeSpy = vi.spyOn(parent, 'removeEventListener')
+    const { unmount } = await renderHook(() => useFocusWithin(parent))
+
+    await unmount()
+
+    expect(removeSpy).toHaveBeenCalledWith('focusin', expect.any(Function))
+    expect(removeSpy).toHaveBeenCalledWith('focusout', expect.any(Function))
+  })
+
+  it('should not leak stale listeners when the window option turns invalid', async () => {
+    const invalidWindow = new Proxy(window, {
+      get: (target, prop: any) => {
+        if (prop === 'document')
+          return { ...document, activeElement: null }
+
+        return window[prop]
+      },
+    })
+    const { result, act, rerender } = await renderHook(
+      (props?: { win?: typeof window }) => useFocusWithin(parent, { window: props?.win }),
+    )
+
+    // valid window: listeners attach and focus is tracked
+    await act(() => {
+      parent.focus()
+    })
+    expect(result.current.focused).toBeTruthy()
+
+    // window flips to an invalid document — listeners must be torn down
+    await rerender({ win: invalidWindow as any })
+    expect(result.current.focused).toBeFalsy()
+
+    // no listeners remain, so a focus event can no longer flip state back
+    await act(() => {
+      parent.focus()
     })
     expect(result.current.focused).toBeFalsy()
   })
