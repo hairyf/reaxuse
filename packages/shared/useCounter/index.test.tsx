@@ -49,3 +49,64 @@ it('useCounter respects min/max bounds', async () => {
   await act(() => result.current.reset())
   expect(result.current.count).toBe(10)
 })
+
+it('useCounter get() returns the current value', async () => {
+  const { result, act } = await renderHook(() => useCounter(5))
+
+  expect(result.current.get()).toBe(5)
+
+  await act(() => result.current.inc())
+  expect(result.current.get()).toBe(6)
+})
+
+it('useCounter set() clamps to the bounds', async () => {
+  const { result, act } = await renderHook(() => useCounter(5, { min: 0, max: 10 }))
+
+  await act(() => result.current.set(20))
+  expect(result.current.count).toBe(10)
+
+  await act(() => result.current.set(-5))
+  expect(result.current.count).toBe(0)
+
+  await act(() => result.current.set(7))
+  expect(result.current.count).toBe(7)
+})
+
+it('useCounter inc/dec clamp on both sides', async () => {
+  // a controlled tuple can start out of range — inc must still respect the
+  // min bound and dec the max bound (upstream clamps both sides)
+  const { result: belowMin, act: actBelow } = await renderHook(() => {
+    const setter = vi.fn()
+    return { counter: useCounter([0, setter], { min: 5, max: 10 }), setter }
+  })
+
+  await actBelow(() => belowMin.current.counter.inc())
+  expect(belowMin.current.setter).toHaveBeenLastCalledWith(5)
+
+  const { result: aboveMax, act: actAbove } = await renderHook(() => {
+    const setter = vi.fn()
+    return { counter: useCounter([12, setter], { min: 0, max: 5 }), setter }
+  })
+
+  await actAbove(() => aboveMax.current.counter.dec())
+  expect(aboveMax.current.setter).toHaveBeenLastCalledWith(5)
+})
+
+it('useCounter reset(val) rebases the initial value and returns it', async () => {
+  const { result, act } = await renderHook(() => useCounter(5, { min: 0, max: 10 }))
+
+  // reset(val) returns the (clamped) new count and rebases future resets
+  let returned = -1
+  await act(() => {
+    returned = result.current.reset(3)
+  })
+  expect(returned).toBe(3)
+  expect(result.current.count).toBe(3)
+
+  await act(() => result.current.set(9))
+  expect(result.current.count).toBe(9)
+
+  // a plain reset() now restores the rebased value
+  await act(() => result.current.reset())
+  expect(result.current.count).toBe(3)
+})
