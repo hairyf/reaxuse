@@ -72,14 +72,18 @@ const UNITS: TimeAgoUnit[] = [
  * i18n supported.
  *
  * Divergences from upstream:
- * - upstream returns `ComputedRef<string>` (or controls + `parts` with
- *   `controls: true`); this port returns a **plain string** recomputed on
- *   every render (house pattern, see `useDateFormat`). The refresh timer
- *   lives in the house `useNow`, driven by a `useIntervalFn` scheduler that
- *   is cleaned up on unmount — pass new `time` values to re-render, the
- *   interval keeps the result fresh in between. Raw
+ * - upstream returns `ComputedRef<string>`, or `{ timeAgoIntl, parts,
+ *   pause, resume, isActive }` with `controls: true`; this port returns a
+ *   **plain string** recomputed on every render (house pattern, see
+ *   `useDateFormat`), and the `controls: true` variant is intentionally not
+ *   ported, consistent with `useTimeAgo` — raw
  *   `Intl.RelativeTimeFormatPart[]` access is available through
- *   `formatTimeAgoIntlParts`.
+ *   `formatTimeAgoIntlParts`. A `controls: true` passed by JS callers is a
+ *   no-op (the option is not read).
+ * - the refresh timer lives in the house `useNow`, driven by a
+ *   `useIntervalFn` scheduler that is cleaned up on unmount — pass new
+ *   `time` values to re-render, the interval keeps the result fresh in
+ *   between.
  * - upstream `ConfigurableScheduler` → `updateInterval` option (default
  *   `30_000` ms, matching upstream's default `useIntervalFn(cb, 30_000)`).
  * - upstream `RefOrValue<Date | number | string>` → plain
