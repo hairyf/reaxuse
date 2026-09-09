@@ -1,4 +1,3 @@
-import { noop } from '@reaxuse/shared'
 import { useRef } from 'react'
 import { useEventListener } from '../useEventListener'
 
@@ -163,5 +162,5 @@ export function useStartTyping(
     'keydown',
     keydown,
     { passive: true },
-  ) ?? noop
+  ) as () => void
 }

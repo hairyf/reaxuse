@@ -1,3 +1,4 @@
+import { renderToString } from 'react-dom/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { userEvent } from 'vitest/browser'
@@ -138,5 +139,48 @@ describe('useStartTyping', () => {
 
     await userEvent.keyboard('a')
     expect(callBackFn).toBeCalledTimes(1)
+  })
+
+  it('listens on a custom document option instead of the global one', async () => {
+    const customDocument = document.implementation.createHTMLDocument('useStartTyping-test')
+
+    const { result } = await renderHook(() => useStartTyping(callBackFn, { document: customDocument }))
+
+    // the listener is bound to the custom document, not the global one
+    await userEvent.keyboard('a')
+    expect(callBackFn).not.toBeCalled()
+
+    // a valid typing keydown dispatched on the custom document fires the callback
+    // (keyCode is not part of the standard KeyboardEventInit dictionary, so it is
+    // forced onto the event — the default `isTypedCharValid` gate relies on it)
+    const keydown = new KeyboardEvent('keydown', { key: 'a', bubbles: true, cancelable: true })
+    Object.defineProperty(keydown, 'keyCode', { value: 65 })
+    customDocument.dispatchEvent(keydown)
+
+    expect(callBackFn).toBeCalledTimes(1)
+
+    // the returned stop function detaches the custom-document listener too
+    result.current()
+    customDocument.dispatchEvent(keydown)
+    expect(callBackFn).toBeCalledTimes(1)
+  })
+
+  it('is SSR safe — the render phase never touches document and attaches no listeners', async () => {
+    let stop: (() => void) | undefined
+
+    function SSRProbe() {
+      stop = useStartTyping(callBackFn)
+      return <div>{typeof stop}</div>
+    }
+
+    // server render runs the render phase only (no effects): the `typeof
+    // document` guard keeps the target resolution from dereferencing the DOM,
+    // and the keydown listener is only registered by the client mount effect
+    const html = renderToString(<SSRProbe />)
+
+    expect(html).toContain('function')
+    expect(stop).toBeTypeOf('function')
+    expect(() => stop?.()).not.toThrow()
+    expect(callBackFn).not.toBeCalled()
   })
 })
