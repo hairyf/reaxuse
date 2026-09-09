@@ -6,6 +6,8 @@
  * universal-cookie …).
  */
 
+export * from './useAsyncValidator'
+// export * from './useAxios'
 // export * from './useAsyncValidator'
 export * from './useAxios'
 export * from './useChangeCase'
