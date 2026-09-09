@@ -60,7 +60,10 @@ export interface UseCountdownReturn {
  * isActive }`. `remaining` is a plain number state (upstream: a shallow ref)
  * that counts down one step per `interval` (default `1000` ms) after
  * `start()` — call `start(countdown?)`/`reset(countdown?)` with a number or a
- * ref-like `{ current }` to feed a new value. `stop()` pauses and
+ * ref-like `{ current }` to feed a new value. A plain-number `initialCountdown`
+ * is captured once at setup (upstream closes over its argument), so a later
+ * no-arg `start()`/`reset()` still uses the setup value; pass a ref-like
+ * `{ current }` to have it read the latest value. `stop()` pauses and
  * resets to the initial value, `pause()`/`resume()` freeze/thaw in place
  * (resume is a no-op at 0), and `onTick` fires every tick with `onComplete`
  * once the countdown reaches 0.
@@ -92,11 +95,11 @@ export function useCountdown(
     onComplete,
   } = options
 
-  // keep the initial countdown source fresh so a later `start()`/`reset()`
-  // without arguments re-reads the current value (upstream: `toValue` in the
-  // reset closure)
+  // the setup-time source is captured once, mirroring upstream's closure over
+  // the `initialCountdown` argument: a plain number stays pinned to its setup
+  // value for later no-arg `start()`/`reset()`, while a ref-like `{ current }`
+  // is still read lazily by `toValue`
   const initialCountdownRef = useRef(initialCountdown)
-  initialCountdownRef.current = initialCountdown
 
   const [remaining, setRemaining] = useState(() => toValue(initialCountdown))
   const remainingRef = useRef(remaining)

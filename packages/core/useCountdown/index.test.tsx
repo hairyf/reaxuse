@@ -194,4 +194,32 @@ describe('useCountdown', () => {
 
     await unmount()
   })
+
+  it('plain-number initial countdown is pinned to the setup value', async () => {
+    const { result, act, rerender, unmount } = await renderHook(
+      (props?: { countdown?: number }) => useCountdown(props?.countdown ?? countdown, options),
+      { initialProps: { countdown } },
+    )
+
+    // upstream's reset closes over the setup argument, so a later
+    // plain-number prop change is not picked up by no-arg start()/reset()
+    await rerender({ countdown: 1 })
+
+    await act(() => result.current.reset())
+    expect(result.current.remaining).toBe(countdown)
+
+    await act(() => result.current.start())
+    await act(() => {
+      vi.advanceTimersByTime(2 * interval + 10)
+    })
+    expect(completeCallback).toHaveBeenCalledTimes(0)
+    expect(result.current.remaining).toBe(1)
+
+    await act(() => {
+      vi.advanceTimersByTime(interval + 10)
+    })
+    expect(completeCallback).toHaveBeenCalledTimes(1)
+
+    await unmount()
+  })
 })
