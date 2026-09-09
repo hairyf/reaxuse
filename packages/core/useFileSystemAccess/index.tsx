@@ -1,6 +1,5 @@
-import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
+import type { ConfigurableWindow } from '@reaxuse/shared'
 import type { Dispatch, SetStateAction } from 'react'
-import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 /**
@@ -83,7 +82,7 @@ export type UseFileSystemAccessOptions = ConfigurableWindow & UseFileSystemAcces
   /**
    * file data type
    */
-  dataType?: RefOrValue<'Text' | 'ArrayBuffer' | 'Blob'>
+  dataType?: 'Text' | 'ArrayBuffer' | 'Blob'
 }
 
 /**
@@ -257,14 +256,13 @@ export function useFileSystemAccess(options: UseFileSystemAccessOptions = {}):
     const handle = fileHandleRef.current
     const nextFile = handle ? await handle.getFile() : undefined
     setFile(nextFile)
+    return nextFile
   }, [])
 
   const updateData = useCallback(async () => {
-    const handle = fileHandleRef.current
-    const nextFile = handle ? await handle.getFile() : undefined
-    setFile(nextFile)
+    const nextFile = await updateFile()
 
-    const type = toValue(dataTypeRef.current) ?? 'Text'
+    const type = dataTypeRef.current ?? 'Text'
     if (!nextFile) {
       setData(undefined)
       return
@@ -276,7 +274,7 @@ export function useFileSystemAccess(options: UseFileSystemAccessOptions = {}):
       setData(await nextFile.arrayBuffer())
     else if (type === 'Blob')
       setData(nextFile)
-  }, [])
+  }, [updateFile])
 
   const open = useCallback(async (_options: UseFileSystemAccessCommonOptions = {}) => {
     if (!supportedRef.current)
@@ -340,7 +338,7 @@ export function useFileSystemAccess(options: UseFileSystemAccessOptions = {}):
 
   // Upstream `watch(() => toValue(dataType), updateData)` — only re-reads
   // when the resolved `dataType` actually changes.
-  const resolvedDataType = toValue(dataType) ?? 'Text'
+  const resolvedDataType = dataType ?? 'Text'
   const prevDataTypeRef = useRef(resolvedDataType)
 
   useEffect(() => {
