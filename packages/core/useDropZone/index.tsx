@@ -52,6 +52,11 @@ export interface UseDropZoneReturn {
    */
   isOverDropZone: boolean
   /**
+   * The files of the last valid drop, or `null` when nothing has been
+   * dropped yet (mirrors upstream's `files` shallowRef).
+   */
+  files: File[] | null
+  /**
    * Subscribe to the drop event — fires with the dropped files when a valid
    * drop happens.
    */
@@ -74,9 +79,10 @@ export interface UseDropZoneReturn {
  * be dropped.
  *
  * React divergences:
- * - the Vue `isOverDropZone` shallowRef becomes plain boolean state, and the
- *   upstream `files` shallowRef is dropped — dropped files flow through the
- *   `onDrop` callback (option and/or returned subscription) instead;
+ * - the Vue `isOverDropZone` and `files` shallowRefs become plain state:
+ *   `files` holds the files of the last valid drop (`null` until then), and
+ *   dropped files also flow through the `onDrop` callback (option and/or
+ *   returned subscription);
  * - upstream's per-option callbacks (`onDrop` / `onEnter` / `onLeave` /
  *   `onOver`) are kept, and the returned `onDrop` / `onDragEnter` /
  *   `onDragLeave` are stable subscribe functions with the `(fn) => { off }`
@@ -106,10 +112,11 @@ export function useDropZone(
   options: UseDropZoneOptions | UseDropZoneOptions['onDrop'] = {},
 ): UseDropZoneReturn {
   const [isOverDropZone, setIsOverDropZone] = useState(false)
+  const [files, setFiles] = useState<File[] | null>(null)
 
-  // Event hooks (upstream `createEventHook`) — one stable subscribe function
-  // per event, backed by Sets in refs so the subscription identities never
-  // change across renders.
+  // Stable subscribe functions — one per event, backed by Sets in refs so the
+  // subscription identities never change across renders (a reaxuse extension
+  // on top of upstream's per-option callbacks).
   const dropFns = useRef(new Set<UseDropZoneCallback>())
   const dragEnterFns = useRef(new Set<UseDropZoneCallback>())
   const dragLeaveFns = useRef(new Set<UseDropZoneCallback>())
@@ -146,8 +153,7 @@ export function useDropZone(
     }
   }, [])
 
-  // Unmount cleanup of the event subscriptions (upstream: `tryOnScopeDispose`
-  // inside `createEventHook`'s `on`).
+  // Unmount cleanup of the event subscriptions.
   useEffect(() => {
     return () => {
       dropFns.current.clear()
@@ -260,6 +266,7 @@ export function useDropZone(
           counter = 0
           setIsOverDropZone(false)
           if (isValid) {
+            setFiles(currentFiles)
             opts.onDrop?.(currentFiles, event)
             Array.from(dropFns.current).forEach(fn => fn(currentFiles, event))
           }
@@ -287,6 +294,7 @@ export function useDropZone(
 
   return {
     isOverDropZone,
+    files,
     onDrop,
     onDragEnter,
     onDragLeave,
