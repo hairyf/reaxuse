@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
 import { useScroll } from '../useScroll'
 
@@ -86,7 +86,7 @@ describe('useScroll', () => {
  */
 function ScrollTestComponent({ observe = false }: { observe?: boolean }) {
   const el = useRef<HTMLDivElement>(null)
-  const { arrivedState, setX, setY } = useScroll(el, { observe: observe ?? false })
+  const { arrivedState, setX, setY, measure } = useScroll(el, { observe: observe ?? false })
   const [showBox, setShowBox] = useState(true)
   const [width, setWidth] = useState(500)
   const [height, setHeight] = useState(500)
@@ -137,6 +137,7 @@ function ScrollTestComponent({ observe = false }: { observe?: boolean }) {
         <button data-testid="toggleWidth" onClick={toggleWidth}>toggleWidth</button>
         <button data-testid="toggleHeight" onClick={toggleHeight}>toggleHeight</button>
         <button data-testid="toggleBox" onClick={toggleBox}>toggleBox</button>
+        <button data-testid="measure" onClick={() => measure()}>measure</button>
       </div>
       <pre data-testid="arrivedState">{JSON.stringify(arrivedState, null, 2)}</pre>
       <div ref={el} style={{ width: 300, height: 300, margin: 'auto', overflow: 'auto' }}>
@@ -211,5 +212,127 @@ describe('useScroll element', () => {
       await toggleBoxButton.click()
       await expect.poll(() => arrivedState.query()?.textContent).toBe(X_LEFT_ARRIVED)
     })
+  })
+
+  it('measure() recomputes arrivedState without scroll events', async () => {
+    // without `observe`, DOM changes do not re-measure — the state only
+    // updates on scroll events or an explicit `measure()` call
+    const screen = await render(<ScrollTestComponent observe={false} />)
+    const arrivedState = screen.getByTestId('arrivedState')
+    await expect.element(arrivedState).toBeVisible()
+    await expect.poll(() => arrivedState.query()?.textContent).toBe(X_LEFT_ARRIVED)
+
+    const toggleHeightButton = screen.getByTestId('toggleHeight')
+    const toggleWidthButton = screen.getByTestId('toggleWidth')
+    await expect.element(toggleHeightButton).toBeVisible()
+    await expect.element(toggleWidthButton).toBeVisible()
+
+    // shrink the content to fit: no scroll event fires (observe is off), so
+    // the arrivedState stays stale
+    await toggleHeightButton.click()
+    await toggleWidthButton.click()
+    await expect.poll(() => arrivedState.query()?.textContent).toBe(X_LEFT_ARRIVED)
+
+    // measure() recalculates from the live DOM without any scroll event
+    const measureButton = screen.getByTestId('measure')
+    await expect.element(measureButton).toBeVisible()
+    await measureButton.click()
+    await expect.poll(() => arrivedState.query()?.textContent).toBe(ALL_ARRIVED)
+  })
+})
+
+/**
+ * Mounts `useScroll` on a detached scrollable element and captures the
+ * registered `scroll` listener via an `addEventListener` spy.
+ */
+async function scrollListenerFor(throttle: number, onScroll: (e: Event) => void) {
+  const el = document.createElement('div')
+  el.style.width = '100px'
+  el.style.height = '100px'
+  el.style.overflow = 'auto'
+  el.innerHTML = '<div style="width: 200px; height: 200px;"></div>'
+  const addSpy = vi.spyOn(el, 'addEventListener')
+  const hook = await renderHook(() => useScroll(el, { throttle, onScroll }))
+  const scrollCall = addSpy.mock.calls.find(([type]) => type === 'scroll')
+  addSpy.mockRestore()
+  return {
+    listener: scrollCall?.[1] as ((e: Event) => unknown) | undefined,
+    ...hook,
+  }
+}
+
+describe('useScroll listener registration', () => {
+  it('registers the raw scroll handler when throttle is 0 (upstream parity)', async () => {
+    const onScroll = vi.fn()
+    const { listener, act, unmount } = await scrollListenerFor(0, onScroll)
+    expect(listener).toBeTypeOf('function')
+
+    // the raw handler is synchronous and does not return a promise (unlike
+    // the `useThrottleFn` wrapper)
+    let ret: unknown = 'sentinel'
+    await act(() => {
+      ret = listener?.({ target: document.documentElement } as unknown as Event)
+    })
+    expect(ret).toBeUndefined()
+    expect(onScroll).toHaveBeenCalledTimes(1)
+
+    await unmount()
+  })
+
+  it('registers the throttled wrapper when throttle > 0', async () => {
+    const onScroll = vi.fn()
+    const { listener, act, unmount } = await scrollListenerFor(100, onScroll)
+    expect(listener).toBeTypeOf('function')
+
+    // the throttled wrapper returns a promise and, mirroring upstream
+    // (`useThrottleFn(..., true, false)` — trailing only), does not invoke
+    // `onScroll` on the leading edge
+    let ret: unknown = 'sentinel'
+    await act(() => {
+      ret = listener?.({ target: document.documentElement } as unknown as Event)
+    })
+    expect(ret).toBeInstanceOf(Promise)
+    expect(onScroll).toHaveBeenCalledTimes(0)
+
+    await unmount()
+  })
+})
+
+describe('useScroll cleanup on unmount', () => {
+  it('removes scroll/scrollend listeners and disconnects the observer', async () => {
+    const el = document.createElement('div')
+    const addSpy = vi.spyOn(el, 'addEventListener')
+    const removeSpy = vi.spyOn(el, 'removeEventListener')
+    const disconnectSpy = vi.spyOn(MutationObserver.prototype, 'disconnect')
+    const onScroll = vi.fn()
+
+    const { act, unmount } = await renderHook(() => useScroll(el, { observe: true, onScroll }))
+
+    // both listeners are registered exactly once
+    expect(addSpy.mock.calls.filter(([type]) => type === 'scroll')).toHaveLength(1)
+    expect(addSpy.mock.calls.filter(([type]) => type === 'scrollend')).toHaveLength(1)
+
+    // the scroll listener is live before unmount
+    await act(() => {
+      el.dispatchEvent(new Event('scroll'))
+    })
+    expect(onScroll).toHaveBeenCalledTimes(1)
+
+    await unmount()
+
+    // cleanup removes both listeners, with the same options
+    expect(removeSpy.mock.calls.filter(([type]) => type === 'scroll')).toHaveLength(1)
+    expect(removeSpy.mock.calls.filter(([type]) => type === 'scrollend')).toHaveLength(1)
+
+    // ...and disconnects the MutationObserver
+    expect(disconnectSpy).toHaveBeenCalled()
+
+    // further events are no-ops after unmount
+    el.dispatchEvent(new Event('scroll'))
+    expect(onScroll).toHaveBeenCalledTimes(1)
+
+    addSpy.mockRestore()
+    removeSpy.mockRestore()
+    disconnectSpy.mockRestore()
   })
 })
