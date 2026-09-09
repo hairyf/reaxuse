@@ -1,3 +1,4 @@
+import { useIntervalFn } from '@reaxuse/shared'
 import { useNow } from '../useNow'
 
 export type UseTimeAgoFormatter<T = number> = (value: T, isPast: boolean) => string
@@ -186,9 +187,10 @@ export function formatTimeAgo<UnitNames extends string = UseTimeAgoUnitNamesDefa
  * Divergences from upstream:
  * - upstream returns `ComputedRef<string>`; this port returns a **plain
  *   string** recomputed on every render (house pattern, see
- *   `useTimeAgoIntl`). The refresh timer lives in the house `useNow`, whose
- *   `setInterval` is cleaned up on unmount — pass new `time` values to
- *   re-render, the interval keeps the result fresh in between.
+ *   `useTimeAgoIntl`). The refresh timer lives in the house `useNow`, driven
+ *   by a `useIntervalFn` scheduler that is cleaned up on unmount — pass new
+ *   `time` values to re-render, the interval keeps the result fresh in
+ *   between.
  * - upstream `ConfigurableScheduler` → `updateInterval` option (default
  *   `30_000` ms, matching upstream's default `useIntervalFn(cb, 30_000)`).
  * - upstream `controls: true` variant (`Pausable` pause/resume) is not
@@ -206,7 +208,7 @@ export function formatTimeAgo<UnitNames extends string = UseTimeAgoUnitNamesDefa
 export function useTimeAgo<UnitNames extends string = UseTimeAgoUnitNamesDefault>(time: Date | number | string, options: UseTimeAgoOptions<UnitNames> = {}): string {
   const { updateInterval = 30_000 } = options
 
-  const now = useNow(updateInterval)
+  const now = useNow({ scheduler: cb => useIntervalFn(cb, updateInterval) })
 
   return formatTimeAgo(new Date(time), options, now)
 }

@@ -1,16 +1,20 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import { useCounter, useToggle } from '@reaxuse/shared'
 import { useNow } from '@reaxuse/core'
 
 export default function Page() {
   const [value, toggle] = useToggle()
   const counter = useCounter(0, { min: 0 })
-  const now = useNow(1000)
+  const { now, isActive, pause, resume } = useNow({ controls: true })
 
-  const [pressed, setPressed] = useState(false)
-  const onPress = useCallback(() => setPressed(v => !v), [])
+  const onPress = useCallback(() => {
+    if (isActive)
+      pause()
+    else
+      resume()
+  }, [isActive, pause, resume])
 
   return (
     <main className="page">
@@ -46,17 +50,17 @@ export default function Page() {
       <section>
         <h2>useNow</h2>
         <p>
-          Now: <code>{new Date(now).toLocaleTimeString()}</code>
+          Now: <code>{now.toLocaleTimeString()}</code>
         </p>
         <div className="row">
           <button type="button" onClick={onPress}>
-            {pressed ? 'Paused (updates stopped)' : 'Click to pause'}
+            {isActive ? 'Click to pause' : 'Paused (updates stopped)'}
           </button>
         </div>
         <p className="hint">
-          {pressed
-            ? 'The interval keeps running — hold on…'
-            : 'useNow(1000) updates every second'}
+          {isActive
+            ? 'useNow() updates every animation frame'
+            : 'Paused — click again to resume'}
         </p>
       </section>
     </main>
