@@ -79,11 +79,14 @@ function sameOptions(
  * `{ current }` object or a React ref (`RefOrValue`).
  *
  * React divergences:
- * - the resolved listeners participate in the re-bind comparison like
- *   upstream's `watchImmediate` — a changed listener (or a ref `current`
- *   holding new listeners) re-registers them, while a stable listener identity
- *   keeps the subscription; only changes to the resolved targets, events,
- *   listeners or options re-bind;
+ * - re-binding follows upstream's `watchImmediate` over the resolved targets,
+ *   events, listeners and options: a ref-wrapped listener (a `{ current }`
+ *   object or React ref) re-registers when its `.current` changes; plain
+ *   function listeners are latest-tracked (each render syncs the newest
+ *   listener into the subscription), so an inline listener's new identity on
+ *   re-render never churns the binding — React cannot compare function
+ *   identities across renders without an infinite loop, unlike Vue's reactive
+ *   ref comparison;
  * - the returned cleanup function detaches the currently registered listeners
  *   (upstream returns a `Fn` that stops the internal watcher); the listeners
  *   are also removed automatically on unmount;
@@ -211,36 +214,53 @@ export function useEventListener(
   const resolvedEvents = toArray(toValue(eventArg)) as string[]
   const resolvedOptions = toValue(optionsArg)
   // resolve the listeners at render time so identity changes participate in the
-  // re-bind comparison (upstream `watchImmediate` re-runs on the raw listeners)
+  // re-bind comparison (upstream `watchImmediate` re-runs on the raw listeners).
+  // Only ref-wrapped listeners (`{ current: ... }`) are compared: a `.current`
+  // change re-registers, and the comparison converges because the ref value is
+  // stable between renders. Plain-function listeners are latest-tracked through
+  // `listenerRef` below — an inline function gets a new identity on every render
+  // and comparing it here would loop `setBind` forever ("Too many re-renders").
   const resolvedListeners = unwrapListeners(listenerArg)
+  const listenerIsRef = isRefLike(listenerArg)
 
-  // re-bind whenever the resolved targets / events / listeners / options change
-  // (upstream `watchImmediate`); a new inline listener identity re-binds, a
-  // stable one keeps the subscription
+  // latest raw listener arg, synced each render — the effect registers whatever
+  // is current at (re-)bind time, so plain-function listeners never go stale
+  const listenerRef = useRef(listenerArg)
+  listenerRef.current = listenerArg
+
+  // re-bind whenever the resolved targets / events / options change, or a
+  // ref-wrapped listener's `.current` changes (upstream `watchImmediate`)
   const [bind, setBind] = useState(() => ({
     targets: resolvedTargets,
     events: resolvedEvents,
     options: resolvedOptions,
     listeners: resolvedListeners,
+    listenerIsRef,
   }))
 
   if (!sameValues(bind.targets, resolvedTargets)
     || !sameValues(bind.events, resolvedEvents)
-    || !sameValues(bind.listeners, resolvedListeners)
-    || !sameOptions(bind.options, resolvedOptions)) {
+    || !sameOptions(bind.options, resolvedOptions)
+    || bind.listenerIsRef !== listenerIsRef
+    || (listenerIsRef && !sameValues(bind.listeners, resolvedListeners))) {
     setBind({
       targets: resolvedTargets,
       events: resolvedEvents,
       options: resolvedOptions,
       listeners: resolvedListeners,
+      listenerIsRef,
     })
   }
 
   const cleanupRef = useRef<Fn | null>(null)
 
   useEffect(() => {
-    const { targets, events, options, listeners } = bind
-    if (!targets.length || !events.length || !listeners.length)
+    const { targets, events, options } = bind
+    if (!targets.length || !events.length)
+      return
+
+    const listeners = unwrapListeners(listenerRef.current)
+    if (!listeners.length)
       return
 
     // snapshot options so removal uses the same values as registration
