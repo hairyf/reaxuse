@@ -1,4 +1,5 @@
-import { expect, it } from 'vitest'
+import { renderToString } from 'react-dom/server'
+import { expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useScreenSafeArea } from '../useScreenSafeArea'
 
@@ -64,4 +65,30 @@ it('useScreenSafeArea keeps the custom properties but drops the resize listener 
   // if the listener had survived, the debounced update would have fired by now
   await new Promise(resolve => setTimeout(resolve, 400))
   expect(result.current.top).toBe(topBefore)
+})
+
+it('useScreenSafeArea is SSR-safe: the server render emits the empty defaults and touches no DOM', async () => {
+  const getComputedStyleSpy = vi.spyOn(window, 'getComputedStyle')
+  const addEventListenerSpy = vi.spyOn(window, 'addEventListener')
+
+  function Probe() {
+    const { top, right, bottom, left } = useScreenSafeArea()
+    return <div>{`${top}|${right}|${bottom}|${left}`}</div>
+  }
+
+  try {
+    // a server render runs no effects: the markup carries the empty SSR
+    // defaults (the mount effect is what reads the computed styles back)
+    const html = renderToString(<Probe />)
+    expect(html).toContain('>|||<')
+
+    // and the SSR pass itself never reads computed styles nor subscribes to
+    // resize — the documented "nothing touches the DOM during render" claim
+    expect(getComputedStyleSpy).not.toHaveBeenCalled()
+    expect(addEventListenerSpy).not.toHaveBeenCalled()
+  }
+  finally {
+    getComputedStyleSpy.mockRestore()
+    addEventListenerSpy.mockRestore()
+  }
 })
