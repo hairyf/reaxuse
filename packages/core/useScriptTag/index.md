@@ -6,6 +6,8 @@ category: Browser
 
 Creates a script tag
 
+If a script tag already exists for the given URL, `useScriptTag()` will not create another script tag, but keep in mind that depending on how you use it, `useScriptTag()` might have already loaded then unloaded that particular JS file from a previous call of `useScriptTag()`.
+
 ## Usage
 
 ```tsx
