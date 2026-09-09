@@ -200,6 +200,39 @@ describe('useIdle', () => {
     expect(result.current.idle).toBe(true)
   })
 
+  it('should not respond to activity events after stop', async () => {
+    const timeout = 1000
+    const { result, act } = await renderHook(() => useIdle(timeout))
+
+    await act(() => {
+      vi.advanceTimersByTime(timeout)
+    })
+    expect(result.current.idle).toBe(true)
+
+    const lastActiveBefore = result.current.lastActive
+
+    await act(() => {
+      result.current.stop()
+    })
+    expect(result.current.idle).toBe(false)
+    expect(result.current.isPending).toBe(false)
+
+    // activity flowing in after `stop()` must be ignored
+    await act(async () => {
+      await userEvent.keyboard('foo')
+    })
+    expect(result.current.idle).toBe(false)
+    expect(result.current.isPending).toBe(false)
+    expect(result.current.lastActive).toBe(lastActiveBefore)
+
+    // flush the trailing throttle-filter invocation, then run past the
+    // timeout: a stopped hook must not have re-armed the idle timer
+    await act(() => {
+      vi.advanceTimersByTime(timeout + 51)
+    })
+    expect(result.current.idle).toBe(false)
+  })
+
   it('should set isPending to true when started', async () => {
     const { result, act } = await renderHook(() => useIdle(1000))
 
