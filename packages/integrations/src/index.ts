@@ -7,7 +7,7 @@
  */
 
 // export * from './useAsyncValidator'
-// export * from './useAxios'
+export * from './useAxios'
 export * from './useChangeCase'
 // export * from './useCookies'
 export * from './useDrauu'
