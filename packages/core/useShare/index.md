@@ -6,6 +6,8 @@ category: Browser
 
 Reactive [Web Share API](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share)
 
+> The `share` method has to be called following a user gesture like a button click. It can't simply be called on page load for example. That's in place to help prevent abuse.
+
 ## Usage
 
 ```tsx
@@ -20,15 +22,4 @@ function startShare() {
     url: location.href,
   })
 }
-```
-
-Reactive options need no wrapper in React — pass state directly, the hook always reads the latest
-values:
-
-```tsx
-const [text, setText] = useState('foo')
-const { share } = useShare({ text })
-
-setText('bar')
-share() // shares `{ text: 'bar' }`
 ```

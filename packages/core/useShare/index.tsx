@@ -74,11 +74,11 @@ interface UseShareNavigatorOptions {
 export function useShare(shareOptions: UseShareOptions = {}, options: UseShareNavigatorOptions = {}): UseShareReturn {
   // latest-value refs synced each render so `share` stays a stable callback
   // that always reads the newest options and navigator
-  const shareOptionsRef = useRef(shareOptions)
+  const shareOptionsRef = useRef<UseShareOptions | undefined>(undefined)
   shareOptionsRef.current = shareOptions
 
   const customNavigator = options.navigator
-  const navigatorRef = useRef<Navigator | undefined>(customNavigator)
+  const navigatorRef = useRef<Navigator | undefined>(undefined)
   navigatorRef.current = customNavigator ?? (typeof navigator === 'undefined' ? undefined : navigator)
 
   const [isSupported, setIsSupported] = useState(false)
