@@ -1,5 +1,7 @@
+import type { RefCallback, RefObject } from 'react'
+import type { ElementTarget } from '../useResizeObserver'
 import { createRef } from 'react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 import { render } from 'vitest-browser-react'
 import { unrefElement } from '../unrefElement'
 
@@ -42,5 +44,19 @@ describe('unrefElement', () => {
   it('return null if the ref-like current is null', () => {
     const targetNodeRef = createRef<HTMLDivElement>()
     expect(unrefElement(targetNodeRef)).toBeNull()
+  })
+
+  it('rejects React callback refs at the type level', () => {
+    // A callback ref is a function, and `toValue` *invokes* functions instead
+    // of resolving them — so it must not be assignable to the accepted input.
+    expectTypeOf<RefCallback<HTMLElement>>()
+      .not
+      .toMatchTypeOf<ElementTarget<HTMLElement>>()
+    expectTypeOf<Parameters<typeof unrefElement<HTMLElement>>[0]>()
+      .not
+      .toMatchTypeOf<RefCallback<HTMLElement>>()
+    // Positive control: a `{ current }` ref object is still accepted.
+    expectTypeOf<RefObject<HTMLElement | null>>()
+      .toMatchTypeOf<ElementTarget<HTMLElement>>()
   })
 })

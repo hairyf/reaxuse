@@ -1,5 +1,5 @@
 import type { ConfigurableWindow } from '@reaxuse/shared'
-import type { Ref } from 'react'
+import type { RefObject } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -12,10 +12,13 @@ export type TargetElement = HTMLElement | SVGElement | undefined | null
 /**
  * A plain element or a React ref object — the React-native replacement for
  * upstream's `ElementTarget` (in Vue semantics a `{ current }` union). React
- * refs hold DOM nodes directly, so only a `RefObject` is accepted.
+ * refs hold DOM nodes directly, so only a `RefObject` is accepted; React's
+ * `Ref<T>` also unions the callback form (`RefCallback<T>`), which cannot be
+ * read synchronously and would be *invoked* by `toValue` instead of resolved,
+ * so it is deliberately excluded here.
  */
 export type ElementTarget<T extends TargetElement = TargetElement>
-  = T | Ref<T>
+  = T | RefObject<T | null>
 
 /**
  * A single target or an array of targets — mirrors upstream's

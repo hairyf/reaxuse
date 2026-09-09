@@ -23,7 +23,14 @@ export type UnRefElementReturn<T extends TargetElement = TargetElement> = T | un
  * DOM element, or `undefined`/`null` unchanged when the input resolves to one
  * of those.
  *
- * @param elRef - React ref-like object (`{ current }`) or the element itself
+ * Callback refs are NOT supported: React's `RefCallback`
+ * (`ref={(el) => { ... }}`) is a function, and `toValue` *invokes* functions
+ * instead of resolving them, so a callback ref would be called with no
+ * arguments and never yield a DOM node. `ElementTarget` therefore excludes the
+ * `RefCallback` arm; pass a `useRef` object (`{ current }`) instead.
+ *
+ * @param elRef - React ref object (`{ current }`) or the element itself;
+ * callback refs are rejected at the type level
  * @example
  * const div = useRef<HTMLDivElement>(null)
  * div.current = document.querySelector<HTMLDivElement>('div')!
