@@ -123,6 +123,26 @@ describe('useFocus', () => {
     })
   })
 
+  it('supports SVG elements as the target', async () => {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    svg.setAttribute('tabindex', '0')
+    document.body.appendChild(svg)
+
+    const { result, act } = await renderHook(() => useFocus(svg as unknown as SVGElement))
+
+    expect(result.current[0]).toBeFalsy()
+
+    await act(() => {
+      svg.focus()
+    })
+    expect(result.current[0]).toBeTruthy()
+
+    await act(() => {
+      svg.blur()
+    })
+    expect(result.current[0]).toBeFalsy()
+  })
+
   it('returns a React tuple [isFocused, setFocused]', async () => {
     const { result } = await renderHook(() => useFocus(target))
 
