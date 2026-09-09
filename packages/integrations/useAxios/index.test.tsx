@@ -151,6 +151,99 @@ describe('useAxios', () => {
     expect(requests[1].params).toEqual({ postId: 2 })
   })
 
+  it('params: url config (default instance)', async () => {
+    const { adapter, requests } = createAdapter()
+    const original = axios.defaults.adapter
+    axios.defaults.adapter = adapter
+    try {
+      const { result } = await renderHook(() => useAxios<Todo>('/todos/1', { method: 'GET' }))
+
+      await vi.waitFor(() => {
+        expect(result.current.isFinished).toBe(true)
+      })
+      expect(requests).toHaveLength(1)
+      expect(requests[0].url).toBe('/todos/1')
+      // axios normalizes the method to lower case
+      expect(requests[0].method).toBe('get')
+      expect(result.current.data).toEqual(todo)
+    }
+    finally {
+      axios.defaults.adapter = original
+    }
+  })
+
+  it('params: url config options (default instance)', async () => {
+    const { adapter, requests } = createAdapter()
+    const original = axios.defaults.adapter
+    axios.defaults.adapter = adapter
+    try {
+      const { result, act } = await renderHook(() => useAxios<Todo>('/todos/1', { method: 'GET' }, { immediate: false }))
+
+      expect(requests).toHaveLength(0)
+      await act(async () => {
+        await result.current.execute()
+      })
+      expect(requests).toHaveLength(1)
+      expect(result.current.data).toEqual(todo)
+    }
+    finally {
+      axios.defaults.adapter = original
+    }
+  })
+
+  it('params no url: no args, never fires on its own', async () => {
+    // `useAxios()` — the url-less `EasyUseAxiosReturn` requires a url on
+    // `execute`, so nothing runs until the caller supplies one (the missing-url
+    // error path is covered by `sets ERR_INVALID_URL when no url is available`)
+    const { result } = await renderHook(() => useAxios<Todo>())
+
+    expect(result.current.isLoading).toBe(false)
+    expect(result.current.isFinished).toBe(false)
+  })
+
+  it('is loading on re-execute; a bare unawaited execute() never rejects', async () => {
+    // upstream `should be loading on re-execute` — the returned shell is
+    // dropped here on purpose: with the upstream `return promise` contract a
+    // bare unawaited `execute()` never settles eagerly, so no unhandled
+    // rejection can escape even when the request fails
+    const onError = vi.fn()
+    const { adapter, pending } = createDeferredAdapter()
+    const instance = axios.create({ adapter })
+    const { result, act } = await renderHook(() => useAxios<Todo>('/todos/1', instance, { immediate: false, onError }))
+
+    await act(() => {
+      void result.current.execute()
+    })
+    expect(result.current.isLoading).toBe(true)
+
+    await act(() => {
+      void result.current.execute('/todos/2')
+    })
+    expect(result.current.isLoading).toBe(true)
+
+    await act(async () => {
+      pending[1].fail(new AxiosError('boom'))
+    })
+    expect(result.current.isLoading).toBe(false)
+    // the aborted first request also reports its CanceledError through onError
+    expect(onError).toHaveBeenCalledTimes(2)
+  })
+
+  it('supports the request-body generic (upstream `use generic type`)', async () => {
+    interface ReqType { title: string, body: string, userId: number }
+    interface ResType extends ReqType { id: number }
+    const res: ResType = { id: 1, title: 'delectus aut autem', body: 'x', userId: 1 }
+    const { adapter } = createAdapter(res)
+    const instance = axios.create({ adapter })
+    const { result, act } = await renderHook(() => useAxios<ResType, ResType, ReqType>('/todos/1', { method: 'POST' }, instance, { immediate: false }))
+
+    const requestData: ReqType = { title: 'title', body: 'body', userId: 123 }
+    await act(async () => {
+      await result.current.execute({ data: requestData })
+    })
+    expect(result.current.data).toEqual(res)
+  })
+
   it('params no url: instance', async () => {
     const { adapter, requests } = createAdapter()
     const instance = axios.create({ adapter })
@@ -206,7 +299,7 @@ describe('useAxios', () => {
     expect(result.current.isLoading).toBe(false)
     expect(result.current.isFinished).toBe(false)
 
-    let request!: Promise<AxiosResponse<Todo> | undefined>
+    let request!: ReturnType<typeof result.current.execute>
     await act(async () => {
       request = result.current.execute()
     })
@@ -222,17 +315,21 @@ describe('useAxios', () => {
     expect(result.current.data).toEqual(todo)
   })
 
-  it('execute resolves with the AxiosResponse', async () => {
+  it('execute resolves with the shell', async () => {
     const { adapter } = createAdapter()
     const instance = axios.create({ adapter })
     const { result, act } = await renderHook(() => useAxios<Todo>('/todos/1', instance, { immediate: false }))
 
-    let response: AxiosResponse<Todo> | undefined
+    // upstream contract: `execute` returns the shared thenable — awaiting it
+    // resolves with the full return shell, not the bare `AxiosResponse`
+    let shell: Awaited<ReturnType<typeof result.current.execute>> | undefined
     await act(async () => {
-      response = await result.current.execute()
+      shell = await result.current.execute()
     })
-    expect(response?.data).toEqual(todo)
-    expect(response?.status).toBe(200)
+    expect(shell?.data).toEqual(todo)
+    expect(shell?.response?.status).toBe(200)
+    expect(shell?.isFinished).toBe(true)
+    expect(shell?.isLoading).toBe(false)
   })
 
   it('execute(url) replaces the hook url', async () => {
@@ -322,7 +419,7 @@ describe('useAxios', () => {
     const instance = axios.create({ adapter })
     const { result, act } = await renderHook(() => useAxios<Todo>('/todos/1', instance, { immediate: false, initialData, resetOnExecute: true }))
 
-    let request!: Promise<AxiosResponse<Todo> | undefined>
+    let request!: ReturnType<typeof result.current.execute>
     await act(async () => {
       request = result.current.execute()
     })
@@ -350,7 +447,7 @@ describe('useAxios', () => {
     const instance = axios.create({ adapter })
     const { result, act } = await renderHook(() => useAxios<Todo>('/todos/1', instance, { immediate: false, initialData }))
 
-    let request!: Promise<AxiosResponse<Todo> | undefined>
+    let request!: ReturnType<typeof result.current.execute>
     await act(async () => {
       request = result.current.execute()
     })
@@ -376,7 +473,7 @@ describe('useAxios', () => {
     const instance = axios.create({ adapter })
     const { result, act } = await renderHook(() => useAxios<Todo>('/todos/1', instance, { immediate: false }))
 
-    let request!: Promise<AxiosResponse<Todo> | undefined>
+    let request!: ReturnType<typeof result.current.execute>
     await act(async () => {
       request = result.current.execute()
     })
@@ -401,7 +498,7 @@ describe('useAxios', () => {
     const instance = axios.create({ adapter })
     const { result, act } = await renderHook(() => useAxios<Todo>('/todos/1', instance, { immediate: false, initialData }))
 
-    let request!: Promise<AxiosResponse<Todo> | undefined>
+    let request!: ReturnType<typeof result.current.execute>
     await act(async () => {
       request = result.current.execute()
     })
@@ -424,7 +521,7 @@ describe('useAxios', () => {
     const instance = axios.create({ adapter })
     const { result, act } = await renderHook(() => useAxios<Todo>('/todos/1', instance, { immediate: false }))
 
-    let request!: Promise<AxiosResponse<Todo> | undefined>
+    let request!: ReturnType<typeof result.current.execute>
     await act(async () => {
       request = result.current.execute()
     })
@@ -448,16 +545,14 @@ describe('useAxios', () => {
     const instance = axios.create({ adapter })
     const { result, act } = await renderHook(() => useAxios<Todo>('/todos/1', instance, { immediate: false }))
 
-    let first!: Promise<AxiosResponse<Todo> | undefined>
     await act(async () => {
-      first = result.current.execute()
+      void result.current.execute()
     })
     expect(pending).toHaveLength(1)
 
-    let second!: Promise<AxiosResponse<Todo> | undefined>
+    let second!: ReturnType<typeof result.current.execute>
     await act(async () => {
       second = result.current.execute('/todos/2')
-      await first.catch(noop)
     })
     expect(pending).toHaveLength(2)
     expect(pending[0].aborted).toBe(true)
@@ -465,7 +560,10 @@ describe('useAxios', () => {
 
     await act(async () => {
       pending[1].settle({ id: 2, title: 'second' })
-      await second
+      // upstream parity: the aborted first request leaves its CanceledError on
+      // the live error, so the awaited shell of the (successful) re-execution
+      // rejects with it — the state still reflects the new response
+      await second.catch(noop)
     })
     expect(result.current.data).toEqual({ id: 2, title: 'second' })
     expect(result.current.isLoading).toBe(false)
@@ -477,11 +575,11 @@ describe('useAxios', () => {
     const instance = axios.create({ adapter })
     const { result, act } = await renderHook(() => useAxios<Todo>('/todos/1', instance, { immediate: false, abortPrevious: false }))
 
-    let first!: Promise<AxiosResponse<Todo> | undefined>
+    let first!: ReturnType<typeof result.current.execute>
     await act(async () => {
       first = result.current.execute()
     })
-    let second!: Promise<AxiosResponse<Todo> | undefined>
+    let second!: ReturnType<typeof result.current.execute>
     await act(async () => {
       second = result.current.execute('/todos/2')
     })
