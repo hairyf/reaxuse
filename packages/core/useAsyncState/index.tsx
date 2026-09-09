@@ -12,15 +12,17 @@ function defaultOnError(e: unknown) {
     globalThis.reportError(e)
 }
 
-export interface UseAsyncStateReturnBase<Data, Params extends any[], Shallow extends boolean> {
+export interface UseAsyncStateReturnBase<Data, Params extends any[], _Shallow extends boolean> {
   /**
    * The resolved result of the async function.
    *
-   * `Shallow` mirrors the upstream conditional
-   * `state: Shallow extends true ? Ref<Data> : Ref<UnwrapRef<Data>>`; React
-   * state is never deep-wrapped, so both branches are simply `Data`.
+   * Upstream types this as
+   * `Shallow extends true ? Ref<Data> : Ref<UnwrapRef<Data>>`, but React state
+   * is never deep-wrapped, so both arms of that conditional are `Data`. The
+   * unused `_Shallow` type parameter is kept only for generic-arity parity
+   * with VueUse and never affects this type.
    */
-  state: Shallow extends true ? Data : Data
+  state: Data
   isReady: boolean
   isLoading: boolean
   error: unknown
@@ -75,6 +77,9 @@ export interface UseAsyncStateOptions<Shallow extends boolean = true, D = any> {
   /**
    * Use shallowRef.
    *
+   * Accepted for API parity with VueUse only — React state is never
+   * deep-wrapped, so this option has no effect.
+   *
    * @default true
    */
   shallow?: Shallow
@@ -117,7 +122,8 @@ export interface UseAsyncStateOptions<Shallow extends boolean = true, D = any> {
  *   that resolves with the current result object once the latest execution
  *   finished, so `const { state } = await useAsyncState(...)` works;
  * - `shallow` is accepted for API parity but has no React equivalent — React
- *   state is never deep-wrapped, so the option is a no-op.
+ *   state is never deep-wrapped, so the option is a no-op; the `Shallow`
+ *   generic is likewise kept for type-arity parity only.
  *
  * @example
  * const { state, isReady, isLoading, error, execute } = useAsyncState(

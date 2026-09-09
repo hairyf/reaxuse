@@ -210,4 +210,23 @@ describe('useAsyncState', () => {
       expect(result.current.error).toBeUndefined()
     })
   })
+
+  it('accepts `shallow` for API parity (no-op in React)', async () => {
+    // VueUse uses `shallow` to choose `shallowRef` vs `ref` for `state`.
+    // React state is never deep-wrapped, so both settings behave identically
+    // and `state` is always the plain resolved value (identity preserved,
+    // never a ref-like wrapper).
+    const initial = { nested: { count: 0 } }
+    const resolved = { nested: { count: 1 } }
+
+    const deepResult = await renderHook(() => useAsyncState(Promise.resolve(resolved), initial, { shallow: false }))
+    await vi.waitFor(() => {
+      expect(deepResult.result.current.state).toBe(resolved)
+    })
+
+    const shallowResult = await renderHook(() => useAsyncState(Promise.resolve(resolved), initial, { shallow: true }))
+    await vi.waitFor(() => {
+      expect(shallowResult.result.current.state).toBe(resolved)
+    })
+  })
 })
