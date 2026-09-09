@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useFloor } from '../useFloor'
@@ -8,22 +8,10 @@ describe('useFloor', () => {
     expect(useFloor).toBeDefined()
   })
 
-  it('should work (mirrors upstream)', async () => {
-    const base = { current: 45.95 }
-    const { result, rerender } = await renderHook(() => useFloor(base))
-
-    expect(result.current).toBe(45)
-
-    base.current = -45.05
-    await rerender()
-    expect(result.current).toBe(-46)
-  })
-
-  it('returns a plain number (no reactive .value)', async () => {
-    const { result } = await renderHook(() => useFloor(45.95))
-
-    expect(typeof result.current).toBe('number')
-    expect(result.current).toBe(45)
+  it('should work (mirrors upstream)', () => {
+    expect(useFloor(45.95)).toBe(45)
+    expect(useFloor(-45.05)).toBe(-46)
+    expect(useFloor(7)).toBe(7)
   })
 
   it('accepts plain number values', async () => {
@@ -37,36 +25,17 @@ describe('useFloor', () => {
     expect(third.result.current).toBe(7)
   })
 
-  it('recomputes on the next render when the input changes', async () => {
-    const input = { current: 45.95 }
-    const { result, rerender } = await renderHook(() => useFloor(input))
+  it('returns a plain number (no reactive .value)', async () => {
+    const { result } = await renderHook(() => useFloor(45.95))
 
+    expect(typeof result.current).toBe('number')
     expect(result.current).toBe(45)
-
-    input.current = -45.05
-    await rerender()
-    expect(result.current).toBe(-46)
-
-    input.current = 2.3
-    await rerender()
-    expect(result.current).toBe(2)
   })
 
-  it('works with React refs', async () => {
-    const first = await renderHook(() => useFloor(useRef(45.95)))
-    expect(first.result.current).toBe(45)
-
-    const second = await renderHook(() => useFloor(useRef(-45.95)))
-    expect(second.result.current).toBe(-46)
-
-    const third = await renderHook(() => useFloor(useRef(3.1415)))
-    expect(third.result.current).toBe(3)
-  })
-
-  it('accepts a controlled state tuple', async () => {
+  it('recomputes on the next render when the value changes', async () => {
     const { result, rerender, act } = await renderHook(() => {
       const [value, setValue] = useState(45.95)
-      return { floor: useFloor([value, setValue]), setValue }
+      return { floor: useFloor(value), setValue }
     })
 
     expect(result.current.floor).toBe(45)
@@ -74,18 +43,9 @@ describe('useFloor', () => {
     await act(() => result.current.setValue(-45.05))
     await rerender()
     expect(result.current.floor).toBe(-46)
-  })
 
-  it('accepts a value/onChange pair', async () => {
-    const { result, rerender, act } = await renderHook(() => {
-      const [value, setValue] = useState(45.95)
-      return { floor: useFloor({ value, onChange: setValue }), setValue }
-    })
-
-    expect(result.current.floor).toBe(45)
-
-    await act(() => result.current.setValue(-45.05))
+    await act(() => result.current.setValue(2.3))
     await rerender()
-    expect(result.current.floor).toBe(-46)
+    expect(result.current.floor).toBe(2)
   })
 })

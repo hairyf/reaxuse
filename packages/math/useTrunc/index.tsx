@@ -1,6 +1,3 @@
-import type { State } from '@reaxuse/shared'
-import { toValue } from '@reaxuse/shared'
-
 /**
  * React port of VueUse's `useTrunc`.
  *
@@ -10,30 +7,24 @@ import { toValue } from '@reaxuse/shared'
  *
  * Adjustment for React: upstream wraps the computation in `computed(() => ...)`
  * and returns a `ComputedRef<number>`; the reaxuse version is a pure derived
- * hook — `value` is resolved (a plain number or a React ref) at render time
- * and the truncated number is returned directly, with
- * no effects and no `.value` wrapper (SSR-safe).
+ * hook — the plain `number` argument is read at render time and the truncated
+ * number is returned directly, with no effects and no `.value` wrapper
+ * (SSR-safe).
  *
- * `value` accepts a React `State<number>` — a plain number, a getter
- * (`() => value`), a React ref (`{ current }`), a `[value, setter]` tuple, or a
- * `{ value, onChange }` pair. Every form is resolved through `toValue`; the
- * tuple and `{ value, onChange }` forms are the React state protocol and have
- * no upstream equivalent (upstream takes `MaybeRefOrGetter<number>`).
+ * React divergence: `value` is a plain read-only `number`, not upstream's
+ * `MaybeRefOrGetter<number>`. The caller re-renders with a new value (e.g. from
+ * `useState`) and the hook recomputes.
  *
  * @see https://vueuse.org/math/useTrunc/
  *
  * @__NO_SIDE_EFFECTS__
  *
  * @example
- * const value = { current: 0.95 }
- * const result1 = useTrunc(value) // 0
+ * const result = useTrunc(0.95) // 0
  *
- * value.current = -2.34
- * const result2 = useTrunc(value) // -2
- *
- * @param value - The value to truncate.
+ * @param value - The number to truncate.
  * @returns The truncated number.
  */
-export function useTrunc(value: State<number>): number {
-  return Math.trunc(toValue(value))
+export function useTrunc(value: number): number {
+  return Math.trunc(value)
 }

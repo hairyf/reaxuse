@@ -6,34 +6,18 @@ related: logicAnd, logicNot
 
 # logicOr
 
-`OR` conditions for refs
+`OR` conditions for values
 
 ## Usage
 
 ```tsx
 import { logicOr } from '@reaxuse/math'
 
-const a = { current: true }
-const b = { current: false }
+const either = logicOr(true, false) // true
 
-const either = logicOr(a, b) // true
-
-a.current = false
-// useLogicOr() again — both args are falsy now
-logicOr(a, b) // false
+// call it again after the values change
+logicOr(false, 0, '') // false
 ```
 
-## Argument Forms
-
-Every argument accepts a React `State<any>` and is resolved through `toValue`:
-
-```tsx
-import { logicOr } from '@reaxuse/math'
-
-logicOr(true, false) // plain values
-logicOr(() => true, { current: false }) // getter and React ref
-logicOr([a, setA], { value: b, onChange: setB }) // state forms
-```
-
-The `[value, setter]` tuple and `{ value, onChange }` pair are the React state protocol and have no
-upstream equivalent (upstream takes `MaybeRefOrGetter`).
+Arguments are plain read-only values (upstream takes `MaybeRefOrGetter<any>[]`). The result is
+re-evaluated on every call — there is no reactivity, so re-renders drive re-evaluation.

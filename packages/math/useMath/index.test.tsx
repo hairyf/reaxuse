@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useMath } from '../useMath'
@@ -8,48 +8,20 @@ describe('useMath', () => {
     expect(useMath).toBeDefined()
   })
 
-  it('should accept numbers', async () => {
-    const { result } = await renderHook(() => useMath('pow', 2, 3))
-
-    expect(result.current).toBe(8)
+  it('should accept numbers', () => {
+    expect(useMath('pow', 2, 3)).toBe(8)
   })
 
-  it('should accept refs', async () => {
-    const base = { current: 2 }
-    const exponent = { current: 3 }
-    const { result } = await renderHook(() => useMath('pow', base, exponent))
-
-    expect(result.current).toBe(8)
-
-    const num = { current: 4 }
-    const { result: rootResult, rerender: rerenderRoot } = await renderHook(() => useMath('sqrt', num))
-
-    expect(rootResult.current).toBe(2)
-
-    num.current = 16
-    await rerenderRoot()
-    expect(rootResult.current).toBe(4)
+  it('should support other Math methods', () => {
+    expect(useMath('sqrt', 4)).toBe(2)
+    expect(useMath('round', 2.5)).toBe(3)
   })
 
-  it('should accept React refs', async () => {
-    const { result } = await renderHook(() => useMath('pow', useRef(2), useRef(3)))
-
-    expect(result.current).toBe(8)
-
-    const { result: rootResult } = await renderHook(() => useMath('sqrt', useRef(4)))
-
-    expect(rootResult.current).toBe(2)
-  })
-
-  it('accepts controlled state values as arguments', async () => {
+  it('recomputes on the next render when the arguments change', async () => {
     const { result, rerender, act } = await renderHook(() => {
       const [base, setBase] = useState(2)
       const [exponent, setExponent] = useState(3)
-      return {
-        power: useMath('pow', [base, setBase], { value: exponent, onChange: setExponent }),
-        setBase,
-        setExponent,
-      }
+      return { power: useMath('pow', base, exponent), setBase, setExponent }
     })
 
     expect(result.current.power).toBe(8)

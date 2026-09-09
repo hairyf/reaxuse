@@ -1,5 +1,3 @@
-import type { RefOrValue, State } from '@reaxuse/shared'
-import { toValue } from '@reaxuse/shared'
 import { useMemo } from 'react'
 
 export interface UsePrecisionOptions {
@@ -41,16 +39,13 @@ function accurateMultiply(value: number, power: number): number {
  *
  * Adjustment for React: upstream wraps the computation in `computed(() => ...)`
  * and returns a `ComputedRef<number>`; the reaxuse version is a pure derived
- * hook — `value`, `digits` and `options` are resolved (plain values or React
- * refs) at render time and the
- * precision-adjusted number is memoized and returned directly, with no
+ * hook — the plain `value`, `digits` and `options` are read at render time and
+ * the precision-adjusted number is memoized and returned directly, with no
  * effects and no `.value` wrapper (SSR-safe).
  *
- * `value` accepts a React `State<number>` — a plain number, a getter
- * (`() => value`), a React ref (`{ current }`), a `[value, setter]` tuple, or a
- * `{ value, onChange }` pair — while `digits` and `options` stay
- * `RefOrValue` (plain value or React ref) because they are formatting knobs,
- * not the hook's data input.
+ * React divergence: parameters are plain read-only values, not upstream's
+ * `MaybeRefOrGetter<...>`. The caller re-renders with new values (e.g. from
+ * `useState`).
  *
  * @see https://vueuse.org/math/usePrecision/
  *
@@ -67,22 +62,18 @@ function accurateMultiply(value: number, power: number): number {
  *   math: 'floor',
  * }) // 3.141
  *
- * @param value - The value to set the precision of (a React `State<number>`).
- * @param digits - The number of digits to keep (plain value or React ref).
+ * @param value - The value to set the precision of.
+ * @param digits - The number of digits to keep.
  * @param options - The rounding method to use (`round` by default).
  * @returns The value with the applied precision.
  */
 export function usePrecision(
-  value: State<number>,
-  digits: RefOrValue<number>,
-  options?: RefOrValue<UsePrecisionOptions>,
+  value: number,
+  digits: number,
+  options?: UsePrecisionOptions,
 ): number {
-  const _value = toValue(value)
-  const _digits = toValue(digits)
-  const _options = toValue(options)
-
   return useMemo(() => {
-    const power = 10 ** _digits
-    return Math[_options?.math || 'round'](accurateMultiply(_value, power)) / power
-  }, [_value, _digits, _options])
+    const power = 10 ** digits
+    return Math[options?.math || 'round'](accurateMultiply(value, power)) / power
+  }, [value, digits, options])
 }

@@ -9,55 +9,63 @@ describe('usePrecision', () => {
   })
 
   it('should work', async () => {
-    const base = { current: 45.125 }
-    const { result, rerender } = await renderHook(() => usePrecision(base, 2))
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState(45.125)
+      return { precision: usePrecision(value, 2), setValue }
+    })
 
-    expect(result.current).toBe(45.13)
+    expect(result.current.precision).toBe(45.13)
 
-    base.current = -45.155
+    await act(() => result.current.setValue(-45.155))
     await rerender()
-    expect(result.current).toBe(-45.15)
+    expect(result.current.precision).toBe(-45.15)
   })
 
   it('out ceil should work', async () => {
-    const base = { current: 45.125 }
-    const { result, rerender } = await renderHook(() => usePrecision(base, 2, { math: 'ceil' }))
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState(45.125)
+      return { precision: usePrecision(value, 2, { math: 'ceil' }), setValue }
+    })
 
-    expect(result.current).toBe(45.13)
+    expect(result.current.precision).toBe(45.13)
 
-    base.current = -45.151
+    await act(() => result.current.setValue(-45.151))
     await rerender()
-    expect(result.current).toBe(-45.15)
+    expect(result.current.precision).toBe(-45.15)
   })
 
   it('out floor should work', async () => {
-    const base = { current: 45.129 }
-    const { result, rerender } = await renderHook(() => usePrecision(base, 2, { math: 'floor' }))
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState(45.129)
+      return { precision: usePrecision(value, 2, { math: 'floor' }), setValue }
+    })
 
-    expect(result.current).toBe(45.12)
+    expect(result.current.precision).toBe(45.12)
 
-    base.current = -45.159
+    await act(() => result.current.setValue(-45.159))
     await rerender()
-    expect(result.current).toBe(-45.16)
+    expect(result.current.precision).toBe(-45.16)
 
-    base.current = 2.3
+    await act(() => result.current.setValue(2.3))
     await rerender()
-    expect(result.current).toBe(2.3)
+    expect(result.current.precision).toBe(2.3)
 
-    base.current = -2.3
+    await act(() => result.current.setValue(-2.3))
     await rerender()
-    expect(result.current).toBe(-2.3)
+    expect(result.current.precision).toBe(-2.3)
   })
 
   it('out trunc should work', async () => {
-    const base = { current: 45.129 }
-    const { result, rerender } = await renderHook(() => usePrecision(base, 2, { math: 'trunc' }))
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState(45.129)
+      return { precision: usePrecision(value, 2, { math: 'trunc' }), setValue }
+    })
 
-    expect(result.current).toBe(45.12)
+    expect(result.current.precision).toBe(45.12)
 
-    base.current = -45.159
+    await act(() => result.current.setValue(-45.159))
     await rerender()
-    expect(result.current).toBe(-45.15)
+    expect(result.current.precision).toBe(-45.15)
   })
 
   it('should accept plain values', async () => {
@@ -66,10 +74,11 @@ describe('usePrecision', () => {
     expect(result.current).toBe(3.14)
   })
 
-  it('accepts a controlled state tuple as the value', async () => {
+  it('recomputes on the next render when value or digits change', async () => {
     const { result, rerender, act } = await renderHook(() => {
       const [value, setValue] = useState(45.125)
-      return { precision: usePrecision([value, setValue], 2), setValue }
+      const [digits, setDigits] = useState(2)
+      return { precision: usePrecision(value, digits), setValue, setDigits }
     })
 
     expect(result.current.precision).toBe(45.13)
@@ -77,18 +86,9 @@ describe('usePrecision', () => {
     await act(() => result.current.setValue(-45.155))
     await rerender()
     expect(result.current.precision).toBe(-45.15)
-  })
 
-  it('accepts a value/onChange pair as the value', async () => {
-    const { result, rerender, act } = await renderHook(() => {
-      const [value, setValue] = useState(45.125)
-      return { precision: usePrecision({ value, onChange: setValue }, 2), setValue }
-    })
-
-    expect(result.current.precision).toBe(45.13)
-
-    await act(() => result.current.setValue(-45.155))
+    await act(() => result.current.setDigits(1))
     await rerender()
-    expect(result.current.precision).toBe(-45.15)
+    expect(result.current.precision).toBe(-45.2)
   })
 })

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useProjection } from '../useProjection'
@@ -9,53 +9,22 @@ describe('useProjection', () => {
   })
 
   it('returns a plain number (no reactive .value)', async () => {
-    const { result } = await renderHook(() => useProjection({ current: 5 }, [0, 10], [0, 100]))
+    const { result } = await renderHook(() => useProjection(5, [0, 10], [0, 100]))
 
     expect(typeof result.current).toBe('number')
     expect(result.current).toBe(50)
   })
 
-  it('projects correctly', async () => {
-    const first = await renderHook(() => useProjection(5, [0, 10], [0, 100]))
-    expect(first.result.current).toBe(50)
-
-    const second = await renderHook(() => useProjection(3, [0, 10], [0, 100]))
-    expect(second.result.current).toBe(30)
-
-    const third = await renderHook(() => useProjection(4, [0, 44], [0, 132]))
-    expect(third.result.current).toBe(12)
+  it('projects correctly', () => {
+    expect(useProjection(5, [0, 10], [0, 100])).toBe(50)
+    expect(useProjection(3, [0, 10], [0, 100])).toBe(30)
+    expect(useProjection(4, [0, 44], [0, 132])).toBe(12)
   })
 
   it('recomputes on the next render when the input changes', async () => {
-    const input = { current: 5 }
-    const { result, rerender } = await renderHook(() => useProjection(input, [0, 10], [0, 100]))
-
-    expect(result.current).toBe(50)
-
-    input.current = 8
-    await rerender()
-    expect(result.current).toBe(80)
-
-    input.current = 2.3
-    await rerender()
-    expect(result.current).toBe(23)
-  })
-
-  it('works with plain values', async () => {
-    const { result } = await renderHook(() => useProjection(5, [0, 10], [0, 100]))
-    expect(result.current).toBe(50)
-
-    const second = await renderHook(() => useProjection(3, [0, 10], [0, 100]))
-    expect(second.result.current).toBe(30)
-
-    const third = await renderHook(() => useProjection(4, [0, 44], [0, 132]))
-    expect(third.result.current).toBe(12)
-  })
-
-  it('accepts a controlled state tuple as the input', async () => {
     const { result, rerender, act } = await renderHook(() => {
       const [input, setInput] = useState(5)
-      return { projected: useProjection([input, setInput], [0, 10], [0, 100]), setInput }
+      return { projected: useProjection(input, [0, 10], [0, 100]), setInput }
     })
 
     expect(result.current.projected).toBe(50)
@@ -65,16 +34,22 @@ describe('useProjection', () => {
     expect(result.current.projected).toBe(80)
   })
 
-  it('accepts a value/onChange pair as the input', async () => {
+  it('accepts React refs for the domains', async () => {
     const { result, rerender, act } = await renderHook(() => {
       const [input, setInput] = useState(5)
-      return { projected: useProjection({ value: input, onChange: setInput }, [0, 10], [0, 100]), setInput }
+      const from = useRef<readonly [number, number]>([0, 10])
+      const to = useRef<readonly [number, number]>([0, 100])
+      return { projected: useProjection(input, from, to), setInput, from, to }
     })
 
     expect(result.current.projected).toBe(50)
 
-    await act(() => result.current.setInput(8))
+    await act(() => {
+      result.current.from.current = [0, 20]
+      result.current.to.current = [0, 200]
+    })
+    await act(() => result.current.setInput(10))
     await rerender()
-    expect(result.current.projected).toBe(80)
+    expect(result.current.projected).toBe(100)
   })
 })

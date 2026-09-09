@@ -11,25 +11,18 @@ Reactive `Math.floor`
 ```tsx
 import { useFloor } from '@reaxuse/math'
 
-const value = { current: 45.95 }
-const result = useFloor(value) // 45
-
-value.current = -45.05 // result === -46 on the next render
+const result = useFloor(45.95) // 45
 ```
 
-## Value Forms
-
-`value` accepts a React `State<number>` and every form is resolved through `toValue`:
+`value` is a plain read-only `number` (upstream takes `MaybeRefOrGetter<number>`). Re-render with a
+new value — e.g. from `useState` — and the hook recomputes:
 
 ```tsx
 import { useFloor } from '@reaxuse/math'
+import { useState } from 'react'
 
-useFloor(45.95) // plain number
-useFloor(() => 45.95) // getter
-useFloor({ current: 45.95 }) // React ref (`{ current }`)
-useFloor([45.95, setValue]) // state tuple
-useFloor({ value: 45.95, onChange: setValue }) // value/onChange pair
+const [value, setValue] = useState(45.95)
+const result = useFloor(value) // 45
+
+setValue(-45.05) // triggers a re-render
 ```
-
-The `[value, setter]` tuple and `{ value, onChange }` pair are the React state protocol and have no
-upstream equivalent (upstream takes `MaybeRefOrGetter<number>` — `number | Ref<number> | (() => number)`).

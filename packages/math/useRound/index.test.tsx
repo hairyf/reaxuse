@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useRound } from '../useRound'
@@ -8,22 +8,10 @@ describe('useRound', () => {
     expect(useRound).toBeDefined()
   })
 
-  it('should work (mirrors upstream)', async () => {
-    const base = { current: 20.49 }
-    const { result, rerender } = await renderHook(() => useRound(base))
-
-    expect(result.current).toBe(20)
-
-    base.current = -20.51
-    await rerender()
-    expect(result.current).toBe(-21)
-  })
-
-  it('returns a plain number (no reactive .value)', async () => {
-    const { result } = await renderHook(() => useRound(20.49))
-
-    expect(typeof result.current).toBe('number')
-    expect(result.current).toBe(20)
+  it('should work (mirrors upstream)', () => {
+    expect(useRound(20.49)).toBe(20)
+    expect(useRound(-20.51)).toBe(-21)
+    expect(useRound(7)).toBe(7)
   })
 
   it('accepts plain number values', async () => {
@@ -37,36 +25,17 @@ describe('useRound', () => {
     expect(third.result.current).toBe(7)
   })
 
-  it('recomputes on the next render when the input changes', async () => {
-    const input = { current: 20.49 }
-    const { result, rerender } = await renderHook(() => useRound(input))
+  it('returns a plain number (no reactive .value)', async () => {
+    const { result } = await renderHook(() => useRound(20.49))
 
+    expect(typeof result.current).toBe('number')
     expect(result.current).toBe(20)
-
-    input.current = -20.51
-    await rerender()
-    expect(result.current).toBe(-21)
-
-    input.current = 2.3
-    await rerender()
-    expect(result.current).toBe(2)
   })
 
-  it('works with React refs', async () => {
-    const first = await renderHook(() => useRound(useRef(20.49)))
-    expect(first.result.current).toBe(20)
-
-    const second = await renderHook(() => useRound(useRef(-20.51)))
-    expect(second.result.current).toBe(-21)
-
-    const third = await renderHook(() => useRound(useRef(3.1415)))
-    expect(third.result.current).toBe(3)
-  })
-
-  it('accepts a controlled state tuple', async () => {
+  it('recomputes on the next render when the value changes', async () => {
     const { result, rerender, act } = await renderHook(() => {
       const [value, setValue] = useState(20.49)
-      return { round: useRound([value, setValue]), setValue }
+      return { round: useRound(value), setValue }
     })
 
     expect(result.current.round).toBe(20)
@@ -74,18 +43,9 @@ describe('useRound', () => {
     await act(() => result.current.setValue(-20.51))
     await rerender()
     expect(result.current.round).toBe(-21)
-  })
 
-  it('accepts a value/onChange pair', async () => {
-    const { result, rerender, act } = await renderHook(() => {
-      const [value, setValue] = useState(20.49)
-      return { round: useRound({ value, onChange: setValue }), setValue }
-    })
-
-    expect(result.current.round).toBe(20)
-
-    await act(() => result.current.setValue(-20.51))
+    await act(() => result.current.setValue(2.3))
     await rerender()
-    expect(result.current.round).toBe(-21)
+    expect(result.current.round).toBe(2)
   })
 })
