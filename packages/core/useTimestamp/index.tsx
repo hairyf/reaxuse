@@ -50,6 +50,9 @@ export type UseTimestampReturn<Controls extends boolean> = Controls extends true
  * - the rAF loop is inlined in a `useEffect` and cancelled with
  *   `cancelAnimationFrame` on unmount — SSR-safe, since effects never run
  *   on the server;
+ * - `offset` is read once, on the first render (upstream captures it at
+ *   setup, `index.ts:50-52`) — a later change to the option does not
+ *   cancel/restart the rAF loop;
  * - upstream's `scheduler` option (`ConfigurableScheduler`, backed by Vue
  *   composables like `useRafFn`/`useIntervalFn`) has no React equivalent
  *   and is not ported — the rAF loop is the fixed driver.
@@ -66,7 +69,11 @@ export function useTimestamp(options: UseTimestampOptions<boolean> = {}): UseTim
     callback,
   } = options
 
-  const [timestamp, setTimestamp] = useState(() => Date.now() + offset)
+  // upstream reads `offset` once at setup — freeze it on the first render so
+  // a later change to the option does not restart the loop
+  const offsetRef = useRef(offset)
+
+  const [timestamp, setTimestamp] = useState(() => Date.now() + offsetRef.current)
   const [isActive, setIsActive] = useState(true)
 
   const callbackRef = useRef(callback)
@@ -81,7 +88,7 @@ export function useTimestamp(options: UseTimestampOptions<boolean> = {}): UseTim
     let rafId: number
 
     function tick() {
-      const value = Date.now() + offset
+      const value = Date.now() + offsetRef.current
       setTimestamp(value)
       callbackRef.current?.(value)
       rafId = requestAnimationFrame(tick)
@@ -92,7 +99,7 @@ export function useTimestamp(options: UseTimestampOptions<boolean> = {}): UseTim
     return () => {
       cancelAnimationFrame(rafId)
     }
-  }, [isActive, offset])
+  }, [isActive])
 
   const pause = useCallback(() => setIsActive(false), [])
   const resume = useCallback(() => setIsActive(true), [])

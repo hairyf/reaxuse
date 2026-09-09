@@ -69,6 +69,39 @@ it('useTimestamp controls pause and resume the updates', async () => {
     .toBeGreaterThan(frozen)
 })
 
+it('useTimestamp resume() restarts a frozen timestamp (delayed start)', async () => {
+  // React equivalent of upstream's delayed-start scheduler tests: the loop
+  // stays frozen while paused, and `resume()` restarts both the value and
+  // the callback
+  const calls: number[] = []
+  const { result, act } = await renderHook(() => useTimestamp({
+    controls: true,
+    callback: (ts) => {
+      calls.push(ts)
+    },
+  }))
+  await expect
+    .poll(() => calls.length, { interval: 50, timeout: 2000 })
+    .toBeGreaterThan(0)
+
+  await act(async () => {
+    result.current.pause()
+  })
+  const frozen = result.current.timestamp
+  const callsAtPause = calls.length
+  await new Promise(resolve => setTimeout(resolve, 150))
+  expect(result.current.timestamp).toBe(frozen)
+  expect(calls.length).toBe(callsAtPause)
+
+  await act(async () => {
+    result.current.resume()
+  })
+  await expect
+    .poll(() => result.current.timestamp, { interval: 50, timeout: 2000 })
+    .toBeGreaterThan(frozen)
+  expect(calls.length).toBeGreaterThan(callsAtPause)
+})
+
 it('useTimestamp stops updating after unmount', async () => {
   const { result, unmount } = await renderHook(() => useTimestamp())
   const value = result.current
