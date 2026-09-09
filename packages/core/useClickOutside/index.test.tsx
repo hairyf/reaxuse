@@ -1,6 +1,7 @@
+import type { UseClickOutsideControls } from '../useClickOutside'
 import { useRef, useState } from 'react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { render } from 'vitest-browser-react'
+import { beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
+import { render, renderHook } from 'vitest-browser-react'
 import { userEvent } from 'vitest/browser'
 import { useClickOutside } from '../useClickOutside'
 
@@ -151,5 +152,76 @@ describe('useClickOutside', () => {
     expect(consoleSpy).not.toHaveBeenCalled()
     await userEvent.click(other)
     expect(consoleSpy).toHaveBeenCalled()
+  })
+
+  it('supports the controls option (stop / cancel / trigger)', async () => {
+    const handler = vi.fn()
+    const controlsBox: { current?: UseClickOutsideControls } = {}
+
+    function ControlsComponent() {
+      const target = useRef<HTMLDivElement>(null)
+      controlsBox.current = useClickOutside(target, handler, { controls: true })
+      return (
+        <div>
+          <div ref={target}>Inside</div>
+          <div>Outside</div>
+        </div>
+      )
+    }
+
+    const screen = await render(<ControlsComponent />)
+    const outside = screen.getByText('Outside')
+    await expect.element(outside).toBeInTheDocument()
+
+    // a real outside click still fires the handler with controls enabled
+    await userEvent.click(outside)
+    await vi.waitFor(() => expect(handler).toHaveBeenCalledOnce())
+
+    // the hook only processes one click per tick (upstream `isProcessingClick`
+    // guard), so every synthetic click below is followed by a timer flush
+    const clickOutside = async () => {
+      outside.element().dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }))
+      await new Promise(resolve => setTimeout(resolve, 0))
+    }
+
+    // `cancel()` suppresses the next click that reaches the handler…
+    controlsBox.current!.cancel()
+    await clickOutside()
+    expect(handler).toHaveBeenCalledOnce()
+
+    // …and is one-shot: the following click fires again
+    await clickOutside()
+    expect(handler).toHaveBeenCalledTimes(2)
+
+    // `trigger(event)` force-fires the handler
+    const event = new Event('click')
+    Object.defineProperty(event, 'target', { value: outside.element() })
+    controlsBox.current!.trigger(event)
+    expect(handler).toHaveBeenCalledTimes(3)
+
+    // upstream `trigger` leaves the listener cancelled again
+    await clickOutside()
+    expect(handler).toHaveBeenCalledTimes(3)
+
+    // `stop()` removes every listener
+    controlsBox.current!.stop()
+    await clickOutside()
+    expect(handler).toHaveBeenCalledTimes(3)
+  })
+
+  it('types: returns the stop function by default and the controls object with controls', async () => {
+    const target = { current: null as Element | null }
+    const handler = () => {}
+
+    const { result: stopResult } = await renderHook(() => useClickOutside(target, handler))
+    expectTypeOf(stopResult.current).toEqualTypeOf<() => void>()
+
+    const { result: controlsResult } = await renderHook(() =>
+      useClickOutside(target, handler, { controls: true }),
+    )
+    expectTypeOf(controlsResult.current).toEqualTypeOf<UseClickOutsideControls>()
+    expectTypeOf(controlsResult.current.stop).toEqualTypeOf<() => void>()
+    expectTypeOf(controlsResult.current.cancel).toEqualTypeOf<() => void>()
+    expectTypeOf(controlsResult.current.trigger).toEqualTypeOf<(event: Event) => void>()
   })
 })

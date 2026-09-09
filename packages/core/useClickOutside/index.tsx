@@ -3,7 +3,7 @@ import { isIOS, noop, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef } from 'react'
 import { useEventListener } from '../useEventListener'
 
-export interface UseClickOutsideOptions extends ConfigurableWindow {
+export interface UseClickOutsideOptions<Controls extends boolean = false> extends ConfigurableWindow {
   /**
    * List of elements that should not trigger the event,
    * provided as elements (plain elements or ref-like `{ current }` objects)
@@ -22,9 +22,37 @@ export interface UseClickOutsideOptions extends ConfigurableWindow {
    * @default false
    */
   detectIframe?: boolean
+  /**
+   * Expose more controls. When `true` the return is a
+   * `{ stop, cancel, trigger }` object instead of a single stop function:
+   * `cancel()` suppresses the next click and `trigger(event)` force-fires the
+   * handler.
+   *
+   * @default false
+   */
+  controls?: Controls
 }
 
 export type UseClickOutsideHandler = (event: PointerEvent | FocusEvent) => void
+
+export interface UseClickOutsideControls {
+  /**
+   * Remove all registered event listeners.
+   */
+  stop: () => void
+  /**
+   * Suppress the next click that reaches the handler.
+   */
+  cancel: () => void
+  /**
+   * Force-fire the handler with the given event.
+   */
+  trigger: (event: Event) => void
+}
+
+export type UseClickOutsideReturn<Controls extends boolean = false> = Controls extends true
+  ? UseClickOutsideControls
+  : () => void
 
 let _iOSWorkaround = false
 
@@ -46,9 +74,11 @@ let _iOSWorkaround = false
  *   are removed on unmount;
  * - the target resolves through `toValue` — a plain element or a ref-like
  *   `{ current }` object (e.g. a `useRef`) are both accepted;
- * - the `controls` option is dropped, so the return is always a single stop
- *   function (`() => void`) that removes all registered listeners (upstream
- *   also returns a `{ stop, cancel, trigger }` controls object);
+ * - the return is a single stop function (`() => void`) by default; with
+ *   `controls: true` it is upstream's `{ stop, cancel, trigger }` object —
+ *   `cancel()` suppresses the next click, `trigger(event)` force-fires the
+ *   handler (and re-arms cancellation afterwards) and `stop()` removes every
+ *   registered listener. All three are stable across renders;
  * - the target/handler/options are read through latest-value refs, so new
  *   inline targets or handlers never cause re-subscription — only changes to
  *   the resolved window, `capture` or the bound event options re-bind;
@@ -65,17 +95,34 @@ let _iOSWorkaround = false
  *
  * const stop = useClickOutside(target, handler)
  * stop()
+ *
+ * const { cancel, trigger } = useClickOutside(target, handler, { controls: true })
+ * cancel()
+ * trigger(event)
  */
 export function useClickOutside<T extends UseClickOutsideOptions>(
   target: RefOrValue<Element | null | undefined>,
   handler: UseClickOutsideHandler,
-  options: T = {} as T,
-): () => void {
+  options?: T,
+): () => void
+
+export function useClickOutside(
+  target: RefOrValue<Element | null | undefined>,
+  handler: UseClickOutsideHandler,
+  options: UseClickOutsideOptions<true>,
+): UseClickOutsideControls
+
+export function useClickOutside(
+  target: RefOrValue<Element | null | undefined>,
+  handler: UseClickOutsideHandler,
+  options: UseClickOutsideOptions<boolean> = {},
+): UseClickOutsideReturn<boolean> {
   const {
     window: customWindow,
     ignore = [],
     capture = true,
     detectIframe = false,
+    controls = false,
   } = options
 
   const defaultWindow = typeof window === 'undefined' ? undefined : window
@@ -87,12 +134,12 @@ export function useClickOutside<T extends UseClickOutsideOptions>(
   const handlerRef = useRef(handler)
   const ignoreRef = useRef(ignore)
   const winRef = useRef(win)
-  const boolRef = useRef({ capture, detectIframe })
+  const boolRef = useRef({ detectIframe })
   targetRef.current = target
   handlerRef.current = handler
   ignoreRef.current = ignore
   winRef.current = win
-  boolRef.current = { capture, detectIframe }
+  boolRef.current = { detectIframe }
 
   const shouldListenRef = useRef(true)
   const isProcessingClickRef = useRef(false)
@@ -112,7 +159,7 @@ export function useClickOutside<T extends UseClickOutsideOptions>(
     currentWindow.document.documentElement.addEventListener('click', noop, listenerOptions)
   }, [])
 
-  const shouldIgnore = (event: Event): boolean => {
+  const shouldIgnore = useCallback((event: Event): boolean => {
     const currentWindow = winRef.current
     if (!currentWindow)
       return false
@@ -124,9 +171,9 @@ export function useClickOutside<T extends UseClickOutsideOptions>(
       const el = toValue(item) as Element | null | undefined
       return !!el && (event.target === el || event.composedPath().includes(el))
     })
-  }
+  }, [])
 
-  const listener = (event: Event): void => {
+  const listener = useCallback((event: Event): void => {
     const el = toValue(targetRef.current) as Element | null | undefined
 
     if (event.target == null)
@@ -146,7 +193,7 @@ export function useClickOutside<T extends UseClickOutsideOptions>(
     }
 
     handlerRef.current(event as PointerEvent | FocusEvent)
-  }
+  }, [shouldIgnore])
 
   const stopClick = useEventListener(
     win,
@@ -200,9 +247,28 @@ export function useClickOutside<T extends UseClickOutsideOptions>(
     { passive: true },
   )
 
-  return useCallback(() => {
+  const cancel = useCallback(() => {
+    shouldListenRef.current = false
+  }, [])
+
+  const trigger = useCallback((event: Event) => {
+    shouldListenRef.current = true
+    listener(event)
+    shouldListenRef.current = false
+  }, [listener])
+
+  const stop = useCallback(() => {
     stopClick?.()
     stopPointerDown?.()
     stopBlur?.()
   }, [stopClick, stopPointerDown, stopBlur])
+
+  if (controls) {
+    // upstream returns noops for every control when there is no window
+    if (!win)
+      return { stop: noop, cancel: noop, trigger: noop }
+    return { stop, cancel, trigger }
+  }
+
+  return stop
 }
