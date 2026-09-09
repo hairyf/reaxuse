@@ -233,7 +233,9 @@ describe('useDebounceFn', () => {
       vi.advanceTimersByTime(100)
     })
     expect(calls).toEqual([4])
-    expect(await pending).toBe(4)
+    // upstream maxWait settles the pending promise via `lastRejector` —
+    // undefined (or a rejection with rejectOnCancel), not the fn result
+    expect(await pending).toBe(undefined)
     expect(result.current.isPending).toBe(false)
   })
 
@@ -256,6 +258,38 @@ describe('useDebounceFn', () => {
       vi.advanceTimersByTime(1000)
     })
     expect(calls).toEqual([])
+  })
+
+  it('rejects a superseded call with rejectOnCancel', async () => {
+    const { result, act } = await renderHook(() =>
+      useDebounceFn((a: number, b: number) => a + b, 500, { rejectOnCancel: true }))
+
+    let first!: Promise<unknown>
+    let second!: Promise<unknown>
+    await act(async () => {
+      first = result.current(2, 3)
+      vi.advanceTimersByTime(200)
+      second = result.current(4, 5)
+    })
+    await act(async () => {
+      vi.advanceTimersByTime(500)
+    })
+    // the superseded call settles with a rejection, the trailing one resolves
+    await expect(first).rejects.toBeUndefined()
+    await expect(second).resolves.toBe(9)
+  })
+
+  it('rejects instead of throwing synchronously when ms is 0 and the fn throws', async () => {
+    let outcome!: string
+    const { result, act } = await renderHook(() =>
+      useDebounceFn(() => {
+        throw new Error('boom')
+      }, 0))
+
+    await act(async () => {
+      outcome = await result.current().then(() => 'resolved', (error: Error) => `rejected:${error.message}`)
+    })
+    expect(outcome).toBe('rejected:boom')
   })
 
   it('invokes immediately when ms is 0', async () => {
