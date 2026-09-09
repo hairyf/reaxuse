@@ -13,10 +13,12 @@ type ElementSource = HTMLElement | SVGElement | null | undefined
  *
  * Mapping: upstream returns a read-only `ShallowRef` set on mount and re-set
  * by `watch(() => toValue(element))` whenever the source element changes →
- * `useState` + a `useEffect` keyed on the unwrapped element identity. The
- * Vue ref return becomes a plain value (no `.value`). The source accepts a
- * plain element or a React ref (upstream:
- * `RefOrValue<HTMLElement | SVGElement | null | undefined>`).
+ * `useState` + a `useEffect` that re-resolves the source after every commit.
+ * The source must be read post-commit: React attaches a ref's `.current` in
+ * the commit phase (after render), so resolving it while rendering returns
+ * `null` for the canonical `useRef(null)` usage. The Vue ref return becomes a
+ * plain value (no `.value`). The source accepts a plain element or a React
+ * ref (upstream: `RefOrValue<HTMLElement | SVGElement | null | undefined>`).
  *
  * Divergences from upstream (Vue reactivity does not translate 1:1):
  *
@@ -28,9 +30,9 @@ type ElementSource = HTMLElement | SVGElement | null | undefined
  *    the previously captured parent instead of resetting it.
  * 3. SSR-safe: the parent is captured in an effect, so no DOM is accessed
  *    while rendering and the value stays `undefined` on the server.
- * 4. Mutating a ref's `.current` does not re-render in React — re-render
- *    (e.g. with your own state) for the new element to be re-captured,
- *    mirroring upstream's `watch` re-firing on ref change.
+ * 4. Mutating a ref's `.current` does not re-render in React — the next commit
+ *    picks the new element up (mirroring upstream's `watch` re-firing on ref
+ *    change), and a commit-time attach is captured without any extra render.
  *
  * @example
  * const childRef = useRef<HTMLDivElement>(null)
@@ -42,15 +44,20 @@ type ElementSource = HTMLElement | SVGElement | null | undefined
 export function useParentElement(
   element?: ElementSource | Ref<ElementSource>,
 ): ElementSource {
-  const el = toValue(element)
   const [parentElement, setParentElement] = useState<ElementSource>()
 
+  // No dependency array on purpose: re-resolve the source after *every*
+  // commit, which is the React equivalent of upstream's
+  // `tryOnMounted(update)` + `watch(() => toValue(element), update)`. This is
+  // what makes a ref attached during the commit phase visible (see mapping
+  // note above) and what re-captures a late-attached element.
   useEffect(() => {
+    const el = toValue(element)
     // mirrors upstream's `if (el)` guard: a null/undefined element keeps the
     // previously captured parent instead of resetting it
     if (el)
       setParentElement(el.parentElement)
-  }, [el])
+  })
 
   return parentElement
 }

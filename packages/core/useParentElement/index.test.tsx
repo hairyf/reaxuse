@@ -1,5 +1,6 @@
+import { useRef, useState } from 'react'
 import { expect, it } from 'vitest'
-import { renderHook } from 'vitest-browser-react'
+import { render, renderHook } from 'vitest-browser-react'
 import { useParentElement } from '../useParentElement'
 
 function attach(parent: Element, child: Element): () => void {
@@ -37,6 +38,48 @@ it('useParentElement accepts a ref-like { current } source', async () => {
   finally {
     cleanup()
   }
+})
+
+it('useParentElement captures an element attached by a ref during commit (canonical useRef usage)', async () => {
+  function Probe() {
+    const childRef = useRef<HTMLDivElement>(null)
+    const parent = useParentElement(childRef)
+
+    return (
+      <div id="canonical-parent">
+        <div ref={childRef} />
+        <span data-testid="result">{parent ? parent.id : 'none'}</span>
+      </div>
+    )
+  }
+
+  const screen = await render(<Probe />)
+
+  await expect.element(screen.getByTestId('result')).toHaveTextContent('canonical-parent')
+})
+
+it('useParentElement captures an element attached after mount (late attach)', async () => {
+  function Probe() {
+    const childRef = useRef<HTMLDivElement>(null)
+    const [mounted, setMounted] = useState(false)
+    const parent = useParentElement(childRef)
+
+    return (
+      <div id="late-parent">
+        <button type="button" onClick={() => setMounted(true)}>mount child</button>
+        {mounted ? <div ref={childRef} /> : null}
+        <span data-testid="result">{parent ? parent.id : 'none'}</span>
+      </div>
+    )
+  }
+
+  const screen = await render(<Probe />)
+
+  await expect.element(screen.getByTestId('result')).toHaveTextContent('none')
+
+  await screen.getByRole('button', { name: 'mount child' }).click()
+
+  await expect.element(screen.getByTestId('result')).toHaveTextContent('late-parent')
 })
 
 it('useParentElement accepts a plain element source', async () => {
