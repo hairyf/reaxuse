@@ -12,10 +12,46 @@ Reactive swipe detection based on [`TouchEvents`](https://developer.mozilla.org/
 import { useSwipe } from '@reaxuse/core'
 import { useRef } from 'react'
 
-const el = useRef<HTMLDivElement>(null)
-const { isSwiping, direction, lengthX, lengthY } = useSwipe(el, {
-  threshold: 50,
-  onSwipeEnd: (e, direction) => console.log(direction),
-})
-// direction: 'up' | 'down' | 'left' | 'right' | 'none'
+function Demo() {
+  const el = useRef<HTMLDivElement>(null)
+  const { isSwiping, direction } = useSwipe(el)
+
+  return (
+    <div ref={el}>
+      Swipe here
+    </div>
+  )
+}
 ```
+
+`target` accepts the element itself or a ref-like `{ current }` object — bind it to the element you
+want to listen on (a `useRef` that is not attached to any node listens to nothing). The resolved
+element is re-read after every commit, so a ref that is still `null` while rendering binds as soon
+as React attaches the element.
+
+## Options
+
+- `passive` (`boolean`, default `true`): register the touch listeners as passive. When `false`, the
+  listeners are registered with `capture: true` and a horizontal `touchmove` calls `preventDefault()`.
+- `threshold` (`number`, default `50`): minimum `max(|dx|, |dy|)` in pixels before a touch counts as
+  a swipe.
+- `onSwipeStart` (`(e: TouchEvent) => void`): called on `touchstart` with a single touch point.
+- `onSwipe` (`(e: TouchEvent) => void`): called on `touchmove` while a swipe is in progress.
+- `onSwipeEnd` (`(e: TouchEvent, direction: UseSwipeDirection) => void`): called on `touchend` /
+  `touchcancel` once the threshold was crossed, with the final direction.
+
+## Return Values
+
+- `isSwiping` (`boolean`): whether a swipe is currently in progress.
+- `direction` (`'up' | 'down' | 'left' | 'right' | 'none'`): swipe direction derived from the start
+  and end coordinates; `'none'` below the threshold.
+- `coordsStart` / `coordsEnd` (`{ x: number, y: number }`): start and last touch coordinates.
+- `lengthX` / `lengthY` (`number`): `coordsStart.x - coordsEnd.x` / `coordsStart.y - coordsEnd.y`.
+- `stop` (`() => void`): permanently detach the listeners for this hook instance.
+
+## React divergences
+
+The Vue return object (`isSwiping` ref, `direction` / `lengthX` / `lengthY` computeds, reactive
+coords) becomes plain values backed by state. React refs are not reactive like Vue's, so a
+`ref.current` write that triggers no re-render cannot be observed — re-render (for example through
+state) after mutating the ref to re-bind the listeners.
