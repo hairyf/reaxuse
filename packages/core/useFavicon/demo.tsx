@@ -1,10 +1,7 @@
 import { useFavicon } from '@reaxuse/core'
-import { useState } from 'react'
 
 export default function UseFaviconDemo() {
-  const [url, setUrl] = useState('favicon-32x32.png')
-
-  useFavicon(url, {
+  const [, setIcon] = useFavicon('favicon-32x32.png', {
     baseUrl: '/',
     rel: 'icon',
   })
@@ -14,10 +11,10 @@ export default function UseFaviconDemo() {
       <div>
         Change favicon to
       </div>
-      <button onClick={() => setUrl('vue.png')}>
+      <button onClick={() => setIcon('vue.png')}>
         Vue
       </button>
-      <button onClick={() => setUrl('favicon-32x32.png')}>
+      <button onClick={() => setIcon('favicon-32x32.png')}>
         VueUse
       </button>
     </div>
