@@ -1,5 +1,6 @@
 ---
 category: Sensors
+variants: useKeyDown, useKeyUp, useKeyPressed
 ---
 
 # useKeyStroke
@@ -94,3 +95,15 @@ useKeyStroke('Shift', (e) => {
   console.log('Shift key up')
 }, { eventName: 'keyup' })
 ```
+
+Or
+
+```tsx
+useKeyUp('Shift', () => console.log('Shift key up'))
+```
+
+## Shorthands
+
+- `useKeyDown` - alias for `useKeyStroke(key, handler, {eventName: 'keydown'})`
+- `useKeyPressed` - alias for `useKeyStroke(key, handler, {eventName: 'keypress'})`
+- `useKeyUp` - alias for `useKeyStroke(key, handler, {eventName: 'keyup'})`
