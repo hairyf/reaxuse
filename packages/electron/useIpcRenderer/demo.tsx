@@ -64,6 +64,7 @@ export default function UseIpcRendererDemo() {
   const demo = useMemo(() => createDemoIpcRenderer(), [])
   const [logs, setLogs] = useState<string[]>([])
   const [invoked, setInvoked] = useState('—')
+  const [registered, setRegistered] = useState(false)
 
   const log = useCallback((line: string) => setLogs(lines => [...lines, line]), [])
 
@@ -77,9 +78,15 @@ export default function UseIpcRendererDemo() {
   return (
     <div>
       <button
+        disabled={registered}
         onClick={() => {
-          ipcRenderer.on('custom-event', onCustomEvent)
-          log('registered custom-event listener (auto-removed on unmount)')
+          // guard against double registration — clicking twice must not stack
+          // two listeners for the same channel
+          if (!registered) {
+            ipcRenderer.on('custom-event', onCustomEvent)
+            setRegistered(true)
+            log('registered custom-event listener (auto-removed on unmount)')
+          }
         }}
       >
         Register listener
