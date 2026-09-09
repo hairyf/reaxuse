@@ -8,10 +8,12 @@ const ANOTHER_KEY = 'another-key'
 describe('useSessionStorage', () => {
   beforeEach(() => {
     sessionStorage.clear()
+    localStorage.clear()
   })
 
   afterEach(() => {
     sessionStorage.clear()
+    localStorage.clear()
   })
 
   it('persists the initial value to empty storage on mount', async () => {
@@ -349,5 +351,32 @@ describe('useSessionStorage', () => {
       window.dispatchEvent(new StorageEvent('storage', { storageArea: sessionStorage, key: KEY, newValue: '9' }))
     })
     expect(result.current[0]).toBe(0)
+  })
+
+  it('delegates to useStorage bound to sessionStorage, leaving localStorage untouched', async () => {
+    const { result, act } = await renderHook(() => useSessionStorage(KEY, 'a'))
+
+    expect(result.current[0]).toBe('a')
+    expect(sessionStorage.getItem(KEY)).toBe('a')
+    expect(localStorage.getItem(KEY)).toBeNull()
+
+    await act(() => {
+      result.current[1]('b')
+    })
+    expect(result.current[0]).toBe('b')
+    expect(sessionStorage.getItem(KEY)).toBe('b')
+    expect(localStorage.getItem(KEY)).toBeNull()
+  })
+
+  it('falls back to in-memory state when no storage is available', async () => {
+    const { result, act } = await renderHook(() => useSessionStorage(KEY, 'a', { window: {} as Window }))
+
+    expect(result.current[0]).toBe('a')
+
+    await act(() => {
+      result.current[1]('b')
+    })
+    expect(result.current[0]).toBe('b')
+    expect(sessionStorage.getItem(KEY)).toBeNull()
   })
 })
