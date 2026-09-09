@@ -1,4 +1,5 @@
 import type { ConfigurableWindow } from '@reaxuse/shared'
+import type { Dispatch, SetStateAction } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -80,6 +81,14 @@ export interface UseSpeechRecognitionOptions extends ConfigurableWindow {
 export interface UseSpeechRecognitionReturn {
   isSupported: boolean
   isListening: boolean
+  /**
+   * Setter for `isListening` — the React mapping of upstream's writable
+   * `isListening` ref. Takes a plain value or a functional updater (like a
+   * React `useState` setter, `prev => next`). `setIsListening(true)` starts
+   * the recognition instance, `false` stops it — the same effect as
+   * `start()` / `stop()`.
+   */
+  setIsListening: Dispatch<SetStateAction<boolean>>
   isFinal: boolean
   /**
    * The underlying SpeechRecognition instance — created once during the
@@ -94,6 +103,12 @@ export interface UseSpeechRecognitionReturn {
    */
   confidence: number
   error: SpeechRecognitionErrorEvent | Error | undefined
+  /**
+   * Setter for `error` — the React mapping of upstream's writable `error`
+   * ref. Takes a plain value or a functional updater (like a React
+   * `useState` setter, `prev => next`).
+   */
+  setError: Dispatch<SetStateAction<SpeechRecognitionErrorEvent | Error | undefined>>
   toggle: (value?: boolean) => void
   start: () => void
   stop: () => void
@@ -114,9 +129,12 @@ function getDefaultWindow(): Window | undefined {
  * React divergences:
  *
  * 1. The Vue refs (`isListening`, `isFinal`, `result`, `confidence`,
- *    `error`) become plain state values; `recognition` is the stable
- *    underlying instance, created during the first render when the API is
- *    available (upstream creates it eagerly in setup).
+ *    `error`) become plain state values; upstream's writable refs are paired
+ *    with their setters (`isListening` → `setIsListening`, `error` →
+ *    `setError`) while the read-only ones (`isFinal`, `result`,
+ *    `confidence`) stay read-only; `recognition` is the stable underlying
+ *    instance, created during the first render when the API is available
+ *    (upstream creates it eagerly in setup).
  * 2. `start()` / `stop()` / `toggle()` are stable callbacks backed by
  *    latest-value refs. Upstream drives `recognition.start()` /
  *    `recognition.stop()` from a `watch(isListening)`; here an effect does,
@@ -126,10 +144,13 @@ function getDefaultWindow(): Window | undefined {
  *    changed language is re-applied while not listening, and `onend`
  *    re-applies the latest value for the next run — same as upstream's
  *    `watch(lang)` + `onend` reset.
- * 4. The unmount cleanup stops the recognition instance directly: a React
- *    state update during unmount cannot re-run effects, so upstream's
- *    `tryOnScopeDispose(stop)` is translated to a `recognition.stop()` call
- *    guarded by the same try/catch as upstream's start/stop.
+ * 4. The unmount cleanup stops the recognition instance directly. Upstream's
+ *    `tryOnScopeDispose(stop)` only flips the `isListening` ref — its
+ *    `watch(isListening)` is already dead when dispose callbacks run, so a
+ *    live browser session keeps listening after unmount upstream. Here the
+ *    instance is stopped directly (guarded by the same try/catch as
+ *    upstream's start/stop), because a React state flip during unmount
+ *    cannot re-run effects.
  * 5. SSR-safe: without a `window` the hook reports `isSupported: false`,
  *    and `start()` / `stop()` only flip `isListening` (upstream keeps the
  *    flag writable with no recognition instance, too).
@@ -141,6 +162,9 @@ function getDefaultWindow(): Window | undefined {
  *   isFinal,
  *   result,
  *   confidence,
+ *   error,
+ *   setIsListening,
+ *   setError,
  *   start,
  *   stop,
  * } = useSpeechRecognition({ lang: 'en-US' })
@@ -154,7 +178,7 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}):
     maxAlternatives = 1,
   } = options
 
-  const lang = options.lang ?? 'en-US'
+  const lang = options.lang || 'en-US'
 
   // latest-value refs synced each render so every callback below is stable
   // and always reads the newest state and options
@@ -269,11 +293,13 @@ export function useSpeechRecognition(options: UseSpeechRecognitionOptions = {}):
   return {
     isSupported,
     isListening,
+    setIsListening,
     isFinal,
     recognition,
     result,
     confidence,
     error,
+    setError,
     toggle,
     start,
     stop,
