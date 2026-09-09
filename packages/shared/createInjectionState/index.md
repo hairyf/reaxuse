@@ -98,7 +98,33 @@ export function ButtonComponent() {
 }
 ```
 
-`injectionKey` is not ported: React keys a context by object identity, so the factory's own `Context` is the key and two `createInjectionState` calls never collide.
+## Provide a custom InjectionKey
+
+```tsx
+// useCounterStore.ts
+import { createInjectionState } from '@reaxuse/shared'
+import { createContext, useState } from 'react'
+
+// custom injectionKey
+const CounterStoreKey = createContext<{ count: number, double: number, increment: () => void } | undefined>(undefined)
+
+const [CounterStoreProvider, useCounterStore] = createInjectionState(({ initialValue }: { initialValue: number }) => {
+  // state
+  const [count, setCount] = useState(initialValue)
+
+  // getters
+  const double = count * 2
+
+  // actions
+  function increment() {
+    setCount(current => current + 1)
+  }
+
+  return { count, double, increment }
+}, { injectionKey: CounterStoreKey })
+```
+
+When a custom `injectionKey` is supplied, `defaultValue` is not used — the custom context's own default applies.
 
 ## Provide a custom default value
 

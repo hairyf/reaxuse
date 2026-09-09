@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { createContext, useContext, useState } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { render } from 'vitest-browser-react'
 import { createInjectionState } from '../createInjectionState'
@@ -43,6 +43,33 @@ describe('createInjectionState', () => {
     const screen = await render(<Consumer />)
 
     await expect.element(screen.getByText('Count is 543742')).toBeVisible()
+  })
+
+  it('should work for custom injectionKey', async () => {
+    const CounterStoreKey = createContext<number | undefined>(undefined)
+
+    const [CounterStoreProvider, useCounterStore] = createInjectionState(
+      ({ initialValue }: { initialValue: number }) => initialValue,
+      { injectionKey: CounterStoreKey },
+    )
+
+    function Consumer() {
+      return (
+        <div>
+          <span>{`Count is ${useCounterStore()}`}</span>
+          <span>{`Injected is ${useContext(CounterStoreKey)}`}</span>
+        </div>
+      )
+    }
+
+    const screen = await render(
+      <CounterStoreProvider initialValue={0}>
+        <Consumer />
+      </CounterStoreProvider>,
+    )
+
+    await expect.element(screen.getByText('Count is 0')).toBeVisible()
+    await expect.element(screen.getByText('Injected is 0')).toBeVisible()
   })
 
   it('should return undefined when neither a provider nor a defaultValue exists', async () => {
