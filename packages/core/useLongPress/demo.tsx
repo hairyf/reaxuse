@@ -7,27 +7,25 @@ export default function UseLongPressDemo() {
   const targetCallbacks = useRef<HTMLButtonElement | null>(null)
 
   const [longPressed, setLongPressed] = useState(false)
-  const [clicked, setClicked] = useState(false)
+  const [released, setReleased] = useState('')
 
   function onLongPress() {
     setLongPressed(true)
   }
 
-  function onCancel() {
-    setClicked(true)
-  }
-
   function reset() {
     setLongPressed(false)
-    setClicked(false)
+    setReleased('')
   }
 
   useLongPress(target, onLongPress)
-  useLongPress(targetOptions, onLongPress, { threshold: 1000 })
+  useLongPress(targetOptions, onLongPress, { delay: 1000 })
   useLongPress(targetCallbacks, onLongPress, {
     distanceThreshold: 24,
-    threshold: 1000,
-    onCancel,
+    delay: 1000,
+    onMouseUp(duration, distance, isLongPress) {
+      setReleased(`Held ${Math.round(duration)}ms, moved ${Math.round(distance)}px, long press: ${isLongPress}`)
+    },
   })
 
   return (
@@ -38,9 +36,9 @@ export default function UseLongPressDemo() {
         <strong>{longPressed ? 'true' : 'false'}</strong>
       </p>
       <p>
-        Clicked:
+        Released:
         {' '}
-        <strong>{clicked ? 'true' : 'false'}</strong>
+        <strong>{released || '—'}</strong>
       </p>
       <button ref={target} className="ml-2 button small">
         Press long (500ms)
@@ -49,7 +47,7 @@ export default function UseLongPressDemo() {
         Press long (1000ms)
       </button>
       <button ref={targetCallbacks} className="ml-2 button small">
-        Press long (1000ms) or click
+        Press long (1000ms) with onMouseUp
       </button>
       <button className="ml-2 button small" onClick={reset}>
         Reset
