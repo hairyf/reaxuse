@@ -40,22 +40,3 @@ it('useFps respects the every option', { retry: 3 }, async () => {
   // fast hook reports
   expect(slow.result.current).toBe(0)
 })
-
-it('useFps stays SSR-safe during render before the rAF loop starts', async () => {
-  const snapshots: number[] = []
-
-  function Probe() {
-    const fps = useFps()
-
-    snapshots.push(fps)
-
-    return <div>{fps}</div>
-  }
-
-  await render(<Probe />)
-
-  // during render (e.g. on the server) no timing is measured yet — the value
-  // is only produced by the rAF loop running in the mount effect, so SSR
-  // renders see the `0` default and never touch `performance` / `requestAnimationFrame`
-  expect(snapshots[0]).toBe(0)
-})

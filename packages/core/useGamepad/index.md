@@ -77,6 +77,28 @@ function vibrate() {
 }
 ```
 
+### Mappings
+
+To make the Gamepad API easier to use, we provide mappings to map a controller to a controllers button layout.
+
+#### Xbox360 Controller
+
+```tsx
+import { mapGamepadToXbox360Controller } from '@reaxuse/core'
+
+const [gamepads] = useGamepad()
+const gamepad = gamepads[0]
+const controller = mapGamepadToXbox360Controller(gamepad)
+
+// controller is null until a gamepad is connected
+console.log(controller?.buttons.a.pressed)
+console.log(controller?.buttons.b.pressed)
+console.log(controller?.buttons.x.pressed)
+console.log(controller?.buttons.y.pressed)
+```
+
+Currently there are only mappings for the Xbox 360 controller. If you have controller you want to add mappings for, feel free to open a PR for more controller mappings!
+
 ## Return Values
 
 The return is a React tuple `[gamepads, setGamepads, controls]` — upstream returns the object

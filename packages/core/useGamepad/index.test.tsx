@@ -2,7 +2,7 @@ import type { Dispatch, SetStateAction } from 'react'
 import { useListener } from '@reaxuse/shared'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
-import { useGamepad } from '../useGamepad'
+import { mapGamepadToXbox360Controller, useGamepad } from '../useGamepad'
 
 interface MockGamepad {
   id: string
@@ -35,6 +35,49 @@ function dispatchGamepadEvent(type: 'gamepadconnected' | 'gamepaddisconnected', 
   Object.assign(event, { gamepad })
   window.dispatchEvent(event)
 }
+
+describe('mapGamepadToXbox360Controller', () => {
+  it('maps a standard gamepad to the Xbox 360 controller layout', () => {
+    const buttons = Array.from({ length: 16 }, (_, i) => ({
+      pressed: i % 2 === 0,
+      touched: false,
+      value: i / 10,
+    }))
+    const gamepad = {
+      ...createGamepad(0),
+      buttons,
+      axes: [0.1, 0.2, 0.3, 0.4],
+    } as unknown as Gamepad
+
+    const mapped = mapGamepadToXbox360Controller(gamepad)
+
+    expect(mapped).not.toBeNull()
+    expect(mapped!.buttons.a).toBe(buttons[0])
+    expect(mapped!.buttons.b).toBe(buttons[1])
+    expect(mapped!.buttons.x).toBe(buttons[2])
+    expect(mapped!.buttons.y).toBe(buttons[3])
+    expect(mapped!.bumper.left).toBe(buttons[4])
+    expect(mapped!.bumper.right).toBe(buttons[5])
+    expect(mapped!.triggers.left).toBe(buttons[6])
+    expect(mapped!.triggers.right).toBe(buttons[7])
+    expect(mapped!.stick.left.horizontal).toBe(0.1)
+    expect(mapped!.stick.left.vertical).toBe(0.2)
+    expect(mapped!.stick.right.horizontal).toBe(0.3)
+    expect(mapped!.stick.right.vertical).toBe(0.4)
+    expect(mapped!.stick.left.button).toBe(buttons[10])
+    expect(mapped!.stick.right.button).toBe(buttons[11])
+    expect(mapped!.dpad.up).toBe(buttons[12])
+    expect(mapped!.dpad.down).toBe(buttons[13])
+    expect(mapped!.dpad.left).toBe(buttons[14])
+    expect(mapped!.dpad.right).toBe(buttons[15])
+    expect(mapped!.back).toBe(buttons[8])
+    expect(mapped!.start).toBe(buttons[9])
+  })
+
+  it('returns null when no gamepad is passed', () => {
+    expect(mapGamepadToXbox360Controller(undefined)).toBeNull()
+  })
+})
 
 describe('useGamepad', () => {
   it('keeps updating the remaining gamepad after another one disconnects', async () => {

@@ -388,8 +388,8 @@ it('switching dataType re-reads the current file', async () => {
   const handle = new FakeFileHandle(file)
   installPickers({ open: [handle] })
 
-  const dataType = { current: 'Text' } as { current: 'Text' | 'ArrayBuffer' | 'Blob' }
-  const { result, act, rerender } = await renderHook(() => useFileSystemAccess({ dataType }))
+  const options = { dataType: 'Text' as 'Text' | 'ArrayBuffer' | 'Blob' }
+  const { result, act, rerender } = await renderHook(() => useFileSystemAccess(options))
 
   await expect.poll(() => result.current[2].isSupported).toBe(true)
   await act(async () => {
@@ -397,21 +397,21 @@ it('switching dataType re-reads the current file', async () => {
   })
   expect(result.current[0]).toBe('hello')
 
-  dataType.current = 'ArrayBuffer'
+  options.dataType = 'ArrayBuffer'
   await rerender()
-  await act(async () => {
-    await result.current[2].updateData()
-  })
-  expect(result.current[0]).toBeInstanceOf(ArrayBuffer)
+
+  // the dataType watcher re-reads the file automatically — no manual
+  // `updateData()` call needed
+  await expect.poll(() => result.current[0]).toBeInstanceOf(ArrayBuffer)
 })
 
 it('controls are identity-stable across renders', async () => {
   installPickers()
-  const dataType = { current: 'Text' } as { current: 'Text' | 'ArrayBuffer' | 'Blob' }
-  const { result, rerender } = await renderHook(() => useFileSystemAccess({ dataType }))
+  const options = { dataType: 'Text' as 'Text' | 'ArrayBuffer' | 'Blob' }
+  const { result, rerender } = await renderHook(() => useFileSystemAccess(options))
 
   const first = result.current
-  dataType.current = 'ArrayBuffer'
+  options.dataType = 'ArrayBuffer'
   await rerender()
   const second = result.current
 

@@ -232,17 +232,20 @@ export function useFullscreen(
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isSupported, setIsSupported] = useState(false)
 
-  // Sync mirror of the state above, read inside the stable callbacks
+  // Sync mirrors of the state above, read inside the stable callbacks
   // (upstream mutates and reads its refs directly; React state only drives
   // renders).
   const isFullscreenRef = useRef(false)
+  const supportedRef = useRef(false)
   const stateRef = useRef<ResolvedFullscreenState | null>(null)
 
-  // Resolve the document and target during render — a pure unwrap plus a
-  // guarded global read (undefined on the server). With no target the
-  // fallback is `document.documentElement` (upstream default).
+  // Resolve the document and unwrap the target during render — a pure unwrap
+  // plus a guarded global read (undefined on the server). The
+  // `document.documentElement` fallback (upstream default) is applied inside
+  // the effect below, so a not-yet-populated `useRef(null)` never resolves to
+  // the document root during render.
   const doc = documentOption ?? (typeof document === 'undefined' ? undefined : document)
-  const resolvedTarget = toValue(target) ?? doc?.documentElement
+  const resolvedTarget = toValue(target)
 
   const applyFullscreenState = useCallback((state: ResolvedFullscreenState) => {
     const isElementFullScreenValue = isElementFullScreen(state)
@@ -256,9 +259,11 @@ export function useFullscreen(
   // the browser's current fullscreen state — upstream's reactive `computed` +
   // `tryOnMounted(handlerCallback)`.
   useEffect(() => {
-    const state = resolveFullscreenState(resolvedTarget, doc)
+    const effectiveTarget = resolvedTarget ?? doc?.documentElement
+    const state = resolveFullscreenState(effectiveTarget, doc)
     stateRef.current = state
-    setIsSupported(isSupportedState(state))
+    supportedRef.current = isSupportedState(state)
+    setIsSupported(supportedRef.current)
     applyFullscreenState(state)
   }, [applyFullscreenState, doc, resolvedTarget])
 
@@ -276,7 +281,7 @@ export function useFullscreen(
 
   const exit = useCallback(async () => {
     const state = stateRef.current
-    if (!state || !isSupportedState(state) || !isFullscreenRef.current)
+    if (!state || !supportedRef.current || !isFullscreenRef.current)
       return
 
     const { doc: currentDoc, target, exitMethod } = state
@@ -299,7 +304,7 @@ export function useFullscreen(
 
   const enter = useCallback(async () => {
     const state = stateRef.current
-    if (!state || !isSupportedState(state) || isFullscreenRef.current)
+    if (!state || !supportedRef.current || isFullscreenRef.current)
       return
 
     if (isElementFullScreen(state))

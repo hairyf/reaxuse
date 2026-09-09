@@ -80,7 +80,7 @@ export type UseFocusReturn = readonly [
  * setFocused(false) // blur the input
  */
 export function useFocus(
-  target: RefOrValue<HTMLElement | null | undefined>,
+  target: RefOrValue<HTMLElement | SVGElement | null | undefined>,
   options: UseFocusOptions = {},
 ): UseFocusReturn {
   const { initialValue = false, focusVisible = false, preventScroll = false } = options
@@ -101,13 +101,15 @@ export function useFocus(
 
   // resolve the target during render — a pure unwrap (ref-like `.current`
   // read), no DOM access — so SSR renders the bare default state
-  const elementRef = useRef<HTMLElement | null | undefined>(undefined)
+  const elementRef = useRef<HTMLElement | SVGElement | null | undefined>(undefined)
   const element = toValue(target)
   elementRef.current = element
 
   // mirror of upstream's focus/blur listeners (bound via `useEventListener`
-  // with passive options): re-attach whenever the resolved target changes
-  const onFocus = useCallback((event: FocusEvent) => {
+  // with passive options): re-attach whenever the resolved target changes.
+  // The handler parameter is the generic `Event` so the same listener binds to
+  // both `HTMLElement` and `SVGElement` targets.
+  const onFocus = useCallback((event: Event) => {
     if (!focusVisibleRef.current || (event.target as HTMLElement)?.matches?.(':focus-visible')) {
       isFocusedRef.current = true
       setIsFocused(true)

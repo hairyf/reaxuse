@@ -84,6 +84,22 @@ describe('useFileDialog', () => {
     expect(inputEl2.click).toHaveBeenCalledTimes(1)
   })
 
+  it('should re-apply option attributes when a ref-like input is swapped', async () => {
+    const inputSource = { current: null as HTMLInputElement | null }
+    const multiple = { current: false }
+
+    const { rerender } = await renderHook(() => useFileDialog({ input: inputSource, multiple }))
+
+    const inputEl = document.createElement('input')
+    inputEl.click = vi.fn()
+    inputSource.current = inputEl
+    await rerender()
+
+    // the attributes follow the newly wired input without calling open()
+    await expect.poll(() => inputEl.type).toBe('file')
+    expect(inputEl.multiple).toBe(false)
+  })
+
   it('should trigger onchange and update files when file is selected', async () => {
     const input = document.createElement('input')
     input.click = vi.fn()

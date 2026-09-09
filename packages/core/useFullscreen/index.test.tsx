@@ -172,6 +172,74 @@ describe('useFullscreen', () => {
     expect(exitFullscreen).toHaveBeenCalledTimes(1)
   })
 
+  it('uses vendor-prefixed methods when only those are exposed', async () => {
+    const requestFullscreen = vi.fn().mockResolvedValue(undefined)
+    const exitFullscreen = vi.fn().mockResolvedValue(undefined)
+    const target = {
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      webkitRequestFullscreen: requestFullscreen,
+    } as unknown as HTMLElement
+    const fakeDoc = {
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      webkitIsFullScreen: false,
+      webkitExitFullscreen: exitFullscreen,
+    } as unknown as Document
+
+    const { result, act } = await renderHook(() => useFullscreen(target, { document: fakeDoc }))
+
+    await vi.waitFor(() => {
+      expect(result.current.isSupported).toBe(true)
+    })
+
+    await act(async () => {
+      await result.current.enter()
+    })
+    expect(requestFullscreen).toHaveBeenCalledTimes(1)
+    expect(result.current.isFullscreen).toBe(true)
+
+    await act(async () => {
+      await result.current.exit()
+    })
+    expect(exitFullscreen).toHaveBeenCalledTimes(1)
+    expect(result.current.isFullscreen).toBe(false)
+  })
+
+  it('falls back to the target for the prefixed exit when the document has none', async () => {
+    const requestFullscreen = vi.fn().mockResolvedValue(undefined)
+    const targetExit = vi.fn().mockResolvedValue(undefined)
+    const target = {
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      webkitRequestFullscreen: requestFullscreen,
+      webkitExitFullscreen: targetExit,
+    } as unknown as HTMLElement
+    // iOS Safari: the exit method lives on the element, not the document
+    const fakeDoc = {
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      webkitIsFullScreen: false,
+    } as unknown as Document
+
+    const { result, act } = await renderHook(() => useFullscreen(target, { document: fakeDoc }))
+
+    await vi.waitFor(() => {
+      expect(result.current.isSupported).toBe(true)
+    })
+
+    await act(async () => {
+      await result.current.enter()
+    })
+    expect(requestFullscreen).toHaveBeenCalledTimes(1)
+
+    await act(async () => {
+      await result.current.exit()
+    })
+    expect(targetExit).toHaveBeenCalledTimes(1)
+    expect(result.current.isFullscreen).toBe(false)
+  })
+
   it('keeps the SSR-safe defaults during render before the mount effect', async () => {
     const snapshots: Array<{ isSupported: boolean, isFullscreen: boolean }> = []
 

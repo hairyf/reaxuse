@@ -26,6 +26,7 @@ describe('useDropZone', () => {
     const { result } = await renderHook(() => useDropZone(null))
 
     expect(result.current.isOverDropZone).toBe(false)
+    expect(result.current.files).toBeNull()
     expect(typeof result.current.onDrop).toBe('function')
     expect(typeof result.current.onDragEnter).toBe('function')
     expect(typeof result.current.onDragLeave).toBe('function')
@@ -70,6 +71,24 @@ describe('useDropZone', () => {
     expect(onDrop).toHaveBeenCalledTimes(1)
     expect(onDrop.mock.calls[0][0]).toEqual([file])
     expect(result.current.isOverDropZone).toBe(false)
+  })
+
+  it('should expose the dropped files via the return value', async () => {
+    const el = createDropZone()
+    const file = new File(['content'], 'file.txt', { type: 'text/plain' })
+
+    const { result, act } = await renderHook(() => useDropZone(el))
+
+    expect(result.current.files).toBeNull()
+
+    const dt = new DataTransfer()
+    dt.items.add(file)
+
+    await act(() => {
+      el.dispatchEvent(dragEvent('drop', dt))
+    })
+
+    expect(result.current.files).toEqual([file])
   })
 
   it('should accept the onDrop shorthand and call it on drop', async () => {
