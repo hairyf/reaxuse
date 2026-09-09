@@ -41,7 +41,6 @@ export function useStateAutoReset<T = any>(
   // keep the latest arguments in refs so the reset always uses the newest
   // `defaultValue` / `afterMs` without re-scheduling on every render
   const defaultValueRef = useRef(defaultValue)
-  const initialValueRef = useRef(value)
   const afterMsRef = useRef(afterMs)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -56,7 +55,9 @@ export function useStateAutoReset<T = any>(
 
     timerRef.current = setTimeout(() => {
       timerRef.current = null
-      setValue(initialValueRef.current)
+      // re-resolve the newest defaultValue when the timer fires
+      // (upstream: `toValue(defaultValue)` at fire time)
+      setValue(toValue(defaultValueRef.current))
     }, toValue(afterMsRef.current))
   }, [])
 
