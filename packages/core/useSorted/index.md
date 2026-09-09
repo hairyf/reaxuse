@@ -31,6 +31,14 @@ const objArr = [{
 }]
 const objSorted = useSorted(objArr, (a, b) => a.age - b.age)
 
+// options overload — compare function via the options object
+const objSorted2 = useSorted(objArr, { compareFn: (a, b) => a.age - b.age })
+
+// options overload — custom sort algorithm (receives a copy + the compareFn)
+const reversedSorted = useSorted([3, 1, 2], {
+  sortFn: (source, compareFn) => source.sort(compareFn).reverse(),
+})
+
 // ref source
 const stateSorted = useSorted(itemsRef)
 ```
@@ -52,12 +60,9 @@ const sortedPlain = useSorted([3, 1, 2]) // a plain literal works too
 ### React adjustments
 
 - **Plain value, not a `Ref`** — returns a sorted `T[]` (no `.value`), recomputed with `useMemo`
-  when the source array identity or `compareFn` changes. Pass a React ref to resolve the
+  when the source array identity, `compareFn` or `sortFn` changes. Pass a React ref to resolve the
   array at render time.
-- **No `UseSortedOptions`** — the compare function is a positional argument. Upstream's `dirty`
-  flag sorts the source array in place by writing back through the Vue ref, which contradicts
-  React's immutable-update contract (an in-place mutation would not trigger a re-render); the
-  custom `sortFn` algorithm option is dropped along with it.
+- **`UseSortedOptions` partially ported** — the `(source, options)` and `(source, compareFn, options)` overloads are supported with `compareFn` and the pure algorithm option `sortFn` (both plain values, read at render time); a Vue-style `useSorted(source, { compareFn })` call sorts correctly. Upstream's `dirty` option is **not** ported — it sorts the source array in place by writing back through the Vue ref, which contradicts React's immutable-update contract (an in-place mutation would not trigger a re-render). A sorted copy is always returned and the source is never mutated.
 - **Numeric default comparator** — upstream parity: `(a, b) => a - b`. Supply an explicit
   comparator to sort strings.
 - **Stable sort** — elements that compare equal keep their relative order

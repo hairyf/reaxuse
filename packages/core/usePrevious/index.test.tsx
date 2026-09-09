@@ -1,4 +1,5 @@
-import { expect, it } from 'vitest'
+import { useState } from 'react'
+import { expect, expectTypeOf, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { usePrevious } from '../usePrevious'
 
@@ -35,6 +36,62 @@ it('usePrevious reports the previous render value when the value is unchanged', 
   // unchanged rerender: the previous render's value is the same value
   await rerender({ value: 2 })
   expect(result.current).toBe(2)
+})
+
+it('usePrevious works with an initial value (2-arg overload)', async () => {
+  // mirrors upstream `works with initial value` — the seed is read until the
+  // first committed change replaces it with the source's own first value
+  const { result, rerender } = await renderHook((props?: { value?: string }) => usePrevious(props?.value, 'initial'), { initialProps: { value: 'Hello' } })
+
+  expect(result.current).toBe('initial')
+
+  await rerender({ value: 'World' })
+  expect(result.current).toBe('Hello')
+
+  await rerender({ value: 'Mars' })
+  expect(result.current).toBe('World')
+})
+
+it('usePrevious types the overloaded returns like upstream', () => {
+  // declared but never called — type-level assertions only, no hooks run
+  // (a `string`-typed variable keeps `T = string`; literal args would narrow
+  // the inferred return to `"a" | undefined` / `"a" | "seed"`)
+  const value: string = 'a'
+  const oneArg = () => usePrevious(value)
+  const twoArg = () => usePrevious(value, 'seed')
+
+  expectTypeOf(oneArg).returns.toEqualTypeOf<string | undefined>()
+  expectTypeOf(twoArg).returns.toEqualTypeOf<string>()
+})
+
+it('usePrevious reports the previous committed value when same-tick changes are batched', async () => {
+  const { result, act } = await renderHook(() => {
+    const [value, setValue] = useState('A')
+    const previous = usePrevious(value)
+    return { value, previous, setValue }
+  })
+
+  expect(result.current.value).toBe('A')
+  expect(result.current.previous).toBe(undefined)
+
+  // A→B→C in a single act: React collapses the same-tick updates into one
+  // commit carrying only the final value, so the intermediate 'B' is never
+  // rendered. The hook reports the last committed value ('A'); Vue's sync
+  // watch would have reported 'B' (documented divergence in the JSDoc).
+  await act(() => {
+    result.current.setValue('B')
+    result.current.setValue('C')
+  })
+
+  expect(result.current.value).toBe('C')
+  expect(result.current.previous).toBe('A')
+
+  // a later committed change advances the tracked value
+  await act(() => {
+    result.current.setValue('D')
+  })
+
+  expect(result.current.previous).toBe('C')
 })
 
 it('usePrevious tracks objects by reference, not nested mutations', async () => {

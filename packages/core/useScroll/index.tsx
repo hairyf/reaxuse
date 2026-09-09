@@ -66,11 +66,14 @@ export interface UseScrollOptions extends ConfigurableWindow {
 
   /**
    * Optionally specify a scroll behavior of `auto` (default, not smooth scrolling) or
-   * `smooth` (for smooth scrolling) which takes effect when changing the `x` or `y` refs.
+   * `smooth` (for smooth scrolling) which takes effect when scrolling via `setX` / `setY`.
+   *
+   * React divergence: plain value only — upstream also accepts a getter/`ref` here, but
+   * this read-only value-source option stays a plain `ScrollBehavior`.
    *
    * @default 'auto'
    */
-  behavior?: RefOrValue<ScrollBehavior>
+  behavior?: ScrollBehavior
 
   /**
    * On error callback
@@ -146,7 +149,8 @@ export interface UseScrollReturn {
  *    `useEffect` with cleanup (upstream composes `useEventListener`), and the
  *    idle reset is a `useDebounceFn` from `@reaxuse/shared` (upstream composes
  *    it from `@vueuse/shared` too). The scroll handler is wrapped in a shared
- *    `useThrottleFn` when `throttle > 0`.
+ *    `useThrottleFn` when `throttle > 0`; at `throttle = 0` the raw handler is
+ *    registered instead, mirroring upstream.
  * 3. The optional MutationObserver (upstream composes `useMutationObserver`)
  *    is a self-contained observer inside the same effect, disconnected on
  *    unmount.
@@ -252,7 +256,7 @@ export function useScroll(
     (_element instanceof Document ? win.document.body : _element)?.scrollTo({
       top: _y ?? yRef.current,
       left: _x ?? xRef.current,
-      behavior: toValue(behaviorRef.current),
+      behavior: behaviorRef.current,
     })
     const scrollContainer
       = (_element as Window)?.document?.documentElement
@@ -383,6 +387,13 @@ export function useScroll(
 
   const throttledScrollHandler = useThrottleFn(onScrollHandler, throttle, true, false)
 
+  // mirror upstream's registration (`source/vueuse/.../useScroll/index.ts`):
+  // attach the raw handler when `throttle` is 0. The shared `useThrottleFn`
+  // hook itself cannot be skipped (React hooks must not be conditional), so
+  // only the *registered* listener switches — the promise-returning wrapper
+  // stays unregistered on the default path.
+  const scrollHandler = throttle > 0 ? throttledScrollHandler : onScrollHandler
+
   // resolve the element during render so the effect below re-binds the
   // listeners whenever the resolved element changes (upstream `useEventListener`
   // watches the element target)
@@ -403,7 +414,7 @@ export function useScroll(
     }
 
     const listenerOptions = eventListenerOptionsRef.current
-    el.addEventListener('scroll', throttledScrollHandler, listenerOptions)
+    el.addEventListener('scroll', scrollHandler, listenerOptions)
     el.addEventListener('scrollend', onScrollEnd, listenerOptions)
 
     let observer: MutationObserver | undefined
@@ -421,11 +432,11 @@ export function useScroll(
     }
 
     return () => {
-      el.removeEventListener('scroll', throttledScrollHandler, listenerOptions)
+      el.removeEventListener('scroll', scrollHandler, listenerOptions)
       el.removeEventListener('scrollend', onScrollEnd, listenerOptions)
       observer?.disconnect()
     }
-  }, [trackedElement, throttledScrollHandler, onScrollEnd, measureArrivedState])
+  }, [trackedElement, scrollHandler, onScrollEnd, measureArrivedState])
 
   const measure = useCallback(() => {
     const _element = toValue(elementRef.current)
