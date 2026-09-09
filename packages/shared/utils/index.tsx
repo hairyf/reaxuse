@@ -210,7 +210,7 @@ export function toValue<T>(value: StateValue<T> | undefined | null): T | undefin
 export function toValue<T>(value: StateValue<T> | undefined | null): T | undefined | null {
   if (Array.isArray(value))
     return value[0]
-  if (value !== null && value !== undefined && typeof value === 'object' && 'value' in value)
+  if (value !== null && value !== undefined && typeof value === 'object' && 'value' in value && !('addEventListener' in value))
     return value.value
   if (typeof value === 'function')
     return (value as () => T)()

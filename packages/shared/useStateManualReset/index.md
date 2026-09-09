@@ -4,7 +4,7 @@ category: Reactivity
 
 # useStateManualReset
 
-Create a state with manual reset functionality
+A state with manual reset functionality.
 
 ## Usage
 

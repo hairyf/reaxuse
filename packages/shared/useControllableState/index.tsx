@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react'
 import type { StateValue } from '../utils'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { toValue } from '../utils'
+import { isRefLike, toValue } from '../utils'
 
 export type StateTuple<T> = [T, Dispatch<SetStateAction<T>>]
 /** A value, lazy getter, React ref, state tuple, or value/onChange pair. */
@@ -38,7 +38,8 @@ export function useControllableState<T>(
   stateRef.current = state
 
   useEffect(() => {
-    if (passive && !isTuple(state) && !isObjectState(state) && !Object.is(previousExternalRef.current, externalValue))
+    const canSync = typeof state === 'function' || isRefLike(state as object) || externalValue === null || typeof externalValue !== 'object'
+    if (passive && canSync && !isTuple(state) && !isObjectState(state) && !Object.is(previousExternalRef.current, externalValue))
       setInternal(externalValue)
     previousExternalRef.current = externalValue
   }, [externalValue, passive])

@@ -4,7 +4,7 @@ category: Reactivity
 
 # useStateDebounced
 
-Debounce updates of a state value. The `value` input uses `State<T>` and may be a plain value, lazy initializer, state tuple, or controllable object.
+A controllable state which will be debounced.
 
 ## Usage
 

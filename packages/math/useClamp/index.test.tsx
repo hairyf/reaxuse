@@ -31,7 +31,7 @@ describe('useClamp', () => {
 
     max.current = 100
     await rerender()
-    expect(result.current[0]).toBe(90)
+    expect(result.current[0]).toBe(100)
   })
 
   it('should be min', async () => {

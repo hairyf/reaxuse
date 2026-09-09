@@ -1,6 +1,6 @@
 # useControllableState
 
-React hook for combining controlled and uncontrolled state sources. The `state` argument may be a plain value, lazy getter, React ref (`{ current }`), readonly state tuple, or `{ value, onChange }` pair.
+A hook for combining controlled and uncontrolled state sources.
 
 ```tsx
 const [value, setValue] = useControllableState(props.value, {
