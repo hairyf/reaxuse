@@ -2,7 +2,7 @@
 // name resolves through the worktree node_modules junction to the main repo's
 // still-empty integrations package.
 import { noop } from '@reaxuse/shared'
-import { useAxios } from '../src/useAxios'
+import { useAxios } from '../useAxios'
 
 interface Todo {
   userId: number

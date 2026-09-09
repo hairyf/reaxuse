@@ -28,17 +28,17 @@ function sizeForLoc(loc: number): string {
 const PORTED: Record<string, { pkg: string, src: string, gap: string }> = {
   useNow: {
     pkg: 'core',
-    src: 'packages/core/src/useNow.ts',
+    src: 'packages/core/useNow/index.tsx',
     gap: 'upstream also supports `{ controls: true }` (returns `{ now, pause, resume }`) and returns `Date`; current port only supports `useNow(interval)` → `number`.',
   },
   useCounter: {
     pkg: 'shared',
-    src: 'packages/shared/src/useCounter.ts',
+    src: 'packages/shared/useCounter/index.tsx',
     gap: 'verify full API parity with upstream (initialValue/options overloads, min/max clamping).',
   },
   useToggle: {
     pkg: 'shared',
-    src: 'packages/shared/src/useToggle.ts',
+    src: 'packages/shared/useToggle/index.tsx',
     gap: 'upstream has two overloads: `Ref<T>` → toggle fn, or plain value → `[value, toggle]` tuple; verify the React port covers both shapes.',
   },
 }
@@ -221,7 +221,7 @@ function titleFor(fn: FnInfo): string {
 
 function bodyFor(fn: FnInfo): string {
   const ported = PORTED[fn.name]
-  const reaxuseFile = ported?.src || `packages/${fn.pkg}/src/${reaxuseName(fn.name)}.ts`
+  const reaxuseFile = ported?.src || `packages/${fn.pkg}/${reaxuseName(fn.name)}/index.tsx`
   const docsDir = `packages/${fn.pkg}/${reaxuseName(fn.name)}`
   const variants = [
     fn.hasComponent ? `component \`${fn.name.replace(/^use/, 'Use')}\`` : '',
@@ -267,8 +267,8 @@ function bodyFor(fn: FnInfo): string {
   ]
 
   const acceptance = [
-    `- [${ported ? 'x' : ' '}] implementation \`${reaxuseFile}\` + re-export from \`packages/${fn.pkg}/src/index.ts\``,
-    `- [${ported ? 'x' : ' '}] test \`packages/${fn.pkg}/src/${reaxuseName(fn.name)}.test.tsx\` (vitest-browser-react), mirroring the upstream test files`,
+    `- [${ported ? 'x' : ' '}] implementation \`${reaxuseFile}\` + re-export from \`packages/${fn.pkg}/index.ts\``,
+    `- [${ported ? 'x' : ' '}] test \`packages/${fn.pkg}/${reaxuseName(fn.name)}/index.test.tsx\` (vitest-browser-react), mirroring the upstream test files`,
     `- [${ported ? 'x' : ' '}] docs page \`${docsDir}/index.md\` + co-located demo \`${docsDir}/demo.tsx\``,
     `- [ ] docs page references the upstream mapping files (source + tests)`,
     `- [ ] \`npm run update\` — refresh \`meta/functions.md\`, \`packages/functions.md\`, \`packages/metadata/src/functions.ts\``,
@@ -297,7 +297,7 @@ ${mapFrom}
 Map to (reaxuse):
 
 - \`${reaxuseFile}\` — implementation
-- \`packages/${fn.pkg}/src/${reaxuseName(fn.name)}.test.tsx\` — mirrored tests (vitest-browser-react)
+- \`packages/${fn.pkg}/${reaxuseName(fn.name)}/index.test.tsx\` — mirrored tests (vitest-browser-react)
 - \`${docsDir}/index.md\` + \`${docsDir}/demo.tsx\` — docs page + demo (co-located per function, mirroring upstream)
 
 ## Expected implementation
@@ -332,7 +332,7 @@ function utilsIssueBody(): string {
   return `## Target
 
 - **VueUse**: \`shared/utils\` (internal utility folder: \`isClient\`, \`isIOS\`, \`noop\`, \`toValue\`, \`now\`, \`timestamp\`, …) — package \`@vueuse/shared\` — source \`source/vueuse/packages/shared/utils\`
-- **reaxuse**: \`packages/shared/src/utils.ts\` (or per-utility files), exported from \`@reaxuse/shared\`
+- **reaxuse**: \`packages/shared/utils/index.tsx\` (or per-utility files), exported from \`@reaxuse/shared\`
 - **Status**: ☐ todo · ☐ in progress · ☐ done
 
 ## Mapping files
@@ -345,8 +345,8 @@ Map from (\`source/vueuse/packages/shared/utils/\`):
 
 Map to (reaxuse):
 
-- \`packages/shared/src/utils.ts\` — implementation
-- \`packages/shared/src/utils.test.tsx\` — mirrored tests (vitest-browser-react)
+- \`packages/shared/utils/index.tsx\` — implementation
+- \`packages/shared/utils/index.test.tsx\` — mirrored tests (vitest-browser-react)
 - \`packages/shared/utils/index.md\` — docs page (single page for the group)
 
 ## Expected implementation
@@ -366,8 +366,8 @@ isClient · noop · toValue
 
 ## Acceptance criteria
 
-- [ ] implementation \`packages/shared/src/utils.ts\` + re-export from \`packages/shared/src/index.ts\`
-- [ ] test \`packages/shared/src/utils.test.tsx\` (vitest-browser-react), mirroring the upstream test files
+- [ ] implementation \`packages/shared/utils/index.tsx\` + re-export from \`packages/shared/index.ts\`
+- [ ] test \`packages/shared/utils/index.test.tsx\` (vitest-browser-react), mirroring the upstream test files
 - [ ] docs page \`packages/shared/utils/index.md\`
 - [ ] docs page references the upstream mapping files (source + tests)
 - [ ] \`npm run update\` — refresh \`meta/functions.md\`, \`packages/functions.md\`, \`packages/metadata/src/functions.ts\`

@@ -3,7 +3,7 @@
 // still-empty electron package.
 import type { IpcRenderer } from 'electron'
 import { useMemo, useState } from 'react'
-import { useIpcRendererInvoke } from '../src/useIpcRendererInvoke'
+import { useIpcRendererInvoke } from '../useIpcRendererInvoke'
 
 interface DemoResponse {
   channel: string

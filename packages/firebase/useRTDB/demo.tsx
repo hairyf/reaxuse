@@ -3,7 +3,7 @@
 // `useRTDB` does not exist yet. Published docs import from `@reaxuse/firebase`.
 import type { DatabaseReference } from 'firebase/database'
 import { useState } from 'react'
-import { useRTDB } from '../src/useRTDB'
+import { useRTDB } from '../useRTDB'
 
 // demo-only stub — in a real app pass `ref(getDatabase(app), 'path')`
 const demoRef = { path: 'todos' } as unknown as DatabaseReference

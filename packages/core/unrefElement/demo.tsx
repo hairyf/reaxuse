@@ -9,7 +9,6 @@ export default function UnrefElementDemo() {
     const el = unrefElement(target)
     setResolved(el ? `${el.tagName.toLowerCase()} — "${el.textContent}"` : 'null')
   }
-
   return (
     <div>
       <div

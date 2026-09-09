@@ -3,7 +3,7 @@
 // still-empty electron package.
 import type { IpcRenderer, IpcRendererEvent } from 'electron'
 import { useCallback, useMemo, useState } from 'react'
-import { useIpcRendererOn } from '../src/useIpcRendererOn'
+import { useIpcRendererOn } from '../useIpcRendererOn'
 
 interface DemoIpcRenderer extends IpcRenderer {
   dispatch: (channel: string, ...args: any[]) => void

@@ -1,7 +1,7 @@
 // Relative (not `@reaxuse/integrations`): until this PR is merged the package
 // name resolves through the worktree node_modules junction to the main repo's
 // still-empty integrations package.
-import { useCookies } from '../src/useCookies'
+import { useCookies } from '../useCookies'
 
 export default function UseCookiesDemo() {
   const cookies = useCookies(['locale'])

@@ -46,7 +46,7 @@ const MAP: Record<string, [string, string]> = {
 
 for (const [key, [source, upstream]] of Object.entries(MAP)) {
   const [pkg, hook] = key.split('/')
-  const file = `packages/${pkg}/src/${hook}.ts`
+  const file = `packages/${pkg}/${hook}/index.tsx`
   const src = readFileSync(file, 'utf8')
 
   // locate the implementation: last `export function useX` with an opening `{`

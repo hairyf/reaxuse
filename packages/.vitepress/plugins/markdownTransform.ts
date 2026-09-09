@@ -23,7 +23,7 @@ import { findSourceFile, getTypeDefinitions, resetTypeCache } from './type-defin
 export interface FunctionRef {
   name: string
   pkg: string
-  /** Source file from the registry (`packages/<pkg>/src/<module>.ts`). */
+  /** Source file from the registry (`packages/<pkg>/<dir>/index.tsx`). */
   file?: string
 }
 
@@ -45,8 +45,9 @@ function collapsible(code: string): string {
  * reaxuse source file · co-located demo · upstream VueUse module.
  */
 function sourceLinks(pkg: string, dir: string): string {
-  const rel = `packages/${pkg}/src/${dir}`
-  const src = (['.ts', '.tsx'] as const).map(ext => `${rel}${ext}`).find(p => existsSync(p))
+  // hooks live co-located with their docs: packages/<pkg>/<dir>/index.tsx
+  const rel = `packages/${pkg}/${dir}/index`
+  const src = (['.tsx', '.ts'] as const).map(ext => `${rel}${ext}`).find(p => existsSync(p))
   const demo = `packages/${pkg}/${dir}/demo.tsx`
   const upstream = upstreamPaths[`${pkg}/${dir}`]
 
@@ -62,10 +63,10 @@ function sourceLinks(pkg: string, dir: string): string {
 
 export function MarkdownTransform(functions: FunctionRef[]): Plugin {
   const registered = new Map(functions.map((fn) => {
-    const page = (fn.file ?? `packages/${fn.pkg}/src/${fn.name}.ts`)
+    // registry `file` is `packages/<pkg>/<dir>/index.tsx` — page is `/pkg/dir/`
+    const page = (fn.file ?? `packages/${fn.pkg}/${fn.name}/index.tsx`)
       .replace(/^packages\//, '')
-      .replace('/src/', '/')
-      .replace(/\.ts$/, '')
+      .replace(/\/index\.tsx?$/, '')
     return [fn.name, `/${page}/`]
   }))
 
