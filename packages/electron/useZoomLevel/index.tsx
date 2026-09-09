@@ -29,11 +29,14 @@ function isLevelArgument(value: WebFrame | RefOrValue<number> | undefined): valu
  * - the writable ref becomes `const [level, setLevel] = useZoomLevel()` —
  *   `setLevel(value)` calls `webFrame.setZoomLevel(value)` and updates the
  *   returned level;
- * - upstream's `watch(level, cb, { immediate: true })` splits into a mount
- *   effect (applies an explicitly passed level once, upstream's immediate run)
- *   and a sync effect keyed on `[webFrame, external level]` (re-applies when
- *   the source value changes). The last level written to `webFrame` is tracked
+ * - upstream's `watch(level, cb, { immediate: true })` maps to a single sync
+ *   effect keyed on `[webFrame, external level]` whose first run applies an
+ *   explicitly passed level (upstream's immediate run) and re-applies when
+ *   the source value changes. The last level written to `webFrame` is tracked
  *   in a ref, so a redundant render never re-writes the same level;
+ * - a ref-like level source stays the single source of truth (upstream's
+ *   `deepRef` passthrough): `setLevel` writes back to `ref.current`, so later
+ *   renders re-read the updated value instead of a stale one;
  * - upstream has no range guard for zoom levels, so neither has this port —
  *   `0` is a valid level (upstream's `useZoomFactor` guard does not apply);
  * - the `WebFrame` instance is resolved once per render through the internal
@@ -77,18 +80,10 @@ export function useZoomLevel(
   // write, so an explicit level is still applied on mount
   const lastAppliedRef = useRef<number | null>(null)
 
-  // upstream `watch(..., { immediate: true })` first run: apply an explicit
-  // level once on mount (a level-less call keeps `getZoomLevel()`).
-  useEffect(() => {
-    if (resolvedLevel === undefined || resolvedLevel === lastAppliedRef.current)
-      return
-
-    instance.setZoomLevel(resolvedLevel)
-    lastAppliedRef.current = resolvedLevel
-  }, [])
-
-  // upstream watcher: re-apply when the external source value changes to a
-  // number that differs from what was last written to `webFrame`.
+  // upstream `watch(..., { immediate: true })`: the first run applies an
+  // explicitly passed level on mount (a level-less call keeps `getZoomLevel()`)
+  // and later runs re-apply when the external source value changes to a number
+  // that differs from what was last written to `webFrame`.
   useEffect(() => {
     if (resolvedLevel === undefined || resolvedLevel === lastAppliedRef.current)
       return
@@ -102,7 +97,13 @@ export function useZoomLevel(
     instance.setZoomLevel(nextLevel)
     lastAppliedRef.current = nextLevel
     setValue(nextLevel)
-  }, [instance])
+
+    // upstream `deepRef` returns the caller's ref unchanged (single unified
+    // channel), so a ref-like source is written back here too — otherwise the
+    // hook's value and `ref.current` would diverge
+    if (isRefLike(externalLevel))
+      (externalLevel as { current: number }).current = nextLevel
+  }, [instance, externalLevel])
 
   return [value, setLevel]
 }

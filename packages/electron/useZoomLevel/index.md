@@ -27,17 +27,17 @@ import { useZoomLevel } from '@reaxuse/electron'
 const [level] = useZoomLevel(2)
 ```
 
-Pass a ref and the level will be updated when the source ref changes
+Pass a state value and the level will be updated when the source value changes
 
 ```tsx
 import { useZoomLevel } from '@reaxuse/electron'
-import { useRef } from 'react'
+import { useState } from 'react'
 
-const level = useRef(1)
+const [level, setLevel] = useState(1)
 
-useZoomLevel(level) // zoom level will match with the ref
+useZoomLevel(level) // zoom level will match with the state
 
-level.current = 2 // zoom level will change
+setLevel(2) // zoom level will change
 ```
 
 ## Notes

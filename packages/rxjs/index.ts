@@ -12,4 +12,3 @@ export * from './toObserver'
 // export * from './useSubject'
 // export * from './useSubscription'
 export * from './useWatchExtractedObservable'
-export {}

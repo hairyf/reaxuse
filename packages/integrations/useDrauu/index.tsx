@@ -86,8 +86,10 @@ export interface UseDrauuReturn {
 
   /**
    * Register a listener for drauu's `committed` event — `useListener(onCommitted, cb)`.
+   * The callback receives the committed `<svg>` node (or `undefined`), matching
+   * drauu's `committed` event payload.
    */
-  onCommitted: ListenerOn<() => void>
+  onCommitted: ListenerOn<(node: SVGElement | undefined) => void>
 
   /**
    * Register a listener for drauu's `start` event — `useListener(onStart, cb)`.
@@ -207,7 +209,12 @@ function useEventHook<T extends (...args: any[]) => void>(): EventHookRegistrar<
  * - the instance is created in an effect keyed on the resolved element's
  *   identity (upstream: `watch(() => unrefElement(target), ..., { flush: 'post' })`)
  *   and unmounted on cleanup (`tryOnScopeDispose`); an element-identity change
- *   destroys and recreates the instance;
+ *   destroys and recreates the instance. **Divergence:** resolving to `null` —
+ *   a React ref whose element left the tree — destroys the instance and frees
+ *   drauu's window listeners, where upstream keeps the last instance alive
+ *   until scope dispose. Destroying is deliberate in React: a `null` ref means
+ *   the element is gone, and a stale live instance would keep drawing on a
+ *   detached `<svg>`; the co-located test pins this behavior;
  * - the element is resolved locally from `@reaxuse/shared`'s `toValue` /
  *   `isRefLike` (precedent: `useFocusTrap.ts`), never from `@reaxuse/core` —
  *   `packages/integrations` must not depend on core (eslint
@@ -251,10 +258,11 @@ export function useDrauu(
   const brushRef = useRef(brush)
   brushRef.current = brush
 
-  // Event hooks (upstream `createEventHook<void>()` × 5) — one stable
-  // registrar per event; the drauu listeners below trigger them.
+  // Event hooks (upstream `createEventHook<void>()` × 5 — `committed` carries
+  // the committed node, `SVGElement | undefined`) — one stable registrar per
+  // event; the drauu listeners below trigger them.
   const { on: onChanged, trigger: triggerChanged } = useEventHook<() => void>()
-  const { on: onCommitted, trigger: triggerCommitted } = useEventHook<() => void>()
+  const { on: onCommitted, trigger: triggerCommitted } = useEventHook<(node: SVGElement | undefined) => void>()
   const { on: onStart, trigger: triggerStart } = useEventHook<() => void>()
   const { on: onEnd, trigger: triggerEnd } = useEventHook<() => void>()
   const { on: onCanceled, trigger: triggerCanceled } = useEventHook<() => void>()
@@ -310,7 +318,7 @@ export function useDrauu(
 
     disposablesRef.current = [
       instance.on('canceled', () => triggerCanceled()),
-      instance.on('committed', () => triggerCommitted()),
+      instance.on('committed', node => triggerCommitted(node)),
       instance.on('start', () => triggerStart()),
       instance.on('end', () => triggerEnd()),
       instance.on('changed', () => {

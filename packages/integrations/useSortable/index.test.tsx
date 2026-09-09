@@ -427,5 +427,71 @@ describe('useSortable', () => {
 
       unmount()
     })
+
+    it('should initialize a selector target on mount when watchElement is enabled', async () => {
+      container.id = 'sortable-watch-string'
+      const { unmount } = await renderHook(() => useSortable('#sortable-watch-string', ['a', 'b', 'c'], { watchElement: true }))
+
+      expect(SortableJs.get(container)).toBeDefined()
+
+      unmount()
+    })
+
+    it('should reinitialize when a ref-like target resolves to a new element', async () => {
+      const second = document.createElement('div')
+      document.body.appendChild(second)
+      const target = { current: container }
+
+      try {
+        const { rerender, unmount } = await renderHook(() => useSortable(target, ['a', 'b', 'c'], { watchElement: true }))
+
+        const firstInstance = SortableJs.get(container)
+        expect(firstInstance).toBeDefined()
+
+        // swap `.current` — only a per-render re-resolution notices the change
+        target.current = second
+        await rerender()
+
+        expect(SortableJs.get(container)).toBeFalsy()
+        expect(SortableJs.get(second)).toBeDefined()
+        expect(SortableJs.get(second)).not.toBe(firstInstance)
+
+        unmount()
+      }
+      finally {
+        second.remove()
+      }
+    })
+
+    it('should keep the instance on the mounted element when watchElement is false and the ref target swaps', async () => {
+      const second = document.createElement('div')
+      document.body.appendChild(second)
+      const target = { current: container }
+
+      try {
+        const { result, rerender, unmount } = await renderHook(() => useSortable(target, ['a', 'b', 'c']))
+
+        const firstInstance = SortableJs.get(container)
+        expect(firstInstance).toBeDefined()
+
+        // the mount effect keys on the ref object identity, so a `.current`
+        // swap leaves the instance on the element resolved at mount
+        target.current = second
+        await rerender()
+
+        expect(SortableJs.get(container)).toBe(firstInstance)
+        expect(SortableJs.get(second)).toBeFalsy()
+
+        // `start()` re-queries the target manually
+        result.current.stop()
+        result.current.start()
+        expect(SortableJs.get(second)).toBeDefined()
+
+        unmount()
+      }
+      finally {
+        second.remove()
+      }
+    })
   })
 })

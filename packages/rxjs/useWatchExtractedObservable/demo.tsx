@@ -1,10 +1,7 @@
-// Relative (not `@reaxuse/rxjs`): until this PR is merged the package name
-// resolves through the worktree node_modules junction to the main repo's
-// still-empty rxjs package.
 import type { Observable } from 'rxjs'
+import { useWatchExtractedObservable } from '@reaxuse/rxjs'
 import { useState } from 'react'
 import { Subject } from 'rxjs'
-import { useWatchExtractedObservable } from '../useWatchExtractedObservable'
 
 interface Player {
   progress$: Observable<number>

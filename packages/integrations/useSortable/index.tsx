@@ -1,7 +1,7 @@
 import type { RefOrValue } from '@reaxuse/shared'
 import type Sortable from 'sortablejs'
 import { isRefLike, toValue } from '@reaxuse/shared'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import SortableJs from 'sortablejs'
 
 /** Accepted DOM target kinds — mirrors upstream's `MaybeElement`. */
@@ -180,24 +180,37 @@ export function useSortable<T>(
       return instanceRef.current?.option(name)
   }, []) as UseSortableReturn['option']
 
-  // `el` is a stable React ref object in practice; the memo keeps the effect
-  // below from re-running (and re-initializing) on every unrelated render
-  const resolved = useMemo(() => (typeof el === 'string' ? el : resolveElement(el)), [el])
+  // Resolve the target on every render: a ref-like object (`{ current }`) can
+  // point at a different element after a re-render, and only a per-render
+  // resolution lets the watch effect below react to the swap (upstream watches
+  // `() => unrefElement(el)`).
+  const resolved = typeof el === 'string' ? el : resolveElement(el)
 
+  // watchElement: re-initialize whenever the RESOLVED element changes
+  // (upstream `watch(() => unrefElement(el), ..., { immediate: true, flush: 'post' })`).
+  // The returned cleanup also destroys the instance on unmount, so no instance
+  // leaks when the resolved element never changes.
   useEffect(() => {
-    if (watchElement) {
-      // mirrors upstream's `watch(() => unrefElement(el), ..., { immediate: true, flush: 'post' })`
-      cleanup()
-      if (typeof resolved !== 'string' && resolved)
-        initSortable(resolved)
+    if (!watchElement || typeof resolved === 'string')
       return
-    }
-
-    // default: initialize once on mount (upstream `tryOnMounted(start)`),
-    // destroy on unmount (upstream `tryOnScopeDispose`)
-    start()
+    cleanup()
+    if (resolved)
+      initSortable(resolved)
     return cleanup
   }, [cleanup, initSortable, resolved, watchElement])
+
+  // default (and string + watchElement, which upstream routes into
+  // `tryOnMounted(start)`): initialize once on mount (upstream
+  // `tryOnMounted(start)`), destroy on unmount (upstream `tryOnScopeDispose`).
+  // Keyed on the `el` identity, so a ref-like object whose `.current` swaps
+  // keeps the instance on the element resolved at mount — `start()` re-queries
+  // the target manually (upstream persist behavior).
+  useEffect(() => {
+    if (watchElement && typeof el !== 'string')
+      return
+    start()
+    return cleanup
+  }, [cleanup, start, watchElement, el])
 
   return {
     start,
