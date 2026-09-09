@@ -1,4 +1,4 @@
-import { expect, it } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useDocumentVisibility } from '../useDocumentVisibility'
 
@@ -41,14 +41,15 @@ it('useDocumentVisibility is SSR-safe and defaults to visible without a document
 
 it('useDocumentVisibility removes its listeners on unmount', async () => {
   const mockDocument = new MockDocument()
-  const { result, unmount } = await renderHook(() => useDocumentVisibility({ document: mockDocument as unknown as Document }))
+  // React 18 silently no-ops setState after unmount, so a leaked listener
+  // would pass a state-only assertion — spy on the removal itself instead
+  const removeSpy = vi.spyOn(mockDocument, 'removeEventListener')
+  const { unmount } = await renderHook(() => useDocumentVisibility({ document: mockDocument as unknown as Document }))
 
-  unmount()
+  expect(removeSpy).not.toHaveBeenCalled()
 
-  expect(() => {
-    mockDocument.visibilityState = 'visible'
-    mockDocument.dispatchEvent(new Event('visibilitychange'))
-  }).not.toThrow()
+  await unmount()
 
-  expect(result.current).toBe('hidden')
+  // the cleanup must have removed the visibilitychange listener
+  expect(removeSpy).toHaveBeenCalledWith('visibilitychange', expect.any(Function))
 })

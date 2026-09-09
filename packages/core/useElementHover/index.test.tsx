@@ -53,6 +53,39 @@ describe('useElementHover', () => {
     expect(result.current).toBe(true)
   })
 
+  it('should track hover with a custom window instance', async () => {
+    // upstream gates the whole hook on `window` being truthy — a custom
+    // instance enables tracking without relying on the global window
+    const el = document.createElement('button')
+    const customWindow = new EventTarget() as unknown as Window
+    const { result, act } = await renderHook(() => useElementHover(el, { window: customWindow }))
+
+    await act(() => {
+      el.dispatchEvent(new MouseEvent('mouseenter'))
+    })
+    expect(result.current).toBe(true)
+
+    await act(() => {
+      el.dispatchEvent(new MouseEvent('mouseleave'))
+    })
+    expect(result.current).toBe(false)
+  })
+
+  it('should disable tracking entirely when window is null', async () => {
+    // upstream: `window = defaultWindow; if (!window) return isHovered` —
+    // an explicit `null` window must not silently fall back to the global
+    // window; no listeners are attached and the state stays `false`
+    const el = document.createElement('button')
+    const { result, act } = await renderHook(() => useElementHover(el, { window: null as unknown as Window }))
+
+    await act(() => {
+      el.dispatchEvent(new MouseEvent('mouseenter'))
+      el.dispatchEvent(new MouseEvent('mouseleave'))
+      document.dispatchEvent(new MouseEvent('mouseenter'))
+    })
+    expect(result.current).toBe(false)
+  })
+
   it('should toggle hover state on mouseenter / mouseleave', async () => {
     const el = document.createElement('button')
     const { result, act } = await renderHook(() => useElementHover(el))

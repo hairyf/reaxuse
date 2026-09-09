@@ -1,3 +1,4 @@
+import type { UseElementOverflowReturn } from '../useElementOverflow'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useElementOverflow } from '../useElementOverflow'
@@ -215,16 +216,75 @@ describe('useElementOverflow', () => {
     el.remove()
   })
 
-  it('stop() stops observing and updating', async () => {
+  it('stop() disconnects the observers but update() keeps re-measuring', async () => {
     const el = document.createElement('div')
     changeDomSize(el, 'offsetWidth', 10)
     changeDomSize(el, 'scrollWidth', 50)
 
     const { result, act } = await renderHook(() => useElementOverflow(el))
 
+    // stop() only disconnects the observers — like upstream (no stop guard on
+    // its public `update`), the manual update still re-measures after stop()
     result.current.stop()
     await act(() => result.current.update())
-    expect(result.current.isXOverflowed).toBe(false)
+    expect(result.current.isXOverflowed).toBe(true)
+  })
+
+  it('stop() disconnects the observers', async () => {
+    const disconnect = vi.fn()
+    vi.stubGlobal('ResizeObserver', class {
+      constructor(_callback: ResizeObserverCallback) {}
+
+      observe(): void {}
+
+      unobserve(): void {}
+
+      disconnect = disconnect
+    })
+
+    const el = document.createElement('div')
+    document.body.appendChild(el)
+    const { result } = await renderHook(() => useElementOverflow(el))
+
+    expect(disconnect).not.toHaveBeenCalled()
+    result.current.stop()
+    expect(disconnect).toHaveBeenCalled()
+    el.remove()
+  })
+
+  it('captures observeMutation once at mount and ignores later option changes', async () => {
+    const observed: MutationObserverInit[] = []
+
+    vi.stubGlobal('MutationObserver', class {
+      constructor(_callback: MutationCallback) {}
+
+      observe(_target: Node, options?: MutationObserverInit): void {
+        observed.push(options ?? {})
+      }
+
+      disconnect(): void {}
+
+      takeRecords(): MutationRecord[] {
+        return []
+      }
+    })
+
+    const el = document.createElement('div')
+
+    const { rerender } = await renderHook<{ observeMutation: boolean | MutationObserverInit }, UseElementOverflowReturn>(
+      (props = { observeMutation: false }) =>
+        useElementOverflow(el, { observeMutation: props.observeMutation }),
+      { initialProps: { observeMutation: { childList: true, subtree: true } } },
+    )
+
+    // attached once with the initial init
+    expect(observed).toEqual([{ childList: true, subtree: true }])
+
+    // upstream destructures observeMutation once at setup — a swapped init
+    // object or a boolean flip after mount must not re-attach the observer
+    await rerender({ observeMutation: { childList: true, characterData: true } })
+    await rerender({ observeMutation: false })
+    expect(observed).toEqual([{ childList: true, subtree: true }])
   })
 
   it('should start observing when a ref target attaches after mount', async () => {

@@ -1,9 +1,8 @@
 import type { RefOrValue } from '@reaxuse/shared'
-import type { Pausable } from '../useTimeoutPoll'
+import type { Pausable } from '../useRafFn'
 import { toValue } from '@reaxuse/shared'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRafFn } from '../useRafFn'
-import { useSupported } from '../useSupported'
 
 export interface UseElementByPointOptions<Multiple extends boolean = false> {
   /**
@@ -86,7 +85,10 @@ type ElementByPointElement<M extends boolean> = M extends true ? HTMLElement[] :
  * - the Vue `ShallowRef<HTMLElement | HTMLElement[] | null>` return becomes a
  *   plain `element` value read directly off the result object;
  * - the Vue `ComputedRef<boolean>` `isSupported` becomes a plain boolean
- *   evaluated once in the mount effect (SSR-safe: `false` until then);
+ *   probed in an effect after every render (the repo's `useSupported` probe
+ *   is one-shot, so it is not reused here) — flipping `multiple` or swapping
+ *   `document` re-evaluates support, like upstream's computed; SSR-safe:
+ *   `false` during render and until the first effect run;
  * - `x` and `y` are read-only value sources and take plain numbers
  *   (upstream: `MaybeRefOrGetter<number>`; resolve a React ref or getter at
  *   the call site). They are re-read on every tick through latest-value refs,
@@ -95,9 +97,13 @@ type ElementByPointElement<M extends boolean> = M extends true ? HTMLElement[] :
  *   a value source);
  * - the `document` option is inlined (upstream: `ConfigurableDocument`) and
  *   defaults to the global `document` only on the client, so SSR renders never
- *   touch the DOM;
+ *   touch the DOM; a document missing `elementFromPoint`/`elementsFromPoint`
+ *   reports `isSupported: false` and the hit-test degrades to `null`/`[]`
+ *   instead of throwing;
  * - the `scheduler` option is called during render to compose the update loop
- *   (Rules of Hooks) and defaults to `useRafFn`, mirroring upstream.
+ *   (Rules of Hooks) and defaults to `useRafFn`, mirroring upstream; its
+ *   `Pausable` return type is imported from `useRafFn` (upstream sources it
+ *   from `@vueuse/shared` — `useRafFn` re-exports the shared type).
  *
  * @see https://vueuse.org/core/useElementByPoint/
  * @param options - UseElementByPointOptions
@@ -115,11 +121,17 @@ export function useElementByPoint<M extends boolean = false>(options: UseElement
     scheduler = useRafFn,
   } = options
 
-  const isSupported = useSupported(() => {
+  // Upstream `useSupported` is a computed re-evaluated when `multiple` or
+  // `document` change; the repo's `useSupported` probe runs exactly once, so
+  // probe here in an effect after every render instead — flipping `multiple`
+  // or swapping `document` re-evaluates support. SSR-safe: `false` during
+  // render and until the first effect run.
+  const [isSupported, setIsSupported] = useState(false)
+  useEffect(() => {
     if (toValue(multiple))
-      return documentOption && 'elementsFromPoint' in documentOption
-
-    return documentOption && 'elementFromPoint' in documentOption
+      setIsSupported(Boolean(documentOption && 'elementsFromPoint' in documentOption))
+    else
+      setIsSupported(Boolean(documentOption && 'elementFromPoint' in documentOption))
   })
 
   const [element, setElement] = useState<ElementByPointElement<M>>(null as ElementByPointElement<M>)
@@ -142,11 +154,18 @@ export function useElementByPoint<M extends boolean = false>(options: UseElement
     const pointY = yRef.current
 
     if (toValue(multipleRef.current)) {
-      const elements = doc?.elementsFromPoint(pointX, pointY) ?? []
+      // guard a feature-absent document (the `isSupported` probe reports
+      // false for it) so the hit-test degrades to an empty stack instead of
+      // calling a missing `elementsFromPoint`
+      const elements = doc && typeof doc.elementsFromPoint === 'function'
+        ? doc.elementsFromPoint(pointX, pointY)
+        : []
       setElement(elements as unknown as ElementByPointElement<M>)
     }
     else {
-      const hit = doc?.elementFromPoint(pointX, pointY) ?? null
+      const hit = doc && typeof doc.elementFromPoint === 'function'
+        ? doc.elementFromPoint(pointX, pointY)
+        : null
       setElement(hit as unknown as ElementByPointElement<M>)
     }
   }, [])

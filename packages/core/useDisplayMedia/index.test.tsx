@@ -258,6 +258,74 @@ it('auto-starts on mount when the enabled option is set', async () => {
   expect(getDisplayMedia).toHaveBeenCalledTimes(1)
 })
 
+it('drives start/stop through the writable setEnabled control', async () => {
+  const { stream, tracks } = createFakeStream()
+  const getDisplayMedia = vi.fn(async () => stream)
+  stubMediaDevices({ getDisplayMedia })
+  const { result, act } = await renderHook(() => useDisplayMedia())
+
+  expect(result.current.enabled).toBe(false)
+
+  // the acquisition resolves through microtasks — awaiting them inside the
+  // same act keeps every state update within an act scope
+  await act(async () => {
+    result.current.setEnabled(true)
+    await Promise.resolve()
+    await Promise.resolve()
+  })
+  expect(result.current.stream).toBe(stream)
+  expect(result.current.enabled).toBe(true)
+  expect(getDisplayMedia).toHaveBeenCalledTimes(1)
+
+  await act(() => result.current.setEnabled(false))
+  expect(result.current.stream).toBeUndefined()
+  expect(result.current.enabled).toBe(false)
+  expect(tracks.every(track => track.stop.mock.calls.length === 1)).toBe(true)
+})
+
+it('setEnabled supports the functional updater form', async () => {
+  const { stream } = createFakeStream()
+  const getDisplayMedia = vi.fn(async () => stream)
+  stubMediaDevices({ getDisplayMedia })
+  const { result, act } = await renderHook(() => useDisplayMedia())
+
+  await act(async () => {
+    result.current.setEnabled(prev => !prev)
+    await Promise.resolve()
+    await Promise.resolve()
+  })
+
+  expect(result.current.enabled).toBe(true)
+  expect(result.current.stream).toBe(stream)
+})
+
+it('enabled is true immediately on mount with the enabled option, before the stream resolves', async () => {
+  // a never-settling acquisition keeps the stream pending while `enabled`
+  // already reports true (upstream: `enabled.value = true` at setup)
+  const getDisplayMedia = vi.fn(() => new Promise<MediaStream>(() => {}))
+  stubMediaDevices({ getDisplayMedia })
+  const { result } = await renderHook(() => useDisplayMedia({ enabled: true }))
+
+  expect(result.current.enabled).toBe(true)
+  expect(result.current.stream).toBeUndefined()
+})
+
+it('keeps enabled true when the auto-start acquisition is rejected', async () => {
+  const getDisplayMedia = vi.fn(async () => {
+    throw new DOMException('Permission denied', 'NotAllowedError')
+  })
+  stubMediaDevices({ getDisplayMedia })
+  const { result } = await renderHook(() => useDisplayMedia({ enabled: true }))
+
+  await vi.waitFor(() => {
+    expect(getDisplayMedia).toHaveBeenCalled()
+  })
+
+  // upstream keeps `enabled.value = true` on rejection — no flip to false
+  expect(result.current.enabled).toBe(true)
+  expect(result.current.stream).toBeUndefined()
+})
+
 it('stops the stream tracks on unmount', async () => {
   const { stream, tracks } = createFakeStream()
   const getDisplayMedia = vi.fn(async () => stream)

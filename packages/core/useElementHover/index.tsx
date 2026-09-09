@@ -49,6 +49,14 @@ export interface UseElementHoverOptions extends ConfigurableWindow {
  *   `useEffect`, and the `triggerOnRemoval` `onElementRemoval` watcher is
  *   inlined as a `MutationObserver` on `document`; listeners and the observer
  *   are removed on unmount and any pending delay timer is cleared;
+ * - all options are read live, uniformly: `delayEnter` / `delayLeave` are
+ *   re-read on every event through latest-value refs, and `triggerOnRemoval`
+ *   re-binds the removal observer when it changes — upstream freezes all
+ *   three during setup (an intentional divergence, kept consistent across
+ *   the options);
+ * - `window: null` disables tracking entirely (no listeners, the state stays
+ *   `false`), matching upstream's `if (!window) return`; an omitted `window`
+ *   falls back to the global `window` only on the client;
  * - SSR-safe: nothing touches `window` or the DOM during render — listeners
  *   attach in the mount effect only and the initial state is always `false`.
  *
@@ -56,6 +64,7 @@ export interface UseElementHoverOptions extends ConfigurableWindow {
  *   to the element whose hover state is tracked
  * @param options - `delayEnter` / `delayLeave` (default `0`),
  *   `triggerOnRemoval` (default `false`) and a custom `window` instance
+ *   (`null` disables tracking)
  *
  * @example
  * const el = useRef<HTMLButtonElement>(null)
@@ -103,7 +112,10 @@ export function useElementHover(
     }
   }, [])
 
-  const instance = win ?? (typeof window === 'undefined' ? undefined : window)
+  // upstream: `window = defaultWindow` — only an *omitted* option falls back
+  // to the global window; an explicit falsy window (e.g. `null`) disables
+  // tracking entirely (`if (!window) return isHovered` — no listeners attach)
+  const instance = win === undefined ? (typeof window === 'undefined' ? undefined : window) : win
 
   // dependency-tracking read: refs populate before effects run, so the first
   // render reports `null` for ref-like targets — the effect below re-resolves

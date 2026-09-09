@@ -1,6 +1,17 @@
+import type { Dispatch, SetStateAction } from 'react'
 import type { ConfigurableNavigator } from '../useUserMedia'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSupported } from '../useSupported'
+
+/**
+ * Resolve the effective `navigator` from the `navigator` option or the global
+ * one — the single source of truth shared by the support probe and `start()`
+ * (upstream resolves once via `const { navigator = defaultNavigator } =
+ * options`).
+ */
+function resolveNavigator(custom?: Navigator | undefined): Navigator | undefined {
+  return custom ?? (typeof navigator === 'undefined' ? undefined : navigator)
+}
 
 /**
  * Options for `useDisplayMedia`.
@@ -30,7 +41,18 @@ export interface UseDisplayMediaReturn {
   stream: MediaStream | undefined
   start: () => Promise<MediaStream | undefined>
   stop: () => void
+  /**
+   * Whether the stream is currently enabled (acquired). A writable control
+   * mirroring upstream's `enabled` ref — read it to render the current
+   * state, write it through `setEnabled`.
+   */
   enabled: boolean
+  /**
+   * Set the `enabled` control: `setEnabled(true)` acquires the stream (like
+   * `start()`), `setEnabled(false)` stops it (like `stop()`). Accepts the
+   * React functional-updater form (`setEnabled(prev => !prev)`).
+   */
+  setEnabled: Dispatch<SetStateAction<boolean>>
 }
 
 /**
@@ -43,18 +65,29 @@ export interface UseDisplayMediaReturn {
  *
  * Adjustment for React:
  * - the Vue `stream`/`isSupported` refs become plain state values read off
- *   the result object (no `.value`); `enabled` is derived from the stream's
- *   presence (upstream keeps a writable ref whose watcher drives the stream);
+ *   the result object (no `.value`);
+ * - `enabled` mirrors upstream's writable control ref as plain boolean state
+ *   paired with `setEnabled`: `setEnabled(true)` acquires the stream (like
+ *   `start()`), `setEnabled(false)` stops it (like `stop()`), and the
+ *   `enabled` option only seeds the initial value (upstream reads the option
+ *   once during setup too) — a rejected acquisition leaves `enabled` `true`
+ *   and `enabled` is `true` immediately at mount, before the stream
+ *   resolves, matching upstream's edge cases;
  * - `start`/`stop` are stable callbacks reading the latest state and options
- *   through refs; the `enabled` option acquires the stream automatically
- *   once mounted (and supported), mirroring upstream's
- *   `watch(enabled, ..., { immediate: true })`;
+ *   through refs; the effect keyed on `enabled` mirrors upstream's
+ *   `watch(enabled, ..., { immediate: true })`, driving `start`/`stop` on
+ *   every change. The auto-start call swallows its rejection (a
+ *   fire-and-forget background acquisition must not surface an unhandled
+ *   rejection); manual `start()` calls still propagate errors;
  * - upstream's per-track `useEventListener(t, 'ended', stop)` becomes one
  *   effect keyed on the stream binding an `ended` listener to every track,
  *   removed when the stream changes or the hook unmounts;
  * - concurrent `start()` calls share one pending acquisition (React effects
  *   can re-run; upstream's watcher fires once);
- * - `tryOnScopeDispose(stop)` becomes an unmount cleanup.
+ * - stopping the capture on unmount is an intentional React addition:
+ *   React effects own the resources they create, so unmounting stops the
+ *   acquired tracks (upstream has no `tryOnScopeDispose(stop)` and leaves
+ *   the capture running).
  *
  * @see https://vueuse.org/useDisplayMedia
  *
@@ -68,11 +101,13 @@ export interface UseDisplayMediaReturn {
  */
 export function useDisplayMedia(options: UseDisplayMediaOptions = {}): UseDisplayMediaReturn {
   const [stream, setStream] = useState<MediaStream | undefined>(undefined)
+  // upstream: `enabled = shallowRef(options.enabled ?? false)` — the option
+  // seeds the writable control exactly once, later changes to the option are
+  // ignored (use `setEnabled` to control it)
+  const [enabled, setEnabled] = useState<boolean>(() => options.enabled ?? false)
   const isSupported = useSupported(() => {
-    const nav = options.navigator ?? (typeof navigator === 'undefined' ? undefined : navigator)
-    return Boolean(nav?.mediaDevices?.getDisplayMedia)
+    return Boolean(resolveNavigator(options.navigator)?.mediaDevices?.getDisplayMedia)
   })
-  const enabled = stream !== undefined
 
   // Latest-value refs keeping the stable callbacks fresh without changing
   // their identities across renders.
@@ -88,20 +123,20 @@ export function useDisplayMedia(options: UseDisplayMediaOptions = {}): UseDispla
     setStream(value)
   }, [])
 
-  const resolveNavigator = useCallback((): Navigator | undefined => {
-    return optionsRef.current.navigator ?? (typeof navigator === 'undefined' ? undefined : navigator)
-  }, [])
-
   const start = useCallback((): Promise<MediaStream | undefined> => {
-    // Already streaming: mirror upstream and hand back the live stream.
-    if (streamRef.current)
+    // Already streaming: mirror upstream (`_start` bails on an existing
+    // stream, then `start()` sets `enabled.value = true`) and hand back the
+    // live stream.
+    if (streamRef.current) {
+      setEnabled(true)
       return Promise.resolve(streamRef.current)
+    }
     // Share a single acquisition while one is pending.
     if (pendingRef.current)
       return pendingRef.current
     if (!isSupportedRef.current)
       return Promise.resolve(undefined)
-    const nav = resolveNavigator()
+    const nav = resolveNavigator(optionsRef.current.navigator)
     if (!nav?.mediaDevices?.getDisplayMedia)
       return Promise.resolve(undefined)
     const acquisition = nav.mediaDevices.getDisplayMedia({
@@ -109,6 +144,8 @@ export function useDisplayMedia(options: UseDisplayMediaOptions = {}): UseDispla
       video: optionsRef.current.video,
     }).then((mediaStream) => {
       updateStream(mediaStream)
+      // mirror upstream's `start()`: a successful acquisition flips `enabled`
+      setEnabled(true)
       return mediaStream
     })
     pendingRef.current = acquisition
@@ -122,16 +159,23 @@ export function useDisplayMedia(options: UseDisplayMediaOptions = {}): UseDispla
   const stop = useCallback((): void => {
     streamRef.current?.getTracks().forEach(track => track.stop())
     updateStream(undefined)
+    // mirror upstream's `stop()`: `enabled.value = false`
+    setEnabled(false)
   }, [updateStream])
 
-  // Mirror of upstream's `watch(enabled, ..., { immediate: true })`: with the
-  // `enabled` option the stream is acquired automatically once mounted (and
-  // supported). `enabled` is derived from the stream, so there is no reverse
-  // direction to watch — stopping always clears the stream.
+  // Mirror of upstream's `watch(enabled, ..., { immediate: true })`: the
+  // `enabled` control drives `start`/`stop` on every change (mount included,
+  // so the `enabled` option acquires the stream automatically once mounted
+  // and supported). `isSupported` stays a dependency so an auto-start that
+  // first runs before the mount probe resolves re-runs once support is
+  // known. The auto-start swallows its rejection (see the header note);
+  // manual `start()` calls still propagate errors.
   useEffect(() => {
-    if (optionsRef.current.enabled)
-      void start()
-  }, [isSupported, start])
+    if (enabled)
+      void start().catch(() => {})
+    else
+      stop()
+  }, [enabled, start, stop, isSupported])
 
   // Mirror of upstream's per-track `useEventListener(t, 'ended', stop)`: when
   // a track ends natively (e.g. the user stops sharing from the browser UI),
@@ -147,7 +191,9 @@ export function useDisplayMedia(options: UseDisplayMediaOptions = {}): UseDispla
     }
   }, [stream, stop])
 
-  // Mirror of upstream's `tryOnScopeDispose(stop)`.
+  // Intentional React addition (upstream has no `tryOnScopeDispose(stop)`):
+  // the stream is owned by this hook's effects, so unmounting stops the
+  // acquired tracks instead of leaving the capture running.
   useEffect(() => {
     return () => {
       stop()
@@ -160,5 +206,6 @@ export function useDisplayMedia(options: UseDisplayMediaOptions = {}): UseDispla
     start,
     stop,
     enabled,
+    setEnabled,
   }
 }

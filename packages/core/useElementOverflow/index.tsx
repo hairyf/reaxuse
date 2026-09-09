@@ -23,7 +23,9 @@ const DEFAULT_MUTATION_OPTIONS: MutationObserverInit = {
  */
 export interface UseElementOverflowOptions extends ConfigurableWindow {
   /**
-   * Use MutationObserver to observe the target and its children.
+   * Use MutationObserver to observe the target and its children. Captured once
+   * on mount — later changes are ignored (upstream destructures it once at
+   * setup too).
    *
    * @default false
    */
@@ -83,8 +85,10 @@ export interface UseElementOverflowReturn {
  *   `HTMLElement` children after every render and reconciles the observers —
  *   the `ResizeObserver` is rebuilt only when the resolved element set or the
  *   `window` option changed (unchanged renders never disconnect a live
- *   observer, so pending deliveries are not dropped), the `MutationObserver`
- *   whenever `observeMutation` toggles;
+ *   observer, so pending deliveries are not dropped), while `observeMutation`
+ *   is captured once at mount — upstream destructures it once at setup, so
+ *   later changes (boolean flips or swapped init objects) are ignored and
+ *   `stop()` is the way to halt observation;
  * - the Vue component/directive variants (`UseElementOverflow`,
  *   `vElementOverflow`) are not ported — they have no React equivalents;
  * - SSR-safe: nothing touches `window` during render, and `update()` no-ops
@@ -116,6 +120,10 @@ export function useElementOverflow(
   const resizeObserverRef = useRef<ResizeObserver | undefined>(undefined)
   const mutationObserverRef = useRef<MutationObserver | undefined>(undefined)
   const previousRef = useRef<{ window: Window | undefined, elements: Element[] } | undefined>(undefined)
+  // upstream destructures `observeMutation` once at setup — capture the first
+  // value and ignore later option changes (`stop()` halts observation); this
+  // also keeps boolean flips and swapped init objects from half-reacting
+  const observeMutationRef = useRef(option.observeMutation)
 
   // upstream `targetEl` computed: resolve the target, ignoring SVG elements
   const resolveTargetElement = useCallback((): HTMLElement | undefined => {
@@ -157,7 +165,7 @@ export function useElementOverflow(
     if (stoppedRef.current)
       return
 
-    const { observeMutation = false } = optionsRef.current
+    const observeMutation = observeMutationRef.current
     const win = resolveWindow()
     if (!win)
       return
@@ -237,10 +245,10 @@ export function useElementOverflow(
     mutationObserverRef.current = undefined
   }, [])
 
-  // upstream's public `update`: re-check the overflow state immediately.
+  // upstream's public `update`: re-check the overflow state immediately. No
+  // stop guard — like upstream, `update()` keeps re-measuring after `stop()`
+  // (only the observers stop).
   const update = useCallback(() => {
-    if (stoppedRef.current)
-      return
     const el = resolveTargetElement()
     const win = resolveWindow()
     if (el && win)

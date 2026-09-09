@@ -124,6 +124,23 @@ describe('useElementByPoint', () => {
     })
   })
 
+  it('re-probes isSupported when multiple flips on a document with partial support', async () => {
+    // `elementFromPoint` exists but `elementsFromPoint` does not
+    const partialDocument = {
+      elementFromPoint: () => null,
+    } as unknown as Document
+
+    const { result, rerender } = await renderHook(
+      (props: { multiple: boolean } = { multiple: false }) => useElementByPoint({ x: 0, y: 0, document: partialDocument, multiple: props.multiple }),
+      { initialProps: { multiple: false } },
+    )
+
+    await vi.waitFor(() => expect(result.current.isSupported).toBe(true))
+
+    await rerender({ multiple: true })
+    await vi.waitFor(() => expect(result.current.isSupported).toBe(false))
+  })
+
   it('uses a custom document option', async () => {
     const customDocument = document.implementation.createHTMLDocument('useElementByPoint-test')
     const hit = customDocument.createElement('article')
@@ -141,6 +158,46 @@ describe('useElementByPoint', () => {
     const { result } = await renderHook(() => useElementByPoint({ x: 0, y: 0 }))
 
     await vi.waitFor(() => expect(result.current.isSupported).toBe(true))
+  })
+
+  it('reports isSupported false and no element on a document without elementFromPoint', async () => {
+    const unsupportedDocument = {} as unknown as Document
+    const { result } = await renderHook(() => useElementByPoint({ x: 0, y: 0, document: unsupportedDocument }))
+
+    await vi.waitFor(() => expect(result.current.isSupported).toBe(false))
+    await vi.waitFor(() => expect(result.current.element).toBe(null))
+  })
+
+  it('reports isSupported false and an empty stack in multiple mode on a document without elementsFromPoint', async () => {
+    const unsupportedDocument = {} as unknown as Document
+    const { result } = await renderHook(() => useElementByPoint({ x: 0, y: 0, multiple: true, document: unsupportedDocument }))
+
+    await vi.waitFor(() => expect(result.current.isSupported).toBe(false))
+    await vi.waitFor(() => expect(result.current.element).toEqual([]))
+  })
+
+  it('supports a custom scheduler driving the element updates', async () => {
+    const hit = createElement('div')
+    const spy = vi.spyOn(document, 'elementFromPoint').mockReturnValue(hit)
+
+    let scheduled: (() => void) | undefined
+    const scheduler = vi.fn((cb: () => void) => {
+      scheduled = cb
+      return { isActive: true, pause: vi.fn(), resume: vi.fn() }
+    })
+
+    const { result, act } = await renderHook(() => useElementByPoint({ x: 7, y: 8, scheduler }))
+
+    // the loop is composed through the custom scheduler, not useRafFn
+    expect(scheduler).toHaveBeenCalled()
+    expect(result.current.isActive).toBe(true)
+    expect(typeof result.current.pause).toBe('function')
+    expect(typeof result.current.resume).toBe('function')
+
+    // the custom scheduler drives the hit-test
+    await act(() => scheduled?.())
+    expect(spy).toHaveBeenCalledWith(7, 8)
+    expect(result.current.element).toBe(hit)
   })
 
   it('exposes pausable controls', async () => {
