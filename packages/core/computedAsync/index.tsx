@@ -1,6 +1,6 @@
-import type { RefOrValue } from '@reaxuse/shared'
-import { noop, toValue } from '@reaxuse/shared'
-import { useEffect, useRef, useState } from 'react'
+import type { State } from '@reaxuse/shared'
+import { noop, useControllableState } from '@reaxuse/shared'
+import { useEffect, useRef } from 'react'
 
 /**
  * Upstream re-exports `Fn` from `@vueuse/shared` types; `@reaxuse/shared`
@@ -64,8 +64,9 @@ const EMPTY_DEPS: unknown[] = []
  * React adaptation:
  *
  * - returns the plain resolved value `T` (repo convention §2B — pure-derived
- *   value, not a ref/tuple), starting at `toValue(initialState)` and held in
- *   internal `useState`; the hook never mutates anything during render;
+ *   value, not a ref/tuple), starting at `initialState` and managed through
+ *   shared `useControllableState`; controlled state receives async results via
+ *   its tuple setter or `{ value, onChange }` callback;
  * - upstream tracks reactive dependencies automatically; React has no
  *   reactive graph, so re-evaluation is driven by the explicit
  *   `options.deps` array, compared with `useEffect` semantics (default `[]`
@@ -115,7 +116,7 @@ const EMPTY_DEPS: unknown[] = []
  */
 export function computedAsync<T>(
   evaluationCallback: (onCancel: AsyncComputedOnCancel) => T | Promise<T>,
-  initialState: RefOrValue<T>,
+  initialState: State<T>,
   options?: AsyncComputedOptions,
 ): T {
   const {
@@ -125,7 +126,7 @@ export function computedAsync<T>(
     onError = defaultOnError,
   } = options ?? {}
 
-  const [state, setState] = useState<T>(() => toValue(initialState))
+  const [state, setState] = useControllableState(initialState, { passive: true })
 
   // Latest-input mirrors synced every render (house pattern) so the effect
   // always reads the newest inputs while `deps` stays the only trigger.

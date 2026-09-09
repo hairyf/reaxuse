@@ -1,5 +1,5 @@
-import type { RefOrValue } from '@reaxuse/shared'
-import { noop, promiseTimeout, toValue } from '@reaxuse/shared'
+import type { State } from '@reaxuse/shared'
+import { noop, promiseTimeout, toValue, useControllableState } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -130,7 +130,7 @@ export interface UseAsyncStateOptions<Shallow extends boolean = true, D = any> {
  */
 export function useAsyncState<Data, Params extends any[] = any[], Shallow extends boolean = true>(
   promise: Promise<Data> | ((...args: Params) => Promise<Data>),
-  initialState: RefOrValue<Data>,
+  initialState: State<Data>,
   options?: UseAsyncStateOptions<Shallow, Data>,
 ): UseAsyncStateReturn<Data, Params, Shallow> {
   const {
@@ -142,7 +142,7 @@ export function useAsyncState<Data, Params extends any[] = any[], Shallow extend
     throwError,
   } = options || {}
 
-  const [state, setState] = useState<Data>(() => toValue(initialState))
+  const [state, setState] = useControllableState(initialState, { passive: true })
   const [isReady, setIsReady] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<unknown>(undefined)

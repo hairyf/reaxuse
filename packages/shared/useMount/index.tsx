@@ -1,21 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 /**
- * React port of hairylib's `useMounted`.
+ * React port of react-use's `useMount`.
  *
- * Map from hairylib `useMounted`
- * Mapping: react-use's `useMount` runs a callback once on mount via
- * `useEffectOnce`; hairylib's `useMounted` instead returns a `boolean`
- * that becomes `true` once the component has mounted. This port follows
- * hairylib semantics — `useState(false)` tracks the flag and an empty
- * `useEffect` flips it to `true` after the first render.
+ * Map from react-use `useMount`.
+ * Runs `fn` exactly once after the component mounts.
  *
  * @example
- * const mounted = useMount()
- * // `false` on the first render, `true` after mount
+ * useMount(() => {
+ *   trackPageView()
+ * })
  */
-export function useMount(): boolean {
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
-  return mounted
+export function useMount(fn: () => void): void {
+  useEffect(() => {
+    fn()
+  }, [])
 }

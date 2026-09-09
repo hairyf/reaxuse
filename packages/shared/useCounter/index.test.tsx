@@ -1,4 +1,4 @@
-import { expect, it } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
 import { useCounter } from '../useCounter'
 
@@ -26,6 +26,15 @@ it('useCounter increments and decrements (component)', async () => {
 
   await screen.getByRole('button', { name: 'Decrement' }).click()
   await expect.element(screen.getByText('Count is 5')).toBeVisible()
+})
+
+it('useCounter supports controlled State tuples', async () => {
+  const setter = vi.fn()
+  const { result, act } = await renderHook(() => useCounter([5, setter]))
+
+  await act(() => result.current.inc(2))
+  expect(setter).toHaveBeenCalledWith(7)
+  expect(result.current.count).toBe(5)
 })
 
 it('useCounter respects min/max bounds', async () => {

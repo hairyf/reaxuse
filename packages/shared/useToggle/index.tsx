@@ -1,4 +1,6 @@
-import { useCallback, useState } from 'react'
+import type { State } from '../useControllableState'
+import { useCallback } from 'react'
+import { useControllableState } from '../useControllableState'
 
 export type UseToggleReturn<T extends boolean | number | string = boolean> = [
   T,
@@ -9,8 +11,8 @@ export type UseToggleReturn<T extends boolean | number | string = boolean> = [
  * React port of VueUse's `useToggle`.
  *
  * Map from @vueuse/shared `useToggle`
- * Mapping: `ref(initialValue)` → `useState(initialValue)`,
- * `toggle()` → stable `useCallback`.
+ * Mapping: `ref(initialValue)` → `useControllableState(initialValue)`,
+ * `toggle()` → stable `useCallback`; accepts the full `State<T>` input.
  *
  * @example
  * const [value, toggle] = useToggle()
@@ -18,9 +20,9 @@ export type UseToggleReturn<T extends boolean | number | string = boolean> = [
  * toggle(false)   // force to false
  */
 export function useToggle<T extends boolean | number | string = boolean>(
-  initialValue: T = false as T,
+  initialValue: State<T> = false as T,
 ): UseToggleReturn<T> {
-  const [state, setState] = useState<T>(initialValue)
+  const [state, setState] = useControllableState(initialValue, { passive: true })
 
   const toggle = useCallback((value?: T | ((current: T) => T)) => {
     setState((current) => {
@@ -28,7 +30,7 @@ export function useToggle<T extends boolean | number | string = boolean>(
         return (value as (c: T) => T)(current)
       return (value !== undefined ? value : !current) as T
     })
-  }, [])
+  }, [setState])
 
   return [state, toggle]
 }

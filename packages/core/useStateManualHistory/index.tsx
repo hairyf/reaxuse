@@ -1,4 +1,6 @@
+import type { State } from '@reaxuse/shared'
 import type { Dispatch, SetStateAction } from 'react'
+import { useControllableState } from '@reaxuse/shared'
 import { useCallback, useRef, useState } from 'react'
 
 export interface UseRefHistoryRecord<T> {
@@ -155,10 +157,10 @@ function defaultParse<Raw, Serialized>(clone?: boolean | ((value: Raw) => Raw)) 
  * undo() // count back to the previous record
  */
 export function useStateManualHistory<Raw, Serialized = Raw>(
-  source: Raw,
-  setSource: Dispatch<SetStateAction<Raw>>,
+  state: State<Raw>,
   options: UseStateManualHistoryOptions<Raw, Serialized> = {},
 ): UseStateManualHistoryReturn<Raw, Serialized> {
+  const [source, setSource] = useControllableState(state, { passive: true })
   const { capacity, clone = false, dump, parse } = options
 
   // latest-value refs synced each render so every control below is a stable

@@ -4,7 +4,7 @@ category: Reactivity
 
 # useStateAutoReset
 
-A state which will be reset to the default value after some time
+A controllable state which resets to its default value after some time. The first argument accepts a plain value, lazy getter, ref-like object, state tuple, or controlled `{ value, onChange }` pair.
 
 ## Usage
 

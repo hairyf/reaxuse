@@ -1,6 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react'
-import type { RefOrValue } from '../index'
+import type { State } from '../useControllableState'
 import { useCallback, useRef, useState } from 'react'
+import { useControllableState } from '../useControllableState'
 import { toValue } from '../utils'
 
 export interface UseStateWithControlOptions<T> {
@@ -97,8 +98,8 @@ export type UseStateWithControlReturn<T> = [
  * `onBeforeChange` can dismiss a change by returning `false`, and `onChanged`
  * fires synchronously after an accepted change.
  *
- * @param   value    Initial value. A plain value, a getter or a ref-like
- *                   `{ current }` — resolved once with `toValue`.
+ * @param   state    State source: a plain value, getter, ref-like value, state
+ *                   tuple, or `{ value, onChange }` controllable state.
  * @param   options
  * @return  A tuple `[value, setValue, control]` — the current value, a
  *          `setState`-like setter and the fine-grained control object.
@@ -111,18 +112,17 @@ export type UseStateWithControlReturn<T> = [
  * control.peek() // get the value without tracking
  */
 export function useStateWithControl<T>(
-  value: RefOrValue<T>,
+  state: State<T>,
   options: UseStateWithControlOptions<T> = {},
 ): UseStateWithControlReturn<T> {
   const { onBeforeChange, onChanged } = options
 
-  const initial = toValue(value)
-  const initialRef = useRef(initial)
-  const [state, setState] = useState(initial)
-
-  // single source of truth — the rendered `state` mirrors it, but
-  // `set(value, false)` advances it without re-rendering the component
-  const sourceRef = useRef(initial)
+  const initialRef = useRef(toValue(state))
+  const sourceRef = useRef(initialRef.current)
+  const [, forceRender] = useState(0)
+  const [value, setState] = useControllableState(state, { passive: true })
+  if (Array.isArray(state) || (typeof state === 'object' && state !== null && 'value' in state))
+    sourceRef.current = value
 
   // latest option callbacks, re-read on every render
   const callbacksRef = useRef({ onBeforeChange, onChanged })
@@ -139,8 +139,10 @@ export function useStateWithControl<T>(
     sourceRef.current = nextValue
     callbacksRef.current.onChanged?.(nextValue, old)
 
-    if (triggering)
+    if (triggering) {
       setState(nextValue)
+      forceRender(value => value + 1)
+    }
   }, [])
 
   const get = useCallback((_tracking = true): T => {
@@ -171,5 +173,5 @@ export function useStateWithControl<T>(
     reset,
   }
 
-  return [state, setValue, control]
+  return [value, setValue, control]
 }

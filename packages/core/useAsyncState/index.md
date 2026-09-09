@@ -4,16 +4,19 @@ category: State
 
 # useAsyncState
 
-Reactive async state. Will not block your component and will trigger changes once the promise is ready
+Reactive async state. Will not block your component and will trigger changes once the promise is ready.
+
+`initialState` accepts the shared `State<Data>` sources: a value, lazy initializer, React ref-like object, controlled tuple, or `{ value, onChange }` pair.
 
 ## Usage
 
 ```tsx
 import { useAsyncState } from '@reaxuse/core'
 
+const initialState = { value: { id: null } }
 const { state, isReady, isLoading, error, execute } = useAsyncState(
   fetchTodo,
-  { id: null },
+  initialState,
 )
 ```
 

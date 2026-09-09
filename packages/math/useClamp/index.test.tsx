@@ -55,6 +55,18 @@ describe('useClamp', () => {
     expect(result.current[0]).toBe(-10)
   })
 
+  it('should support a controlled state tuple', async () => {
+    let external = 3
+    const setExternal = (next: number | ((prev: number) => number)) => {
+      external = typeof next === 'function' ? next(external) : next
+    }
+    const { result, rerender, act } = await renderHook(() => useClamp([external, setExternal], 0, 10))
+    await act(() => result.current[1](15))
+    expect(external).toBe(10)
+    await rerender()
+    expect(result.current[0]).toBe(10)
+  })
+
   it('should clamp on set with plain values', async () => {
     const { result, act } = await renderHook(() => useClamp(0, 0, 10))
 

@@ -50,6 +50,24 @@ describe('useStateAutoReset', () => {
     await unmount()
   })
 
+  it('should support controlled State<T> input', async () => {
+    let current = 'default'
+    const onChange = vi.fn((value: string) => {
+      current = value
+    })
+    const { result, act, unmount, rerender } = await renderHook(() => useStateAutoReset({ value: current, onChange }, 100))
+
+    await act(() => result.current[1]('update'))
+    expect(onChange).toHaveBeenCalledWith('update')
+    current = 'update'
+    await rerender()
+    expect(result.current[0]).toBe('update')
+
+    await act(() => vi.advanceTimersByTime(101))
+    expect(onChange).toHaveBeenLastCalledWith('default')
+    await unmount()
+  })
+
   it('should be reset with ref-like defaultValue and afterMs', async () => {
     const defaultValue = { current: [123] }
     const afterMs = { current: 10 }

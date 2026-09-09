@@ -1,7 +1,9 @@
 import type { Dispatch, SetStateAction } from 'react'
-import type { RefOrValue } from '../index'
+import type { State } from '../useControllableState'
 import type { DebounceFilterOptions } from '../useDebounceFn'
+import type { RefOrValue } from '../utils'
 import { useEffect, useRef, useState } from 'react'
+import { useControllableState } from '../useControllableState'
 import { useDebounceFn } from '../useDebounceFn'
 
 export type UseStateDebouncedReturn<T = any> = [
@@ -43,12 +45,12 @@ export type UseStateDebouncedReturn<T = any> = [
  * ```
  */
 export function useStateDebounced<T>(
-  value: T,
+  value: State<T>,
   ms: RefOrValue<number> = 200,
   options: DebounceFilterOptions = {},
 ): UseStateDebouncedReturn<T> {
-  const [state, setState] = useState(value)
-  const [debounced, setDebounced] = useState(value)
+  const [state, setState] = useControllableState(value, { passive: true })
+  const [debounced, setDebounced] = useState(state)
 
   // latest state — read when the debounced timer fires so `debounced` always
   // lands on the newest written value (upstream reads `value.value` at fire)

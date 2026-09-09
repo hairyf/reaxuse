@@ -1,6 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react'
-import type { RefOrValue } from '../utils'
-import { useCallback, useRef, useState } from 'react'
+import type { State } from '../useControllableState'
+import { useCallback, useRef } from 'react'
+import { useControllableState } from '../useControllableState'
 import { toValue } from '../utils'
 
 export type UseStateManualResetReturn<T> = [
@@ -23,10 +24,9 @@ export type UseStateManualResetReturn<T> = [
  * tuple: the second element is the plain `useState` setter (value or updater
  * form), and `reset` restores the default value.
  *
- * The default value accepts a plain value or a ref-like object (`{ current }`)
- * — the shared `RefOrValue` form — resolved with `toValue`. Like the
- * upstream implementation, `reset` re-reads it on every call — a dynamic
- * default always resets to the latest value.
+ * The state input accepts the shared `State<T>` form: a value, getter, ref-like
+ * object, state tuple, or controlled `{ value, onChange }` object. The reset
+ * target is read from that input on every call, so dynamic defaults stay current.
  *
  * @example
  * const [message, setMessage, resetMessage] = useStateManualReset('default message')
@@ -34,16 +34,16 @@ export type UseStateManualResetReturn<T> = [
  * resetMessage()
  * console.log(message) // 'default message'
  */
-export function useStateManualReset<T>(defaultValue: RefOrValue<T>): UseStateManualResetReturn<T> {
-  // latest default re-synced each render so `reset` stays a stable callback
-  // that always re-reads the up-to-date default value on each call
-  const defaultValueRef = useRef(defaultValue)
-  defaultValueRef.current = defaultValue
+export function useStateManualReset<T>(value: State<T>): UseStateManualResetReturn<T> {
+  // latest input re-synced each render so `reset` stays stable while reading
+  // the current source value when invoked
+  const valueRef = useRef(value)
+  valueRef.current = value
 
-  const [state, setState] = useState<T>(() => toValue(defaultValue))
+  const [state, setState] = useControllableState(value, { passive: true })
 
   const reset = useCallback(() => {
-    setState(toValue(defaultValueRef.current))
+    setState(toValue(valueRef.current))
   }, [])
 
   return [state, setState, reset]

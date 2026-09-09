@@ -1,34 +1,31 @@
+import { useState } from 'react'
 import { expect, it } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
 import { useMount } from '../useMount'
 
-it('useMount is false on the first render and true after mount (component)', async () => {
-  let firstRenderValue: boolean | undefined
-  function Tracker() {
-    const mounted = useMount()
-    firstRenderValue ??= mounted
-    return <span>{String(mounted)}</span>
+it('useMount runs the callback once after mount', async () => {
+  const calls: string[] = []
+  function Demo() {
+    useMount(() => calls.push('mounted'))
+    return <span>ready</span>
   }
 
-  const screen = await render(<Tracker />)
-
-  // The value observed during the first render, before the mount effect ran.
-  expect(firstRenderValue).toBe(false)
-  // After the mount effect flushes, the flag is `true`.
-  await expect.element(screen.getByText('true')).toBeVisible()
+  const screen = await render(<Demo />)
+  expect(calls).toEqual(['mounted'])
+  await screen.unmount()
+  expect(calls).toEqual(['mounted'])
 })
 
-it('useMount returns true after mount (renderHook)', async () => {
-  const { result } = await renderHook(() => useMount())
+it('useMount does not rerun the callback on re-render', async () => {
+  const calls: number[] = []
+  const { rerender, unmount } = await renderHook(() => {
+    const [, setCount] = useState(0)
+    useMount(() => calls.push(1))
+    return setCount
+  })
 
-  expect(result.current).toBe(true)
-})
-
-it('useMount unmount does not throw and value stays true', async () => {
-  const { result, unmount } = await renderHook(() => useMount())
-
-  expect(result.current).toBe(true)
-
+  expect(calls).toEqual([1])
+  await rerender()
+  expect(calls).toEqual([1])
   await unmount()
-  expect(result.current).toBe(true)
 })

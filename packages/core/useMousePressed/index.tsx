@@ -1,6 +1,6 @@
-import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue, State } from '@reaxuse/shared'
 import type { UseMouseSourceType } from '../useMouse'
-import { toValue } from '@reaxuse/shared'
+import { toValue, useControllableState } from '@reaxuse/shared'
 import { useEffect, useRef, useState } from 'react'
 
 export interface UseMousePressedOptions extends ConfigurableWindow {
@@ -31,7 +31,7 @@ export interface UseMousePressedOptions extends ConfigurableWindow {
    *
    * @default false
    */
-  initialValue?: boolean
+  initialValue?: State<boolean>
 
   /**
    * Element target to be capture the click
@@ -96,7 +96,7 @@ export function useMousePressed(options: UseMousePressedOptions = {}): UseMouseP
     window: win,
   } = options
 
-  const [pressed, setPressed] = useState(initialValue)
+  const [pressed, setPressed] = useControllableState(initialValue, { passive: true })
   const [sourceType, setSourceType] = useState<UseMouseSourceType>(null)
 
   // latest-value ref synced each render so the listeners registered in the

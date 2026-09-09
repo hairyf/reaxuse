@@ -44,6 +44,13 @@ function PackageSearch() {
 }
 ```
 
+`initialState` accepts any shared `State<T>`: a plain value, ref-like value, state tuple, or `{ value, onChange }` object. With a tuple or object, resolved values are published through the supplied setter/callback while the hook remains controlled by the current `value`.
+
+```tsx
+const [value, setValue] = useState('—')
+const downloads = computedAsync(fetchDownloads, [value, setValue])
+```
+
 Behavior notes:
 
 - re-evaluation is keyed by `deps` (default `[]` = once on mount); `lazy: true` skips the mount evaluation so only `deps` changes trigger it;

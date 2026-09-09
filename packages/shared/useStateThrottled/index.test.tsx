@@ -114,6 +114,28 @@ describe('useStateThrottled', () => {
     expect(result.current[2]).toBe('b')
   })
 
+  it('supports a controlled State tuple and routes updates to its setter', async () => {
+    let external = 'initial'
+    const setExternal = vi.fn((next: string) => {
+      external = next
+    })
+    const { result, rerender, act } = await renderHook(() => useStateThrottled([external, setExternal], 1000))
+
+    await act(async () => result.current[1]('next'))
+    expect(setExternal).toHaveBeenCalledWith('next')
+    external = 'next'
+    await rerender()
+    expect(result.current[0]).toBe('next')
+    expect(result.current[2]).toBe('next')
+  })
+
+  it('supports an object State source and onChange callback', async () => {
+    const onChange = vi.fn()
+    const { result, act } = await renderHook(() => useStateThrottled({ value: 'initial', onChange }, 1000))
+    await act(async () => result.current[1]('next'))
+    expect(onChange).toHaveBeenCalledWith('next')
+  })
+
   it('accepts an updater function from setValue', async () => {
     const { result, act } = await renderHook(() => useStateThrottled(0, 100))
 

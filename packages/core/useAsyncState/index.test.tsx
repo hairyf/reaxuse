@@ -153,6 +153,16 @@ describe('useAsyncState', () => {
     }
   })
 
+  it('supports initialState as a controlled state tuple', async () => {
+    const current = 200
+    const setCurrent = vi.fn()
+    const { result } = await renderHook(() => useAsyncState(Promise.resolve(100), [current, setCurrent] as const))
+    await vi.waitFor(() => {
+      expect(result.current.state).toBe(100)
+    })
+    expect(setCurrent).toHaveBeenCalledWith(100)
+  })
+
   it('supports initialState as ref-like object', async () => {
     const initialState = { current: 200 }
     const asyncValue = Promise.resolve(100)

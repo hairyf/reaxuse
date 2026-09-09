@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useToggle } from '../useToggle'
@@ -12,6 +13,19 @@ it('useToggle toggles between states', async () => {
 
   await act(() => result.current[1](false))
   expect(result.current[0]).toBe(false)
+})
+
+it('useToggle supports a controllable state tuple', async () => {
+  const { result, act } = await renderHook(() => {
+    const state = useState(false)
+    const toggle = useToggle(state)
+    return { state, toggle }
+  })
+
+  expect(result.current.toggle[0]).toBe(false)
+  await act(() => result.current.toggle[1]())
+  expect(result.current.toggle[0]).toBe(true)
+  expect(result.current.state[0]).toBe(true)
 })
 
 it('useToggle supports initial value and functional update', async () => {

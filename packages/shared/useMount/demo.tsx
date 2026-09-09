@@ -1,15 +1,15 @@
 import { useMount } from '@reaxuse/shared'
+import { useState } from 'react'
 
 export default function UseMountDemo() {
-  const mounted = useMount()
+  const [message, setMessage] = useState('waiting')
+  useMount(() => setMessage('mounted'))
 
   return (
-    <div>
-      <p>
-        mounted:
-        {' '}
-        <strong>{String(mounted)}</strong>
-      </p>
-    </div>
+    <p>
+      status:
+      {' '}
+      <strong>{message}</strong>
+    </p>
   )
 }

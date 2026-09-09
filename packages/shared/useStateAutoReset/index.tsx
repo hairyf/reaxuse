@@ -1,6 +1,8 @@
 import type { Dispatch, SetStateAction } from 'react'
+import type { State } from '../useControllableState'
 import type { RefOrValue } from '../utils'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
+import { useControllableState } from '../useControllableState'
 import { toValue } from '../utils'
 
 export type UseStateAutoResetReturn<T = any> = [T, Dispatch<SetStateAction<T>>]
@@ -14,8 +16,9 @@ export type UseStateAutoResetReturn<T = any> = [T, Dispatch<SetStateAction<T>>]
  * is the React `[value, setValue]` tuple — `value` is the state, `setValue`
  * is a `useState`-style setter (value or updater form, `Dispatch<SetStateAction>`)
  * that also (re)schedules a timer to restore `defaultValue` after `afterMs`
- * milliseconds. `defaultValue` and `afterMs` accept the shared
- * `RefOrValue` form (a plain value or a React ref) and are resolved with `toValue` at fire time
+ * milliseconds. `defaultValue` accepts the shared `State<T>` form (plain value,
+ * lazy getter, ref-like object, state tuple, or controlled `{ value, onChange }` pair).
+ * `afterMs` accepts the shared `RefOrValue<number>` form and is resolved with `toValue` at fire time
  * (upstream: `toValue`); the pending timer is cleared on unmount (upstream:
  * `tryOnScopeDispose`, timers in the effect scope). The deprecated `autoResetRef`
  * alias is not ported.
@@ -30,14 +33,15 @@ export type UseStateAutoResetReturn<T = any> = [T, Dispatch<SetStateAction<T>>]
  * }
  */
 export function useStateAutoReset<T = any>(
-  defaultValue: RefOrValue<T>,
+  defaultValue: State<T>,
   afterMs: RefOrValue<number> = 10000,
 ): UseStateAutoResetReturn<T> {
-  const [value, setValue] = useState<T>(() => toValue(defaultValue))
+  const [value, setValue] = useControllableState(defaultValue, { passive: true })
 
   // keep the latest arguments in refs so the reset always uses the newest
   // `defaultValue` / `afterMs` without re-scheduling on every render
   const defaultValueRef = useRef(defaultValue)
+  const initialValueRef = useRef(value)
   const afterMsRef = useRef(afterMs)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -52,7 +56,7 @@ export function useStateAutoReset<T = any>(
 
     timerRef.current = setTimeout(() => {
       timerRef.current = null
-      setValue(toValue(defaultValueRef.current))
+      setValue(initialValueRef.current)
     }, toValue(afterMsRef.current))
   }, [])
 

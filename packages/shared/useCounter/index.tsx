@@ -1,4 +1,7 @@
-import { useCallback, useRef, useState } from 'react'
+import type { State } from '../useControllableState'
+import { useCallback, useRef } from 'react'
+import { useControllableState } from '../useControllableState'
+import { toValue } from '../utils'
 
 export interface UseCounterOptions {
   min?: number
@@ -24,13 +27,13 @@ export interface UseCounterReturn {
  * const { count, inc, dec, set, reset } = useCounter(10, { min: 0, max: 100 })
  */
 export function useCounter(
-  initialValue = 0,
+  initialValue: State<number> = 0,
   options: UseCounterOptions = {},
 ): UseCounterReturn {
   const { min = Number.NEGATIVE_INFINITY, max = Number.POSITIVE_INFINITY } = options
   const minRef = useRef(min)
   const maxRef = useRef(max)
-  const [count, setCount] = useState(initialValue)
+  const [count, setCount] = useControllableState(initialValue, { passive: true })
 
   const set = useCallback((value: number) => {
     setCount((current) => {
@@ -53,7 +56,9 @@ export function useCounter(
     })
   }, [])
 
-  const reset = useCallback(() => set(initialValue), [set, initialValue])
+  const reset = useCallback(() => {
+    set(toValue(initialValue))
+  }, [set, initialValue])
 
   return { count, inc, dec, set, reset }
 }

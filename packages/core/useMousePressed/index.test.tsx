@@ -34,6 +34,17 @@ describe('useMousePressed', () => {
     expect(useMousePressed).toBeDefined()
   })
 
+  it('supports a controllable initialValue tuple', async () => {
+    let external = false
+    const setExternal = (next: boolean | ((prev: boolean) => boolean)) => {
+      external = typeof next === 'function' ? next(external) : next
+    }
+    const { result, act } = await renderHook(() => useMousePressed({ initialValue: [external, setExternal] }))
+    expect(result.current.pressed).toBe(false)
+    await act(() => window.dispatchEvent(new Event('mousedown')))
+    expect(external).toBe(true)
+  })
+
   describe('params', () => {
     describe('initial value', () => {
       it('default value', async () => {

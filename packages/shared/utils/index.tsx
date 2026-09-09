@@ -180,6 +180,9 @@ export const hyphenate = cacheStringFunction((str: string) => str.replace(hyphen
 /** A plain value or a React ref. Zero-argument getter values are not supported. */
 export type RefOrValue<T> = T | Ref<T>
 
+/** Values accepted by controllable state hooks. */
+export type StateValue<T> = RefOrValue<T> | (() => T) | readonly [T, (value: T | ((prev: T) => T)) => void] | { value: T, onChange?: (value: T) => void }
+
 /**
  * Allow a custom `window` instance, e.g. working with iframes or in testing
  * environments. Single source of truth — VueUse defines this in shared too.
@@ -202,10 +205,16 @@ export function isRefLike<T>(value: RefOrValue<T> | undefined | null): value is 
  * replacement for VueUse's `toValue`. Getters are not supported: pass a
  * React ref (`useRef`) when the latest value must be read lazily.
  */
-export function toValue<T>(value: RefOrValue<T>): T
-export function toValue<T>(value: RefOrValue<T> | undefined | null): T | undefined | null
-export function toValue<T>(value: RefOrValue<T> | undefined | null): T | undefined | null {
-  if (isRefLike(value))
-    return value.current
+export function toValue<T>(value: StateValue<T>): T
+export function toValue<T>(value: StateValue<T> | undefined | null): T | undefined | null
+export function toValue<T>(value: StateValue<T> | undefined | null): T | undefined | null {
+  if (Array.isArray(value))
+    return value[0]
+  if (value !== null && value !== undefined && typeof value === 'object' && 'value' in value)
+    return value.value
+  if (typeof value === 'function')
+    return (value as () => T)()
+  if (isRefLike(value as RefOrValue<T>))
+    return (value as RefObject<T | null>).current as T
   return value as T | undefined | null
 }

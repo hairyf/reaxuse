@@ -21,6 +21,6 @@ console.log(message) // 'default message'
 ```
 
 > [!NOTE]
-> The default value can be a plain value, a ref-like object (`{ current }`) or a getter function
-> (`MaybeRefOrGetter`). Like the upstream implementation, `reset` re-reads it on every call — a
-> dynamic default always resets to the latest value.
+> The input accepts `State<T>`: a plain value, ref-like object, getter, state tuple, or controlled
+> `{ value, onChange }` object. `reset` re-reads the input on every call, so dynamic values reset to
+> the latest source value.

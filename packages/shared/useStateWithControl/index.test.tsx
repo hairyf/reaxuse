@@ -48,7 +48,7 @@ describe('useStateWithControl', () => {
     expect(result.current[0]).toBe(1)
   })
 
-  it('seeds the value from a plain, getter or ref-like initial value', async () => {
+  it('accepts State sources including controlled tuples', async () => {
     const { result } = await renderHook(() => useStateWithControl(42))
     expect(result.current[0]).toBe(42)
 
@@ -57,6 +57,12 @@ describe('useStateWithControl', () => {
 
     const { result: refLike } = await renderHook(() => useStateWithControl({ current: 42 }))
     expect(refLike.current[0]).toBe(42)
+
+    const onChange = vi.fn()
+    const { result: controlled, act } = await renderHook(() => useStateWithControl([42, onChange]))
+    expect(controlled.current[0]).toBe(42)
+    await act(async () => controlled.current[1](43))
+    expect(onChange).toHaveBeenCalledWith(43)
   })
 
   it('should be able to set without triggering a re-render', async () => {

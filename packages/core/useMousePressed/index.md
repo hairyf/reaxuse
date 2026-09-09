@@ -19,4 +19,8 @@ const mouse = useMousePressed({ touch: false })
 // only capture presses on a specific element (accepts an element or a React ref)
 const el = useRef<HTMLDivElement>(null)
 const { pressed } = useMousePressed({ target: el })
+
+// initialValue accepts State<boolean>, including a controllable tuple
+const [pressedState, setPressedState] = useState(false)
+const controlled = useMousePressed({ initialValue: [pressedState, setPressedState] })
 ```

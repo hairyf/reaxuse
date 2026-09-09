@@ -42,6 +42,34 @@ describe('computedAsync', () => {
     expect(initialState.current).toBe('ref-initial')
   })
 
+  it('supports a controlled state tuple and publishes resolved values through its setter', async () => {
+    const deferred = createDeferred<string>()
+    let externalValue = 'controlled'
+    const setExternalValue = vi.fn((value: string | ((prev: string) => string)) => {
+      externalValue = typeof value === 'function' ? value(externalValue) : value
+    })
+    const state: readonly [string, typeof setExternalValue] = [externalValue, setExternalValue]
+    const { result } = await renderHook(() => computedAsync(() => deferred.promise, state))
+    expect(result.current).toBe('controlled')
+    deferred.resolve('resolved')
+    await vi.waitFor(() => {
+      expect(setExternalValue).toHaveBeenCalledWith('resolved')
+    })
+    expect(result.current).toBe('controlled')
+    expect(externalValue).toBe('resolved')
+  })
+
+  it('supports a controlled value/onChange state object', async () => {
+    const deferred = createDeferred<string>()
+    const onChange = vi.fn()
+    const { result } = await renderHook(() => computedAsync(() => deferred.promise, { value: 'initial', onChange }))
+    deferred.resolve('next')
+    await vi.waitFor(() => {
+      expect(onChange).toHaveBeenCalledWith('next')
+    })
+    expect(result.current).toBe('initial')
+  })
+
   it('resolves the async value', async () => {
     const deferred = createDeferred<string>()
     const { result } = await renderHook(() => computedAsync(() => deferred.promise, 'initial'))
