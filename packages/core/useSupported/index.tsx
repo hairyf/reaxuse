@@ -1,6 +1,14 @@
 import { useEffect, useState } from 'react'
 
 /**
+ * Return type of `useSupported` — a plain boolean state.
+ *
+ * Upstream's alias is `ComputedRef<boolean>`; React has no computed refs, so
+ * the compliant port returns the plain `boolean` the hook holds.
+ */
+export type UseSupportedReturn = boolean
+
+/**
  * React port of VueUse's `useSupported`.
  *
  * Map from @vueuse/core `useSupported`
@@ -15,13 +23,17 @@ import { useEffect, useState } from 'react'
  *   — React has no reactive dependency tracking, so the result is evaluated
  *   exactly once on mount and never re-evaluated;
  * - the callback is never invoked during render or on the server
- *   (SSR-safe): the value stays `false` until the mount effect runs, the
- *   same value upstream's computed returns before `useMounted` flips.
+ *   (SSR-safe): the value stays `false` until the mount effect runs.
+ *   Upstream's computed evaluates `Boolean(callback())` on every read — also
+ *   before `useMounted` flips and on the server — so its pre-mount value is
+ *   whatever the callback returns in that environment, not `false`. The
+ *   first client-side render can therefore disagree with upstream's
+ *   server-rendered value; reaxuse deliberately waits for the mount effect.
  *
  * @example
  * const isSupported = useSupported(() => navigator && 'getBattery' in navigator)
  */
-export function useSupported(callback: () => unknown): boolean {
+export function useSupported(callback: () => unknown): UseSupportedReturn {
   const [isSupported, setIsSupported] = useState(false)
 
   useEffect(() => {
