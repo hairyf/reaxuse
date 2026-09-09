@@ -16,18 +16,18 @@ describe('until', () => {
   })
 
   it('should toBe', async () => {
-    const r1 = { current: 0 }
-    const r2 = { current: 0 }
+    const v1 = { value: 0 }
+    const v2 = { value: 0 }
 
-    const pending1 = until(r1).toBe(1)
-    const pending2 = until(r2).toBe({ current: 2 })
+    const pending1 = until(() => v1.value).toBe(1)
+    const pending2 = until(() => v2.value).toBe(2)
 
     setTimeout(() => {
-      r1.current = 1
-      r2.current = 1
+      v1.value = 1
+      v2.value = 1
     }, 110)
     setTimeout(() => {
-      r2.current = 2
+      v2.value = 2
     }, 220)
     vi.advanceTimersByTime(300)
 
@@ -36,51 +36,51 @@ describe('until', () => {
   })
 
   it('should toBeTruthy', async () => {
-    const r = { current: false }
+    const v = { value: false }
     setTimeout(() => {
-      r.current = true
+      v.value = true
     }, 110)
     vi.advanceTimersByTime(150)
 
-    expect(await until(r).toBeTruthy()).toBe(true)
+    expect(await until(() => v.value).toBeTruthy()).toBe(true)
   })
 
   it('should toBeUndefined', async () => {
-    const r = { current: false as boolean | undefined }
+    const v = { value: false as boolean | undefined }
     setTimeout(() => {
-      r.current = undefined
+      v.value = undefined
     }, 110)
     vi.advanceTimersByTime(150)
 
-    expect(await until(r).toBeUndefined()).toBeUndefined()
+    expect(await until(() => v.value).toBeUndefined()).toBeUndefined()
   })
 
   it('should toBeNaN', async () => {
-    const r = { current: 0 }
+    const v = { value: 0 }
     setTimeout(() => {
-      r.current = Number.NaN
+      v.value = Number.NaN
     }, 110)
     vi.advanceTimersByTime(150)
 
-    expect(await until(r).toBeNaN()).toBeNaN()
+    expect(await until(() => v.value).toBeNaN()).toBeNaN()
   })
 
-  it('should toBe timeout with ref', async () => {
+  it('should toBe timeout with a getter source', async () => {
     vi.useRealTimers()
-    const r = { current: 0 }
+    const v = { value: 0 }
     const reject = vi.fn()
-    await until(r).toBe({ current: 1 }, { timeout: 200, throwOnTimeout: true }).catch(reject)
+    await until(() => v.value).toBe(1, { timeout: 200, throwOnTimeout: true }).catch(reject)
 
     expect(reject).toHaveBeenCalledWith('Timeout')
   })
 
   it('should work for changedTimes', async () => {
     {
-      const r = { current: 0 }
+      const v = { value: 0 }
 
-      const pending = until(r).changed()
+      const pending = until(() => v.value).changed()
       setTimeout(() => {
-        r.current = 1
+        v.value = 1
       }, 110)
       vi.advanceTimersByTime(200)
 
@@ -88,17 +88,17 @@ describe('until', () => {
       expect(x).toBe(1)
     }
     {
-      const r = { current: 0 }
+      const v = { value: 0 }
 
-      const pending = until(r).changedTimes(3)
+      const pending = until(() => v.value).changedTimes(3)
       setTimeout(() => {
-        r.current = 1
+        v.value = 1
       }, 110)
       setTimeout(() => {
-        r.current = 2
+        v.value = 2
       }, 220)
       setTimeout(() => {
-        r.current = 3
+        v.value = 3
       }, 330)
       vi.advanceTimersByTime(400)
 
@@ -108,11 +108,11 @@ describe('until', () => {
   })
 
   it('should support `not`', async () => {
-    const r = { current: 0 }
+    const v = { value: 0 }
 
-    const pending = until(r).not.toBe(0)
+    const pending = until(() => v.value).not.toBe(0)
     setTimeout(() => {
-      r.current = 1
+      v.value = 1
     }, 110)
     vi.advanceTimersByTime(200)
 
@@ -120,12 +120,12 @@ describe('until', () => {
   })
 
   it('should support `not` as separate instances', async () => {
-    const r = { current: 0 }
+    const v = { value: 0 }
 
-    const instance = until(r)
+    const instance = until(() => v.value)
     const xPending = instance.not.toBe(0)
     setTimeout(() => {
-      r.current = 1
+      v.value = 1
     }, 110)
     vi.advanceTimersByTime(200)
 
@@ -139,11 +139,11 @@ describe('until', () => {
   })
 
   it('should support toBeNull()', async () => {
-    const r = { current: null as number | null }
+    const v = { value: null as number | null }
 
-    const pending = until(r).not.toBeNull()
+    const pending = until(() => v.value).not.toBeNull()
     setTimeout(() => {
-      r.current = 1
+      v.value = 1
     }, 110)
     vi.advanceTimersByTime(200)
 
@@ -151,11 +151,11 @@ describe('until', () => {
   })
 
   it('should support array', async () => {
-    const r = { current: [1, 2, 3] }
+    const arr = [1, 2, 3]
 
-    const pending = until(r).toContains(4, { deep: true })
+    const pending = until(() => arr).toContains(4, { deep: true })
     setTimeout(() => {
-      r.current.push(4)
+      arr.push(4)
     }, 110)
     vi.advanceTimersByTime(200)
 
@@ -163,12 +163,12 @@ describe('until', () => {
   })
 
   it('should support array with not', async () => {
-    const r = { current: [1, 2, 3] }
+    const arr = [1, 2, 3]
 
-    const pending = until(r).not.toContains(2, { deep: true })
+    const pending = until(() => arr).not.toContains(2, { deep: true })
     setTimeout(() => {
-      r.current.pop()
-      r.current.pop()
+      arr.pop()
+      arr.pop()
     }, 110)
     vi.advanceTimersByTime(200)
 
@@ -177,15 +177,24 @@ describe('until', () => {
 
   it('should immediately timeout', async () => {
     vi.useRealTimers()
-    const r = { current: 0 }
+    const v = { value: 0 }
 
-    await until(r).toBe(1, { timeout: 0 })
+    await until(() => v.value).toBe(1, { timeout: 0 })
+  })
+
+  it('should accept a plain value source', async () => {
+    expect(await until(1).toBe(1)).toBe(1)
+  })
+
+  it('should accept a plain array source', async () => {
+    expect(await until([1, 2, 3]).toContains(2)).toEqual([1, 2, 3])
   })
 
   it('should type check', () => {
     /* eslint-disable ts/no-unused-expressions */
     async () => {
-      const x = { current: 'x' as 'x' | undefined }
+      const xv = { value: 'x' as 'x' | undefined }
+      const x: () => 'x' | undefined = () => xv.value
       // type checks are done this way to prevent unused variable warnings
       // and duplicate name warnings
 
@@ -204,14 +213,16 @@ describe('until', () => {
       const _xNotUndef = await until(x).not.toBeUndefined()
       'test' as any as Expect<Equal<typeof _xNotUndef, 'x'>>
 
-      const y = { current: 'y' as 'y' | null }
+      const yv = { value: 'y' as 'y' | null }
+      const y: () => 'y' | null = () => yv.value
       const _yNull = await until(y).toBeNull()
       'test' as any as Expect<Equal<typeof _yNull, null>>
 
       const _yNotNull = await until(y).not.toBeNull()
       'test' as any as Expect<Equal<typeof _yNotNull, 'y'>>
 
-      const z = { current: 1 as 1 | 2 | 3 }
+      const zv = { value: 1 as 1 | 2 | 3 }
+      const z: () => 1 | 2 | 3 = () => zv.value
       const is1 = (x: number): x is 1 => x === 1
 
       const _z1 = await until(z).toMatch(is1)

@@ -1,6 +1,3 @@
-import type { RefOrValue } from '../index'
-import { toValue } from '../utils'
-
 export type UseArrayFindLastReturn<T = any> = T | undefined
 
 /**
@@ -9,8 +6,8 @@ export type UseArrayFindLastReturn<T = any> = T | undefined
  * targets lib ES2022, where the native method is not available.
  */
 function findLast<T>(
-  array: T[],
-  fn: (element: T, index: number, array: T[]) => boolean,
+  array: readonly T[],
+  fn: (element: T, index: number, array: readonly T[]) => boolean,
 ): T | undefined {
   for (let index = array.length - 1; index >= 0; index--) {
     if (fn(array[index], index, array))
@@ -26,26 +23,21 @@ function findLast<T>(
  * Mapping: upstream wraps native `Array.prototype.findLast` (with a loop
  * fallback for runtimes without it) in `computed(() => ...)` and returns a
  * `ComputedRef`; React has no reactive value tracking, so this is a plain
- * function recomputed on every render — the loop helper stands in for the
- * native method since the repo targets lib ES2022. Vue refs map to the
- * repo's `RefOrValue` refs: the list itself may be
- * a ref, every element is unwrapped before the predicate runs, and the
- * last match is returned unwrapped. Mutating a ref element or the array
- * does not trigger anything by itself — the new result shows up on the next
- * render.
+ * function recomputed on every render over the plain `list` array the caller
+ * passes — the loop helper stands in for the native method since the repo
+ * targets lib ES2022. Hold the array in `useState` and pass a new array to
+ * observe a change — the last match is returned on the next render.
  *
  * @see https://vueuse.org/shared/useArrayFindLast/
  *
  * @example
- * const list = [useRef(1), useRef(-1), useRef(2)]
+ * const [list, setList] = useState([1, -1, 2])
  * useArrayFindLast(list, val => val > 0) // 2
- * list[2].current = -2 // 1 on the next render
+ * setList([1, -1, -2]) // 1 on the next render
  */
 export function useArrayFindLast<T>(
-  list: RefOrValue<RefOrValue<T>[]>,
-  fn: (element: T, index: number, array: RefOrValue<T>[]) => boolean,
+  list: readonly T[],
+  fn: (element: T, index: number, array: readonly T[]) => boolean,
 ): UseArrayFindLastReturn<T> {
-  const array = toValue(list)
-  const found = findLast(array, (element, index, arr) => fn(toValue(element), index, arr))
-  return found === undefined ? undefined : toValue(found)
+  return findLast(list, fn)
 }

@@ -1,6 +1,3 @@
-import type { RefOrValue } from '../index'
-import { toValue } from '../utils'
-
 export type UseArrayReducer<PV, CV, R> = (previousValue: PV, currentValue: CV, currentIndex: number) => R
 
 export type UseArrayReduceReturn<T = any> = T
@@ -13,19 +10,16 @@ export type UseArrayReduceReturn<T = any> = T
  *
  * Mapping: upstream wraps `toValue(list).reduce(...)` in `computed(() => ...)`
  * and returns a `ComputedRef`; React has no reactive value tracking, so this
- * is a plain function recomputed on every render. Vue refs map to the repo's
- * `RefOrValue` refs: the list itself may be a ref, every
- * element is unwrapped before the reducer runs, and so are the accumulator
- * and the initial value (unwrapped on each evaluation). Mutating a ref element or the
- * array does not trigger anything by itself — the new result shows up on the
- * next render.
+ * is a plain function recomputed on every render over the plain `list` array
+ * the caller passes. Hold the array in `useState` and pass a new array to
+ * observe a change — the reduced result recomputes on the next render.
  *
  * @see https://vueuse.org/shared/useArrayReduce/
  *
  * @example
- * const list = [useRef(1), useRef(2), useRef(3)]
+ * const [list, setList] = useState([1, 2, 3])
  * useArrayReduce(list, (prev, item) => prev + item) // 6
- * list[0].current = 4 // 9 on the next render
+ * setList([4, 2, 3]) // 9 on the next render
  *
  * @param list - the array was called upon.
  * @param reducer - a "reducer" function.
@@ -33,7 +27,7 @@ export type UseArrayReduceReturn<T = any> = T
  * @returns the value that results from running the "reducer" callback function to completion over the entire array.
  */
 export function useArrayReduce<T>(
-  list: RefOrValue<RefOrValue<T>[]>,
+  list: readonly T[],
   reducer: UseArrayReducer<T, T, T>,
 ): UseArrayReduceReturn<T>
 
@@ -48,26 +42,25 @@ export function useArrayReduce<T>(
  * @returns the value that results from running the "reducer" callback function to completion over the entire array.
  */
 export function useArrayReduce<T, U>(
-  list: RefOrValue<RefOrValue<T>[]>,
+  list: readonly T[],
   reducer: UseArrayReducer<U, T, U>,
-  initialValue: RefOrValue<U> | (() => U),
+  initialValue: U | (() => U),
 ): UseArrayReduceReturn<U>
 
 export function useArrayReduce<T>(
-  list: RefOrValue<RefOrValue<T>[]>,
+  list: readonly T[],
   reducer: ((...p: any[]) => any),
   ...args: any[]
 ): UseArrayReduceReturn<T> {
-  const reduceCallback = (sum: any, value: any, index: number) => reducer(toValue(sum), toValue(value), index)
-  const resolved = toValue(list)
+  const reduceCallback = (sum: any, value: any, index: number) => reducer(sum, value, index)
 
   // Depending on the behavior of reduce, undefined is also a valid initialization value,
   // and this code will distinguish the behavior between them. A function initial value
   // is a React lazy initializer (React `useState` convention) — invoked per evaluation.
-  const initial = typeof args[0] === 'function' ? toValue(args[0]()) : toValue(args[0])
+  const initial = typeof args[0] === 'function' ? args[0]() : args[0]
   return (
     args.length
-      ? resolved.reduce(reduceCallback, initial)
-      : resolved.reduce(reduceCallback)
+      ? list.reduce(reduceCallback, initial)
+      : list.reduce(reduceCallback)
   ) as T
 }

@@ -10,9 +10,14 @@ Reactive `Array.findLast`
 
 ```tsx
 import { useArrayFindLast } from '@reaxuse/shared'
+import { useState } from 'react'
 
-const list = [{ current: 1 }, { current: -1 }, { current: 2 }]
+const [list, setList] = useState([1, -1, 2])
 const positive = useArrayFindLast(list, val => val > 0) // 2
 
-list[2].current = -2 // positive === 1 on the next render
+setList([1, -1, -2]) // positive === 1 on the next render
 ```
+
+`list` is a plain read-only array: pass the array directly (e.g. from
+`useState`), or `ref.current` if you keep it in a ref. The result recomputes on
+the render that passes a new array.

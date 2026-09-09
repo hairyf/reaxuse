@@ -7,15 +7,10 @@ it('should be defined', () => {
   expect(useArrayMap).toBeDefined()
 })
 
-it('should work with array of refs', async () => {
-  const list = [{ current: 0 }, { current: 2 }, { current: 4 }, { current: 6 }, { current: 8 }]
-  const { result, rerender } = await renderHook(() => useArrayMap(list, i => i * 2))
+it('should work with a plain array', async () => {
+  const { result } = await renderHook(() => useArrayMap([0, 1, 2, 3, 4], i => i * 2))
 
-  expect(result.current).toStrictEqual([0, 4, 8, 12, 16])
-
-  list[0].current = 1
-  await rerender()
-  expect(result.current).toStrictEqual([2, 4, 8, 12, 16])
+  expect(result.current).toStrictEqual([0, 2, 4, 6, 8])
 })
 
 function ArrayMapDemo() {

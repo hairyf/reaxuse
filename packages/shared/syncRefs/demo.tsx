@@ -6,15 +6,7 @@ export default function SyncRefsDemo() {
   const [target1, setTarget1] = useState('')
   const [target2, setTarget2] = useState('')
 
-  // ref-like bridges onto the state so synced values re-render the inputs
-  const sourceRef = {
-    get current() {
-      return source
-    },
-    set current(value: string) {
-      setSource(value)
-    },
-  }
+  // ref-like bridges onto the target state so synced values re-render the inputs
   const target1Ref = {
     get current() {
       return target1
@@ -32,7 +24,8 @@ export default function SyncRefsDemo() {
     },
   }
 
-  syncRefs(sourceRef, [target1Ref, target2Ref])
+  // the source is a plain value — pass the state value (or `ref.current`)
+  syncRefs(source, [target1Ref, target2Ref])
 
   return (
     <div>

@@ -1,20 +1,17 @@
 import { useArrayEvery } from '@reaxuse/shared'
-import { useReducer, useRef } from 'react'
+import { useState } from 'react'
 
 export default function UseArrayEveryDemo() {
-  const item1 = useRef(0)
-  const item2 = useRef(2)
-  const item3 = useRef(4)
-  const [, rerender] = useReducer(count => count + 1, 0)
+  const [list, setList] = useState([0, 2, 4])
 
-  const allEven = useArrayEvery([item1, item2, item3], val => val % 2 === 0)
+  const allEven = useArrayEvery(list, val => val % 2 === 0)
 
   return (
     <div>
       <p>
         list:
         {' '}
-        <strong>{`[${item1.current}, ${item2.current}, ${item3.current}]`}</strong>
+        <strong>{`[${list.join(', ')}]`}</strong>
       </p>
       <p>
         all even:
@@ -22,10 +19,7 @@ export default function UseArrayEveryDemo() {
         <strong>{allEven ? 'true' : 'false'}</strong>
       </p>
       <button
-        onClick={() => {
-          item1.current = item1.current % 2 === 0 ? 1 : 0
-          rerender()
-        }}
+        onClick={() => setList(current => (current[0] % 2 === 0 ? [1, ...current.slice(1)] : [0, ...current.slice(1)]))}
       >
         toggle item1
       </button>

@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react'
 import type { State } from '../useControllableState'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef } from 'react'
 import { useControllableState } from '../useControllableState'
 import { toValue } from '../utils'
 
@@ -119,7 +119,6 @@ export function useStateWithControl<T>(
 
   const initialRef = useRef(toValue(state))
   const sourceRef = useRef(initialRef.current)
-  const [, forceRender] = useState(0)
   const [value, setState] = useControllableState(state, { passive: true })
   if (Array.isArray(state) || (typeof state === 'object' && state !== null && 'value' in state))
     sourceRef.current = value
@@ -140,8 +139,8 @@ export function useStateWithControl<T>(
     callbacksRef.current.onChanged?.(nextValue, old)
 
     if (triggering) {
+      // `setState` schedules the re-render — no forced-render counter needed
       setState(nextValue)
-      forceRender(value => value + 1)
     }
   }, [])
 

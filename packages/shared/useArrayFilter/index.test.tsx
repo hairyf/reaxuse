@@ -7,15 +7,10 @@ it('should be defined', () => {
   expect(useArrayFilter).toBeDefined()
 })
 
-it('should work with array of refs', async () => {
-  const list = [{ current: 0 }, { current: 2 }, { current: 4 }, { current: 6 }, { current: 8 }]
-  const { result, rerender } = await renderHook(() => useArrayFilter(list, i => i % 2 === 0))
+it('should work with a plain array', async () => {
+  const { result } = await renderHook(() => useArrayFilter([0, 1, 2, 3, 4], i => i % 2 === 0))
 
-  expect(result.current).toStrictEqual([0, 2, 4, 6, 8])
-
-  list[1].current = 1
-  await rerender()
-  expect(result.current).toStrictEqual([0, 4, 6, 8])
+  expect(result.current).toStrictEqual([0, 2, 4])
 })
 
 function ArrayFilterDemo() {

@@ -1,6 +1,3 @@
-import type { RefOrValue } from '../index'
-import { toValue } from '../utils'
-
 export type UseArrayFilterReturn<T = any> = T[]
 
 /**
@@ -10,10 +7,8 @@ export type UseArrayFilterReturn<T = any> = T[]
  * React port of VueUse's `useArrayFilter`.
  *
  * Mapping: Vue's `computed` → recompute per render and return a plain array
- * (no `.value`); `RefOrValue` → `RefOrValue` (`T | Ref<T>`).
- * Pass a `useState` array directly — the filtered result updates on the next
- * render. The list itself may be a ref and every element is unwrapped
- * before the predicate runs.
+ * (no `.value`) over the plain `list` array the caller passes. Pass a
+ * `useState` array directly — the filtered result updates on the next render.
  *
  * @see https://vueuse.org/shared/useArrayFilter/
  *
@@ -23,16 +18,16 @@ export type UseArrayFilterReturn<T = any> = T[]
  * setList([1, 2, 3]) // evens === [2] on the next render
  */
 export function useArrayFilter<T, S extends T>(
-  list: RefOrValue<RefOrValue<T>[]>,
-  fn: (element: T, index: number, array: T[]) => element is S,
+  list: readonly T[],
+  fn: (element: T, index: number, array: readonly T[]) => element is S,
 ): UseArrayFilterReturn<S>
 export function useArrayFilter<T>(
-  list: RefOrValue<RefOrValue<T>[]>,
-  fn: (element: T, index: number, array: T[]) => unknown,
+  list: readonly T[],
+  fn: (element: T, index: number, array: readonly T[]) => unknown,
 ): UseArrayFilterReturn<T>
 export function useArrayFilter<T>(
-  list: RefOrValue<RefOrValue<T>[]>,
-  fn: (element: T, index: number, array: T[]) => unknown,
+  list: readonly T[],
+  fn: (element: T, index: number, array: readonly T[]) => unknown,
 ): UseArrayFilterReturn<T> {
-  return toValue(list).map(element => toValue(element)).filter(fn)
+  return list.filter(fn)
 }

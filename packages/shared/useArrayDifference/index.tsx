@@ -1,6 +1,3 @@
-import type { RefOrValue } from '../index'
-import { toValue } from '../utils'
-
 export interface UseArrayDifferenceOptions {
   /**
    * Returns asymmetric difference
@@ -18,14 +15,14 @@ function defaultComparator<T>(value: T, othVal: T) {
 }
 
 export function useArrayDifference<T>(
-  list: RefOrValue<RefOrValue<T>[]>,
-  values: RefOrValue<RefOrValue<T>[]>,
+  list: readonly T[],
+  values: readonly T[],
   key?: keyof T,
   options?: UseArrayDifferenceOptions,
 ): UseArrayDifferenceReturn<T>
 export function useArrayDifference<T>(
-  list: RefOrValue<RefOrValue<T>[]>,
-  values: RefOrValue<RefOrValue<T>[]>,
+  list: readonly T[],
+  values: readonly T[],
   compareFn?: (value: T, othVal: T) => boolean,
   options?: UseArrayDifferenceOptions,
 ): UseArrayDifferenceReturn<T>
@@ -36,13 +33,11 @@ export function useArrayDifference<T>(
  * Map from @vueuse/shared `useArrayDifference`
  * Mapping: upstream wraps the diff passes in `computed(...)` and returns a
  * `ComputedRef`; React has no reactive value tracking, so this is a plain
- * function recomputed on every render — pass state arrays (upstream: reactive
- * arrays) and the difference is re-diffed on the next render, no `.value` on
- * the result. The same three call shapes as upstream are supported: plain
- * diff, diff by `key`, and diff by `compareFn`, plus the `{ symmetric }`
- * option. Vue refs map to the repo's `RefOrValue` refs: the
- * lists themselves may be refs and every element is unwrapped before the
- * comparator runs.
+ * function recomputed on every render over the plain `list` / `values` arrays
+ * the caller passes — pass state arrays and the difference is re-diffed on the
+ * next render, no `.value` on the result. The same three call shapes as
+ * upstream are supported: plain diff, diff by `key`, and diff by `compareFn`,
+ * plus the `{ symmetric }` option.
  *
  * @see https://vueuse.org/shared/useArrayDifference/
  *
@@ -53,8 +48,8 @@ export function useArrayDifference<T>(
  * useArrayDifference(list, [{ id: 3 }], (a, b) => a.id === b.id, { symmetric: true })
  */
 export function useArrayDifference<T>(...args: any[]): UseArrayDifferenceReturn<T> {
-  const list: RefOrValue<RefOrValue<T>[]> = args[0]
-  const values: RefOrValue<RefOrValue<T>[]> = args[1]
+  const list: readonly T[] = args[0]
+  const values: readonly T[] = args[1]
 
   let compareFn = args[2] ?? defaultComparator
   const {
@@ -66,17 +61,10 @@ export function useArrayDifference<T>(...args: any[]): UseArrayDifferenceReturn<
     compareFn = (value: T, othVal: T) => value[key] === othVal[key]
   }
 
-  const listArray = toValue(list)
-  const valuesArray = toValue(values)
-
-  const diff1 = listArray
-    .filter(x => valuesArray.findIndex(y => compareFn(toValue(x), toValue(y))) === -1)
-    .map(x => toValue(x))
+  const diff1 = list.filter(x => values.findIndex(y => compareFn(x, y)) === -1)
 
   if (symmetric) {
-    const diff2 = valuesArray
-      .filter(x => listArray.findIndex(y => compareFn(toValue(x), toValue(y))) === -1)
-      .map(x => toValue(x))
+    const diff2 = values.filter(x => list.findIndex(y => compareFn(x, y)) === -1)
     return [...diff1, ...diff2]
   }
   else {

@@ -1,11 +1,9 @@
-import type { RefOrValue } from '../index'
-import { promiseTimeout, toValue } from '../utils'
+import { promiseTimeout } from '../utils'
 
 /**
  * Polling interval (ms) used to resolve `until` promises. React has no
- * reactive watch, so the port re-reads the ref-like source at this
- * fixed interval — the same ref-like polling approach `useFetch` uses for its
- * `refetch` watch.
+ * reactive watch, so the port re-reads the source at this fixed interval —
+ * the same polling approach `useFetch` uses for its `refetch` watch.
  */
 const UNTIL_POLL_INTERVAL = 50
 
@@ -52,7 +50,7 @@ type Falsy = false | void | null | undefined | 0 | 0n | ''
 export interface UntilValueInstance<T, Not extends boolean = false> extends UntilBaseInstance<T, Not> {
   readonly not: UntilValueInstance<T, Not extends true ? false : true>
 
-  toBe: <P = T>(value: RefOrValue<P>, options?: UntilToMatchOptions) => Not extends true ? Promise<T> : Promise<P>
+  toBe: <P = T>(value: P, options?: UntilToMatchOptions) => Not extends true ? Promise<T> : Promise<P>
   toBeTruthy: (options?: UntilToMatchOptions) => Not extends true ? Promise<T & Falsy> : Promise<Exclude<T, Falsy>>
   toBeNull: (options?: UntilToMatchOptions) => Not extends true ? Promise<Exclude<T, null>> : Promise<null>
   toBeUndefined: (options?: UntilToMatchOptions) => Not extends true ? Promise<Exclude<T, undefined>> : Promise<undefined>
@@ -64,7 +62,19 @@ type ElementOf<T> = T extends readonly unknown[] ? T[number] : never
 export interface UntilArrayInstance<T> extends UntilBaseInstance<T> {
   readonly not: UntilArrayInstance<T>
 
-  toContains: (value: RefOrValue<ElementOf<T>>, options?: UntilToMatchOptions) => Promise<T>
+  toContains: (value: ElementOf<T>, options?: UntilToMatchOptions) => Promise<T>
+}
+
+/**
+ * Resolve the accepted `until` source — a plain value or a zero-argument
+ * getter (the React-idiomatic live source; a `Ref` / `{ current }` object is
+ * not accepted — pass `() => ref.current`).
+ *
+ * NOTE: a source value that *is* a function is treated as a getter and
+ * invoked (the same ambiguity `toValue` has).
+ */
+function resolveSource<T>(source: T | (() => T)): T {
+  return typeof source === 'function' ? (source as () => T)() : source
 }
 
 function createUntil<T>(r: any, isNot = false): UntilValueInstance<T, boolean> | UntilArrayInstance<T> {
@@ -80,7 +90,7 @@ function createUntil<T>(r: any, isNot = false): UntilValueInstance<T, boolean> |
       const check = () => {
         if (settled)
           return
-        const value = toValue(r)
+        const value = resolveSource(r)
         if (condition(value) !== isNot) {
           settled = true
           stop?.()
@@ -100,7 +110,7 @@ function createUntil<T>(r: any, isNot = false): UntilValueInstance<T, boolean> |
     if (timeout != null) {
       promises.push(
         promiseTimeout(timeout, throwOnTimeout)
-          .then(() => toValue(r))
+          .then(() => resolveSource(r))
           .finally(() => stop?.()),
       )
     }
@@ -108,8 +118,8 @@ function createUntil<T>(r: any, isNot = false): UntilValueInstance<T, boolean> |
     return Promise.race(promises)
   }
 
-  function toBe<P>(value: RefOrValue<P | T>, options?: UntilToMatchOptions) {
-    return toMatch(v => v === toValue(value), options)
+  function toBe<P>(value: P, options?: UntilToMatchOptions) {
+    return toMatch(v => v === value, options)
   }
 
   function toBeTruthy(options?: UntilToMatchOptions) {
@@ -134,7 +144,7 @@ function createUntil<T>(r: any, isNot = false): UntilValueInstance<T, boolean> |
   ) {
     return toMatch((v) => {
       const array = Array.from(v as any)
-      return array.includes(value) || array.includes(toValue(value))
+      return array.includes(value)
     }, options)
   }
 
@@ -163,7 +173,7 @@ function createUntil<T>(r: any, isNot = false): UntilValueInstance<T, boolean> |
     }, options)
   }
 
-  if (Array.isArray(toValue(r))) {
+  if (Array.isArray(resolveSource(r))) {
     const instance: UntilArrayInstance<T> = {
       toMatch: toMatch as any,
       toContains,
@@ -200,23 +210,30 @@ function createUntil<T>(r: any, isNot = false): UntilValueInstance<T, boolean> |
  * Map from @vueuse/shared `until`
  * React adaptation: upstream resolves when Vue's reactive `watch` callback
  * first observes the condition holding; React has no reactive refs or watch,
- * so this port **polls** the ref-like (`{ current }`) / getter source at a
- * small fixed interval (the same ref-like polling `useFetch` uses for its
+ * so this port **polls** the source — a plain value or a zero-argument getter
+ * — at a small fixed interval (the same polling `useFetch` uses for its
  * `refetch` watch) and resolves the promise the first time the condition
  * holds. `until` is a **pure function, not a hook** — no React hooks are
  * involved — so it can be used anywhere a plain promise utility can.
  *
- * @example
- * const { count, inc } = useCounter()
+ * A plain value is a snapshot: it never changes between polls, so use a getter
+ * when the value may change after `until` was called (`until(() => ref.current)`).
+ * A `Ref` / `{ current }` object is not accepted directly. The `value` passed to
+ * `toBe` / `toContains` is a plain value too.
  *
- * void until(count).toMatch(v => v > 7).then(() => {
+ * @example
+ * let count = 0
+ * void until(() => count).toMatch(v => v > 7).then(() => {
  *   alert('Counter is now larger than 7!')
  * })
+ * count = 8 // the next poll resolves
  *
  * @see https://vueuse.org/shared/until/
  */
-export function until<T extends unknown[]>(r: RefOrValue<T>): UntilArrayInstance<T>
-export function until<T>(r: RefOrValue<T>): UntilValueInstance<T>
+export function until<T extends unknown[]>(r: () => T): UntilArrayInstance<T>
+export function until<T>(r: () => T): UntilValueInstance<T>
+export function until<T extends unknown[]>(r: T): UntilArrayInstance<T>
+export function until<T>(r: T): UntilValueInstance<T>
 export function until<T>(r: any): UntilValueInstance<T, boolean> | UntilArrayInstance<T> {
   return createUntil(r)
 }

@@ -1,6 +1,3 @@
-import type { RefOrValue } from '../index'
-import { toValue } from '../utils'
-
 export type UseArrayMapReturn<T = any> = T[]
 
 /**
@@ -10,7 +7,7 @@ export type UseArrayMapReturn<T = any> = T[]
  * React port of VueUse's `useArrayMap`.
  *
  * Mapping: Vue's `computed` → recompute per render and return a plain array
- * (no `.value`); `RefOrValue` → `RefOrValue` (`T | Ref<T>`).
+ * (no `.value`) over the plain `list` array the caller passes.
  * Pass a `useState` array directly — the result updates on the next render.
  *
  * @example
@@ -19,8 +16,8 @@ export type UseArrayMapReturn<T = any> = T[]
  * setList(list.slice(0, -1)) // result === [0, 2, 4, 6] on the next render
  */
 export function useArrayMap<T, U = T>(
-  list: RefOrValue<RefOrValue<T>[]>,
-  fn: (element: T, index: number, array: T[]) => U,
+  list: readonly T[],
+  fn: (element: T, index: number, array: readonly T[]) => U,
 ): UseArrayMapReturn<U> {
-  return toValue(list).map(element => toValue(element)).map(fn)
+  return list.map(fn)
 }

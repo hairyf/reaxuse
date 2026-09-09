@@ -9,11 +9,13 @@ describe('syncRefs', () => {
   })
 
   it('should work with array', async () => {
-    const source = { current: 'foo' }
     const target1 = { current: 'bar' }
     const target2 = { current: 'bar2' }
 
-    const { result, rerender } = await renderHook(() => syncRefs(source, [target1, target2]))
+    const { result, act } = await renderHook(() => {
+      const [source, setSource] = useState('foo')
+      return { stop: syncRefs(source, [target1, target2]), setSource }
+    })
 
     // upstream: immediate sync on setup (default `immediate: true`) — here the
     // initial sync runs in the mount effect, i.e. once the hook has rendered
@@ -21,63 +23,77 @@ describe('syncRefs', () => {
     expect(target2.current).toBe('foo')
 
     // upstream: `source.value = 'bar'` fires the watcher synchronously — in
-    // React the mutation is adopted on the following render
-    source.current = 'bar'
-    await rerender()
+    // React the new plain value is adopted on the following render
+    await act(() => result.current.setSource('bar'))
 
     expect(target1.current).toBe('bar')
     expect(target2.current).toBe('bar')
 
-    result.current() // stop
+    result.current.stop()
 
-    source.current = 'bar2'
-    await rerender()
+    await act(() => result.current.setSource('bar2'))
 
     expect(target1.current).toBe('bar')
     expect(target2.current).toBe('bar')
   })
 
   it('should work with non-array', async () => {
-    const source = { current: 'foo' }
     const target = { current: 'bar' }
 
-    const { result, rerender } = await renderHook(() => syncRefs(source, target))
+    const { result, act } = await renderHook(() => {
+      const [source, setSource] = useState('foo')
+      return { stop: syncRefs(source, target), setSource }
+    })
 
     expect(target.current).toBe('foo')
 
-    source.current = 'bar'
-    await rerender()
+    await act(() => result.current.setSource('bar'))
 
     expect(target.current).toBe('bar')
 
-    result.current()
+    result.current.stop()
 
-    source.current = 'bar2'
-    await rerender()
+    await act(() => result.current.setSource('bar2'))
 
     expect(target.current).toBe('bar')
   })
 
   it('does not sync on mount when immediate is false', async () => {
-    const source = { current: 'foo' }
     const target = { current: 'bar' }
 
-    await renderHook(() => syncRefs(source, target, { immediate: false }))
+    await renderHook(() => syncRefs('foo', target, { immediate: false }))
 
     expect(target.current).toBe('bar')
   })
 
   it('does not clobber targets when an unrelated re-render happens', async () => {
-    const source = { current: 'foo' }
     const target = { current: 'foo' }
 
-    const { rerender } = await renderHook(() => syncRefs(source, target))
+    const { rerender } = await renderHook(() => syncRefs('foo', target))
 
     target.current = 'custom'
     await rerender()
 
     // the source did not change — the target keeps its own value
     expect(target.current).toBe('custom')
+  })
+
+  it('accepts ref.current as the source value', async () => {
+    const source = { current: 'foo' }
+    const target = { current: 'bar' }
+
+    const { result, act } = await renderHook(() => {
+      const [, setVersion] = useState(0)
+      syncRefs(source.current, target)
+      return { bump: () => setVersion(version => version + 1) }
+    })
+
+    expect(target.current).toBe('foo')
+
+    source.current = 'bar'
+    await act(() => result.current.bump())
+
+    expect(target.current).toBe('bar')
   })
 })
 
@@ -87,16 +103,8 @@ describe('syncRefs (component)', () => {
     const [target1, setTarget1] = useState('')
     const [target2, setTarget2] = useState('')
 
-    // ref-like bridges onto the state — the syncRefs effect writes a
+    // ref-like bridges onto the target state — the syncRefs effect writes a
     // target's `.current`, which lands in state and re-renders the input
-    const sourceRef = {
-      get current() {
-        return source
-      },
-      set current(value: string) {
-        setSource(value)
-      },
-    }
     const target1Ref = {
       get current() {
         return target1
@@ -114,7 +122,7 @@ describe('syncRefs (component)', () => {
       },
     }
 
-    syncRefs(sourceRef, [target1Ref, target2Ref])
+    syncRefs(source, [target1Ref, target2Ref])
 
     return (
       <div>

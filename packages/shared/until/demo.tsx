@@ -5,8 +5,8 @@ export default function UntilDemo() {
   const { count, inc, dec } = useCounter()
   const [gotSeven, setGotSeven] = useState(false)
 
-  // keep a fresh ref-like source for `until` (React has no reactive refs —
-  // `until` polls `{ current }` until the condition holds)
+  // keep a live getter source for `until` (React has no reactive refs — the
+  // getter re-reads the latest count on every poll)
   const countRef = useRef(count)
   countRef.current = count
 
@@ -14,7 +14,7 @@ export default function UntilDemo() {
     if (gotSeven)
       return
     let cancelled = false
-    void until(countRef).toBe(7).then(() => {
+    void until(() => countRef.current).toBe(7).then(() => {
       if (!cancelled)
         setGotSeven(true)
     })
