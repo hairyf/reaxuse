@@ -1,3 +1,5 @@
+import type { RefObject } from 'react'
+import type { BasicColorSchema } from '../useColorMode'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useColorMode } from '../useColorMode'
@@ -142,7 +144,7 @@ describe('useColorMode', () => {
     expect(htmlEl.className).toMatch(/dark/)
   })
 
-  it('should be able access the store & system preference', async () => {
+  it('should keep raw auto in storage while exposing translated mode', async () => {
     const { result, act, rerender } = await renderHook(() => useColorMode())
 
     // the store (persisted) keeps 'auto'...
@@ -152,6 +154,41 @@ describe('useColorMode', () => {
 
     mockPrefDark.current = true
     await act(() => rerender())
+    expect(result.current[0]).toBe('dark')
+  })
+
+  it('should skip the persistence layer when storageRef is provided', async () => {
+    const storageRef: RefObject<BasicColorSchema> = { current: 'dark' }
+    const addEventListener = vi.spyOn(window, 'addEventListener')
+
+    const { result, act } = await renderHook(() => useColorMode({ storageRef }))
+
+    // no `writeDefaults` write of the default 'auto' on mount
+    expect(localStorage.getItem(storageKey)).toBeNull()
+    // no storage-event listener subscribed
+    const eventTypes = addEventListener.mock.calls.map(([type]) => type)
+    expect(eventTypes).not.toContain('storage')
+    expect(eventTypes).not.toContain('reaxuse-storage')
+    expect(result.current[0]).toBe('dark')
+
+    await act(() => {
+      result.current[1]('light')
+    })
+    expect(storageRef.current).toBe('light')
+    expect(result.current[0]).toBe('light')
+    expect(localStorage.getItem(storageKey)).toBeNull()
+
+    addEventListener.mockRestore()
+  })
+
+  it('should fall back to initialValue when storageRef.current is null', async () => {
+    // `RefObject` types `current` as non-nullable, but a runtime `null` is
+    // possible — the hook guards it instead of exposing `null` (upstream
+    // passes the raw `store.value` through)
+    const storageRef = { current: null } as unknown as RefObject<BasicColorSchema>
+
+    const { result } = await renderHook(() => useColorMode({ storageRef, initialValue: 'dark' }))
+
     expect(result.current[0]).toBe('dark')
   })
 
