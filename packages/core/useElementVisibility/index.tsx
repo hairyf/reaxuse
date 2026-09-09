@@ -129,9 +129,9 @@ function computeVisibility(
  * React divergences:
  * - upstream returns a `ShallowRef<boolean>`, or — with `controls: true` —
  *   that ref bundled with the underlying observer controls; the React port
- *   returns a plain `boolean` state and drops the `controls` variant together
- *   with the Pausable members (`isActive`/`pause`/`resume`), consistent with
- *   this repo's `useIntersectionObserver` React contract;
+ *   returns a plain `boolean` state and drops the `controls` variant (the
+ *   underlying observer's Pausable members are reachable directly through
+ *   this repo's `useIntersectionObserver`);
  * - the observation re-uses `useIntersectionObserver`, so target/root/root
  *   margin re-resolution and observer teardown follow that hook; the callback
  *   picks the latest `isIntersecting` across the delivered entries by `time`
