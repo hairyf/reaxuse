@@ -79,6 +79,17 @@ export type UseStateWithControlReturn<T> = [
 ]
 
 /**
+ * A controlled source — a `[value, setter]` tuple or a `{ value, onChange }`
+ * object — whose value is owned by the caller (re-rendered externally).
+ */
+function isControlledSource<T>(state: State<T>): boolean {
+  return (
+    (Array.isArray(state) && state.length === 2 && typeof state[1] === 'function')
+    || (typeof state === 'object' && state !== null && !Array.isArray(state) && 'value' in state)
+  )
+}
+
+/**
  * Fine-grained controls over a state and its re-renders — React port of
  * VueUse's `refWithControl`.
  *
@@ -88,13 +99,17 @@ export type UseStateWithControlReturn<T> = [
  * `silentSet` / `peek` / `lay`. This port owns the state like a `useState` and
  * returns the React tuple `const [num, setNum, control] = useStateWithControl(0)`
  * — the name follows this repo's `ref*` → `useState*` mapping rule. `setNum`
- * behaves like a normal `setState` (value or updater form), while `control`
+ * behaves like a normal `setState` (value or updater form — the updater base
+ * is the current internal value, which may be ahead of the rendered value
+ * after a silent write), while `control`
  * keeps the fine-grained get/set pair: `set(value, false)` (and `lay` /
  * `silentSet`) updates the value without re-rendering (upstream: without
  * triggering reactivity), and `peek` / `untrackedGet` read it back — in React
  * there is no dependency tracking during render, so those are plain aliases
  * for the current value. `reset()` (a small addition, upstream has no
- * equivalent) restores the initial value. Option names are kept from upstream:
+ * equivalent) restores the initial value and participates in the change
+ * callbacks (`onBeforeChange` can dismiss it, `onChanged` fires when
+ * accepted). Option names are kept from upstream:
  * `onBeforeChange` can dismiss a change by returning `false`, and `onChanged`
  * fires synchronously after an accepted change.
  *
@@ -120,8 +135,20 @@ export function useStateWithControl<T>(
   const initialRef = useRef(toValue(state))
   const sourceRef = useRef(initialRef.current)
   const [value, setState] = useControllableState(state, { passive: true })
-  if (Array.isArray(state) || (typeof state === 'object' && state !== null && 'value' in state))
+
+  // `lastTriggeredRef` tracks the value the controlled source is currently
+  // presenting. The render-time sync below then distinguishes a re-render
+  // caused by our own triggering `set` (the rendered value matches the value
+  // we triggered — `sourceRef` already holds it, keep it) from a genuine
+  // external change (the parent re-rendered with a different value — adopt
+  // it). A silent write (`set(value, false)`) does not touch the parent, so
+  // `sourceRef` stays ahead of the rendered value and is NOT reverted by an
+  // unrelated re-render.
+  const lastTriggeredRef = useRef<T | undefined>(undefined)
+  if (isControlledSource(state) && !Object.is(value, lastTriggeredRef.current)) {
     sourceRef.current = value
+    lastTriggeredRef.current = value
+  }
 
   // latest option callbacks, re-read on every render
   const callbacksRef = useRef({ onBeforeChange, onChanged })
@@ -140,6 +167,7 @@ export function useStateWithControl<T>(
 
     if (triggering) {
       // `setState` schedules the re-render — no forced-render counter needed
+      lastTriggeredRef.current = nextValue
       setState(nextValue)
     }
   }, [])

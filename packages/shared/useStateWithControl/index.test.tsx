@@ -123,6 +123,34 @@ describe('useStateWithControl', () => {
     expect(result.current[0]).toBe(10)
   })
 
+  it('keeps silent writes for controlled sources across re-renders', async () => {
+    const setter = vi.fn()
+    const { result, act, rerender } = await renderHook(() => useStateWithControl([5, setter]))
+
+    expect(result.current[0]).toBe(5)
+
+    // a silent write updates the internal value without touching the parent
+    await act(async () => {
+      result.current[2].lay(30)
+    })
+    expect(result.current[2].get()).toBe(30)
+    expect(result.current[0]).toBe(5)
+    expect(setter).not.toHaveBeenCalled()
+
+    // an unrelated re-render must not revert the silent write back to the
+    // rendered value (the parent still presents 5)
+    await rerender()
+    expect(result.current[2].get()).toBe(30)
+    expect(result.current[0]).toBe(5)
+
+    // a triggering write supersedes it through the tuple setter
+    await act(async () => {
+      result.current[1](7)
+    })
+    expect(setter).toHaveBeenCalledWith(7)
+    expect(result.current[2].get()).toBe(7)
+  })
+
   it('should be able to dismiss changes', async () => {
     const onChanged = vi.fn()
     let dismissed = 0
