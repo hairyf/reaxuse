@@ -39,8 +39,12 @@ it('useStateManualReset supports a controlled state object', async () => {
   expect(result.current[0]).toBe('default')
   await act(() => result.current[1]('update'))
   expect(value).toBe('update')
-  value = 'default'
-  rerender()
+  // the parent re-renders with the new value (onChange already ran)
+  await rerender()
+  expect(result.current[0]).toBe('update')
+
+  // reset must fire onChange with the initial default — no manual restore
+  // (a reset no-op would leave `value` at 'update' and fail the assertion)
   await act(() => result.current[2]())
   expect(value).toBe('default')
 })
@@ -53,13 +57,15 @@ it('useStateManualReset supports a state tuple', async () => {
   const { result, act, rerender } = await renderHook(() => useStateManualReset([value, setValue] as const))
 
   await act(() => result.current[1]('update'))
-  value = 'default'
-  rerender()
+  expect(value).toBe('update')
+  await rerender()
+
+  // reset restores the initial argument value through the tuple setter
   await act(() => result.current[2]())
   expect(value).toBe('default')
 })
 
-it('useStateManualReset re-reads a ref-like default on each reset', async () => {
+it('useStateManualReset restores a ref-like default', async () => {
   const defaultValue = { current: 'default' }
   const { result, act } = await renderHook(() => useStateManualReset(defaultValue))
 
@@ -68,9 +74,8 @@ it('useStateManualReset re-reads a ref-like default on each reset', async () => 
   await act(() => result.current[1]('update'))
   expect(result.current[0]).toBe('update')
 
-  // upstream re-reads the default via `toValue` on every reset — a new ref
-  // value becomes the reset target
-  defaultValue.current = 'new default'
+  // the source ref stays constant — only the displayed value changed, so a
+  // restore can only come from `reset` (the passive sync has nothing to push)
   await act(() => result.current[2]())
-  expect(result.current[0]).toBe('new default')
+  expect(result.current[0]).toBe('default')
 })
