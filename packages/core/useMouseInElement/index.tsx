@@ -1,9 +1,10 @@
-import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
-import type { UseMouseCoordType, UseMouseSourceType } from '../useMouse'
+import type { RefOrValue } from '@reaxuse/shared'
+import type { UseMouseCoordType, UseMouseEventExtractor, UseMouseOptions, UseMouseSourceType } from '../useMouse'
 import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useMouse } from '../useMouse'
 
-export interface MouseInElementOptions extends ConfigurableWindow {
+export interface MouseInElementOptions extends UseMouseOptions {
   /**
    * Whether to handle mouse events when the cursor is outside the target element.
    * When enabled, mouse position will continue to be tracked even when outside the element bounds.
@@ -25,44 +26,6 @@ export interface MouseInElementOptions extends ConfigurableWindow {
    * @default true
    */
   windowResize?: boolean
-
-  /**
-   * Mouse position based by page, client, screen, or relative to previous position
-   *
-   * @default 'page'
-   */
-  type?: UseMouseCoordType
-
-  /**
-   * Listen to `touchmove` events
-   *
-   * @default true
-   */
-  touch?: boolean
-
-  /**
-   * Listen to `scroll` events on window, only effective on type `page`
-   *
-   * @default true
-   */
-  scroll?: boolean
-
-  /**
-   * Reset to initial value when `touchend` event fired
-   *
-   * @default false
-   */
-  resetOnTouchEnds?: boolean
-
-  /**
-   * Initial values
-   */
-  initialValue?: Position
-}
-
-interface Position {
-  x: number
-  y: number
 }
 
 export interface UseMouseInElementReturn {
@@ -79,18 +42,21 @@ export interface UseMouseInElementReturn {
   stop: () => void
 }
 
-type UseMouseInElementState = Omit<UseMouseInElementReturn, 'stop'>
+interface MouseInElementState {
+  elementX: number
+  elementY: number
+  elementPositionX: number
+  elementPositionY: number
+  elementHeight: number
+  elementWidth: number
+  isOutside: boolean
+}
 
 interface NormalizedOptions {
   handleOutside: boolean
   windowScroll: boolean
   windowResize: boolean
-  type: UseMouseCoordType
-  touch: boolean
-  scroll: boolean
-  resetOnTouchEnds: boolean
-  initialValue: Position
-  window: Window | undefined
+  type: UseMouseCoordType | UseMouseEventExtractor
 }
 
 function normalizeOptions(options: MouseInElementOptions): NormalizedOptions {
@@ -99,11 +65,6 @@ function normalizeOptions(options: MouseInElementOptions): NormalizedOptions {
     windowScroll: options.windowScroll ?? true,
     windowResize: options.windowResize ?? true,
     type: options.type ?? 'page',
-    touch: options.touch ?? true,
-    scroll: options.scroll ?? true,
-    resetOnTouchEnds: options.resetOnTouchEnds ?? false,
-    initialValue: options.initialValue ?? { x: 0, y: 0 },
-    window: options.window,
   }
 }
 
@@ -123,35 +84,19 @@ function resolveTargetElement(
   return win?.document.body ?? undefined
 }
 
-function extractCoords(type: UseMouseCoordType, event: MouseEvent | Touch): [number, number] | null {
-  switch (type) {
-    case 'page':
-      return [event.pageX, event.pageY]
-    case 'client':
-      return [event.clientX, event.clientY]
-    case 'screen':
-      return [event.screenX, event.screenY]
-    case 'movement':
-      return event instanceof MouseEvent
-        ? [event.movementX, event.movementY]
-        : null
-  }
-}
-
 /**
  * Reactive mouse position related to an element.
  *
  * Map from @vueuse/core `useMouseInElement`
  * (`source/vueuse/packages/core/useMouseInElement/`), which tracks the cursor
- * on `window` (via `useMouse`) and reconciles it against the target element's
+ * (through `useMouse(options)`) and reconciles it against the target element's
  * `getClientRects()`: `elementX` / `elementY` are the cursor offset inside the
  * element, `elementPositionX` / `elementPositionY` its top-left corner
  * (`pageXOffset`-corrected for `type: 'page'`), `elementWidth` / `elementHeight`
  * its size, and `isOutside` whether the cursor is inside its bounds
  * (`handleOutside: false` freezes `elementX` / `elementY` while outside). The
- * metrics refresh on `scroll` / `resize`, on `style` / `class` mutations
- * (MutationObserver) and on element resize (ResizeObserver), and `stop()`
- * detaches everything.
+ * metrics refresh when the cursor moves, on `scroll` / `resize`, on `style` /
+ * `class` mutations (MutationObserver) and on element resize (ResizeObserver).
  *
  * React divergences:
  * - the Vue refs returned by upstream become a plain object of plain values —
@@ -159,25 +104,28 @@ function extractCoords(type: UseMouseCoordType, event: MouseEvent | Touch): [num
  *   `elementPositionY`, `elementHeight`, `elementWidth`, `isOutside`
  *   (plus `sourceType` and `stop`) directly off the result;
  * - `target` accepts an element or a React ref object (`RefObject<HTMLElement |
- *   null>`) — the React analog of upstream's `ElementRef`.
- *   The window/document listeners attach in a mount `useEffect` and are
- *   removed on unmount; the element metrics recompute whenever the resolved
- *   element changes, so a `useRef` target that is `null` during the first
- *   render still starts tracking once React attaches the element;
- * - upstream's `useMouse` composition (`mousemove` / `dragover`, optional
- *   `touchstart` / `touchmove` / `touchend` reset and the page scroll
- *   correction) is inlined in the same effect; `stop()` permanently detaches
- *   every listener and observer of this instance (upstream stops the watch
- *   and the composed listeners too);
+ *   null>`) — the React analog of upstream's `ElementRef`; it is re-resolved on
+ *   every render, so a `useRef` target that is `null` during the first render
+ *   still starts tracking once React attaches the element;
+ * - `x` / `y` / `sourceType` come from the house `useMouse` port, which this
+ *   hook composes with the same `options` object, so every `UseMouseOptions`
+ *   field (`target`, `window`, `type` including a custom
+ *   `UseMouseEventExtractor`, `touch`, `scroll`, `resetOnTouchEnds`,
+ *   `eventFilter`, `initialValue`) is forwarded exactly like upstream;
+ * - `stop()` stops the element observers, the metric refresh and the
+ *   `windowScroll` / `windowResize` listeners, but — exactly like upstream's
+ *   `stopFnList` — leaves the composed `useMouse` listeners and the document
+ *   `mouseleave` handler running, so `x` / `y` and `isOutside` keep updating
+ *   after `stop()`;
  * - SSR-safe: nothing touches `window` or the DOM during render — listeners
  *   attach and the initial metrics compute in effects only.
  *
  * @param target - element or React ref object (`{ current }`) returning
  *   the element to measure the mouse position against
- * @param options - `handleOutside` (default `true`), `windowScroll` /
- *   `windowResize` (default `true`), `type` (default `'page'`), `touch`
- *   (default `true`), `scroll` (default `true`), `resetOnTouchEnds` (default
- *   `false`), `initialValue` and a custom `window` instance
+ * @param options - `UseMouseOptions` (`target`, `window`, `type` incl. a
+ *   custom extractor, `touch`, `scroll`, `resetOnTouchEnds`, `eventFilter`,
+ *   `initialValue`) plus `handleOutside` (default `true`) and `windowScroll` /
+ *   `windowResize` (default `true`)
  *
  * @example
  * const target = useRef<HTMLDivElement>(null)
@@ -187,17 +135,16 @@ export function useMouseInElement(
   target?: RefOrValue<HTMLElement | null | undefined>,
   options: MouseInElementOptions = {},
 ): UseMouseInElementReturn {
-  const { initialValue = { x: 0, y: 0 } } = options
+  // upstream composes `useMouse(options)`: every `UseMouseOptions` field is
+  // forwarded verbatim, and its listeners stay alive across `stop()`
+  const { x, y, sourceType } = useMouse(options)
 
   const targetRef = useRef(target)
   const optionsRef = useRef(options)
   targetRef.current = target
   optionsRef.current = options
 
-  const [state, setState] = useState<UseMouseInElementState>(() => ({
-    x: initialValue.x,
-    y: initialValue.y,
-    sourceType: null,
+  const [state, setState] = useState<MouseInElementState>(() => ({
     elementX: 0,
     elementY: 0,
     elementPositionX: 0,
@@ -208,8 +155,9 @@ export function useMouseInElement(
   }))
   const stateRef = useRef(state)
   // latest cursor position for the event-time metric math (read through refs
-  // so the mount-effect listeners never observe stale state)
-  const mouseRef = useRef({ x: initialValue.x, y: initialValue.y, sourceType: null as UseMouseSourceType })
+  // so the effects never observe stale state)
+  const mouseRef = useRef({ x, y })
+  mouseRef.current = { x, y }
   const stoppedRef = useRef(false)
   const previousElementRef = useRef<Element | null | undefined>(undefined)
   const mutationObserverRef = useRef<{ observer: MutationObserver, element: Element } | null>(null)
@@ -217,13 +165,10 @@ export function useMouseInElement(
   const detachRef = useRef<(() => void) | null>(null)
 
   // Apply a new state snapshot, skipping renders when nothing actually changed.
-  const commit = useCallback((next: UseMouseInElementState) => {
+  const commit = useCallback((next: MouseInElementState) => {
     const prev = stateRef.current
     if (
-      prev.x === next.x
-      && prev.y === next.y
-      && prev.sourceType === next.sourceType
-      && prev.elementX === next.elementX
+      prev.elementX === next.elementX
       && prev.elementY === next.elementY
       && prev.elementPositionX === next.elementPositionX
       && prev.elementPositionY === next.elementPositionY
@@ -252,7 +197,7 @@ export function useMouseInElement(
       return
 
     const { handleOutside, type } = normalizeOptions(optionsRef.current)
-    const mouse = mouseRef.current
+    const { x: mouseX, y: mouseY } = mouseRef.current
     const prev = stateRef.current
 
     let { elementX, elementY } = prev
@@ -266,8 +211,8 @@ export function useMouseInElement(
       elementHeight = height
       elementWidth = width
 
-      const elX = mouse.x - elementPositionX
-      const elY = mouse.y - elementPositionY
+      const elX = mouseX - elementPositionX
+      const elY = mouseY - elementPositionY
       isOutside = width === 0 || height === 0
         || elX < 0 || elY < 0
         || elX > width || elY > height
@@ -282,10 +227,6 @@ export function useMouseInElement(
     }
 
     commit({
-      ...prev,
-      x: mouse.x,
-      y: mouse.y,
-      sourceType: mouse.sourceType,
       elementX,
       elementY,
       elementPositionX,
@@ -298,111 +239,26 @@ export function useMouseInElement(
 
   const win = resolveWindow(options)
 
-  // window/document listeners (upstream: `useMouse` + the `scroll`/`resize`
-  // listeners + the `mouseleave` handler)
+  // `watch([targetRef, x, y], update)` analog — the cursor position comes from
+  // the composed `useMouse`, so its changes drive the metric refresh.
   useEffect(() => {
     if (stoppedRef.current)
       return
+    update()
+  }, [update, x, y])
+
+  // document `mouseleave` — upstream keeps this listener outside `stopFnList`,
+  // so `isOutside` keeps flipping to `true` after `stop()`.
+  useEffect(() => {
     if (!win)
       return
-
-    const opts = normalizeOptions(optionsRef.current)
-    const listenerOptions: AddEventListenerOptions = { passive: true }
-
-    let _prevMouseEvent: MouseEvent | null = null
-    let _prevScrollX = 0
-    let _prevScrollY = 0
-
-    const extractor = (event: MouseEvent | Touch): [number, number] | null =>
-      extractCoords(normalizeOptions(optionsRef.current).type, event)
-
-    const mouseHandler = (event: MouseEvent) => {
-      const result = extractor(event)
-      _prevMouseEvent = event
-      if (result) {
-        mouseRef.current = {
-          x: result[0],
-          y: result[1],
-          sourceType: 'mouse',
-        }
-        _prevScrollX = win.scrollX
-        _prevScrollY = win.scrollY
-      }
-      update()
-    }
-
-    const touchHandler = (event: TouchEvent) => {
-      if (event.touches.length > 0) {
-        const result = extractor(event.touches[0])
-        if (result) {
-          mouseRef.current = {
-            x: result[0],
-            y: result[1],
-            sourceType: 'touch',
-          }
-          update()
-        }
-      }
-    }
-
-    const touchEndReset = () => {
-      const { initialValue: initial } = normalizeOptions(optionsRef.current)
-      mouseRef.current = { ...mouseRef.current, x: initial.x, y: initial.y }
-      update()
-    }
-
-    const scrollHandler = () => {
-      if (!_prevMouseEvent)
-        return
-      const pos = extractor(_prevMouseEvent)
-      if (_prevMouseEvent instanceof MouseEvent && pos) {
-        mouseRef.current = {
-          x: pos[0] + win.scrollX - _prevScrollX,
-          y: pos[1] + win.scrollY - _prevScrollY,
-          sourceType: mouseRef.current.sourceType,
-        }
-        _prevScrollX = win.scrollX
-        _prevScrollY = win.scrollY
-        update()
-      }
-    }
-
-    const mouseLeaveHandler = () => {
+    const handler = () => {
       commit({ ...stateRef.current, isOutside: true })
     }
-
-    win.addEventListener('mousemove', mouseHandler, listenerOptions)
-    win.addEventListener('dragover', mouseHandler, listenerOptions)
-    if (opts.touch && opts.type !== 'movement') {
-      win.addEventListener('touchstart', touchHandler, listenerOptions)
-      win.addEventListener('touchmove', touchHandler, listenerOptions)
-    }
-    if (opts.resetOnTouchEnds)
-      win.addEventListener('touchend', touchEndReset, listenerOptions)
-    if (opts.scroll && opts.type === 'page')
-      win.addEventListener('scroll', scrollHandler, listenerOptions)
-    if (opts.windowScroll)
-      win.addEventListener('scroll', update, { capture: true, passive: true })
-    if (opts.windowResize)
-      win.addEventListener('resize', update, listenerOptions)
-    win.document.addEventListener('mouseleave', mouseLeaveHandler, listenerOptions)
-
-    const detach = () => {
-      win.removeEventListener('mousemove', mouseHandler, listenerOptions)
-      win.removeEventListener('dragover', mouseHandler, listenerOptions)
-      win.removeEventListener('touchstart', touchHandler, listenerOptions)
-      win.removeEventListener('touchmove', touchHandler, listenerOptions)
-      win.removeEventListener('touchend', touchEndReset, listenerOptions)
-      win.removeEventListener('scroll', scrollHandler, listenerOptions)
-      win.removeEventListener('scroll', update, { capture: true })
-      win.removeEventListener('resize', update, listenerOptions)
-      win.document.removeEventListener('mouseleave', mouseLeaveHandler, listenerOptions)
-      detachRef.current = null
-    }
-    detachRef.current = detach
-
-    return detach
-  }, [update, commit, win])
+    const listenerOptions: AddEventListenerOptions = { passive: true }
+    win.document.addEventListener('mouseleave', handler, listenerOptions)
+    return () => win.document.removeEventListener('mouseleave', handler, listenerOptions)
+  }, [win, commit])
 
   // Element tracking + MutationObserver/ResizeObserver (upstream:
   // `useMutationObserver` + `useResizeObserver`). Runs after every render and
@@ -448,6 +304,32 @@ export function useMouseInElement(
     }
   })
 
+  // `windowScroll` / `windowResize` refresh listeners — upstream pushes these
+  // into `stopFnList`, so `stop()` detaches them for good.
+  useEffect(() => {
+    if (stoppedRef.current)
+      return
+    if (!win)
+      return
+
+    const { windowScroll, windowResize } = normalizeOptions(optionsRef.current)
+    const listenerOptions: AddEventListenerOptions = { passive: true }
+
+    if (windowScroll)
+      win.addEventListener('scroll', update, { capture: true, passive: true })
+    if (windowResize)
+      win.addEventListener('resize', update, listenerOptions)
+
+    const detach = () => {
+      win.removeEventListener('scroll', update, { capture: true })
+      win.removeEventListener('resize', update, listenerOptions)
+      detachRef.current = null
+    }
+    detachRef.current = detach
+
+    return detach
+  }, [update, win, options.windowScroll, options.windowResize])
+
   // Disconnect the observers on unmount.
   useEffect(() => () => {
     mutationObserverRef.current?.observer.disconnect()
@@ -467,9 +349,9 @@ export function useMouseInElement(
   }, [])
 
   return {
-    x: state.x,
-    y: state.y,
-    sourceType: state.sourceType,
+    x,
+    y,
+    sourceType,
     elementX: state.elementX,
     elementY: state.elementY,
     elementPositionX: state.elementPositionX,
