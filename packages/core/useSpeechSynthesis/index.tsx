@@ -136,14 +136,18 @@ export function useSpeechSynthesis(
       lastUtteranceRef.current.lang = options.lang || 'en-US'
   }, [options.lang])
 
-  // Mirror upstream's `watch(options.voice)` — a voice change cancels the
-  // current speech so the next `speak()` re-arms with the new voice.
+  // Mirror upstream's `watch(options.voice)` — upstream installs the watcher
+  // only `if (options.voice)` at setup, so a transition from `undefined` to a
+  // voice never auto-cancels. The same gate is expressed here by cancelling
+  // only when a voice was already in effect (the previous value was defined).
   const prevVoiceRef = useRef<SpeechSynthesisVoice | undefined>(options.voice)
   useEffect(() => {
     if (prevVoiceRef.current === options.voice)
       return
+    const previousVoice = prevVoiceRef.current
     prevVoiceRef.current = options.voice
-    latestRef.current.resolveSynth()?.cancel()
+    if (previousVoice)
+      latestRef.current.resolveSynth()?.cancel()
   }, [options.voice])
 
   const speak = useCallback(() => {
