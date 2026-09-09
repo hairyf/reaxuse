@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { afterEach, expect, it } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
 import { useScreenOrientation } from '../useScreenOrientation'
@@ -141,6 +142,70 @@ it('useScreenOrientation lockOrientation returns the lock rejection unchanged (u
   const { result } = await renderHook(() => useScreenOrientation())
 
   await expect(result.current.lockOrientation('landscape')).rejects.toThrow('orientation lock failed')
+})
+
+it('useScreenOrientation lockOrientation uses the screen.orientation instance captured at mount', async () => {
+  const captured = stubScreenOrientation()
+  const { result } = await renderHook(() => useScreenOrientation())
+
+  // replace the API object after setup: upstream keeps using the captured one
+  const replacement = createFakeScreenOrientation()
+  Object.defineProperty(window.screen, 'orientation', {
+    configurable: true,
+    value: replacement,
+  })
+
+  await result.current.lockOrientation('landscape-primary')
+
+  expect(captured.lockCalls).toEqual(['landscape-primary'])
+  expect(replacement.lockCalls).toEqual([])
+})
+
+it('useScreenOrientation unlockOrientation uses the screen.orientation instance captured at mount', async () => {
+  const captured = stubScreenOrientation()
+  const { result } = await renderHook(() => useScreenOrientation())
+
+  const replacement = createFakeScreenOrientation()
+  Object.defineProperty(window.screen, 'orientation', {
+    configurable: true,
+    value: replacement,
+  })
+
+  result.current.unlockOrientation()
+
+  expect(captured.unlockCalls).toBe(1)
+  expect(replacement.unlockCalls).toBe(0)
+})
+
+it('useScreenOrientation lockOrientation is usable from a consumer mount effect', async () => {
+  const fake = stubScreenOrientation()
+
+  function Probe() {
+    const { lockOrientation } = useScreenOrientation()
+    useEffect(() => {
+      lockOrientation('portrait-primary').catch(() => {})
+    }, [])
+    return null
+  }
+
+  await render(<Probe />)
+
+  expect(fake.lockCalls).toEqual(['portrait-primary'])
+})
+
+it('useScreenOrientation lockOrientation rejects when screen.orientation appears after mount', async () => {
+  const fakeWindow = createFakeWindow()
+  const { result } = await renderHook(() => useScreenOrientation({ window: fakeWindow }))
+
+  expect(result.current.isSupported).toBe(false)
+
+  // polyfill the API only after the setup-time capture already happened
+  const polyfill = createFakeScreenOrientation()
+  const fakeScreen = (fakeWindow as unknown as { screen: { orientation?: FakeScreenOrientation } }).screen
+  fakeScreen.orientation = polyfill
+
+  await expect(result.current.lockOrientation('portrait')).rejects.toThrow('Not supported')
+  expect(polyfill.lockCalls).toEqual([])
 })
 
 it('useScreenOrientation lockOrientation rejects with "Not supported" without screen.orientation', async () => {
