@@ -16,7 +16,10 @@ export interface UseVibrateOptions {
   /**
    * Interval in ms to re-trigger the pattern as a persistent vibration loop.
    *
-   * Pass `0` to disable.
+   * Pass `0` to disable. The loop does not start by itself: call
+   * `intervalControls.resume()` (mirroring upstream's `scheduler` +
+   * `useIntervalFn(..., { immediate: false })`) to start it, and
+   * `intervalControls.pause()` / `stop()` to stop it.
    *
    * @default 0
    */
@@ -41,9 +44,21 @@ export interface UseVibrateReturn {
   pattern: number | number[]
 
   /**
-   * Start the vibration. It stops automatically when the pattern completes;
-   * with the `interval` option it re-triggers the pattern every `interval`
-   * ms until `stop()` is called.
+   * Pausable controls for the `interval` re-trigger loop (upstream
+   * `intervalControls?: Pausable`): `resume()` starts the loop (no-op when
+   * `interval <= 0`), `pause()` stops it, `isActive` reports whether the loop
+   * is currently running.
+   */
+  intervalControls: {
+    pause: () => void
+    resume: () => void
+    isActive: boolean
+  }
+
+  /**
+   * Start the vibration. It stops automatically when the pattern completes —
+   * a single `vibrate()` call never loops on its own (upstream parity); use
+   * `intervalControls.resume()` to start the persistent `interval` loop.
    */
   vibrate: (pattern?: number | number[]) => void
 
@@ -77,12 +92,15 @@ function supportsVibration(nav: Navigator | undefined): nav is Navigator {
  * - upstream's `scheduler` option (a `useIntervalFn` factory returning a
  *   `Pausable`) is ported inline as the upstream `interval` option, driven by
  *   a self-contained `useEffect` + `setInterval` (reaxuse core has no
- *   `useIntervalFn` yet): the loop starts when `vibrate()` is called,
- *   re-triggers the pattern every `interval` ms, and is cancelled by `stop()`
- *   or unmount — no `intervalControls` are returned;
+ *   `useIntervalFn` yet): the loop is inert until `intervalControls.resume()`
+ *   is called — a bare `vibrate()` is one-shot like upstream — re-triggers
+ *   the pattern every `interval` ms, and is cancelled by
+ *   `intervalControls.pause()`, `stop()` or unmount; `intervalControls`
+ *   mirrors upstream's `intervalControls?: Pausable` shape with
+ *   `{ pause, resume, isActive }`;
  * - `RefOrValue` reactivity becomes plain values: options are read at
  *   call time, so changing `pattern` affects the next `vibrate()` call or
- *   loop tick, and changing `interval` restarts the loop.
+ *   loop tick, and changing `interval` restarts the running loop.
  *
  * @see https://vueuse.org/useVibrate
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Vibration_API
@@ -97,7 +115,7 @@ export function useVibrate(options: UseVibrateOptions = {}): UseVibrateReturn {
   const { pattern = [], interval = 0, navigator: configurableNavigator } = options
 
   const [isSupported, setIsSupported] = useState(false)
-  const [looping, setLooping] = useState(false)
+  const [isActive, setIsActive] = useState(false)
 
   // Latest option values at call time — options are read per call or loop
   // tick, not captured per render (mirrors upstream's `toRef(pattern)`).
@@ -117,11 +135,12 @@ export function useVibrate(options: UseVibrateOptions = {}): UseVibrateReturn {
   }, [configurableNavigator])
 
   // Persistent vibration loop (upstream: `useIntervalFn(vibrate, interval,
-  // { immediate: false })` behind the scheduler): the first re-trigger
-  // happens after `interval` ms, the loop restarts when `interval` changes,
-  // and it is cleared by `stop()` and on unmount.
+  // { immediate: false })` behind the scheduler): starts only via
+  // `intervalControls.resume()`, the first re-trigger happens after
+  // `interval` ms, the loop restarts when `interval` changes, and it is
+  // cleared by `pause()`, `stop()` and on unmount.
   useEffect(() => {
-    if (!looping || interval <= 0)
+    if (!isActive || interval <= 0)
       return
 
     const id = setInterval(() => {
@@ -133,7 +152,7 @@ export function useVibrate(options: UseVibrateOptions = {}): UseVibrateReturn {
     return () => {
       clearInterval(id)
     }
-  }, [looping, interval, configurableNavigator])
+  }, [isActive, interval, configurableNavigator])
 
   const vibrate = useCallback((overridePattern?: number | number[]) => {
     const nav = resolveNavigator(configurableNavigator)
@@ -141,11 +160,17 @@ export function useVibrate(options: UseVibrateOptions = {}): UseVibrateReturn {
       return
 
     nav.vibrate(overridePattern ?? patternRef.current)
-
-    // The configured loop starts (or keeps running) with the vibration.
-    if (intervalRef.current > 0)
-      setLooping(true)
   }, [configurableNavigator])
+
+  const pause = useCallback(() => {
+    setIsActive(false)
+  }, [])
+
+  const resume = useCallback(() => {
+    if (intervalRef.current <= 0)
+      return
+    setIsActive(true)
+  }, [])
 
   // Attempt to stop the vibration:
   const stop = useCallback(() => {
@@ -153,12 +178,17 @@ export function useVibrate(options: UseVibrateOptions = {}): UseVibrateReturn {
     if (supportsVibration(nav))
       nav.vibrate(0)
 
-    setLooping(false)
-  }, [configurableNavigator])
+    pause()
+  }, [configurableNavigator, pause])
 
   return {
     isSupported,
     pattern,
+    intervalControls: {
+      pause,
+      resume,
+      isActive,
+    },
     vibrate,
     stop,
   }
