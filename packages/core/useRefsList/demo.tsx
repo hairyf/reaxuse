@@ -1,20 +1,25 @@
 import { useRefsList } from '@reaxuse/core'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function UseRefsListDemo() {
   const [count, setCount] = useState(3)
-  const [refs, setAt] = useRefsList<HTMLSpanElement>()
-  // mutating `refs` never re-renders — bump a state tick to read the slots
-  // after the latest commit
-  const [, setRenderTick] = useState(0)
+  const refs = useRefsList<HTMLSpanElement>()
+  // the list is auto-reset on every render and re-collected during the
+  // commit, so read it after the commit via an effect — reading it during
+  // render would see the freshly cleared list
+  const [snapshot, setSnapshot] = useState('refs.length: 0 · refs[0]: null')
+
+  useEffect(() => {
+    setSnapshot(`refs.length: ${refs.length} · refs[0]: ${refs[0]?.textContent?.trim() ?? 'null'}`)
+  })
 
   const items = Array.from({ length: count }, (_, index) => index + 1)
 
   return (
     <div>
       <div>
-        {items.map((item, index) => (
-          <span key={item} ref={el => setAt(index, el)}>
+        {items.map(item => (
+          <span key={item} ref={el => refs.set(el)}>
             {item}
             {' '}
           </span>
@@ -27,19 +32,7 @@ export default function UseRefsListDemo() {
       <button type="button" disabled={count <= 0} onClick={() => setCount(c => c - 1)}>
         Dec
       </button>
-      <button type="button" onClick={() => setRenderTick(t => t + 1)}>
-        Refresh
-      </button>
-      <div>
-        refs.length:
-        {' '}
-        {refs.length}
-      </div>
-      <div>
-        refs[0]:
-        {' '}
-        {refs[0]?.textContent.trim() ?? 'null'}
-      </div>
+      <div>{snapshot}</div>
     </div>
   )
 }
