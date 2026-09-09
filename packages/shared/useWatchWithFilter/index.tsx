@@ -13,9 +13,12 @@ import { toValue } from '../utils'
  * (`EventFilter<Args, This, Invoke>` returning
  * `ReturnType<Invoke> | Promisify<ReturnType<Invoke>>`); the watch path
  * discards the wrapped callback's return value, so the contract collapses
- * to `(invoke: FunctionArgs) => void`.
+ * to `(invoke: FunctionArgs, options?: Record<string, unknown>) => void`.
+ * The optional second argument mirrors upstream's placeholder
+ * `FunctionWrapperOptions` (e.g. `useMouse` passes `{}`), so a chained
+ * filter reads an object instead of `undefined`.
  */
-export type EventFilter = (invoke: FunctionArgs) => void
+export type EventFilter = (invoke: FunctionArgs, options?: Record<string, unknown>) => void
 
 /**
  * An `EventFilter` that carries cancellation controls (upstream:
