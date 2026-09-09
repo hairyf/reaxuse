@@ -4,55 +4,55 @@ category: Watch
 
 # useWatchTriggerable
 
-Watch that can be triggered manually. The callback can be executed immediately via `trigger`, and particular updates to the source can be ignored via `ignoreUpdates`
+Watch that can be triggered manually
 
 ## Usage
 
+A `watch` wrapper that supports manual triggering of `WatchCallback`, which returns an additional `trigger` to execute a `WatchCallback` immediately.
+
 ```tsx
 import { useWatchTriggerable } from '@reaxuse/shared'
+import { useState } from 'react'
+
+const [source, setSource] = useState(0)
 
 const { trigger, ignoreUpdates } = useWatchTriggerable(
   source,
-  () => { console.log('changed!') },
+  v => console.log(`Changed to ${v}!`),
 )
 
-setSource('next') // fires the callback
-ignoreUpdates(() => setSource('reset')) // does not fire the callback
-trigger() // fires the callback manually with the current value
+setSource(1) // logs (after commit): Changed to 1!
+
+// Execution of WatchCallback via `trigger` does not require waiting
+trigger() // logs: Changed to 1!
 ```
 
-### Ignoring particular updates
+### `onCleanup`
+
+When you want to manually call a `watch` that uses the onCleanup parameter; simply taking the `WatchCallback` out and calling it doesn't make it easy to implement the `onCleanup` parameter.
+
+Using `useWatchTriggerable` will solve this problem.
 
 ```tsx
 import { useWatchTriggerable } from '@reaxuse/shared'
+import { useState } from 'react'
 
-const { ignoreUpdates } = useWatchTriggerable(source, () => {
-  console.log('changed!')
-})
+const [source, setSource] = useState(0)
 
-ignoreUpdates(() => {
-  setSource(0) // does not fire the callback
-})
-```
+const { trigger } = useWatchTriggerable(
+  source,
+  async (v, _, onCleanup) => {
+    let canceled = false
+    onCleanup(() => canceled = true)
 
-### Trigger manually
+    await new Promise(resolve => setTimeout(resolve, 500))
+    if (canceled)
+      return
 
-```tsx
-import { useWatchTriggerable } from '@reaxuse/shared'
+    console.log(`The value is "${v}"\n`)
+  },
+)
 
-const { trigger } = useWatchTriggerable(source, () => {
-  console.log('changed!')
-})
-
-// fires the callback with the current value — synchronously at the call
-// site, without waiting for React to commit
-trigger()
-```
-
-Fire the callback once on mount with the current value:
-
-```tsx
-import { useWatchTriggerable } from '@reaxuse/shared'
-
-useWatchTriggerable(source, () => console.log('changed!'), { immediate: true })
+setSource(1) // no log
+await trigger() // logs (after 500 ms): The value is "1"
 ```

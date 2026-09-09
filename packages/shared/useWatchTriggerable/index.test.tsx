@@ -112,6 +112,61 @@ describe('useWatchTriggerable', () => {
     expect(calls).toEqual([1])
   })
 
+  it('disarms the barrier when the updater is a no-op setState (React bailout)', async () => {
+    // MAJOR 2: `ignoreUpdates(() => setValue(x))` with an unchanged `x` makes
+    // React bail out of rendering — no commit arrives to run the disarm
+    // effect. The internal render tick still commits, so the barrier disarms
+    // and a later genuine change fires (upstream counts 0 changes and fires).
+    const calls: number[] = []
+    let setValue: (value: number) => void = () => {}
+
+    const { result, act } = await renderHook(() => {
+      const [value, update] = useState(0)
+      setValue = update
+      return useWatchTriggerable(value, next => calls.push(next))
+    })
+
+    await act(() => {
+      result.current.ignoreUpdates(() => setValue(0))
+    })
+    expect(calls).toEqual([])
+
+    await act(() => setValue(1))
+    expect(calls).toEqual([1])
+  })
+
+  it('suppresses a source change queued inside the trigger callback', async () => {
+    // MAJOR 1: upstream wraps the manual invocation in `ignoreUpdates`, so a
+    // `setSource` queued by the callback itself is ignored — it must not
+    // re-fire the watch after its commit.
+    const calls: number[] = []
+    let setValue: (value: number) => void = () => {}
+
+    const { result, act } = await renderHook(() => {
+      const [value, update] = useState(0)
+      setValue = update
+      return useWatchTriggerable(value, (next) => {
+        calls.push(next)
+        // only the manual trigger invocation (current value 0) queues a
+        // source change; watch-fired invocations must not mutate or they
+        // would loop (upstream behaves the same way)
+        if (next === 0)
+          setValue(1)
+      })
+    })
+
+    await act(() => {
+      result.current.trigger()
+    })
+    // the manual invocation fired with 0; the 0 → 1 change it queued was
+    // suppressed by the ignore barrier
+    expect(calls).toEqual([0])
+
+    // a further genuine change fires normally
+    await act(() => setValue(5))
+    expect(calls).toEqual([0, 5])
+  })
+
   it('cleans up the previous side effect before each new invocation', async () => {
     // mirrors upstream `should work` onCleanup semantics: the cleanup
     // registered with the previous value runs before the next invocation —
@@ -154,7 +209,7 @@ describe('useWatchTriggerable', () => {
 
   it('supports array sources (renderHook)', async () => {
     // mirrors upstream `source array`: trigger first, then a batched change
-    const calls: Array<{ value: readonly [number, string], oldValue: readonly [number, string] | undefined }> = []
+    const calls: Array<{ value: readonly [number, string], oldValue: readonly [number | undefined, string | undefined] }> = []
     let setCount: (value: number) => void = () => {}
     let setName: (value: string) => void = () => {}
 
@@ -169,7 +224,9 @@ describe('useWatchTriggerable', () => {
     await act(() => {
       result.current.trigger()
     })
-    expect(calls).toEqual([{ value: [0, 'a'], oldValue: undefined }])
+    // a manual trigger's old value is unknown per element — `[undefined, undefined]`
+    // (upstream `getOldValue` maps array sources to `source.map(() => undefined)`)
+    expect(calls).toEqual([{ value: [0, 'a'], oldValue: [undefined, undefined] }])
 
     // changes made in one batch collapse into a single committed call
     await act(() => {
@@ -177,7 +234,7 @@ describe('useWatchTriggerable', () => {
       setName('b')
     })
     expect(calls).toEqual([
-      { value: [0, 'a'], oldValue: undefined },
+      { value: [0, 'a'], oldValue: [undefined, undefined] },
       { value: [1, 'b'], oldValue: [0, 'a'] },
     ])
   })
