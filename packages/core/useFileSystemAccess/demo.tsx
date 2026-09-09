@@ -5,9 +5,8 @@ type DataType = 'Text' | 'ArrayBuffer' | 'Blob'
 
 export default function UseFileSystemAccessDemo() {
   const [dataType, setDataType] = useState<DataType>('Text')
-  const {
+  const [data, setData, {
     isSupported,
-    data,
     fileName,
     fileMIME,
     fileSize,
@@ -17,7 +16,7 @@ export default function UseFileSystemAccessDemo() {
     save,
     saveAs,
     updateData,
-  } = useFileSystemAccess({
+  }] = useFileSystemAccess({
     dataType,
     types: [{
       description: 'text',
@@ -78,7 +77,12 @@ export default function UseFileSystemAccessDemo() {
         Content
         <textarea
           value={content}
-          readOnly
+          // edits go through `setData` (React immutable update); `save()`
+          // persists them to the picked handle
+          onChange={(event) => {
+            if (typeof data === 'string')
+              setData(event.target.value)
+          }}
           rows={20}
           cols={40}
         />
