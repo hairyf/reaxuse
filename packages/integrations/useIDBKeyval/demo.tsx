@@ -1,7 +1,4 @@
-// Relative (not `@reaxuse/integrations`): until this PR is merged the package
-// name resolves through the worktree node_modules junction to the main repo's
-// still-empty integrations package.
-import { useIDBKeyval } from '../useIDBKeyval'
+import { useIDBKeyval } from '@reaxuse/integrations'
 
 interface DemoObject {
   name: string

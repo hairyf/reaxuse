@@ -64,6 +64,17 @@ export interface UseIDBOptions<T> {
    * @default false
    */
   shallow?: boolean
+
+  /**
+   * The flush timing of the (upstream) watcher.
+   *
+   * Accepted for upstream parity only — **no effect**: React has no watcher to
+   * flush, so writes happen explicitly through `setData` (see the divergence
+   * notes on `useIDBKeyval`).
+   *
+   * @default 'pre'
+   */
+  flush?: 'pre' | 'post' | 'sync' | 'async'
 }
 
 /**
@@ -174,7 +185,17 @@ export function useIDBKeyval<T>(
   // guards every async continuation against setting state after unmount
   const mountedRef = useRef(true)
 
-  const isSupported = typeof window !== 'undefined' && 'BroadcastChannel' in window
+  // upstream: `window = defaultWindow`, used for the `BroadcastChannel`
+  // support check (`useSupported(() => window && 'BroadcastChannel' in window)`)
+  const targetWindow = optionsRef.current.window ?? (typeof window !== 'undefined' ? window : undefined)
+  const isSupported = !!targetWindow && 'BroadcastChannel' in targetWindow
+
+  // the key the current read/write callbacks belong to — a per-key token so a
+  // stale read that resolves after `key` changed cannot clobber the new key's
+  // data (the mounted guard alone is re-armed by the key-change effect, so it
+  // cannot tell an old read apart from a current one)
+  const keyRef = useRef(key)
+  keyRef.current = key
 
   const getSerializer = useCallback((): UseIDBKeyvalSerializer<T> => {
     return optionsRef.current.serializer ?? defaultSerializer<T>()
@@ -183,13 +204,14 @@ export function useIDBKeyval<T>(
   const read = useCallback(async (): Promise<void> => {
     const { onError = defaultOnError, writeDefaults = true } = optionsRef.current
     const rawInit = rawInitRef.current!.value
+    const currentKey = key
     try {
-      const rawValue = await get<T>(key)
-      if (!mountedRef.current)
+      const rawValue = await get<T>(currentKey)
+      if (!mountedRef.current || keyRef.current !== currentKey)
         return
       if (rawValue === undefined) {
         if (rawInit !== undefined && rawInit !== null && writeDefaults)
-          await set(key, getSerializer().write(rawInit))
+          await set(currentKey, getSerializer().write(rawInit))
       }
       else {
         const value = getSerializer().read(rawValue)

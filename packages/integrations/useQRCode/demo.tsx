@@ -1,8 +1,5 @@
-// Relative (not `@reaxuse/integrations`): until this PR is merged the package
-// name resolves through the worktree node_modules junction to the main repo's
-// integrations package, which does not export `useQRCode` yet.
+import { useQRCode } from '@reaxuse/integrations'
 import { useMemo, useState } from 'react'
-import { useQRCode } from '../useQRCode'
 
 export default function UseQRCodeDemo() {
   const [text, setText] = useState('https://vueuse.org')

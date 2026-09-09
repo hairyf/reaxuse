@@ -92,9 +92,11 @@ export interface UseIpcRendererReturn {
  * React deviations:
  * - upstream implements `on` by calling the `useIpcRendererOn` composable
  *   inside the method. Hooks cannot be called from callbacks, so `on`
- *   registers directly and tracks `{ channel, listener }` pairs; a mount
- *   effect's cleanup removes every tracked listener on unmount (the same
- *   auto-cleanup guarantee upstream gets from the effect scope);
+ *   registers directly and tracks `{ ipc, channel, listener }` pairs; a mount
+ *   effect's cleanup removes every tracked listener from **its captured
+ *   instance** on unmount (the same auto-cleanup guarantee upstream gets from
+ *   the effect scope). Like upstream, listeners are not re-registered when the
+ *   instance changes — each stays on the instance it was registered with;
  * - upstream `invoke` returns a `ShallowRef<T | null>`; this port returns the
  *   raw `Promise<T>`. Declarative async state is the job of the
  *   `useIpcRendererInvoke` hook — a method on a returned object cannot own
@@ -115,22 +117,26 @@ export interface UseIpcRendererReturn {
 export function useIpcRenderer(ipcRenderer?: IpcRenderer): UseIpcRendererReturn {
   const resolved = resolveIpcRenderer(ipcRenderer)
 
-  // listeners registered through `on`, removed by the mount effect's cleanup
-  const trackedRef = useRef<{ channel: string, listener: IpcRendererListener }[]>([])
+  // listeners registered through `on`, removed by the unmount effect's cleanup.
+  // Each pair captures the instance it was registered with, so an instance
+  // swap never drops or re-registers listeners (upstream scope-dispose
+  // semantics): every tracked listener is removed only on unmount, from the
+  // instance that actually owns it.
+  const trackedRef = useRef<{ ipc: IpcRenderer, channel: string, listener: IpcRendererListener }[]>([])
 
   useEffect(() => {
     return () => {
-      trackedRef.current.forEach(({ channel, listener }) => {
-        resolved.removeListener(channel, listener)
+      trackedRef.current.forEach(({ ipc, channel, listener }) => {
+        ipc.removeListener(channel, listener)
       })
       trackedRef.current = []
     }
-  }, [resolved])
+  }, [])
 
   return {
     on: (channel: string, listener: IpcRendererListener) => {
       resolved.on(channel, listener)
-      trackedRef.current.push({ channel, listener })
+      trackedRef.current.push({ ipc: resolved, channel, listener })
       return resolved
     },
     once: resolved.once.bind(resolved),

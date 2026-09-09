@@ -71,6 +71,13 @@ export function useJwt<
   const onErrorRef = useRef(onError)
   onErrorRef.current = onError
 
+  // latest `fallbackValue` in a ref, read at decode time like `onError` — so
+  // the memos depend on the token alone (upstream's computed deps are
+  // token-only), keeping `header`/`payload` referentially stable for a stable
+  // token even when the options object is recreated each render
+  const fallbackValueRef = useRef(fallbackValue)
+  fallbackValueRef.current = fallbackValue
+
   const token = encodedJwt
 
   const decodeWithFallback = <T extends object>(value: string, jwtOptions?: JwtDecodeOptions): T | Fallback => {
@@ -79,12 +86,12 @@ export function useJwt<
     }
     catch (err) {
       onErrorRef.current?.(err)
-      return fallbackValue as Fallback
+      return fallbackValueRef.current as Fallback
     }
   }
 
-  const header = useMemo(() => decodeWithFallback<Header>(token, { header: true }), [token, fallbackValue])
-  const payload = useMemo(() => decodeWithFallback<Payload>(token), [token, fallbackValue])
+  const header = useMemo(() => decodeWithFallback<Header>(token, { header: true }), [token])
+  const payload = useMemo(() => decodeWithFallback<Payload>(token), [token])
 
   return {
     header,

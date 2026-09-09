@@ -1,9 +1,7 @@
-import type { IpcRenderer, IpcRendererEvent } from 'electron'
+import type { IpcRenderer } from 'electron'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useIpcRenderer } from '../useIpcRenderer'
-import { useIpcRendererInvoke } from '../useIpcRendererInvoke'
-import { useIpcRendererOn } from '../useIpcRendererOn'
 
 /**
  * Build a fake `ipcRenderer` from `vi.fn()`s. The upstream modules import
@@ -40,121 +38,6 @@ afterEach(() => {
   delete (window as any).require
 })
 
-describe('useIpcRendererInvoke', () => {
-  it('invokes on mount and re-renders with the response (explicit instance)', async () => {
-    const fake = createFakeIpcRenderer()
-    fake.invoke.mockResolvedValue('hello')
-
-    const { result } = await renderHook(() => useIpcRendererInvoke<string>(fake, 'custom-channel', 'some data'))
-
-    await expect.poll(() => result.current).toBe('hello')
-    expect(fake.invoke).toHaveBeenCalledWith('custom-channel', 'some data')
-  })
-
-  it('resolves the instance from window.require when none is given', async () => {
-    const fake = createFakeIpcRenderer()
-    fake.invoke.mockResolvedValue({ msg: 'ok' })
-    stubWindowRequire({ ipcRenderer: fake })
-
-    const { result } = await renderHook(() => useIpcRendererInvoke<{ msg: string }>('custom-channel', 'some data'))
-
-    await expect.poll(() => result.current).toEqual({ msg: 'ok' })
-    expect(fake.invoke).toHaveBeenCalledWith('custom-channel', 'some data')
-  })
-
-  it('re-invokes when the channel changes', async () => {
-    const fake = createFakeIpcRenderer()
-    fake.invoke.mockImplementation((channel: string) => Promise.resolve(`response:${channel}`))
-
-    const { result, rerender } = await renderHook(
-      (props?: { channel?: string }) => useIpcRendererInvoke<string>(fake, props!.channel!),
-      { initialProps: { channel: 'first' } },
-    )
-
-    await expect.poll(() => result.current).toBe('response:first')
-
-    await rerender({ channel: 'second' })
-
-    await expect.poll(() => result.current).toBe('response:second')
-    expect(fake.invoke).toHaveBeenCalledWith('first')
-    expect(fake.invoke).toHaveBeenCalledWith('second')
-  })
-
-  it('ignores a late resolution after unmount', async () => {
-    const fake = createFakeIpcRenderer()
-    let settle: (value: string) => void = () => {}
-    fake.invoke.mockImplementation(() => new Promise<string>((resolve) => {
-      settle = resolve
-    }))
-
-    const { result, unmount } = await renderHook(() => useIpcRendererInvoke<string>(fake, 'slow-channel'))
-    expect(result.current).toBeNull()
-
-    await unmount()
-    settle('too late')
-    await new Promise(resolve => setTimeout(resolve, 0))
-
-    expect(result.current).toBeNull()
-  })
-
-  it('throws the upstream message when no instance is available', () => {
-    expect(() => useIpcRendererInvoke('custom-channel')).toThrow('please provide IpcRenderer module or enable nodeIntegration')
-  })
-})
-
-describe('useIpcRendererOn', () => {
-  it('registers on mount and removes the same listener identity on unmount', async () => {
-    const fake = createFakeIpcRenderer()
-    const listener = vi.fn((_event: IpcRendererEvent, ..._args: any[]) => {})
-
-    const { unmount } = await renderHook(() => useIpcRendererOn(fake, 'custom-event', listener))
-
-    expect(fake.on).toHaveBeenCalledTimes(1)
-    expect(fake.on).toHaveBeenCalledWith('custom-event', listener)
-    expect(fake.removeListener).not.toHaveBeenCalled()
-
-    await unmount()
-
-    expect(fake.removeListener).toHaveBeenCalledTimes(1)
-    expect(fake.removeListener).toHaveBeenCalledWith('custom-event', listener)
-  })
-
-  it('re-registers when the channel changes', async () => {
-    const fake = createFakeIpcRenderer()
-    const listener = vi.fn()
-
-    const { rerender } = await renderHook(
-      (props?: { channel?: string }) => useIpcRendererOn(fake, props!.channel!, listener),
-      { initialProps: { channel: 'first' } },
-    )
-
-    await rerender({ channel: 'second' })
-
-    expect(fake.on).toHaveBeenCalledWith('first', listener)
-    expect(fake.on).toHaveBeenCalledWith('second', listener)
-    expect(fake.removeListener).toHaveBeenCalledWith('first', listener)
-  })
-
-  it('returns the resolved instance and auto-resolves via window.require', async () => {
-    const explicit = createFakeIpcRenderer()
-    const listener = vi.fn()
-
-    const { result } = await renderHook(() => useIpcRendererOn(explicit, 'custom-event', listener))
-    expect(result.current).toBe(explicit)
-
-    const auto = createFakeIpcRenderer()
-    stubWindowRequire({ ipcRenderer: auto })
-
-    const autoHook = await renderHook(() => useIpcRendererOn('custom-event', listener))
-    expect(autoHook.result.current).toBe(auto)
-    expect(auto.on).toHaveBeenCalledWith('custom-event', listener)
-  })
-
-  it('throws the upstream message when no instance is available', () => {
-    expect(() => useIpcRendererOn('custom-event', vi.fn())).toThrow('please provide IpcRenderer module or enable nodeIntegration')
-  })
-})
-
 describe('useIpcRenderer', () => {
   it('on() registers immediately and auto-removes every tracked listener on unmount', async () => {
     const fake = createFakeIpcRenderer()
@@ -188,6 +71,34 @@ describe('useIpcRenderer', () => {
     })
 
     expect(returned).toBe(fake)
+  })
+
+  it('keeps tracked listeners on the instance they were registered with across a swap, removed only on unmount', async () => {
+    const first = createFakeIpcRenderer()
+    const second = createFakeIpcRenderer()
+    const listener = vi.fn()
+
+    const { result, act, rerender, unmount } = await renderHook(
+      (props?: { ipc?: IpcRenderer }) => useIpcRenderer(props?.ipc),
+      { initialProps: { ipc: first } },
+    )
+
+    await act(() => {
+      result.current.on('custom-event', listener)
+    })
+    expect(first.on).toHaveBeenCalledWith('custom-event', listener)
+
+    await rerender({ ipc: second })
+
+    // an instance swap neither drops nor re-registers the listener (upstream
+    // scope-dispose semantics) — it stays on the instance it was registered with
+    expect(first.removeListener).not.toHaveBeenCalled()
+    expect(second.on).not.toHaveBeenCalled()
+
+    await unmount()
+
+    expect(first.removeListener).toHaveBeenCalledWith('custom-event', listener)
+    expect(second.removeListener).not.toHaveBeenCalled()
   })
 
   it('delegates send/postMessage/sendTo/sendToHost with the right arguments', async () => {

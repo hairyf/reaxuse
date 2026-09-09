@@ -52,6 +52,19 @@ describe('useFuse', () => {
     expect(result.current.results.map(r => r.item)).toEqual(['John Smith', 'John Doe'])
   })
 
+  it('accepts a ref-like options object ({ current }) and re-reads it on re-render', async () => {
+    const options = { current: { resultLimit: 1 } }
+
+    const { result, rerender } = await renderHook(() => useFuse('John', names, options))
+
+    expect(result.current.results).toHaveLength(1)
+
+    options.current = { resultLimit: 3 }
+    await rerender()
+
+    expect(result.current.results).toHaveLength(3)
+  })
+
   it('orders plain string results like the upstream example', async () => {
     const { result } = await renderHook(() => useFuse('Jhon D', names))
 

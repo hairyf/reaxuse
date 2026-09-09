@@ -21,9 +21,10 @@ export interface UseNProgressReturn {
   /**
    * Setter for `progress` — the React mapping of upstream's writable `progress`
    * ref. Takes a plain value or a functional updater (like a React `useState`
-   * setter, `prev => next`). A `number` result is also pushed to `nprogress`;
-   * a `null` / `undefined` result only clears the state — the bar element is
-   * removed through `remove()` (upstream: writing `progress.value`).
+   * setter, `prev => next`). A `number` result is pushed to `nprogress` once,
+   * through the progress effect (upstream: writing `progress.value`); a `null`
+   * / `undefined` result only clears the state — the bar element is removed
+   * through `remove()`.
    */
   readonly setProgress: Dispatch<SetStateAction<number | null | undefined>>
 
@@ -83,12 +84,13 @@ export interface UseNProgressReturn {
  * - upstream monkey-patches the module-singleton `nprogress.set` so that its
  *   internal `set` calls (`start` → `set(0)`, `done` → `set(1)`) write back
  *   into `progress.value`, which is what makes `isLoading` flip. This port
- *   never touches the global `nprogress.set`: `setProgress(n)` sets the state
- *   and calls `nprogress.set(n)`, while `start` / `done` / `setIsLoading`
- *   mirror the same write-back by hand (upstream's `start` only calls `set(0)`
- *   when the bar was idle, and `done` only calls `set(1)` when it actually
- *   progresses) — so `isLoading` flips exactly as upstream, without global
- *   pollution and safely with concurrent hook instances;
+ *   never touches the global `nprogress.set`: `setProgress(n)` only sets the
+ *   state and the progress effect pushes the number into the bar once per
+ *   render, while `start` / `done` / `setIsLoading` mirror the same write-back
+ *   by hand (upstream's `start` only calls `set(0)` when the bar was idle, and
+ *   `done` only calls `set(1)` when it actually progresses) — so `isLoading`
+ *   flips exactly as upstream, without global pollution and safely with
+ *   concurrent hook instances;
  * - `options` are applied once on mount (`nprogress.configure`), like
  *   upstream's setup-time `if (options) nprogress.configure(options)`; later
  *   `options` changes are not re-applied, matching the upstream setup
@@ -175,9 +177,10 @@ export function useNProgress(
     const next = typeof updater === 'function'
       ? updater(progressRef.current)
       : updater
+    // state-only write: the `[progress]` effect pushes the number into the bar
+    // exactly once per render (upstream's `watchEffect`), avoiding a double
+    // `nprogress.set`
     updateProgress(next)
-    if (typeof next === 'number' && isClient)
-      nprogress.set(next)
   }, [updateProgress])
 
   const start = useCallback((): NProgress => {
