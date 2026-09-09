@@ -25,15 +25,23 @@ export type UseCachedComparator<T> = (newSourceValue: T, cachedValue: T) => bool
  * Adjustment for React: upstream wraps a `Ref` with a `watch` that copies the
  * source into the cache whenever the comparator returns `false` — a plain
  * value cannot be watched, so the port derives the cache from the props at
- * render: a ref holds the cached value and every render runs
- * `comparator(resolved source, cached)`; on `false` the ref adopts the new
- * source and the updated cache is returned. The comparator therefore runs on
- * every render instead of only on changes — harmless, since `true` keeps the
- * cache. The source is a plain value per the mapped API, and also accepts a
- * ref-like `{ current }` object (a React ref), resolved through `isRefLike`.
- * Only real ref-like sources are unwrapped: a plain data object that happens
- * to carry a `value` key (e.g. `{ value: 42, extra: 0 }`) is cached as-is —
- * `toValue` would unwrap it as a Vue-style ref and return `42`.
+ * render: one ref holds the cached value and another holds the previously
+ * resolved source value. The comparator runs only when the resolved source
+ * value actually changes (`Object.is`), mirroring the upstream `watch`
+ * trigger, and the mount seeds the cache from the source without calling the
+ * comparator. Because the change check is ref-based rather than render-based,
+ * unrelated re-renders — including React StrictMode's double mount render —
+ * do not re-run the comparator. The source is a plain value per the mapped
+ * API, and also accepts a ref-like `{ current }` object (a React ref),
+ * resolved through `isRefLike`. Only real ref-like sources are unwrapped: a
+ * plain data object that happens to carry a `value` key (e.g.
+ * `{ value: 42, extra: 0 }`) is cached as-is — `toValue` would unwrap it as a
+ * Vue-style ref and return `42`.
+ *
+ * Upstream `options` are intentionally not ported: `deepRefs` (shallow vs deep
+ * ref) has no React analog because the port always stores and returns the plain
+ * value as-is, and `WatchOptions` (`flush` / `immediate` / `deep` / `once`)
+ * configure the Vue `watch` that React has no equivalent for.
  *
  * @__NO_SIDE_EFFECTS__
  * @example
@@ -52,17 +60,17 @@ export function useCached<T>(
 ): T {
   const sourceValue = (isRefLike(source) ? (source as RefObject<T | null>).current : source) as T
 
-  // derived state during render — the initial mount seeds the cache with the
-  // source, then each render adopts the new source only when the comparator
-  // deems the change significant (upstream: the `watch` callback)
-  const cachedRef = useRef<T>(undefined as unknown as T)
-  const initializedRef = useRef(false)
-  if (!initializedRef.current) {
-    initializedRef.current = true
-    cachedRef.current = sourceValue
-  }
-  else if (!comparator(sourceValue, cachedRef.current)) {
-    cachedRef.current = sourceValue
+  // derived state during render — the first render seeds the cache and the
+  // previous-source ref, then a render adopts the new source only when the
+  // resolved source value changed and the comparator deems the change
+  // significant (upstream: the `watch` callback)
+  const cachedRef = useRef<T>(sourceValue)
+  const previousSourceRef = useRef<T>(sourceValue)
+
+  if (!Object.is(sourceValue, previousSourceRef.current)) {
+    previousSourceRef.current = sourceValue
+    if (!comparator(sourceValue, cachedRef.current))
+      cachedRef.current = sourceValue
   }
 
   return cachedRef.current
