@@ -1,3 +1,5 @@
+import type { RefObject } from 'react'
+import { StrictMode, useRef } from 'react'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useCached } from '../useCached'
@@ -76,13 +78,37 @@ describe('useCached', () => {
     const { result, rerender } = await renderHook(() => useCached(source, comparator))
 
     // the comparator is not called on the initial render (upstream: seeded
-    // from the source, watch does not fire immediately)
+    // from the source, the watch does not fire immediately) ...
+    expect(comparator).not.toHaveBeenCalled()
+
+    // ... nor on a re-render where the resolved source value is unchanged
+    // (upstream: `watch` only fires when the source value changes)
+    await rerender()
     expect(comparator).not.toHaveBeenCalled()
 
     source = 1
     await rerender()
 
     expect(comparator).toHaveBeenCalledWith(1, 0)
+    expect(comparator).toHaveBeenCalledTimes(1)
+    expect(result.current).toBe(0)
+  })
+
+  it('does not call the comparator on the StrictMode double mount render', async () => {
+    const comparator = vi.fn((newValue: number, cachedValue: number) => newValue === cachedValue)
+    let renders = 0
+
+    const { result } = await renderHook(() => {
+      renders++
+      return useCached(0, comparator)
+    }, {
+      wrapper: ({ children }) => <StrictMode>{children}</StrictMode>,
+    })
+
+    // StrictMode double-invokes the mount render ...
+    expect(renders).toBeGreaterThanOrEqual(2)
+    // ... yet the comparator still only sees the mount seed, not a change
+    expect(comparator).not.toHaveBeenCalled()
     expect(result.current).toBe(0)
   })
 
@@ -125,8 +151,64 @@ describe('useCached', () => {
     await rerender()
     expect(result.current).toEqual({ value: 43, extra: 1 })
   })
+
+  it('should work with a ref-like `{ current }` source', async () => {
+    interface Data {
+      value: number
+      extra: number
+    }
+
+    const source: { current: Data } = { current: { value: 42, extra: 0 } }
+    const comparator = vi.fn((newSourceValue: Data, cachedValue: Data) => newSourceValue.value === cachedValue.value)
+
+    const { result, rerender } = await renderHook(() => useCached(source, comparator))
+
+    expect(result.current).toEqual({ value: 42, extra: 0 })
+    expect(comparator).not.toHaveBeenCalled()
+
+    // the ref's `current` changed, but the comparator deems it insignificant
+    source.current = { value: 42, extra: 1 }
+    await rerender()
+
+    expect(comparator).toHaveBeenCalledWith({ value: 42, extra: 1 }, { value: 42, extra: 0 })
+    expect(result.current).toEqual({ value: 42, extra: 0 })
+
+    // significant change — the cache follows the ref
+    source.current = { value: 43, extra: 1 }
+    await rerender()
+
+    expect(result.current).toEqual({ value: 43, extra: 1 })
+  })
+
+  it('should work with a `useRef` source', async () => {
+    interface Data {
+      value: number
+      extra: number
+    }
+
+    // placeholder so the variable is definitely assigned before the hook runs
+    let sourceRef: RefObject<Data> = { current: { value: 42, extra: 0 } }
+    const comparator = (newSourceValue: Data, cachedValue: Data) => newSourceValue.value === cachedValue.value
+
+    const { result, rerender } = await renderHook(() => {
+      sourceRef = useRef<Data>({ value: 42, extra: 0 })
+      return useCached(sourceRef, comparator)
+    })
+
+    expect(result.current).toEqual({ value: 42, extra: 0 })
+
+    sourceRef.current = { value: 42, extra: 1 }
+    await rerender()
+    expect(result.current).toEqual({ value: 42, extra: 0 })
+
+    sourceRef.current = { value: 43, extra: 1 }
+    await rerender()
+    expect(result.current).toEqual({ value: 43, extra: 1 })
+  })
 })
 
-// upstream also tests `options.deepRefs` (shallow vs deep ref) — that option
-// has no React equivalent: the hook always stores and returns the plain value
-// as-is, so those cases are intentionally not ported.
+// upstream also tests `options.deepRefs` (shallow vs deep ref) and forwards
+// `WatchOptions` to `watch` — neither has a React equivalent: the hook always
+// stores and returns the plain value as-is and derives the cache from the
+// resolved source value, so those cases are intentionally not ported (see
+// `index.md` → "Upstream options not ported").
