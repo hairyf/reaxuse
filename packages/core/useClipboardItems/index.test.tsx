@@ -166,6 +166,36 @@ it('listens for copy/cut events and refreshes content when read is enabled', asy
   expect(readSpy).toHaveBeenCalledTimes(2)
 })
 
+it('re-binds the copy/cut listeners when `read` toggles after mount', async () => {
+  const items = createItems('from event')
+  const { readSpy } = installClipboard(items)
+  // upstream decides once at setup; reaxuse keys the listener effect on
+  // `read`, so the listeners follow runtime toggles (documented divergence)
+  const { result, rerender, act } = await renderHook(
+    ({ read }: { read: boolean }) => useClipboardItems({ read }),
+    { initialProps: { read: false } },
+  )
+
+  await expect.poll(() => result.current.isSupported).toBe(true)
+
+  // `read: false` — no listener is bound
+  window.dispatchEvent(new Event('copy'))
+  expect(readSpy).not.toHaveBeenCalled()
+
+  // toggling `read` on after mount binds them
+  await rerender({ read: true })
+  await act(async () => {
+    window.dispatchEvent(new Event('copy'))
+  })
+  await expect.poll(() => readSpy).toHaveBeenCalledTimes(1)
+  await expect.poll(() => result.current.content).toEqual(items)
+
+  // toggling `read` back off removes them again
+  await rerender({ read: false })
+  window.dispatchEvent(new Event('cut'))
+  expect(readSpy).toHaveBeenCalledTimes(1)
+})
+
 it('copy() and read() no-op when the Clipboard API is unsupported', async () => {
   const descriptor = Object.getOwnPropertyDescriptor(Navigator.prototype, 'clipboard')
 

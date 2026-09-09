@@ -56,6 +56,11 @@ export interface UseClipboardItemsReturn<Optional> {
    * `source` option is provided it may be called without arguments; it is a
    * no-op (resolves without writing) when the Clipboard API is unsupported
    * or when no value is available.
+   *
+   * The parameter is named `content` — upstream names it `text`
+   * (`copy: (text: ClipboardItems) => Promise<void>`). Same type and
+   * semantics; `content` matches the returned `content` value and avoids
+   * confusion with `useClipboard`'s text-only `text`.
    */
   copy: Optional extends true
     ? (content?: ClipboardItems) => Promise<void>
@@ -81,11 +86,12 @@ export interface UseClipboardItemsReturn<Optional> {
  *   directly, and `isSupported` (upstream `useSupported` computed) becomes a
  *   plain boolean resolved once in a mount effect — nothing touches
  *   `window` or `navigator` during render, so SSR renders the defaults;
- * - upstream binds the copy/cut listeners via `useEventListener` after the
- *   support check passes; here a self-contained effect (the pattern of
- *   `useMagicKeys` / `useNetwork`) binds `copy` / `cut` on `window` only
- *   while `read` is enabled and the Clipboard API is supported, and removes
- *   them on unmount;
+ * - upstream binds the copy/cut listeners once at setup (after the support
+ *   check passes); here a self-contained effect (the pattern of
+ *   `useMagicKeys` / `useNetwork`) binds `copy` / `cut` on `window` while
+ *   `read` is enabled and the Clipboard API is supported, so toggling `read`
+ *   after mount re-binds or removes them (strictly more reactive than
+ *   upstream's freeze-in), and removes them on unmount;
  * - `copy` is a stable callback that resolves the `source` option at call
  *   time through `toValue` (React has no reactive refs), writes no-op when
  *   the API is unsupported or no value is available, and sets `content` +
