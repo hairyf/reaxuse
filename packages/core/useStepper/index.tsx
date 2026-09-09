@@ -1,45 +1,53 @@
+import type { Dispatch, SetStateAction } from 'react'
 import { useCallback, useRef, useState } from 'react'
 
-export interface UseStepperReturn<StepName, Steps, Step> {
-  /** List of steps. */
-  steps: Steps
-  /** List of step names. */
-  stepNames: StepName[]
+export type UseStepperReturn<StepName, Steps, Step> = readonly [
   /** Index of the current step. */
-  index: number
-  /** Current step. */
-  current: Step
-  /** Next step, or undefined if the current step is the last one. */
-  next: StepName | undefined
-  /** Previous step, or undefined if the current step is the first one. */
-  previous: StepName | undefined
-  /** Whether the current step is the first one. */
-  isFirst: boolean
-  /** Whether the current step is the last one. */
-  isLast: boolean
-  /** Get the step at the specified index. */
-  at: (index: number) => Step | undefined
-  /** Get a step by the specified name. */
-  get: (step: StepName) => Step | undefined
-  /** Go to the specified step. Does nothing if the step does not exist. */
-  goTo: (step: StepName) => void
-  /** Go to the next step. Does nothing if the current step is the last one. */
-  goToNext: () => void
-  /** Go to the previous step. Does nothing if the current step is the first one. */
-  goToPrevious: () => void
-  /** Go back to the given step, only if the current step is after. */
-  goBackTo: (step: StepName) => void
-  /** Checks whether the given step is the next step. */
-  isNext: (step: StepName) => boolean
-  /** Checks whether the given step is the previous step. */
-  isPrevious: (step: StepName) => boolean
-  /** Checks whether the given step is the current step. */
-  isCurrent: (step: StepName) => boolean
-  /** Checks if the current step is before the given step. */
-  isBefore: (step: StepName) => boolean
-  /** Checks if the current step is after the given step. */
-  isAfter: (step: StepName) => boolean
-}
+  index: number,
+  /**
+   * Setter for the current step index — `setIndex(next)` or
+   * `setIndex(prev => next)`.
+   */
+  setIndex: Dispatch<SetStateAction<number>>,
+  controls: {
+    /** List of steps. */
+    steps: Steps
+    /** List of step names. */
+    stepNames: StepName[]
+    /** Current step. */
+    current: Step
+    /** Next step, or undefined if the current step is the last one. */
+    next: StepName | undefined
+    /** Previous step, or undefined if the current step is the first one. */
+    previous: StepName | undefined
+    /** Whether the current step is the first one. */
+    isFirst: boolean
+    /** Whether the current step is the last one. */
+    isLast: boolean
+    /** Get the step at the specified index. */
+    at: (index: number) => Step | undefined
+    /** Get a step by the specified name. */
+    get: (step: StepName) => Step | undefined
+    /** Go to the specified step. Does nothing if the step does not exist. */
+    goTo: (step: StepName) => void
+    /** Go to the next step. Does nothing if the current step is the last one. */
+    goToNext: () => void
+    /** Go to the previous step. Does nothing if the current step is the first one. */
+    goToPrevious: () => void
+    /** Go back to the given step, only if the current step is after. */
+    goBackTo: (step: StepName) => void
+    /** Checks whether the given step is the next step. */
+    isNext: (step: StepName) => boolean
+    /** Checks whether the given step is the previous step. */
+    isPrevious: (step: StepName) => boolean
+    /** Checks whether the given step is the current step. */
+    isCurrent: (step: StepName) => boolean
+    /** Checks if the current step is before the given step. */
+    isBefore: (step: StepName) => boolean
+    /** Checks if the current step is after the given step. */
+    isAfter: (step: StepName) => boolean
+  },
+]
 
 /**
  * React port of VueUse's `useStepper`.
@@ -50,6 +58,14 @@ export interface UseStepperReturn<StepName, Steps, Step> {
  *
  * React divergences:
  *
+ * - the return is a React tuple `[index, setIndex, controls]` instead of
+ *   upstream's object, whose `index` is a writable `Ref<number>`: `index` is
+ *   plain state and `setIndex` is the React setter
+ *   (`Dispatch<SetStateAction<number>>`, so it accepts an updater); every
+ *   other member moves onto `controls`, where upstream's readonly
+ *   refs/computeds become plain values and its functions become stable
+ *   callbacks (identity never changes, always reading the latest `steps`
+ *   and `index`);
  * - upstream's `RefOrValue<T[]>` steps argument becomes a plain `T[]` — pass a
  *   new array to react to steps changes; only `index` is stateful
  *   (`useState`), every other member (`current`, `next`, `previous`,
@@ -58,10 +74,6 @@ export interface UseStepperReturn<StepName, Steps, Step> {
  * - the object-form overload (`useStepper({ a: ..., b: ... })`) is not
  *   ported — the issue maps the array form (`T extends string | number`)
  *   only, where step names are the steps themselves;
- * - the returned object mirrors upstream's `UseStepperReturn` member for
- *   member: refs/computed become plain values, functions become stable
- *   callbacks (identity never changes, always reading the latest `steps`
- *   and `index`);
  * - boundary semantics are upstream's: `goToNext`/`goToPrevious` are no-ops
  *   at the last/first step (no wrapping), `goTo` ignores steps that do not
  *   exist and `goBackTo` only moves backwards;
@@ -70,11 +82,12 @@ export interface UseStepperReturn<StepName, Steps, Step> {
  *   at index `-1` (`current` reads `undefined`); pass a member of `steps`.
  *
  * @example
- * const { steps, index, current, goToNext, goToPrevious, isFirst, isLast } =
+ * const [index, setIndex, { steps, current, goToNext, goToPrevious, isFirst, isLast }] =
  *   useStepper(['billing-address', 'terms', 'payment'])
  *
  * current // 'billing-address'
  * goToNext() // 'terms'
+ * setIndex(2) // 'payment'
  */
 export function useStepper<T extends string | number>(steps: T[], initialStep?: T): UseStepperReturn<T, T[], T> {
   // index is the only stateful member; everything else derives from the
@@ -137,10 +150,9 @@ export function useStepper<T extends string | number>(steps: T[], initialStep?: 
   const next = index + 1 < stepNames.length ? stepNames[index + 1] : undefined
   const previous = index > 0 ? stepNames[index - 1] : undefined
 
-  return {
+  const controls: UseStepperReturn<T, T[], T>[2] = {
     steps,
     stepNames,
-    index,
     current,
     next,
     previous,
@@ -158,4 +170,6 @@ export function useStepper<T extends string | number>(steps: T[], initialStep?: 
     isBefore,
     isAfter,
   }
+
+  return [index, setIndex, controls]
 }
