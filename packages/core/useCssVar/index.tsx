@@ -17,7 +17,9 @@ export interface UseCssVarOptions extends ConfigurableWindow {
    */
   initialValue?: string
   /**
-   * Use MutationObserver to monitor variable changes.
+   * Use MutationObserver to monitor variable changes. The observer is created
+   * from the configured `window`; when that window has no `MutationObserver`,
+   * observation is skipped silently.
    *
    * @default false
    */
@@ -66,7 +68,9 @@ export type UseCssVarReturn = [
  * - the optional MutationObserver (upstream composes `useMutationObserver`
  *   with `{ attributeFilter: ['style', 'class'] }`) is a self-contained
  *   observer inside an effect, disconnected on unmount — like upstream it only
- *   updates the state, since the DOM is already the source of the change;
+ *   updates the state, since the DOM is already the source of the change; it is
+ *   built from the configured `window` and skipped silently when that window
+ *   has no `MutationObserver` (upstream's per-window support guard);
  * - SSR-safe: the value initializes from `initialValue` during render, the
  *   first DOM read happens in a mount effect, and a nullish initial value is
  *   never written back before that read ran (mirroring upstream's watcher
@@ -166,10 +170,19 @@ export function useCssVar(
   useEffect(() => {
     if (!observe || !el)
       return
-    if (!windowRef.current)
+
+    const win = windowRef.current
+    // Support is checked on the configured window (upstream:
+    // `useSupported(() => window && 'MutationObserver' in window)`), so an env
+    // whose window lacks the constructor degrades silently instead of throwing.
+    if (!win || !('MutationObserver' in win))
       return
 
-    const observer = new MutationObserver(() => updateCssVar())
+    // The constructor is reached through the resolved window so a custom
+    // `window` option can provide its own; the global `MutationObserver` var
+    // is not a `Window` member in TS's DOM lib, hence the structural cast.
+    const winWithObserver = win as unknown as { MutationObserver: typeof MutationObserver }
+    const observer = new winWithObserver.MutationObserver(() => updateCssVar())
     observer.observe(el, { attributeFilter: ['style', 'class'] })
 
     return () => {
