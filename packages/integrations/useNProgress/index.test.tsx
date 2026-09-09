@@ -127,6 +127,62 @@ describe('useNProgress', () => {
     expect(el?.querySelector('.bar')).not.toBeNull()
   })
 
+  it('returns an object with paired setters in order', async () => {
+    const { result } = await renderHook(() => useNProgress())
+
+    expect(Array.isArray(result.current)).toBe(false)
+    expect(Object.keys(result.current)).toEqual([
+      'progress',
+      'setProgress',
+      'isLoading',
+      'setIsLoading',
+      'start',
+      'done',
+      'remove',
+    ])
+    expect(result.current.setProgress).toBeTypeOf('function')
+    expect(result.current.setIsLoading).toBeTypeOf('function')
+  })
+
+  it('setProgress accepts a functional updater', async () => {
+    const { result, act } = await renderHook(() => useNProgress(0.2))
+
+    await act(() => {
+      result.current.setProgress(prev => (prev ?? 0) + 0.3)
+    })
+
+    expect(result.current.progress).toBe(0.5)
+    expect(nprogress.status).toBe(0.5)
+  })
+
+  it('setProgress functional updater can clear progress to null', async () => {
+    const { result, act } = await renderHook(() => useNProgress(0.5))
+
+    await act(() => {
+      result.current.setProgress(() => null)
+    })
+
+    expect(result.current.progress).toBeNull()
+    expect(result.current.isLoading).toBe(false)
+  })
+
+  it('setIsLoading accepts a functional updater', async () => {
+    const { result, act } = await renderHook(() => useNProgress(0.5))
+
+    await act(() => {
+      result.current.setIsLoading(prev => !prev)
+    })
+    expect(result.current.isLoading).toBe(false)
+    expect(result.current.progress).toBe(1)
+
+    // toggle back — the updater resolves against the latest progress
+    await act(() => {
+      result.current.setIsLoading(prev => !prev)
+    })
+    expect(result.current.isLoading).toBe(true)
+    expect(result.current.progress).toBe(0)
+  })
+
   it('remove() clears progress and removes the bar', async () => {
     const { result, act } = await renderHook(() => useNProgress(0.5))
 

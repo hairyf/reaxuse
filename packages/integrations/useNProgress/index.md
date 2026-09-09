@@ -60,3 +60,17 @@ useNProgress(null, {
   // ...
 })
 ```
+
+## Return Values
+
+`useNProgress` returns the object `{ progress, setProgress, isLoading, setIsLoading, start, done, remove }`:
+
+| Property       | Type                                                    | Description                                                                                                                                                                |
+| -------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `progress`     | `number \| null \| undefined`                           | Current progress percentage (`0..1`), `null` after `remove()`, `1` after `done()` — the plain-state replacement for upstream's `progress` ref.                             |
+| `setProgress`  | `Dispatch<SetStateAction<number \| null \| undefined>>` | Setter for `progress` (upstream: writing `progress.value`), accepts a plain value or a functional updater (`prev => next`); a number result is also pushed to `nprogress`. |
+| `isLoading`    | `boolean`                                               | Whether the bar is currently showing (upstream: the writable `isLoading` computed) — `true` while `progress` is a number below 1.                                          |
+| `setIsLoading` | `Dispatch<SetStateAction<boolean>>`                     | Starts or completes the bar (upstream: writing `isLoading.value`), accepts a plain value or a functional updater (`prev => next`).                                         |
+| `start`        | `() => NProgress`                                       | Show the bar (upstream: `start`).                                                                                                                                          |
+| `done`         | `(force?: boolean) => NProgress`                        | Complete the bar (upstream: `done`).                                                                                                                                       |
+| `remove`       | `() => void`                                            | Reset `progress` to `null` and remove the bar from the DOM (upstream: `remove`).                                                                                           |
