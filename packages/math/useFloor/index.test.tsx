@@ -8,12 +8,6 @@ describe('useFloor', () => {
     expect(useFloor).toBeDefined()
   })
 
-  it('should work (mirrors upstream)', () => {
-    expect(useFloor(45.95)).toBe(45)
-    expect(useFloor(-45.05)).toBe(-46)
-    expect(useFloor(7)).toBe(7)
-  })
-
   it('accepts plain number values', async () => {
     const first = await renderHook(() => useFloor(45.95))
     expect(first.result.current).toBe(45)

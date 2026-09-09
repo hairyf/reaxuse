@@ -40,7 +40,7 @@ caller (upstream's writable computed writes through to a ref input). A changed `
 over an internal `setValue` write, and an internal write survives a re-render that leaves `input`
 unchanged.
 
-`type` and `options` remain `RefOrValue` (plain value, ref-like `{ current }` or getter) — they are
+`type` and `options` remain `RefOrValue` (a plain value or ref-like `{ current }`) — they are
 format knobs, not the hook's value source.
 
 Can be passed into `options` for customization
@@ -48,10 +48,10 @@ Can be passed into `options` for customization
 ```tsx
 import { useChangeCase } from '@reaxuse/integrations'
 
-const [changeCase] = useChangeCase('helloWorld', 'camelCase', {
+const [changeCase] = useChangeCase('helloWorld', 'snakeCase', {
   delimiter: '-',
 })
-changeCase // hello-World
+changeCase // hello-world
 ```
 
 ## Supported methods

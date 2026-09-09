@@ -13,8 +13,10 @@ import { toArgsFlat } from '../utils'
  * no `.value` wrapper (SSR-safe).
  *
  * React divergence: arguments are plain read-only numbers, not upstream's
- * `MaybeRefOrGetter<number>[]`. The caller re-renders with new values (e.g. from
- * `useState`) and the hook recomputes.
+ * `MaybeRefOrGetter<number>[]`. In particular, the getter form (`() => number`)
+ * is NOT accepted — getters as data sources are rejected repo-wide (issue #462)
+ * — so the upstream getter test is intentionally not ported. The caller
+ * re-renders with new values (e.g. from `useState`) and the hook recomputes.
  *
  * @see https://vueuse.org/math/useSum/
  *

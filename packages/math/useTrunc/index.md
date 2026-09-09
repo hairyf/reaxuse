@@ -4,7 +4,7 @@ category: '@Math'
 
 # useTrunc
 
-Reactive `Math.trunc`
+Truncates a number, removing the fractional digits toward zero
 
 ## Usage
 

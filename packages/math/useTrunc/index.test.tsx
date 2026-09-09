@@ -8,8 +8,6 @@ import { useTrunc } from '../useTrunc'
 // -0        -> -0
 //  0.2      ->  0
 // -0.2      -> -0
-//  0.7      ->  0
-// -0.7      -> -0
 //  Infinity ->  Infinity
 // -Infinity -> -Infinity
 //  NaN      ->  NaN

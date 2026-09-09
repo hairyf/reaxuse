@@ -8,15 +8,10 @@ describe('useProjection', () => {
     expect(useProjection).toBeDefined()
   })
 
-  it('returns a plain number (no reactive .value)', async () => {
-    const { result } = await renderHook(() => useProjection(5, [0, 10], [0, 100]))
-
-    expect(typeof result.current).toBe('number')
-    expect(result.current).toBe(50)
-  })
-
-  it('projects correctly', () => {
-    expect(useProjection(5, [0, 10], [0, 100])).toBe(50)
+  it('projects correctly (plain number, no reactive .value)', () => {
+    const projected = useProjection(5, [0, 10], [0, 100])
+    expect(typeof projected).toBe('number')
+    expect(projected).toBe(50)
     expect(useProjection(3, [0, 10], [0, 100])).toBe(30)
     expect(useProjection(4, [0, 44], [0, 132])).toBe(12)
   })
