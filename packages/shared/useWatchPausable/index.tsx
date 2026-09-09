@@ -51,7 +51,10 @@ export interface UseWatchPausableReturn {
  * `pausableFilter`: while paused the event filter drops invocations, and
  * `resume()` only re-activates the filter — changes made while paused are
  * never replayed, so the first change after resuming fires the callback with
- * the last committed value as `oldValue`. This port keeps those semantics on
+ * the last change's value — the dropped one, if any — as `oldValue`: the
+ * watch's tracked previous value advances through paused changes, matching
+ * upstream, where the filter swallows the invocation but the underlying
+ * watch's `oldValue` still moves. This port keeps those semantics on
  * house primitives: `useWatch` tracks the source across renders (Vue's
  * reactive dependency tracking becomes the effect dependency list, firing in
  * the effect after commit — upstream `flush: 'pre'` timing) and the callback
@@ -70,9 +73,12 @@ export interface UseWatchPausableReturn {
  * - Changes made while paused are dropped — upstream `pausableFilter` defers
  *   nothing, so `resume()` does not replay them and never fires the callback
  *   by itself.
- * - The `deep`, `flush`, `eventFilter` and `eventFilterOptions` watch options
- *   are not ported — tracking is by `Object.is` identity, like a Vue ref
- *   reassignment.
+ * - The `deep`, `flush`, `eventFilter` watch options and the `onTrack` /
+ *   `onTrigger` callbacks are not ported — tracking is by `Object.is`
+ *   identity, like a Vue ref reassignment (upstream `WatchPausableOptions` is
+ *   `WatchWithFilterOptions & PausableFilterOptions`; the `pausableFilter`
+ *   half carries no options of its own, so there is no `eventFilterOptions`
+ *   member).
  * - `stop()` keeps the effect registered but the callback becomes a no-op —
  *   observable behavior is identical (the callback never fires again), and
  *   `isActive` is unaffected, like upstream.
