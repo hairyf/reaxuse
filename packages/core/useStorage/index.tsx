@@ -183,13 +183,6 @@ export function useStorage<T = unknown>(key: string, defaults: null, storage?: S
  * re-read on mount and key change, and kept in sync across tabs and across
  * hook instances sharing the same key.
  *
- * Family note: `useSessionStorage` (#207, PR #361) is currently a
- * self-contained mirror of these semantics bound to `sessionStorage`; once
- * this hook is available it can be refactored into the same thin wrapper
- * upstream uses — see its refactor note. To keep the re-export surface
- * clash-free until then, `Serializer` intentionally stays internal here
- * (as `StorageSerializers` does there).
- *
  * React divergences:
  * - the Vue `RemovableRef<T>` return becomes a `useState`-backed tuple;
  *   `setValue` also accepts a function updater. `setValue(null)` removes the
