@@ -156,15 +156,15 @@ function defaultParse<Raw, Serialized>(clone?: boolean | ((value: Raw) => Raw)) 
  * — also provides undo and redo functionality.
  *
  * Return tuple follows this repo's React idiom:
- * `const [history, undo, redo, controls] = useStateHistory(source, setSource)`.
+ * `const [history, undo, redo, controls] = useStateHistory([source, setSource])`.
  *
  * Adjustments from upstream (Vue reactivity does not translate 1:1):
  *
  * 1. Source: upstream tracks a writable Vue `Ref<Raw>` and commits through a
  *    watcher; React state lives in the component, so the source is the
- *    `(state, setState)` pair of an existing `useState` and commits are driven
- *    by an effect on state changes (upstream: `watchIgnorable`). The `deep`
- *    and `flush` watch options don't apply — replace the state instead of
+ *    controlled tuple `[state, setState]` of an existing `useState` and commits
+ *    are driven by an effect on state changes (upstream: `watchIgnorable`). The
+ *    `deep` and `flush` watch options don't apply — replace the state instead of
  *    mutating it, a mutated object does not re-render and is invisible to the
  *    history (`clone` / custom `dump` still support mutation-style sources).
  *    Multiple state updates in the same tick render once and collapse into a
@@ -188,7 +188,7 @@ function defaultParse<Raw, Serialized>(clone?: boolean | ((value: Raw) => Raw)) 
  *
  * @example
  * const [count, setCount] = useState(0)
- * const [history, undo, redo, { canUndo, canRedo }] = useStateHistory(count, setCount)
+ * const [history, undo, redo, { canUndo, canRedo }] = useStateHistory([count, setCount])
  *
  * setCount(1) // every change commits a history record
  * undo() // count back to the previous record

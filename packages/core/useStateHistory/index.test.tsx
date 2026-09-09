@@ -5,7 +5,7 @@ import { useStateHistory } from '../useStateHistory'
 
 function HistoryDemo() {
   const [count, setCount] = useState(0)
-  const [history, undo, redo, { canUndo, canRedo, setSource }] = useStateHistory(count, setCount, { capacity: 10 })
+  const [history, undo, redo, { canUndo, canRedo, setSource }] = useStateHistory([count, setCount], { capacity: 10 })
 
   return (
     <div>
@@ -34,7 +34,7 @@ it('useStateHistory should record every change', async () => {
   // `flush: 'pre'`; React commits through a single effect timing
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateHistory(v, setV)
+    const [history, undo, redo, controls] = useStateHistory([v, setV])
     return { history, undo, redo, controls, v, setV }
   })
 
@@ -53,7 +53,7 @@ it('useStateHistory auto-batches same-tick updates into a single commit', async 
   // collapse into a single commit carrying the final value
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateHistory(v, setV)
+    const [history, undo, redo, controls] = useStateHistory([v, setV])
     return { history, undo, redo, controls, v, setV }
   })
 
@@ -77,7 +77,7 @@ it('useStateHistory auto-batches same-tick updates into a single commit', async 
 it('useStateHistory should be able to undo and redo', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateHistory(v, setV)
+    const [history, undo, redo, controls] = useStateHistory([v, setV])
     return { history, undo, redo, controls, v, setV }
   })
 
@@ -135,7 +135,7 @@ it('useStateHistory object with clone', async () => {
   // plus a manual commit (a mutated state does not re-render on its own)
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState({ foo: 'bar' })
-    const [history, undo, redo, controls] = useStateHistory(v, setV, { clone: true })
+    const [history, undo, redo, controls] = useStateHistory([v, setV], { clone: true })
     return { history, undo, redo, controls, v }
   })
 
@@ -164,7 +164,7 @@ it('useStateHistory object with clone', async () => {
 it('useStateHistory dump + parse', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState({ a: 'bar' })
-    const [history, undo, redo, controls] = useStateHistory(v, setV, {
+    const [history, undo, redo, controls] = useStateHistory([v, setV], {
       dump: value => JSON.stringify(value),
       parse: value => JSON.parse(value) as { a: string },
     })
@@ -189,7 +189,7 @@ it('useStateHistory commit() records the current value and swallows the pending 
   const dumps: number[] = []
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateHistory(v, setV, {
+    const [history, undo, redo, controls] = useStateHistory([v, setV], {
       dump: (value) => {
         dumps.push(value)
         return value
@@ -231,7 +231,7 @@ it('useStateHistory commit() records the current value and swallows the pending 
 it('useStateHistory without batch records one commit per change', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState({ foo: 1, bar: 'one' })
-    const [history, undo, redo, controls] = useStateHistory(v, setV, { clone: true })
+    const [history, undo, redo, controls] = useStateHistory([v, setV], { clone: true })
     return { history, undo, redo, controls, v }
   })
 
@@ -251,7 +251,7 @@ it('useStateHistory batch records a single commit and cancel leaves the value un
   const dumps: Array<{ foo: number, bar: string }> = []
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState({ foo: 1, bar: 'one' })
-    const [history, undo, redo, controls] = useStateHistory(v, setV, {
+    const [history, undo, redo, controls] = useStateHistory([v, setV], {
       clone: true,
       dump: (value) => {
         dumps.push(value)
@@ -299,7 +299,7 @@ it('useStateHistory pause and resume', async () => {
   const dumps: number[] = []
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(1)
-    const [history, undo, redo, controls] = useStateHistory(v, setV, {
+    const [history, undo, redo, controls] = useStateHistory([v, setV], {
       dump: (value) => {
         dumps.push(value)
         return value
@@ -346,7 +346,7 @@ it('useStateHistory pause and resume', async () => {
 it('useStateHistory reset', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateHistory(v, setV)
+    const [history, undo, redo, controls] = useStateHistory([v, setV])
     return { history, undo, redo, controls, v, setV }
   })
 
@@ -406,7 +406,7 @@ it('useStateHistory reset', async () => {
 it('useStateHistory should respect shouldCommit option', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateHistory(v, setV, {
+    const [history, undo, redo, controls] = useStateHistory([v, setV], {
       shouldCommit: (oldValue: number, newValue: number) => newValue > 0,
     })
     return { history, undo, redo, controls, v, setV }
@@ -433,7 +433,7 @@ it('useStateHistory should respect shouldCommit option', async () => {
 it('useStateHistory capacity limits the undo stack', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateHistory(v, setV, { capacity: 2 })
+    const [history, undo, redo, controls] = useStateHistory([v, setV], { capacity: 2 })
     return { history, undo, redo, controls, v, setV }
   })
 
@@ -454,7 +454,7 @@ it('useStateHistory does not record on mount', async () => {
   const dumps: number[] = []
   await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateHistory(v, setV, {
+    const [history, undo, redo, controls] = useStateHistory([v, setV], {
       dump: (value) => {
         dumps.push(value)
         return value
@@ -470,7 +470,7 @@ it('useStateHistory stops recording after unmount (upstream: dispose)', async ()
   const dumps: number[] = []
   const { result, act, unmount } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateHistory(v, setV, {
+    const [history, undo, redo, controls] = useStateHistory([v, setV], {
       dump: (value) => {
         dumps.push(value)
         return value
