@@ -21,23 +21,14 @@ import { useQRCode } from '@reaxuse/integrations'
 const qrcode = useQRCode('text-to-encode')
 ```
 
-or passing a ref-like object to it, the returned data URL will change along with the source's
-changes (re-render with the ref after mutating `.current`):
+### Value source
+
+`text` is the hook's **read-only value source** and takes a plain string (upstream:
+`MaybeRefOrGetter<string>`). A changed `text` prop re-encodes on the next render:
 
 ```tsx
-import { useQRCode } from '@reaxuse/integrations'
-
-const text = { current: 'text-to-encode' }
-const qrcode = useQRCode(text)
-text.current = 'another-text'
-// re-render → qrcode re-encodes
-```
-
-```tsx
-<>
-  <input type="text" value={text} onChange={event => setText(event.target.value)} />
-  <img src={qrcode} alt="QR Code" />
-</>
+const [text, setText] = useState('text-to-encode')
+const qrcode = useQRCode(text) // setText(next) re-encodes on the next render
 ```
 
 ### Memoize `options`

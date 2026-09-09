@@ -24,17 +24,24 @@ setChangeCase('vue use')
 changeCase // vueUse
 ```
 
-or passing a ref-like object to it, the returned value will change along with the source's changes.
+### Value source
+
+`input` is the hook's **read-only value source** and takes a plain `string` (upstream: `MaybeRef<string>`
+/ `MaybeRefOrGetter<string>`). A changed `input` prop re-syncs the transformed value on the next render:
 
 ```tsx
-import { useChangeCase } from '@reaxuse/integrations'
-
-const input = { current: 'helloWorld' }
+const [input, setInput] = useState('hello world')
 const [changeCase] = useChangeCase(input, 'camelCase')
-changeCase // helloWorld
-input.current = 'vue use'
-changeCase // vueUse
+// setInput('vue use') → changeCase becomes 'vueUse'
 ```
+
+The returned setter updates the hook's internal input state only — it is **not** propagated back to the
+caller (upstream's writable computed writes through to a ref input). A changed `input` prop always wins
+over an internal `setValue` write, and an internal write survives a re-render that leaves `input`
+unchanged.
+
+`type` and `options` remain `RefOrValue` (plain value, ref-like `{ current }` or getter) — they are
+format knobs, not the hook's value source.
 
 Can be passed into `options` for customization
 

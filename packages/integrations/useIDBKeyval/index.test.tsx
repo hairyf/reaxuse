@@ -73,15 +73,6 @@ describe('useIDBKeyval', () => {
     await expectStored(KEY, (stored: { count: number } | undefined) => expect(stored).toEqual({ count: 42 }))
   })
 
-  it('resolves a ref-like initial value (RefOrValue)', async () => {
-    const initial = { current: { count: 7 } }
-
-    const { result } = await renderHook(() => useIDBKeyval(KEY, initial))
-
-    expect(result.current[0]).toEqual({ count: 7 })
-    await expectStored(KEY, (stored: { count: number } | undefined) => expect(stored).toEqual({ count: 7 }))
-  })
-
   it('writes on setData and round-trips a fresh mount', async () => {
     const first = await renderHook(() => useIDBKeyval<string[]>(KEY_2, ['foo', 'bar']))
     await expect.poll(() => first.result.current[2].isFinished).toBe(true)
@@ -242,6 +233,21 @@ describe('useIDBKeyval', () => {
     await rerender({ key: KEY_2 })
 
     await expect.poll(() => result.current[0]).toBe('second')
+  })
+
+  it('stores an object- or function-valued initial value as-is (plain value source)', async () => {
+    const noWrite = { writeDefaults: false, listenToStorageChanges: false }
+    const fn = vi.fn(() => 'computed')
+
+    // `initialValue` is a plain value: an object with a `value` key is not
+    // unwrapped …
+    const object = await renderHook(() => useIDBKeyval(KEY_4, { value: 1 }, noWrite))
+    expect(object.result.current[0]).toEqual({ value: 1 })
+
+    // … and a function-valued `T` is not invoked as a getter
+    const callable = await renderHook(() => useIDBKeyval<() => string>(KEY_4, fn, noWrite))
+    expect(callable.result.current[0]).toBe(fn)
+    expect(fn).not.toHaveBeenCalled()
   })
 })
 

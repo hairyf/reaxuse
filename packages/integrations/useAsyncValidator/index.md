@@ -55,14 +55,20 @@ const { pass, errors, execute } = useAsyncValidator(form, rules, { manual: true 
 const { pass: ok, errorFields } = await execute()
 ```
 
+## Value sources
+
+`value` and `rules` are the hook's **read-only value sources** and take plain values
+(`Record<string, any>` and `Rules`; upstream: `MaybeRefOrGetter`). The object is validated as-is, so a
+form field literally named `value` is not special.
+
 ## Adjustment for React (no deep watch)
 
 Upstream re-runs the validation from `watch([valueRef, validator], execute, { immediate, deep: true })`.
 React has no deep observation, so this port re-runs it from an effect that compares the **identity**
-of `toValue(value)` / `toValue(rules)` and skips the automatic run entirely when `manual` is `true`:
+of `value` / `rules` and skips the automatic run entirely when `manual` is `true`:
 
 - mutating the **same** object in place does **not** re-trigger validation — pass a new object (or new
-  `rules`), update a ref-like `{ current }` input, or call `execute()` yourself;
+  `rules`) or call `execute()` yourself;
 - the validated `value` must keep a stable identity across renders. An object literal created inline
   in the render body (`useAsyncValidator({ name }, rules)`) is a new identity on every render, so it
   re-validates on every render — hold it in `useState`/`useRef`/`useMemo` instead;
