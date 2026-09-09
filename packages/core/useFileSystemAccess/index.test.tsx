@@ -1,4 +1,6 @@
-import { afterEach, expect, it, vi } from 'vitest'
+import type { Dispatch, SetStateAction } from 'react'
+import type { UseFileSystemAccessControls, UseFileSystemAccessReturn } from '../useFileSystemAccess'
+import { afterEach, expect, expectTypeOf, it, vi } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
 import { useFileSystemAccess } from '../useFileSystemAccess'
 
@@ -65,6 +67,40 @@ it('should be defined', () => {
   expect(useFileSystemAccess).toBeDefined()
 })
 
+it('returns the React tuple [data, setData, controls]', async () => {
+  installPickers()
+  const { result } = await renderHook(() => useFileSystemAccess())
+
+  expectTypeOf(result.current).toEqualTypeOf<
+    readonly [
+      string | ArrayBuffer | Blob | undefined,
+      Dispatch<SetStateAction<string | ArrayBuffer | Blob | undefined>>,
+      UseFileSystemAccessControls,
+    ]
+  >()
+  expectTypeOf(result.current).toEqualTypeOf<UseFileSystemAccessReturn<string | ArrayBuffer | Blob>>()
+  expectTypeOf(result.current[0]).toEqualTypeOf<string | ArrayBuffer | Blob | undefined>()
+  expectTypeOf(result.current[1]).toEqualTypeOf<Dispatch<SetStateAction<string | ArrayBuffer | Blob | undefined>>>()
+  expectTypeOf(result.current[2]).toEqualTypeOf<UseFileSystemAccessControls>()
+  expectTypeOf(result.current[2].isSupported).toEqualTypeOf<boolean>()
+  expectTypeOf(result.current[2].file).toEqualTypeOf<File | undefined>()
+  expectTypeOf(result.current[2].fileName).toEqualTypeOf<string>()
+  expectTypeOf(result.current[2].open).toEqualTypeOf<UseFileSystemAccessControls['open']>()
+
+  expect(Array.isArray(result.current)).toBe(true)
+  expect(result.current).toHaveLength(3)
+  expect(result.current[1]).toBeTypeOf('function')
+  expect(result.current[2]).toBeTypeOf('object')
+})
+
+it('exposes open/create/save/saveAs/updateData on the controls object', async () => {
+  installPickers()
+  const { result } = await renderHook(() => useFileSystemAccess())
+
+  for (const name of ['open', 'create', 'save', 'saveAs', 'updateData'] as const)
+    expect(result.current[2][name]).toBeTypeOf('function')
+})
+
 it('useFileSystemAccess reports support matching the environment', async () => {
   installPickers()
 
@@ -73,7 +109,7 @@ it('useFileSystemAccess reports support matching the environment', async () => {
     && 'showOpenFilePicker' in window
   const { result } = await renderHook(() => useFileSystemAccess())
 
-  await expect.poll(() => result.current.isSupported).toBe(isSupportedInEnv)
+  await expect.poll(() => result.current[2].isSupported).toBe(isSupportedInEnv)
 })
 
 it('isSupported is false when the FileSystemAccess pickers are unavailable', async () => {
@@ -88,7 +124,7 @@ it('isSupported is false when the FileSystemAccess pickers are unavailable', asy
 
   try {
     const { result } = await renderHook(() => useFileSystemAccess())
-    await expect.poll(() => result.current.isSupported).toBe(false)
+    await expect.poll(() => result.current[2].isSupported).toBe(false)
   }
   finally {
     if (openDescriptor)
@@ -105,19 +141,46 @@ it('open() reads the picked file as Text by default and exposes its metadata', a
 
   const { result, act } = await renderHook(() => useFileSystemAccess())
 
-  await expect.poll(() => result.current.isSupported).toBe(true)
+  await expect.poll(() => result.current[2].isSupported).toBe(true)
   await act(async () => {
-    await result.current.open()
+    await result.current[2].open()
   })
 
   expect(openSpy).toHaveBeenCalledTimes(1)
   expect(handle.getFile).toHaveBeenCalled()
-  expect(result.current.data).toBe('hello world')
-  expect(result.current.file).toBe(file)
-  expect(result.current.fileName).toBe('hello.txt')
-  expect(result.current.fileMIME).toBe('text/plain')
-  expect(result.current.fileSize).toBe(file.size)
-  expect(result.current.fileLastModified).toBe(file.lastModified)
+  expect(result.current[0]).toBe('hello world')
+  expect(result.current[2].file).toBe(file)
+  expect(result.current[2].fileName).toBe('hello.txt')
+  expect(result.current[2].fileMIME).toBe('text/plain')
+  expect(result.current[2].fileSize).toBe(file.size)
+  expect(result.current[2].fileLastModified).toBe(file.lastModified)
+})
+
+it('setData() updates the returned data and supports functional updates', async () => {
+  const file = new File(['hello world'], 'hello.txt', { type: 'text/plain' })
+  const handle = new FakeFileHandle(file)
+  installPickers({ open: [handle] })
+
+  const { result, act } = await renderHook(() => useFileSystemAccess())
+
+  await expect.poll(() => result.current[2].isSupported).toBe(true)
+  await act(async () => {
+    await result.current[2].open()
+  })
+  expect(result.current[0]).toBe('hello world')
+
+  await act(async () => {
+    result.current[1]('edited')
+  })
+  expect(result.current[0]).toBe('edited')
+
+  await act(async () => {
+    result.current[1](prev => typeof prev === 'string' ? `${prev}!` : prev)
+  })
+  expect(result.current[0]).toBe('edited!')
+
+  // `setData` is local state — the picked handle is untouched until `save()`
+  expect(handle.writable.write).not.toHaveBeenCalled()
 })
 
 it('open() forwards types/excludeAcceptAllOption to showOpenFilePicker', async () => {
@@ -129,9 +192,9 @@ it('open() forwards types/excludeAcceptAllOption to showOpenFilePicker', async (
     excludeAcceptAllOption: true,
   }))
 
-  await expect.poll(() => result.current.isSupported).toBe(true)
+  await expect.poll(() => result.current[2].isSupported).toBe(true)
   await act(async () => {
-    await result.current.open({ excludeAcceptAllOption: false })
+    await result.current[2].open({ excludeAcceptAllOption: false })
   })
 
   expect(openSpy).toHaveBeenCalledWith({
@@ -152,11 +215,11 @@ it('open() resolves without picking anything when unsupported', async () => {
 
   try {
     const { result, act } = await renderHook(() => useFileSystemAccess())
-    await expect.poll(() => result.current.isSupported).toBe(false)
+    await expect.poll(() => result.current[2].isSupported).toBe(false)
 
     let opened: void | undefined
     await act(async () => {
-      opened = await result.current.open()
+      opened = await result.current[2].open()
     })
     expect(opened).toBeUndefined()
   }
@@ -175,13 +238,13 @@ it('reads the picked file as ArrayBuffer when dataType is ArrayBuffer', async ()
 
   const { result, act } = await renderHook(() => useFileSystemAccess({ dataType: 'ArrayBuffer' }))
 
-  await expect.poll(() => result.current.isSupported).toBe(true)
+  await expect.poll(() => result.current[2].isSupported).toBe(true)
   await act(async () => {
-    await result.current.open()
+    await result.current[2].open()
   })
 
-  expect(result.current.data).toBeInstanceOf(ArrayBuffer)
-  expect(new TextDecoder().decode(result.current.data as ArrayBuffer)).toBe('hello')
+  expect(result.current[0]).toBeInstanceOf(ArrayBuffer)
+  expect(new TextDecoder().decode(result.current[0] as ArrayBuffer)).toBe('hello')
 })
 
 it('reads the picked file as Blob when dataType is Blob', async () => {
@@ -191,12 +254,12 @@ it('reads the picked file as Blob when dataType is Blob', async () => {
 
   const { result, act } = await renderHook(() => useFileSystemAccess({ dataType: 'Blob' }))
 
-  await expect.poll(() => result.current.isSupported).toBe(true)
+  await expect.poll(() => result.current[2].isSupported).toBe(true)
   await act(async () => {
-    await result.current.open()
+    await result.current[2].open()
   })
 
-  expect(result.current.data).toBe(file)
+  expect(result.current[0]).toBe(file)
 })
 
 it('save() writes the current data to the picked handle', async () => {
@@ -206,18 +269,40 @@ it('save() writes the current data to the picked handle', async () => {
 
   const { result, act } = await renderHook(() => useFileSystemAccess())
 
-  await expect.poll(() => result.current.isSupported).toBe(true)
+  await expect.poll(() => result.current[2].isSupported).toBe(true)
   await act(async () => {
-    await result.current.open()
+    await result.current[2].open()
   })
 
   await act(async () => {
-    await result.current.save()
+    await result.current[2].save()
   })
 
   expect(handle.createWritable).toHaveBeenCalledTimes(1)
   expect(handle.writable.write).toHaveBeenCalledWith('hello world')
   expect(handle.writable.close).toHaveBeenCalled()
+})
+
+it('save() persists data replaced through setData()', async () => {
+  const file = new File(['hello world'], 'hello.txt', { type: 'text/plain' })
+  const handle = new FakeFileHandle(file)
+  installPickers({ open: [handle] })
+
+  const { result, act } = await renderHook(() => useFileSystemAccess())
+
+  await expect.poll(() => result.current[2].isSupported).toBe(true)
+  await act(async () => {
+    await result.current[2].open()
+  })
+
+  await act(async () => {
+    result.current[1]('edited content')
+  })
+  await act(async () => {
+    await result.current[2].save()
+  })
+
+  expect(handle.writable.write).toHaveBeenCalledWith('edited content')
 })
 
 it('save() falls back to saveAs() when no handle was picked', async () => {
@@ -227,9 +312,9 @@ it('save() falls back to saveAs() when no handle was picked', async () => {
 
   const { result, act } = await renderHook(() => useFileSystemAccess())
 
-  await expect.poll(() => result.current.isSupported).toBe(true)
+  await expect.poll(() => result.current[2].isSupported).toBe(true)
   await act(async () => {
-    await result.current.save()
+    await result.current[2].save()
   })
 
   expect(openSpy).not.toHaveBeenCalled()
@@ -245,19 +330,36 @@ it('saveAs() writes the current data to a newly picked handle', async () => {
 
   const { result, act } = await renderHook(() => useFileSystemAccess())
 
-  await expect.poll(() => result.current.isSupported).toBe(true)
+  await expect.poll(() => result.current[2].isSupported).toBe(true)
   await act(async () => {
-    await result.current.open()
+    await result.current[2].open()
   })
 
   await act(async () => {
-    await result.current.saveAs()
+    await result.current[2].saveAs()
   })
 
   expect(saveSpy).toHaveBeenCalledTimes(1)
   expect(saveHandle.createWritable).toHaveBeenCalledTimes(1)
   expect(saveHandle.writable.write).toHaveBeenCalledWith('hello world')
   expect(saveHandle.writable.close).toHaveBeenCalled()
+})
+
+it('create() picks a new handle and reads it back', async () => {
+  const file = new File(['created'], 'new.txt', { type: 'text/plain' })
+  const saveHandle = new FakeFileHandle(file)
+  const { saveSpy } = installPickers({ save: saveHandle })
+
+  const { result, act } = await renderHook(() => useFileSystemAccess())
+
+  await expect.poll(() => result.current[2].isSupported).toBe(true)
+  await act(async () => {
+    await result.current[2].create()
+  })
+
+  expect(saveSpy).toHaveBeenCalledTimes(1)
+  expect(result.current[0]).toBe('created')
+  expect(result.current[2].fileName).toBe('new.txt')
 })
 
 it('updateData() re-reads the file after external mutation', async () => {
@@ -267,18 +369,18 @@ it('updateData() re-reads the file after external mutation', async () => {
 
   const { result, act } = await renderHook(() => useFileSystemAccess())
 
-  await expect.poll(() => result.current.isSupported).toBe(true)
+  await expect.poll(() => result.current[2].isSupported).toBe(true)
   await act(async () => {
-    await result.current.open()
+    await result.current[2].open()
   })
-  expect(result.current.data).toBe('a')
+  expect(result.current[0]).toBe('a')
 
   handle.file = new File(['b'], 'hello.txt', { type: 'text/plain' })
   await act(async () => {
-    await result.current.updateData()
+    await result.current[2].updateData()
   })
 
-  expect(result.current.data).toBe('b')
+  expect(result.current[0]).toBe('b')
 })
 
 it('switching dataType re-reads the current file', async () => {
@@ -289,18 +391,18 @@ it('switching dataType re-reads the current file', async () => {
   const dataType = { current: 'Text' } as { current: 'Text' | 'ArrayBuffer' | 'Blob' }
   const { result, act, rerender } = await renderHook(() => useFileSystemAccess({ dataType }))
 
-  await expect.poll(() => result.current.isSupported).toBe(true)
+  await expect.poll(() => result.current[2].isSupported).toBe(true)
   await act(async () => {
-    await result.current.open()
+    await result.current[2].open()
   })
-  expect(result.current.data).toBe('hello')
+  expect(result.current[0]).toBe('hello')
 
   dataType.current = 'ArrayBuffer'
   await rerender()
   await act(async () => {
-    await result.current.updateData()
+    await result.current[2].updateData()
   })
-  expect(result.current.data).toBeInstanceOf(ArrayBuffer)
+  expect(result.current[0]).toBeInstanceOf(ArrayBuffer)
 })
 
 it('controls are identity-stable across renders', async () => {
@@ -313,11 +415,12 @@ it('controls are identity-stable across renders', async () => {
   await rerender()
   const second = result.current
 
-  expect(second.open).toBe(first.open)
-  expect(second.create).toBe(first.create)
-  expect(second.save).toBe(first.save)
-  expect(second.saveAs).toBe(first.saveAs)
-  expect(second.updateData).toBe(first.updateData)
+  expect(second[2]).toBe(first[2])
+  expect(second[2].open).toBe(first[2].open)
+  expect(second[2].create).toBe(first[2].create)
+  expect(second[2].save).toBe(first[2].save)
+  expect(second[2].saveAs).toBe(first[2].saveAs)
+  expect(second[2].updateData).toBe(first[2].updateData)
 })
 
 it('keeps SSR-safe defaults during render and resolves in a mount effect', async () => {
@@ -326,7 +429,7 @@ it('keeps SSR-safe defaults during render and resolves in a mount effect', async
   const values: Array<{ isSupported: boolean, fileName: string, data: unknown }> = []
 
   function Probe() {
-    const { isSupported, fileName, data } = useFileSystemAccess()
+    const [data, , { isSupported, fileName }] = useFileSystemAccess()
     values.push({ isSupported, fileName, data })
 
     return <div>{isSupported ? 'supported' : 'unsupported'}</div>
@@ -356,9 +459,9 @@ it('supports a custom window instance via options.window', async () => {
 
   const { result, act } = await renderHook(() => useFileSystemAccess({ window: customWindow }))
 
-  await expect.poll(() => result.current.isSupported).toBe(true)
+  await expect.poll(() => result.current[2].isSupported).toBe(true)
   await act(async () => {
-    await result.current.open()
+    await result.current[2].open()
   })
-  expect(result.current.data).toBe('hello')
+  expect(result.current[0]).toBe('hello')
 })
