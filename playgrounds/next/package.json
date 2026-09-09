@@ -8,8 +8,8 @@
     "start": "next start"
   },
   "dependencies": {
-    "@reaxuse/core": "^0.0.1",
-    "@reaxuse/shared": "^0.0.1",
+    "@reaxuse/core": "workspace:*",
+    "@reaxuse/shared": "workspace:*",
     "next": "^15.5.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"

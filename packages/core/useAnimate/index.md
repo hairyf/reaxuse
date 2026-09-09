@@ -4,19 +4,7 @@ category: Animation
 
 # useAnimate
 
-Reactive [Web Animations API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API) — React port of VueUse's
-[`useAnimate`](https://vueuse.org/core/useAnimate/). It creates an `Animation` on the target element with
-`Element.animate(keyframes, options)` and mirrors the animation's mutable attributes into state on every frame while it
-runs.
-
-**Mapping:** upstream returns `{ isSupported, animate, play/pause/reverse/finish/cancel, pending, playState,
-replaceState, startTime, currentTime, timeline, playbackRate }` — the member set is mirrored 1:1, with the Vue refs as
-plain values. `isSupported` is `boolean` state settled in a mount effect (SSR-safe). The state members re-render every
-animation frame while the animation runs; the writable setters of upstream's `WritableComputedRef`s have no React
-equivalent, so seeking (`animate.currentTime = ...`) goes through the returned `animate` object directly. The target is
-a plain element or a React ref object (`{ current }`); `keyframes` is re-resolved with `toValue` on every
-render, so a ref-like `{ current }` keyframes input updates live. The `finish` / `cancel` events stop the store loop,
-and the animation is cancelled on unmount.
+Reactive [Web Animations API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API)
 
 ## Usage
 
@@ -121,54 +109,3 @@ const { play } = useAnimate(el, keyframes, {
 // Start the animation manually
 play()
 ```
-
-<DemoContainer name="UseAnimate" />
-
-## Type Declarations
-
-```ts
-export interface UseAnimateOptions extends KeyframeAnimationOptions, ConfigurableWindow {
-  immediate?: boolean // @default true
-  commitStyles?: boolean // @default false
-  persist?: boolean // @default false
-  playbackRate?: number // @default 1
-  onReady?: (animate: Animation) => void
-  onError?: (e: unknown) => void
-}
-
-export type UseAnimateKeyframes = RefOrValue<Keyframe[] | PropertyIndexedKeyframes | null>
-
-export interface UseAnimateReturn {
-  isSupported: boolean
-  animate: Animation | undefined
-  play: () => void
-  pause: () => void
-  reverse: () => void
-  finish: () => void
-  cancel: () => void
-  pending: boolean
-  playState: AnimationPlayState
-  replaceState: AnimationReplaceState
-  startTime: number | CSSNumberish | null
-  currentTime: CSSNumberish | null
-  timeline: AnimationTimeline | null
-  playbackRate: number
-}
-
-export function useAnimate(
-  target: ElementTarget,
-  keyframes: UseAnimateKeyframes,
-  options?: number | UseAnimateOptions,
-): UseAnimateReturn
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useAnimate/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useAnimate/index.ts) (implementation),
-  [`index.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useAnimate/index.test.ts) and
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useAnimate/index.browser.test.ts) (tests mirrored in `packages/core/src/useAnimate.test.tsx`),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useAnimate/demo.vue) (ported to `demo.tsx` below)
-- reaxuse: [`packages/core/src/useAnimate.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useAnimate.ts), docs + demo co-located in `packages/core/useAnimate/`
-
-<Contributors name="useAnimate" />

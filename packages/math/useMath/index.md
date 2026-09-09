@@ -4,13 +4,7 @@ category: '@Math'
 
 # useMath
 
-Reactive `Math` methods — React port of VueUse's
-[`useMath`](https://vueuse.org/math/useMath/).
-
-**Mapping:** `ComputedRef<number>` → pure derived hook. Pass a `Math` method
-name as the key and its arguments (plain numbers or React refs); the result is
-recomputed on every render and returned
-directly — no effects, no `.value` wrapper (SSR-safe).
+Reactive `Math` methods
 
 ## Usage
 
@@ -42,27 +36,3 @@ const refPower = useMath('pow', base, exponent) // 8
 
 const rounded = useMath('round', { current: 2.5 }) // 3
 ```
-
-<DemoContainer name="UseMath" />
-
-## Type Declarations
-
-```ts
-export type UseMathKeys = keyof { [K in keyof Math as Math[K] extends (...args: any) => any ? K : never]: unknown }
-
-export type UseMathReturn<K extends keyof Math> = ReturnType<Reactified<Math[K]>>
-
-export function useMath<K extends keyof Math>(
-  key: K,
-  ...args: ArgumentsType<Reactified<Math[K]>>
-): UseMathReturn<K>
-```
-
-## Source
-
-- VueUse: [`packages/math/useMath`](https://github.com/vueuse/vueuse/tree/main/packages/math/useMath)
-- VueUse source: [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/math/useMath/index.ts)
-- VueUse tests: [`index.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/math/useMath/index.test.ts)
-- reaxuse: [`packages/math/src/useMath.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/math/src/useMath.ts)
-
-<Contributors name="useMath" />

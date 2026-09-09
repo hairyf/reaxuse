@@ -4,9 +4,7 @@ category: Browser
 
 # useFileDialog
 
-Open file dialog with ease — React port of VueUse's [`useFileDialog`](https://vueuse.org/core/useFileDialog/).
-
-The hook drives a hidden `<input type="file">` (created on mount unless a custom `input` element is provided) and exposes `open` / `reset` / `files` plus the `onChange` / `onCancel` event hooks.
+Open file dialog with ease
 
 ## Usage
 
@@ -63,40 +61,3 @@ function Component() {
   )
 }
 ```
-
-<DemoContainer name="UseFileDialog" />
-
-## Type Declarations
-
-```ts
-export interface UseFileDialogOptions {
-  document?: Document | null
-  multiple?: RefOrValue<boolean>
-  accept?: RefOrValue<string>
-  capture?: RefOrValue<string>
-  reset?: RefOrValue<boolean>
-  directory?: RefOrValue<boolean>
-  initialFiles?: Array<File> | FileList
-  input?: RefOrValue<HTMLInputElement | null>
-}
-
-export interface UseFileDialogReturn {
-  files: FileList | null
-  open: (localOptions?: Partial<UseFileDialogOptions>) => void
-  reset: () => void
-  onChange: (fn: (files: FileList | null) => void) => { off: () => void }
-  onCancel: (fn: () => void) => { off: () => void }
-}
-
-export function useFileDialog(options?: UseFileDialogOptions): UseFileDialogReturn
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useFileDialog/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useFileDialog/index.ts) (implementation),
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useFileDialog/index.browser.test.ts) (mirrored in `packages/core/src/useFileDialog.test.tsx`),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useFileDialog/demo.vue) (ported to `demo.tsx` below).
-- reaxuse: [`packages/core/src/useFileDialog.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useFileDialog.ts), docs + demo co-located in `packages/core/useFileDialog/`
-
-<Contributors name="useFileDialog" />

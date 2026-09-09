@@ -4,7 +4,9 @@ import antfu from '@antfu/eslint-config'
  * ESLint flat config mirroring VueUse's `eslint.config.js`
  * (https://github.com/vueuse/vueuse/blob/main/eslint.config.js) via
  * `@antfu/eslint-config`. Differences:
- * - `pnpm: true` → npm workspaces, so the flag is omitted.
+ * - the repo migrated from npm to pnpm workspaces (`pnpm-workspace.yaml`):
+ *   the pnpm plugin is auto-enabled, and its recommended workspace settings
+ *   are overridden below to match the actual lockfile policy.
  * - `patches/` ignore → `source/` (upstream submodule) and `playgrounds/`.
  * - self-import guard is scoped to package `src` files (a source file must
  *   not import its own package by name — use relative imports), while
@@ -41,6 +43,23 @@ export default antfu(
     rules: {
       'no-restricted-imports': ['error', {
         patterns: ['@reaxuse/*', '!@reaxuse/shared'],
+      }],
+    },
+  },
+  {
+    files: ['pnpm-workspace.yaml'],
+    rules: {
+      // The pnpm plugin's recommended `trustPolicy: 'no-downgrade'` rejects
+      // lockfile entries that predate the policy (vite@5.4.21, semver@6.3.1,
+      // @trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1) with
+      // ERR_PNPM_TRUST_DOWNGRADE. Enforce the settings the workspace file
+      // actually carries instead.
+      'pnpm/yaml-enforce-settings': ['error', {
+        settings: {
+          shellEmulator: true,
+          minimumReleaseAgeExcludePrune: true,
+          trustPolicy: 'strict',
+        },
       }],
     },
   },

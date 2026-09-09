@@ -8,7 +8,7 @@ const props = defineProps<{ name: string }>()
 
 // Co-located demos mirror VueUse's packages/<pkg>/<fn>/demo.vue:
 // each function's demo lives next to its docs page (packages/<pkg>/<fn>/demo.tsx).
-const demos = import.meta.glob('../../{core,shared,math,integrations}/*/demo.tsx')
+const demos = import.meta.glob('../../../{core,shared,math,integrations,electron,firebase,rxjs}/*/demo.tsx')
 
 const el = ref<HTMLElement | null>(null)
 let root: Root | undefined

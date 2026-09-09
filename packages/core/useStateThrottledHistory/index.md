@@ -4,15 +4,7 @@ category: State
 
 # useStateThrottledHistory
 
-Shorthand for the manual history machinery with a throttled filter — track the change history of a
-state, committing at most once per throttle duration — React port of VueUse's
-[`useThrottledRefHistory`](https://vueuse.org/core/useThrottledRefHistory/).
-
-**Mapping:** `useThrottledRefHistory(ref, { throttle, trailing })` →
-`useStateThrottledHistory(state, setState, { throttle, trailing })`. The Vue `Ref` source becomes the
-`(state, setState)` pair of an existing `useState`; the upstream `throttleFilter` is inlined with the
-leading edge fixed to `true`, and history records live in refs with a version counter re-rendering
-the component.
+Shorthand for the manual history machinery with a throttled filter — track the change history of a state, committing at most once per throttle duration
 
 ## Usage
 
@@ -95,61 +87,3 @@ const [history, undo, redo, { clear }] = useStateThrottledHistory(target, setTar
 
 clear() // explicitly clear all the history
 ```
-
-<DemoContainer name="UseStateThrottledHistory" />
-
-## Type Declarations
-
-History records reuse `UseRefHistoryRecord` (`{ snapshot, timestamp }`) from
-`useStateManualHistory`.
-
-```ts
-export interface UseStateThrottledHistoryOptions<Raw, Serialized = Raw> {
-  capacity?: number
-  clone?: boolean | ((value: Raw) => Raw)
-  dump?: (value: Raw) => Serialized
-  parse?: (value: Serialized) => Raw
-  throttle?: number
-  trailing?: boolean
-}
-
-export interface UseStateThrottledHistoryControls<Raw, Serialized = Raw> {
-  source: Raw
-  last: UseRefHistoryRecord<Serialized>
-  undoStack: UseRefHistoryRecord<Serialized>[]
-  redoStack: UseRefHistoryRecord<Serialized>[]
-  canUndo: boolean
-  canRedo: boolean
-  isTracking: boolean
-  setSource: Dispatch<SetStateAction<Raw>>
-  commit: () => void
-  clear: () => void
-  reset: () => void
-  pause: () => void
-  resume: (commitNow?: boolean) => void
-  batch: (fn: (cancel: () => void) => void) => void
-}
-
-export type UseStateThrottledHistoryReturn<Raw, Serialized = Raw> = [
-  history: UseRefHistoryRecord<Serialized>[],
-  undo: () => void,
-  redo: () => void,
-  controls: UseStateThrottledHistoryControls<Raw, Serialized>,
-]
-
-export function useStateThrottledHistory<Raw, Serialized = Raw>(
-  source: Raw,
-  setSource: Dispatch<SetStateAction<Raw>>,
-  options?: UseStateThrottledHistoryOptions<Raw, Serialized>,
-): UseStateThrottledHistoryReturn<Raw, Serialized>
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useThrottledRefHistory/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useThrottledRefHistory/index.ts) (implementation),
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useThrottledRefHistory/index.browser.test.ts) (tests mirrored in `packages/core/src/useStateThrottledHistory.test.tsx`),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useThrottledRefHistory/demo.vue) (ported to `demo.tsx` below)
-- reaxuse: [`packages/core/src/useStateThrottledHistory.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useStateThrottledHistory.ts), docs + demo co-located in `packages/core/useStateThrottledHistory/`
-
-<Contributors name="useStateThrottledHistory" />

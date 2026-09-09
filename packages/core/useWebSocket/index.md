@@ -4,21 +4,7 @@ category: Browser
 
 # useWebSocket
 
-Reactive [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/WebSocket)
-client — React port of VueUse's [`useWebSocket`](https://vueuse.org/core/useWebSocket/).
-
-**Mapping:** upstream returns `{ data, status, close, send, open, ws }` with `ShallowRef`s for
-`data`/`status`/`ws` → React `useState` values (`data: T | null`, `status: 'OPEN' | 'CONNECTING' |
-'CLOSED'`, `ws: WebSocket | undefined`), stable `open`/`close`/`send` callbacks reading the mounted
-socket and status through latest-value refs, and the connection opened in a mount `useEffect`
-(upstream opens synchronously during setup behind an `if (isClient)` check), then closed on unmount
-when `autoClose` is on (upstream: `tryOnScopeDispose`). SSR-safe — the server renders the initial
-`CLOSED`/`null`/`undefined` values without ever touching `WebSocket`. The `url` accepts a plain value
-or a React ref (upstream: `RefOrValue`); with `autoConnect` (default) a URL change
-reconnects, mirroring upstream's `watch(urlRef, open)`. `heartbeat.message`/`responseMessage` accept
-a plain value or a message factory function resolved on every send, and the default heartbeat scheduler is a local
-`setInterval`-based `{ pause, resume }` pair (upstream's `useIntervalFn` default is a React hook and
-cannot be created lazily) — a custom `scheduler` option returns the same controls.
+Reactive [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/WebSocket) client
 
 ## Usage
 
@@ -164,60 +150,3 @@ const { status, data, send, open, close } = useWebSocket('ws://websocketurl', {
   protocols: ['soap'], // ['soap', 'wamp']
 })
 ```
-
-<DemoContainer name="UseWebSocket" />
-
-## Type Declarations
-
-```ts
-export type WebSocketStatus = 'OPEN' | 'CONNECTING' | 'CLOSED'
-export type WebSocketHeartbeatMessage = string | ArrayBuffer | Blob
-
-export interface UseWebSocketOptions {
-  onConnected?: (ws: WebSocket) => void
-  onDisconnected?: (ws: WebSocket, event: CloseEvent) => void
-  onError?: (ws: WebSocket, event: Event) => void
-  onMessage?: (ws: WebSocket, event: MessageEvent) => void
-  heartbeat?: boolean | {
-    message?: WebSocketHeartbeatMessage | (() => WebSocketHeartbeatMessage)
-    responseMessage?: WebSocketHeartbeatMessage | (() => WebSocketHeartbeatMessage)
-    pongTimeout?: number
-    scheduler?: (fn: () => void) => { pause: () => void, resume: () => void }
-  }
-  autoReconnect?: boolean | {
-    retries?: number | ((retried: number) => boolean)
-    delay?: number | ((retries: number) => number)
-    onFailed?: () => void
-  }
-  immediate?: boolean
-  autoConnect?: boolean
-  autoClose?: boolean
-  protocols?: string[]
-}
-
-export interface UseWebSocketReturn<T> {
-  data: T | null
-  status: WebSocketStatus
-  close: WebSocket['close']
-  open: () => void
-  send: (data: string | ArrayBuffer | Blob, useBuffer?: boolean) => boolean
-  ws: WebSocket | undefined
-}
-
-export function useWebSocket<Data = any>(
-  url: string | URL | undefined | (() => string | URL | undefined),
-  options: UseWebSocketOptions = {},
-): UseWebSocketReturn<Data>
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useWebSocket/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useWebSocket/index.ts) (implementation),
-  [`index.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useWebSocket/index.test.ts) +
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useWebSocket/index.browser.test.ts) (tests mirrored in `useWebSocket.test.tsx`)
-- upstream ships no demo for this function, so the demo below is reaxuse-original
-- reaxuse: [`packages/core/src/useWebSocket.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useWebSocket.ts),
-  docs + demo co-located in `packages/core/useWebSocket/`
-
-<Contributors name="useWebSocket" />

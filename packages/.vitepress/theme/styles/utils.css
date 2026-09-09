@@ -14,3 +14,7 @@
 .text-muted {
   color: var(--vp-c-text-2);
 }
+
+.text-orange {
+  color: #db8742;
+}

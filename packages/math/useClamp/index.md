@@ -4,14 +4,7 @@ category: '@Math'
 
 # useClamp
 
-Reactively clamp a value between two other values — React port of VueUse's
-[`useClamp`](https://vueuse.org/math/useClamp/).
-
-**Mapping:** `Ref<number>` / `ComputedRef<number>` → `[value, setValue]` tuple.
-`value`, `min` and `max` accept plain numbers or React refs, resolved on every
-render. `setValue` clamps into `[min, max]` on
-write, mirroring upstream's writable computed; ref-like value inputs are
-written back to when clamped (upstream's writable `computed` branch).
+Reactively clamp a value between two other values
 
 ## Usage
 
@@ -58,25 +51,3 @@ const [clamped] = useClamp(value, min, max)
 
 max.current = 3 // clamped is 3 on the next render
 ```
-
-<DemoContainer name="UseClamp" />
-
-## Type Declarations
-
-```ts
-export function useClamp(
-  value: RefOrValue<number>,
-  min: RefOrValue<number>,
-  max: RefOrValue<number>,
-): [number, (value: number) => void]
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/math/useClamp/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/math/useClamp/index.ts) (implementation),
-  [`index.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/math/useClamp/index.test.ts) (mirrored in `useClamp.test.tsx`),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/math/useClamp/demo.vue) (ported to `demo.tsx` below)
-- reaxuse: [`packages/math/src/useClamp.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/math/src/useClamp.ts), docs + demo co-located in `packages/math/useClamp/`
-
-<Contributors name="useClamp" />

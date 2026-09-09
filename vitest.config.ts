@@ -29,6 +29,9 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'unit',
+          // Browser tests share one Chromium instance. Running files in parallel
+          // makes short debounce/throttle assertions race under CI load.
+          fileParallelism: false,
           setupFiles: ['vitest-browser-react'],
           include: ['packages/**/*.{test,spec}.tsx'],
           browser: {

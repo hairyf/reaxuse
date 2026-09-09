@@ -13,3 +13,23 @@
 html {
   scroll-behavior: smooth;
 }
+
+html.dark {
+  color-scheme: dark;
+}
+
+/* Injected sections (Demo / Type Declarations) shouldn't get a top border */
+.vp-doc h2 {
+  border-top: 0;
+  margin-top: 10px;
+}
+
+/* Backticked function names are linkified by markdownTransform.ts */
+.vp-doc a:has(> code) {
+  text-decoration: none;
+  color: var(--vp-c-brand-1);
+}
+
+.vp-doc a:has(> code):hover {
+  text-decoration: underline;
+}

@@ -5,9 +5,7 @@ related: syncRef
 
 # syncRefs
 
-Keep target ref(s) in sync with a source ref-like (`{ current }`) — React port of VueUse's [`syncRefs`](https://vueuse.org/shared/syncRefs/).
-
-**Mapping:** upstream syncs through Vue's reactive `watch(source, v => targets.forEach(t => t.value = v))`; React has no reactive system, so `syncRefs` is implemented as a **hook** that runs inside a component and observes the source on every render — a `useEffect` resolves the source value (`toValue`) and writes it to all targets' `.current` when it differs (by `Object.is`) from the last observed value. A source mutation lands on the targets on the render that follows it (a bare `source.current = ...` write schedules no render by itself — see the maintainer notes on reaxuse issues #40 / #41). Calling the returned `stop()` tears the synchronization down, and the effect stops observing once the owning component unmounts.
+Keep target ref(s) in sync with a source ref-like (`{ current }`)
 
 ## Usage
 
@@ -56,8 +54,6 @@ console.log(target2.current) // foo
 stop()
 ```
 
-<DemoContainer name="SyncRefs" />
-
 ## Options
 
 The options mirror upstream's `SyncRefsOptions`. `flush` and `deep` are accepted for signature compatibility but have no React behavior — effects always run after commit, and only `current` replacement (not nested mutation) can be observed.
@@ -84,20 +80,3 @@ export interface SyncRefsOptions {
   immediate?: boolean
 }
 ```
-
-## Type Declarations
-
-```ts
-export function syncRefs<T>(
-  source: MaybeRefOrGetter<T>,
-  targets: { current: T } | Array<{ current: T }>,
-  options?: SyncRefsOptions,
-): () => void
-```
-
-## Source
-
-- VueUse: [`packages/shared/syncRefs`](https://github.com/vueuse/vueuse/tree/main/packages/shared/syncRefs) — source [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/shared/syncRefs/index.ts), tests [`index.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/shared/syncRefs/index.test.ts), demo [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/shared/syncRefs/demo.vue)
-- reaxuse: [`packages/shared/src/syncRefs.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/shared/src/syncRefs.ts)
-
-<Contributors name="syncRefs" />

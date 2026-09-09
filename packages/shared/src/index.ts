@@ -12,7 +12,7 @@ export const isClient = typeof window !== 'undefined'
 export function noop(): void {}
 
 export * from './createEventHook'
-// export * from './createGlobalState'
+export * from './createGlobalState'
 // export * from './createInjectionState'
 // export * from './createSharedComposable'
 // export * from './injectLocal'

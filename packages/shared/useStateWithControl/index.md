@@ -6,20 +6,7 @@ related: useStateHistory
 
 # useStateWithControl
 
-Fine-grained controls over a state and its re-renders — React port of VueUse's
-[`refWithControl`](https://vueuse.org/shared/refWithControl/), renamed to
-`useStateWithControl` per this repo's `ref*` naming convention.
-
-**Mapping:** upstream `refWithControl(initial, options)` returns a single writable Vue `Ref`
-extended with `get` / `set` / `untrackedGet` / `silentSet` / `peek` / `lay`. This port owns the
-state like a `useState` and returns the React tuple
-`const [num, setNum, control] = useStateWithControl(0)` — `num` re-renders on change, `setNum`
-behaves like a normal `setState` (value or updater form), and `control` exposes the same
-fine-grained controls over when the value is committed to a re-render. `set(value, false)`
-(and the `lay` / `silentSet` shorthands) update the value without re-rendering; `peek` /
-`untrackedGet` read it back — in React there is no dependency tracking during render, so they
-are plain aliases for the current value. `reset()` (an addition, upstream has no equivalent)
-restores the initial value.
+Fine-grained controls over a state and its re-renders
 
 ## Usage
 
@@ -113,45 +100,3 @@ const [num, setNum] = useStateWithControl(0, {
   },
 })
 ```
-
-<DemoContainer name="UseStateWithControl" />
-
-## Type Declarations
-
-```ts
-export interface UseStateWithControlOptions<T> {
-  onBeforeChange?: (value: T, oldValue: T) => void | boolean
-  onChanged?: (value: T, oldValue: T) => void
-}
-
-export interface UseStateWithControlControls<T> {
-  get: (tracking?: boolean) => T
-  set: (value: T, triggering?: boolean) => void
-  untrackedGet: () => T
-  silentSet: (value: T) => void
-  peek: () => T
-  lay: (value: T) => void
-  reset: () => void
-}
-
-export type UseStateWithControlReturn<T> = [
-  value: T,
-  setValue: Dispatch<SetStateAction<T>>,
-  control: UseStateWithControlControls<T>,
-]
-
-export function useStateWithControl<T>(
-  value: RefOrValue<T>,
-  options?: UseStateWithControlOptions<T>,
-): UseStateWithControlReturn<T>
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/shared/refWithControl/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/shared/refWithControl/index.ts) (implementation),
-  [`index.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/shared/refWithControl/index.test.ts) (tests mirrored in `packages/shared/src/useStateWithControl.test.tsx`),
-  [`index.md`](https://github.com/vueuse/vueuse/blob/main/packages/shared/refWithControl/index.md) (upstream docs)
-- reaxuse: [`packages/shared/src/useStateWithControl.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/shared/src/useStateWithControl.ts), docs + demo co-located in `packages/shared/useStateWithControl/`
-
-<Contributors name="useStateWithControl" />

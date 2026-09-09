@@ -4,19 +4,7 @@ category: Browser
 
 # useBreakpoints
 
-Reactive viewport breakpoints — React port of VueUse's [`useBreakpoints`](https://vueuse.org/core/useBreakpoints/).
-
-**Mapping:** upstream composes one `useMediaQuery` `ComputedRef` per breakpoint key (lazily created from `defineProperty`
-getters and method calls) and returns an object of shortcut booleans plus comparison helpers. In React, hooks cannot be
-created at property-read time, so `useBreakpoints` eagerly creates four `useMediaQuery` queries per key (min/max, each
-with the ±0.1 delta that separates strict/equal comparisons) and exposes plain booleans instead of `ComputedRef`s. The
-returned object is a **mirror object** (not a tuple): every breakpoint key becomes a boolean (e.g. `breakpoints.md`),
-and the dynamic-key methods (`greaterOrEqual('sm')`, ...) return booleans from the current render — so the `breakpoints`
-map and the keys passed to those methods must stay stable across renders. `current()` / `active()` are plain functions
-recomputed from the current render's booleans, staying in sync with media query changes. The `is*` helpers evaluate
-`window.matchMedia().matches` synchronously (non-reactive, matching upstream). SSR via the `ssrWidth` option is evaluated
-inside the `useMediaQuery` mount effects: the server renders the `false`/empty default and the simulated values appear
-after hydration (same caveat as `useMediaQuery`).
+Reactive viewport breakpoints
 
 ## Usage
 
@@ -105,8 +93,6 @@ const breakpoints = useBreakpoints(breakpointsTailwind, {
 })
 ```
 
-<DemoContainer name="UseBreakpoints" />
-
 ## Presets
 
 - Tailwind: `breakpointsTailwind`
@@ -127,52 +113,3 @@ have to be explicitly imported:_
 import { breakpointsTailwind } from '@reaxuse/core'
 // and so on
 ```
-
-## Type Declarations
-
-```ts
-type RefOrValue<T> = T | Ref<T> // imported from '@reaxuse/shared'
-
-interface ConfigurableWindow {
-  window?: Window
-}
-
-type Breakpoints<K extends string = string> = Record<K, RefOrValue<number | string>>
-
-interface UseBreakpointsOptions extends ConfigurableWindow {
-  strategy?: 'min-width' | 'max-width' // default: 'min-width'
-  ssrWidth?: number
-}
-
-type UseBreakpointReturn<K extends string = string> = Record<K, boolean> & {
-  greaterOrEqual: (k: RefOrValue<K>) => boolean
-  smallerOrEqual: (k: RefOrValue<K>) => boolean
-  greater: (k: RefOrValue<K>) => boolean
-  smaller: (k: RefOrValue<K>) => boolean
-  between: (a: RefOrValue<K>, b: RefOrValue<K>) => boolean
-  isGreater: (k: RefOrValue<K>) => boolean
-  isGreaterOrEqual: (k: RefOrValue<K>) => boolean
-  isSmaller: (k: RefOrValue<K>) => boolean
-  isSmallerOrEqual: (k: RefOrValue<K>) => boolean
-  isInBetween: (a: RefOrValue<K>, b: RefOrValue<K>) => boolean
-  current: () => K[]
-  active: () => K | ''
-}
-
-export function useBreakpoints<K extends string>(
-  breakpoints: Breakpoints<K>,
-  options?: UseBreakpointsOptions,
-): UseBreakpointReturn<K>
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useBreakpoints/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useBreakpoints/index.ts) (implementation),
-  [`breakpoints.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useBreakpoints/breakpoints.ts) (presets),
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useBreakpoints/index.browser.test.ts) (tests to mirror),
-  [`index.md`](https://github.com/vueuse/vueuse/blob/main/packages/core/useBreakpoints/index.md) (docs),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useBreakpoints/demo.vue) (ported to `demo.tsx` below)
-- reaxuse: [`packages/core/src/useBreakpoints.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useBreakpoints.ts), docs + demo co-located in `packages/core/useBreakpoints/`
-
-<Contributors name="useBreakpoints" />

@@ -4,9 +4,7 @@ category: Sensors
 
 # useMagicKeys
 
-Reactive keys pressed state, with magical keys combination support — React port of VueUse's [`useMagicKeys`](https://vueuse.org/core/useMagicKeys/).
-
-**Mapping:** upstream returns a proxy of individual refs (or a reactive object with `reactive: true`). React has no refs — the whole key state lives in one state object updated on `keydown` / `keyup`, so the returned values are always plain booleans and `reactive` is accepted for API compatibility only. Keys can be combined with `+` / `_` to build shortcut states (`Shift+Ctrl+A`, `alt_tab`, ...), and `current` is the `Set` of all keys currently pressed. The `keydown` / `keyup` listeners attach in a self-contained `useEffect` with cleanup (upstream composes `useEventListener`); the `blur` / `focus` reset listeners stay on `window`. The `target` accepts an element, a React ref — the listeners re-bind when the resolved target changes. Nothing touches the DOM during render (SSR-safe). All key side effects go in a `useEffect`.
+Reactive keys pressed state, with magical keys combination support
 
 ## Usage
 
@@ -112,43 +110,3 @@ import { useMagicKeys } from '@reaxuse/core'
 
 const keys = useMagicKeys({ reactive: true })
 ```
-
-<DemoContainer name="UseMagicKeys" />
-
-## Type Declarations
-
-```ts
-export type RefOrValue<T> = T | { current: T } | (() => T)
-
-export interface UseMagicKeysOptions<Reactive extends boolean> {
-  reactive?: Reactive
-  target?: RefOrValue<EventTarget>
-  aliasMap?: Record<string, string>
-  passive?: boolean
-  onEventFired?: (e: KeyboardEvent) => void | boolean
-}
-
-export interface MagicKeysInternal {
-  current: ReadonlySet<string>
-}
-
-export type UseMagicKeysReturn<Reactive extends boolean>
-  = Readonly<
-    Record<string, boolean> & MagicKeysInternal
-  >
-
-export function useMagicKeys<T extends boolean = false>(
-  options?: UseMagicKeysOptions<T>,
-): UseMagicKeysReturn<T>
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useMagicKeys/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useMagicKeys/index.ts) (implementation),
-  [`aliasMap.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useMagicKeys/aliasMap.ts) (inlined as `DefaultMagicKeysAliasMap` in `packages/core/src/useMagicKeys.ts`),
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useMagicKeys/index.browser.test.ts) (mirrored in `packages/core/src/useMagicKeys.test.tsx`),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useMagicKeys/demo.vue) (ported to `demo.tsx` below)
-- reaxuse: [`packages/core/src/useMagicKeys.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useMagicKeys.ts), docs + demo co-located in `packages/core/useMagicKeys/`
-
-<Contributors name="useMagicKeys" />

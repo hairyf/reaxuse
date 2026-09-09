@@ -4,14 +4,7 @@ category: Browser
 
 # useEventListener
 
-Use EventListener with ease. Register using [`addEventListener`](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener) on mounted, and [`removeEventListener`](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener) automatically on unmounted — React port of VueUse's [`useEventListener`](https://vueuse.org/core/useEventListener/).
-
-**Mapping:** the listeners are read through a latest-value ref and bound in a `useEffect`
-(upstream composes `useEventListener` / `watchImmediate`), which re-registers whenever the resolved
-target(s), events or options change and removes them on unmount — so new inline listener identities
-never churn the subscription. The target accepts a plain element or a React ref (`RefOrValue`), may be an array, and defaults to `window` when omitted. The return value
-is an optional cleanup function that detaches the currently registered listeners (upstream returns a
-`Fn` that stops the internal watcher).
+Use EventListener with ease. Register using [`addEventListener`](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener) on mounted, and [`removeEventListener`](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener) automatically on unmounted
 
 ## Usage
 
@@ -86,51 +79,3 @@ cleanup() // This will unregister the listeners.
 Unlike VueUse — where calling the hook outside a component lifecycle (SSR) errors — reaxuse's
 `useEventListener` is SSR-safe: nothing touches `window` during render, the default `window` target
 only resolves when `window` is defined, and binding happens in the mount effect.
-
-<DemoContainer name="UseEventListener" />
-
-## Type Declarations
-
-```ts
-export type WindowEventName = keyof WindowEventMap
-export type DocumentEventName = keyof DocumentEventMap
-export type ShadowRootEventName = keyof ShadowRootEventMap
-
-export interface GeneralEventListener<E = Event> {
-  (evt: E): void
-}
-
-export type RefOrValue<T> = T | { current: T } | (() => T)
-
-// Overload 1 — omitted target defaults to window:
-export function useEventListener<E extends keyof WindowEventMap>(
-  event: RefOrValue<Arrayable<E>>,
-  listener: RefOrValue<Arrayable<(this: Window, ev: WindowEventMap[E]) => any>>,
-  options?: RefOrValue<boolean | AddEventListenerOptions>,
-): (() => void) | undefined
-
-// Overloads 2–5 — explicit Window / Document / ShadowRoot / HTMLElement targets:
-export function useEventListener<E extends keyof HTMLElementEventMap>(
-  target: RefOrValue<Arrayable<HTMLElement> | null | undefined>,
-  event: RefOrValue<Arrayable<E>>,
-  listener: RefOrValue<(this: HTMLElement, ev: HTMLElementEventMap[E]) => any>,
-  options?: RefOrValue<boolean | AddEventListenerOptions>,
-): (() => void) | undefined
-
-// Overloads 6–7 — custom event targets and fallback:
-export function useEventListener<EventType = Event>(
-  target: RefOrValue<Arrayable<EventTarget> | null | undefined>,
-  event: RefOrValue<Arrayable<string>>,
-  listener: RefOrValue<Arrayable<GeneralEventListener<EventType>>>,
-  options?: RefOrValue<boolean | AddEventListenerOptions>,
-): (() => void) | undefined
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useEventListener/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useEventListener/index.ts) (implementation),
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useEventListener/index.browser.test.ts) (mirrored in `packages/core/src/useEventListener.test.tsx`). No upstream `demo.vue` exists — `demo.tsx` below is written for reaxuse.
-- reaxuse: [`packages/core/src/useEventListener.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useEventListener.ts), docs + demo co-located in `packages/core/useEventListener/`
-
-<Contributors name="useEventListener" />

@@ -4,14 +4,7 @@ category: State
 
 # useStateDebouncedHistory
 
-Shorthand for the manual history machinery with a debounced filter — track the change history of a
-state, committing only after `debounce` milliseconds of no changes — React port of VueUse's
-[`useDebouncedRefHistory`](https://vueuse.org/core/useDebouncedRefHistory/).
-
-**Mapping:** `useDebouncedRefHistory(ref, { debounce })` →
-`useStateDebouncedHistory(state, setState, { debounce })`. The Vue `Ref` source becomes the
-`(state, setState)` pair of an existing `useState`; the upstream `debounceFilter` is inlined, and
-history records live in refs with a version counter re-rendering the component.
+Shorthand for the manual history machinery with a debounced filter — track the change history of a state, committing only after `debounce` milliseconds of no changes
 
 ## Usage
 
@@ -96,60 +89,3 @@ const [history, undo, redo, { clear }] = useStateDebouncedHistory(target, setTar
 
 clear() // explicitly clear all the history
 ```
-
-<DemoContainer name="UseStateDebouncedHistory" />
-
-## Type Declarations
-
-History records reuse `UseRefHistoryRecord` (`{ snapshot, timestamp }`) from
-`useStateManualHistory`.
-
-```ts
-export interface UseStateDebouncedHistoryOptions<Raw, Serialized = Raw> {
-  capacity?: number
-  clone?: boolean | ((value: Raw) => Raw)
-  dump?: (value: Raw) => Serialized
-  parse?: (value: Serialized) => Raw
-  debounce?: number
-}
-
-export interface UseStateDebouncedHistoryControls<Raw, Serialized = Raw> {
-  source: Raw
-  last: UseRefHistoryRecord<Serialized>
-  undoStack: UseRefHistoryRecord<Serialized>[]
-  redoStack: UseRefHistoryRecord<Serialized>[]
-  canUndo: boolean
-  canRedo: boolean
-  isTracking: boolean
-  setSource: Dispatch<SetStateAction<Raw>>
-  commit: () => void
-  clear: () => void
-  reset: () => void
-  pause: () => void
-  resume: (commitNow?: boolean) => void
-  batch: (fn: (cancel: () => void) => void) => void
-}
-
-export type UseStateDebouncedHistoryReturn<Raw, Serialized = Raw> = [
-  history: UseRefHistoryRecord<Serialized>[],
-  undo: () => void,
-  redo: () => void,
-  controls: UseStateDebouncedHistoryControls<Raw, Serialized>,
-]
-
-export function useStateDebouncedHistory<Raw, Serialized = Raw>(
-  source: Raw,
-  setSource: Dispatch<SetStateAction<Raw>>,
-  options?: UseStateDebouncedHistoryOptions<Raw, Serialized>,
-): UseStateDebouncedHistoryReturn<Raw, Serialized>
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useDebouncedRefHistory/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useDebouncedRefHistory/index.ts) (implementation),
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useDebouncedRefHistory/index.browser.test.ts) (tests mirrored in `packages/core/src/useStateDebouncedHistory.test.tsx`),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useDebouncedRefHistory/demo.vue) (ported to `demo.tsx` below)
-- reaxuse: [`packages/core/src/useStateDebouncedHistory.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useStateDebouncedHistory.ts), docs + demo co-located in `packages/core/useStateDebouncedHistory/`
-
-<Contributors name="useStateDebouncedHistory" />

@@ -4,18 +4,7 @@ category: Browser
 
 # useMediaQuery
 
-Reactive [Media Query](https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries/Testing_media_queries) — React port of VueUse's [`useMediaQuery`](https://vueuse.org/core/useMediaQuery/).
-
-**Mapping:** upstream creates a `MediaQueryList` for the query string and returns a reactive
-`computed<boolean>` that flips on its `change` event → a `useState(false)`-backed plain boolean + a
-self-contained `useEffect` that creates the query, syncs `matches` and subscribes to its `change`
-event (removed on unmount). `query` accepts a plain string or a React
-ref (upstream `RefOrValue`) — re-resolved on every render, the media query re-binds when
-the resolved string changes. The initial `matches` sync happens in the mount effect (SSR-safe — the
-server renders the `false` default without touching `window`). For SSR, a numeric `ssrWidth` makes
-`useMediaQuery` approximate the query from a simulated viewport width while `matchMedia` is
-unavailable (mirroring upstream's `ssrSupport` branch), then switch to the real `matchMedia` result
-on the client.
+Reactive [Media Query](https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries/Testing_media_queries)
 
 ## Usage
 
@@ -41,30 +30,3 @@ useEffect(() => {
   console.log(isLarge) // false if screen is smaller than 1024px, true if larger than 1024px
 }, [isLarge])
 ```
-
-<DemoContainer name="UseMediaQuery" />
-
-## Type Declarations
-
-```ts
-type RefOrValue<T> = T | { current: T } | (() => T)
-
-interface ConfigurableWindow {
-  window?: Window
-}
-
-export function useMediaQuery(
-  query: RefOrValue<string>,
-  options?: ConfigurableWindow & { ssrWidth?: number },
-): boolean
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useMediaQuery/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useMediaQuery/index.ts) (implementation),
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useMediaQuery/index.browser.test.ts) (tests to mirror),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useMediaQuery/demo.vue) (ported to `demo.tsx` below)
-- reaxuse: [`packages/core/src/useMediaQuery.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useMediaQuery.ts), docs + demo co-located in `packages/core/useMediaQuery/`
-
-<Contributors name="useMediaQuery" />

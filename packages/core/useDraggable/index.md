@@ -4,18 +4,7 @@ category: Elements
 
 # useDraggable
 
-Make elements draggable — React port of VueUse's [`useDraggable`](https://vueuse.org/core/useDraggable/).
-
-**Mapping:** the Vue refs returned by upstream (`x`, `y`, `position`, `isDragging`, `style`) become a
-plain object backed by React state — `x` / `y` are numbers, `position` is the `{ x, y }` pair,
-`isDragging` a boolean and `style` a ready-to-use CSS string (`left: ?px; top: ?px;`). A
-`pointerdown` on the `handle` (default the `target`) starts the drag; `pointermove` / `pointerup` /
-`pointercancel` listeners attach to the `draggingElement` (default `window`) in a mount `useEffect`
-and are removed on unmount. The `target` / `handle` / `draggingElement` / `containerElement` accept a
-plain element or a React ref (e.g. the result of `useRef`). All options
-(`disabled`, `buttons`, `exact`, `axis`, `restrictInView`, `autoScroll`, `onStart` / `onMove` /
-`onEnd`, …) are read through a latest-value ref, so the stable listeners always see the newest
-options. SSR-safe — nothing touches `window` or the DOM during render.
+Make elements draggable
 
 ## Usage
 
@@ -112,72 +101,3 @@ const { x, y, style } = useDraggable(el, {
   },
 })
 ```
-
-<DemoContainer name="UseDraggable" />
-
-## Type Declarations
-
-```ts
-export interface Position {
-  x: number
-  y: number
-}
-
-export type PointerType = 'mouse' | 'touch' | 'pen'
-
-export type DraggableTarget = RefOrValue<HTMLElement | SVGElement | null | undefined>
-
-export type DraggableElement = RefOrValue<HTMLElement | SVGElement | Window | Document | null | undefined>
-
-export type DraggableContainer = RefOrValue<HTMLElement | SVGElement | null | undefined>
-
-export interface UseDraggableOptions {
-  exact?: RefOrValue<boolean>
-  preventDefault?: RefOrValue<boolean>
-  stopPropagation?: RefOrValue<boolean>
-  capture?: boolean
-  draggingElement?: DraggableElement
-  containerElement?: DraggableContainer
-  handle?: DraggableTarget
-  pointerTypes?: PointerType[]
-  initialValue?: RefOrValue<Position>
-  onStart?: (position: Position, event: PointerEvent) => void | false
-  onMove?: (position: Position, event: PointerEvent) => void
-  onEnd?: (position: Position, event: PointerEvent) => void
-  axis?: 'x' | 'y' | 'both'
-  disabled?: RefOrValue<boolean>
-  buttons?: RefOrValue<number[]>
-  restrictInView?: RefOrValue<boolean>
-  autoScroll?: RefOrValue<boolean | {
-    speed?: RefOrValue<number | Position>
-    margin?: RefOrValue<number | Position>
-    direction?: 'x' | 'y' | 'both'
-  }>
-}
-
-export interface UseDraggableReturn {
-  x: number
-  y: number
-  position: Position
-  isDragging: boolean
-  style: string
-}
-
-export function useDraggable(
-  target: DraggableTarget,
-  options?: UseDraggableOptions,
-): UseDraggableReturn
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useDraggable/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useDraggable/index.ts) (implementation),
-  [`index.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useDraggable/index.test.ts) and
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useDraggable/index.browser.test.ts) (mirrored in `packages/core/src/useDraggable.test.tsx`),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useDraggable/demo.vue) (ported to `demo.tsx` below)
-- The upstream `component.ts` variant (`UseDraggable`) is not ported — React has no renderless
-  component equivalent.
-- reaxuse: [`packages/core/src/useDraggable.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useDraggable.ts), docs + demo co-located in `packages/core/useDraggable/`
-
-<Contributors name="useDraggable" />

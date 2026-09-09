@@ -48,5 +48,8 @@
     "qrcode": { "optional": true },
     "sortablejs": { "optional": true },
     "universal-cookie": { "optional": true }
+  },
+  "dependencies": {
+    "@reaxuse/shared": "workspace:*"
   }
 }

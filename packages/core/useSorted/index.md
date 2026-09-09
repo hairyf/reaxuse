@@ -4,12 +4,7 @@ category: Array
 
 # useSorted
 
-Reactive sorted array — React port of VueUse's [`useSorted`](https://vueuse.org/core/useSorted/).
-
-**Mapping:** upstream `computed(() => sortFn([...toValue(source)], compareFn))` becomes `useMemo`
-recomputing a sorted copy of the source — the source array is never mutated (upstream default
-non-dirty mode). In React the recompute happens whenever the source array identity or the compare
-function changes.
+Reactive sorted array
 
 ## Usage
 
@@ -53,23 +48,3 @@ const stateSorted = useSorted(itemsRef)
   comparator to sort strings.
 - **Stable sort** — elements that compare equal keep their relative order
   (`Array.prototype.sort` is stable per spec).
-
-<DemoContainer name="UseSorted" />
-
-## Type Declarations
-
-```ts
-export type UseSortedCompareFn<T = any> = (a: T, b: T) => number
-
-export function useSorted<T = any>(source: T[] | (() => T[]), compareFn?: UseSortedCompareFn<T>): T[]
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useSorted/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useSorted/index.ts) (implementation),
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useSorted/index.browser.test.ts) (tests mirrored in `packages/core/src/useSorted.test.tsx`),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useSorted/demo.vue) (ported to `demo.tsx` below)
-- reaxuse: [`packages/core/src/useSorted.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useSorted.ts), docs + demo co-located in `packages/core/useSorted/`
-
-<Contributors name="useSorted" />

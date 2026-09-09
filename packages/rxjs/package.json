@@ -23,5 +23,8 @@
   "peerDependencies": {
     "react": ">=18",
     "rxjs": ">=6.0.0"
+  },
+  "dependencies": {
+    "@reaxuse/shared": "workspace:*"
   }
 }

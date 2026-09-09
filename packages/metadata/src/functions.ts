@@ -86,6 +86,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'createCookies',
+    file: 'packages/integrations/src/useCookies.ts',
+    pkg: 'integrations',
+  },
+  {
     name: 'createEventHook',
     file: 'packages/shared/src/createEventHook.ts',
     pkg: 'shared',
@@ -94,6 +99,11 @@ export const functions: FunctionInfo[] = [
     name: 'createFetch',
     file: 'packages/core/src/useFetch.ts',
     pkg: 'core',
+  },
+  {
+    name: 'createGlobalState',
+    file: 'packages/shared/src/createGlobalState.ts',
+    pkg: 'shared',
   },
   {
     name: 'createSingletonPromise',
@@ -181,6 +191,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'insertNodeAt',
+    file: 'packages/integrations/src/useSortable.ts',
+    pkg: 'integrations',
+  },
+  {
     name: 'isClient',
     file: 'packages/shared/src/utils.ts',
     pkg: 'shared',
@@ -251,6 +266,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'moveArrayElement',
+    file: 'packages/integrations/src/useSortable.ts',
+    pkg: 'integrations',
+  },
+  {
     name: 'noop',
     file: 'packages/shared/src/utils.ts',
     pkg: 'shared',
@@ -289,6 +309,21 @@ export const functions: FunctionInfo[] = [
     name: 'rand',
     file: 'packages/shared/src/utils.ts',
     pkg: 'shared',
+  },
+  {
+    name: 'removeNode',
+    file: 'packages/integrations/src/useSortable.ts',
+    pkg: 'integrations',
+  },
+  {
+    name: 'resolveIpcRenderer',
+    file: 'packages/electron/src/_resolve.ts',
+    pkg: 'electron',
+  },
+  {
+    name: 'resolveWebFrame',
+    file: 'packages/electron/src/_resolve.ts',
+    pkg: 'electron',
   },
   {
     name: 'syncRef',
@@ -496,9 +531,9 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
-    name: 'useAverage',
-    file: 'packages/math/src/useAverage.ts',
-    pkg: 'math',
+    name: 'useAsyncValidator',
+    file: 'packages/integrations/src/useAsyncValidator.ts',
+    pkg: 'integrations',
   },
   {
     name: 'useAverage',
@@ -509,6 +544,61 @@ export const functions: FunctionInfo[] = [
     name: 'useAverage',
     file: 'packages/math/src/useAverage.ts',
     pkg: 'math',
+  },
+  {
+    name: 'useAverage',
+    file: 'packages/math/src/useAverage.ts',
+    pkg: 'math',
+  },
+  {
+    name: 'useAxios',
+    file: 'packages/integrations/src/useAxios.ts',
+    pkg: 'integrations',
+  },
+  {
+    name: 'useAxios',
+    file: 'packages/integrations/src/useAxios.ts',
+    pkg: 'integrations',
+  },
+  {
+    name: 'useAxios',
+    file: 'packages/integrations/src/useAxios.ts',
+    pkg: 'integrations',
+  },
+  {
+    name: 'useAxios',
+    file: 'packages/integrations/src/useAxios.ts',
+    pkg: 'integrations',
+  },
+  {
+    name: 'useAxios',
+    file: 'packages/integrations/src/useAxios.ts',
+    pkg: 'integrations',
+  },
+  {
+    name: 'useAxios',
+    file: 'packages/integrations/src/useAxios.ts',
+    pkg: 'integrations',
+  },
+  {
+    name: 'useAxios',
+    file: 'packages/integrations/src/useAxios.ts',
+    pkg: 'integrations',
+  },
+  {
+    name: 'useAxios',
+    file: 'packages/integrations/src/useAxios.ts',
+    pkg: 'integrations',
+  },
+  {
+    name: 'useAxios',
+    file: 'packages/integrations/src/useAxios.ts',
+    pkg: 'integrations',
+  },
+  {
+    name: 'useAxios',
+    file: 'packages/integrations/src/useAxios.ts',
+    pkg: 'integrations',
   },
   {
     name: 'useBase64',
@@ -656,6 +746,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useCookies',
+    file: 'packages/integrations/src/useCookies.ts',
+    pkg: 'integrations',
+  },
+  {
     name: 'useCountdown',
     file: 'packages/core/src/useCountdown.ts',
     pkg: 'core',
@@ -739,6 +834,11 @@ export const functions: FunctionInfo[] = [
     name: 'useDraggable',
     file: 'packages/core/src/useDraggable.ts',
     pkg: 'core',
+  },
+  {
+    name: 'useDrauu',
+    file: 'packages/integrations/src/useDrauu.ts',
+    pkg: 'integrations',
   },
   {
     name: 'useDropZone',
@@ -921,6 +1021,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useFuse',
+    file: 'packages/integrations/src/useFuse.ts',
+    pkg: 'integrations',
+  },
+  {
     name: 'useGamepad',
     file: 'packages/core/src/useGamepad.ts',
     pkg: 'core',
@@ -929,6 +1034,11 @@ export const functions: FunctionInfo[] = [
     name: 'useGeolocation',
     file: 'packages/core/src/useGeolocation.ts',
     pkg: 'core',
+  },
+  {
+    name: 'useIDBKeyval',
+    file: 'packages/integrations/src/useIDBKeyval.ts',
+    pkg: 'integrations',
   },
   {
     name: 'useIdle',
@@ -969,6 +1079,46 @@ export const functions: FunctionInfo[] = [
     name: 'useIntervalFn',
     file: 'packages/shared/src/useIntervalFn.ts',
     pkg: 'shared',
+  },
+  {
+    name: 'useIpcRenderer',
+    file: 'packages/electron/src/useIpcRenderer.ts',
+    pkg: 'electron',
+  },
+  {
+    name: 'useIpcRendererInvoke',
+    file: 'packages/electron/src/useIpcRendererInvoke.ts',
+    pkg: 'electron',
+  },
+  {
+    name: 'useIpcRendererInvoke',
+    file: 'packages/electron/src/useIpcRendererInvoke.ts',
+    pkg: 'electron',
+  },
+  {
+    name: 'useIpcRendererInvoke',
+    file: 'packages/electron/src/useIpcRendererInvoke.ts',
+    pkg: 'electron',
+  },
+  {
+    name: 'useIpcRendererOn',
+    file: 'packages/electron/src/useIpcRendererOn.ts',
+    pkg: 'electron',
+  },
+  {
+    name: 'useIpcRendererOn',
+    file: 'packages/electron/src/useIpcRendererOn.ts',
+    pkg: 'electron',
+  },
+  {
+    name: 'useIpcRendererOn',
+    file: 'packages/electron/src/useIpcRendererOn.ts',
+    pkg: 'electron',
+  },
+  {
+    name: 'useJwt',
+    file: 'packages/integrations/src/useJwt.ts',
+    pkg: 'integrations',
   },
   {
     name: 'useKeyModifier',
@@ -1156,6 +1306,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useNProgress',
+    file: 'packages/integrations/src/useNProgress.ts',
+    pkg: 'integrations',
+  },
+  {
     name: 'useObjectUrl',
     file: 'packages/core/src/useObjectUrl.ts',
     pkg: 'core',
@@ -1276,6 +1431,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'math',
   },
   {
+    name: 'useQRCode',
+    file: 'packages/integrations/src/useQRCode.ts',
+    pkg: 'integrations',
+  },
+  {
     name: 'useRafFn',
     file: 'packages/core/src/useRafFn.ts',
     pkg: 'core',
@@ -1294,6 +1454,11 @@ export const functions: FunctionInfo[] = [
     name: 'useRound',
     file: 'packages/math/src/useRound.ts',
     pkg: 'math',
+  },
+  {
+    name: 'useRTDB',
+    file: 'packages/firebase/src/useRTDB.ts',
+    pkg: 'firebase',
   },
   {
     name: 'useScreenOrientation',
@@ -1354,6 +1519,11 @@ export const functions: FunctionInfo[] = [
     name: 'useShare',
     file: 'packages/core/src/useShare.ts',
     pkg: 'core',
+  },
+  {
+    name: 'useSortable',
+    file: 'packages/integrations/src/useSortable.ts',
+    pkg: 'integrations',
   },
   {
     name: 'useSorted',
@@ -1736,6 +1906,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'useWatchExtractedObservable',
+    file: 'packages/rxjs/src/useWatchExtractedObservable.ts',
+    pkg: 'rxjs',
+  },
+  {
     name: 'useWatchIgnorable',
     file: 'packages/shared/src/useWatchIgnorable.ts',
     pkg: 'shared',
@@ -1889,5 +2064,35 @@ export const functions: FunctionInfo[] = [
     name: 'useWindowSize',
     file: 'packages/core/src/useWindowSize.ts',
     pkg: 'core',
+  },
+  {
+    name: 'useZoomFactor',
+    file: 'packages/electron/src/useZoomFactor.ts',
+    pkg: 'electron',
+  },
+  {
+    name: 'useZoomFactor',
+    file: 'packages/electron/src/useZoomFactor.ts',
+    pkg: 'electron',
+  },
+  {
+    name: 'useZoomFactor',
+    file: 'packages/electron/src/useZoomFactor.ts',
+    pkg: 'electron',
+  },
+  {
+    name: 'useZoomLevel',
+    file: 'packages/electron/src/useZoomLevel.ts',
+    pkg: 'electron',
+  },
+  {
+    name: 'useZoomLevel',
+    file: 'packages/electron/src/useZoomLevel.ts',
+    pkg: 'electron',
+  },
+  {
+    name: 'useZoomLevel',
+    file: 'packages/electron/src/useZoomLevel.ts',
+    pkg: 'electron',
   },
 ]

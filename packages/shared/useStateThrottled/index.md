@@ -5,18 +5,7 @@ alias: useThrottle, throttledRef
 
 # useStateThrottled
 
-Throttle changing of a state value — React port of VueUse's
-[`refThrottled`](https://vueuse.org/shared/refThrottled/), renamed to
-`useStateThrottled` per this repo's `ref*` naming convention.
-
-**Mapping:** upstream `refThrottled(input, delay)` watches a `Ref<T>` and commits a
-throttled copy through `useThrottleFn`, returning a single writable ref. This port
-owns the state like a `useState` and returns the React tuple
-`const [input, setInput, throttled] = useStateThrottled(initial, delay)` — the first
-argument only seeds the value, later updates go through `setInput`, and `throttled`
-follows at most once per throttle window (same `leading` / `trailing` edges). `delay`,
-`trailing` and `leading` are re-read on every change, and pending timers are
-cancelled on unmount.
+Throttle changing of a state value
 
 ## Usage
 
@@ -68,29 +57,3 @@ timeout). If you don't want this behavior, set the 4th param `false` (it's
 ```tsx
 const [input, setInput, throttled] = useStateThrottled('', 1000, undefined, false)
 ```
-
-<DemoContainer name="UseStateThrottled" />
-
-## Type Declarations
-
-```ts
-export type UseStateThrottledReturn<T = any> = [
-  value: T,
-  setValue: Dispatch<SetStateAction<T>>,
-  throttled: T,
-]
-
-export function useStateThrottled<T = any>(
-  value: MaybeRefOrGetter<T>,
-  delay?: number,
-  trailing?: boolean,
-  leading?: boolean,
-): UseStateThrottledReturn<T>
-```
-
-## Source
-
-- VueUse: [`packages/shared/refThrottled`](https://github.com/vueuse/vueuse/tree/main/packages/shared/refThrottled) — source [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/shared/refThrottled/index.ts), demo [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/shared/refThrottled/demo.vue)
-- reaxuse: [`packages/shared/src/useStateThrottled.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/shared/src/useStateThrottled.ts)
-
-<Contributors name="useStateThrottled" />

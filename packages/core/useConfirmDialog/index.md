@@ -4,9 +4,7 @@ category: Utilities
 
 # useConfirmDialog
 
-Creates event hooks to support modals and confirmation dialog chains — React port of VueUse's [`useConfirmDialog`](https://vueuse.org/core/useConfirmDialog/).
-
-Functions can be used on the template, and hooks are a handy skeleton for the business logic of modals dialog or other actions that require user confirmation.
+Creates event hooks to support modals and confirmation dialog chains
 
 ## Functions and hooks
 
@@ -86,44 +84,3 @@ import { useRef } from 'react'
 const show = useRef(false)
 const { isRevealed, reveal, confirm, cancel } = useConfirmDialog(show)
 ```
-
-<DemoContainer name="UseConfirmDialog" />
-
-## Type Declarations
-
-```ts
-export type UseConfirmDialogRevealResult<C, D>
-  = {
-    data?: C
-    isCanceled: false
-  } | {
-    data?: D
-    isCanceled: true
-  }
-
-export interface UseConfirmDialogReturn<RevealData, ConfirmData, CancelData> {
-  isRevealed: boolean
-  reveal: (data?: RevealData) => Promise<UseConfirmDialogRevealResult<ConfirmData, CancelData>>
-  confirm: (data?: ConfirmData) => void
-  cancel: (data?: CancelData) => void
-  onReveal: (fn: (data: RevealData) => void) => { off: () => void }
-  onConfirm: (fn: (data: ConfirmData) => void) => { off: () => void }
-  onCancel: (fn: (data: CancelData) => void) => { off: () => void }
-}
-
-export function useConfirmDialog<
-  RevealData = any,
-  ConfirmData = any,
-  CancelData = any,
->(revealed?: { current: boolean }): UseConfirmDialogReturn<RevealData, ConfirmData, CancelData>
-```
-
-## Source
-
-- VueUse upstream mapping — `source/vueuse/packages/core/useConfirmDialog/`:
-  [`index.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useConfirmDialog/index.ts) (implementation),
-  [`index.browser.test.ts`](https://github.com/vueuse/vueuse/blob/main/packages/core/useConfirmDialog/index.browser.test.ts) (mirrored in `packages/core/src/useConfirmDialog.test.tsx`),
-  [`demo.vue`](https://github.com/vueuse/vueuse/blob/main/packages/core/useConfirmDialog/demo.vue) (ported to `demo.tsx` below).
-- reaxuse: [`packages/core/src/useConfirmDialog.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/core/src/useConfirmDialog.ts), docs + demo co-located in `packages/core/useConfirmDialog/`
-
-<Contributors name="useConfirmDialog" />

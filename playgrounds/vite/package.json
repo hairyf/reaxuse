@@ -10,8 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@reaxuse/core": "0.0.1",
-    "@reaxuse/shared": "0.0.1",
+    "@reaxuse/core": "workspace:*",
+    "@reaxuse/shared": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
