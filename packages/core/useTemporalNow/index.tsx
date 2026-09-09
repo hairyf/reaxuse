@@ -1,5 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useRafFn } from '../useRafFn'
 
 /**
  * Structural subset of `Temporal.DurationLike` (the repo's TypeScript libs do
@@ -177,11 +178,16 @@ export interface UseTemporalNowReturn extends UseTemporalNowControls {
    */
   format: (options?: Intl.DateTimeFormatOptions) => string
   /**
-   * Add a duration
+   * Add a duration. Accepts a structural `TemporalDurationLike` or an ISO 8601
+   * duration string — a deliberate widening of upstream's
+   * `Temporal.DurationLike` to also take strings (e.g. `add('P7D')`), which
+   * upstream's runtime accepts as well.
    */
   add: (duration: TemporalDurationLike | string) => TemporalZonedDateTime
   /**
-   * Subtract a duration
+   * Subtract a duration. Accepts a structural `TemporalDurationLike` or an ISO
+   * 8601 duration string — same widening as `add` (upstream:
+   * `Temporal.DurationLike`).
    */
   subtract: (duration: TemporalDurationLike | string) => TemporalZonedDateTime
   /**
@@ -207,35 +213,6 @@ function createZonedDateTimeISO(timezone: string, calendar: string, impl: Tempor
 }
 
 /**
- * Default scheduler: updates on every `requestAnimationFrame`, starts
- * immediately (the React stand-in for upstream's `useRafFn` default, which is
- * not ported into `@reaxuse/core` yet).
- */
-function useRafScheduler(updateNow: () => void): UseTemporalNowControls {
-  const [isActive, setIsActive] = useState(true)
-  const updateRef = useRef(updateNow)
-  updateRef.current = updateNow
-
-  useEffect(() => {
-    if (!isActive)
-      return
-
-    let rafId = 0
-    const loop = () => {
-      updateRef.current()
-      rafId = requestAnimationFrame(loop)
-    }
-    rafId = requestAnimationFrame(loop)
-    return () => cancelAnimationFrame(rafId)
-  }, [isActive])
-
-  const pause = useCallback(() => setIsActive(false), [])
-  const resume = useCallback(() => setIsActive(true), [])
-
-  return { isActive, pause, resume }
-}
-
-/**
  * Reactive Temporal API with timezone and calendar support.
  *
  * Map from @vueuse/core `useTemporalNow`
@@ -251,9 +228,8 @@ function useRafScheduler(updateNow: () => void): UseTemporalNowControls {
  *    immediately (upstream: `watch([timezone, calendar], updateNow)`).
  * 3. The `scheduler` option is called during render to compose the update
  *    loop, so it must be passed consistently across renders (Rules of Hooks).
- *    The default is an internal `requestAnimationFrame` loop (upstream:
- *    `useRafFn`, not ported into `@reaxuse/core` yet, and package sources
- *    cannot import `@reaxuse/shared`).
+ *    The default is this package's `useRafFn` — the same default upstream
+ *    uses — starting the loop immediately on mount.
  * 4. This repo's TypeScript libs do not ship `Temporal` types, so the
  *    Temporal surface is described with minimal inline structural types
  *    (`TemporalZonedDateTime`, `TemporalImplementation`, ...). Any
@@ -314,7 +290,7 @@ export function useTemporalNow(options: UseTemporalNowOptions = {}): UseTemporal
     updateNow()
   }, [timezone, calendar, updateNow])
 
-  const { isActive, pause, resume } = (scheduler ?? useRafScheduler)(updateNow)
+  const { isActive, pause, resume } = (scheduler ?? useRafFn)(updateNow)
 
   const toTimezone = useCallback(
     (tz: string) => nowRef.current.withTimeZone(tz),
