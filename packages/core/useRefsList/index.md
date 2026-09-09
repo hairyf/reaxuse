@@ -12,12 +12,12 @@ Shorthand for binding refs to elements rendered inside a list
 import { useRefsList } from '@reaxuse/core'
 
 function List({ items }: { items: string[] }) {
-  const [refs, setAt] = useRefsList<HTMLLIElement>()
+  const refs = useRefsList<HTMLLIElement>()
 
   return (
     <ul>
-      {items.map((item, index) => (
-        <li key={item} ref={el => setAt(index, el)}>
+      {items.map(item => (
+        <li key={item} ref={el => refs.set(el)}>
           {item}
         </li>
       ))}
@@ -25,5 +25,3 @@ function List({ items }: { items: string[] }) {
   )
 }
 ```
-
-Read the collected elements after the commit — `refs.length`, `refs[0]`, ... An element that unmounts leaves a `null` slot; reset manually with `refs.length = 0` if the list changed wholesale.
