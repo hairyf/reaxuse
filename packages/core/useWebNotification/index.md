@@ -4,7 +4,7 @@ category: Browser
 
 # useWebNotification
 
-Reactive [Notification](https://developer.mozilla.org/en-US/docs/Web/API/notification)
+Reactive [Notification](https://developer.mozilla.org/en-US/docs/Web/API/notification). The Web Notification interface of the Notifications API is used to configure and display desktop notifications to the user.
 
 ## Usage
 
