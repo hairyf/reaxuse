@@ -64,6 +64,98 @@ export interface UseGamepadControls {
 }
 
 /**
+ * The Xbox 360 controller button/axis layout produced by
+ * `mapGamepadToXbox360Controller` from a standard-mapping gamepad.
+ */
+export interface Xbox360Controller {
+  buttons: {
+    a: GamepadButton
+    b: GamepadButton
+    x: GamepadButton
+    y: GamepadButton
+  }
+  bumper: {
+    left: GamepadButton
+    right: GamepadButton
+  }
+  triggers: {
+    left: GamepadButton
+    right: GamepadButton
+  }
+  stick: {
+    left: {
+      horizontal: number
+      vertical: number
+      button: GamepadButton
+    }
+    right: {
+      horizontal: number
+      vertical: number
+      button: GamepadButton
+    }
+  }
+  dpad: {
+    up: GamepadButton
+    down: GamepadButton
+    left: GamepadButton
+    right: GamepadButton
+  }
+  back: GamepadButton
+  start: GamepadButton
+}
+
+/**
+ * Map a standard-mapping gamepad to an Xbox 360 Controller layout.
+ *
+ * Map from @vueuse/core `mapGamepadToXbox360Controller`
+ * (`source/vueuse/packages/core/useGamepad/`). React divergence: upstream
+ * takes a `Ref<Gamepad | undefined>` and returns a `ComputedRef`; here the
+ * gamepad is a plain value and the mapped layout (or `null` when no gamepad
+ * is passed) is returned directly.
+ */
+export function mapGamepadToXbox360Controller(gamepad: Gamepad | undefined): Xbox360Controller | null {
+  if (!gamepad)
+    return null
+
+  return {
+    buttons: {
+      a: gamepad.buttons[0],
+      b: gamepad.buttons[1],
+      x: gamepad.buttons[2],
+      y: gamepad.buttons[3],
+    },
+    bumper: {
+      left: gamepad.buttons[4],
+      right: gamepad.buttons[5],
+    },
+    triggers: {
+      left: gamepad.buttons[6],
+      right: gamepad.buttons[7],
+    },
+    stick: {
+      left: {
+        horizontal: gamepad.axes[0],
+        vertical: gamepad.axes[1],
+        button: gamepad.buttons[10],
+      },
+      right: {
+        horizontal: gamepad.axes[2],
+        vertical: gamepad.axes[3],
+        button: gamepad.buttons[11],
+      },
+    },
+    dpad: {
+      up: gamepad.buttons[12],
+      down: gamepad.buttons[13],
+      left: gamepad.buttons[14],
+      right: gamepad.buttons[15],
+    },
+    back: gamepad.buttons[8],
+    start: gamepad.buttons[9],
+  }
+}
+
+/**
  * React return type: `[gamepads, setGamepads, controls]` — the state-like
  * tuple family used by `useStateWithControl` and `useStorage`. `gamepads` is
  * the plain `Gamepad[]` snapshot (upstream: a writable `Ref<Gamepad[]>`) and

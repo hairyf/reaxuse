@@ -1,9 +1,18 @@
 import { useGamepad } from '@reaxuse/core'
+import { useEffect, useState } from 'react'
 
 export default function UseGamepadDemo() {
   const [gamepads, , { isSupported }] = useGamepad()
 
-  if (!isSupported) {
+  // `isSupported` resolves in a mount effect, so gate the "unsupported"
+  // branch on it — otherwise the first render would flash the unsupported
+  // message even on devices that do support the Gamepad API.
+  const [resolved, setResolved] = useState(false)
+  useEffect(() => {
+    setResolved(true)
+  }, [])
+
+  if (resolved && !isSupported) {
     return (
       <div>
         <p>
