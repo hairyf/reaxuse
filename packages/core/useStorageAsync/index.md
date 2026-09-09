@@ -7,7 +7,7 @@ category: State
 Reactive Storage with async support — React port of VueUse's
 [`useStorageAsync`](https://vueuse.org/core/useStorageAsync/).
 
-**Mapping:** like [`useStorage`](./useStorage), but the backend is an async
+**Mapping:** like [`useStorage`](/core/useStorage/index), but the backend is an async
 `StorageLikeAsync` — `getItem`/`setItem`/`removeItem` may each return a
 promise (IndexedDB, remote key-value stores, async wrappers around
 `localStorage`, …). The stored value is loaded after mount, so the value
@@ -50,7 +50,7 @@ all mirror upstream.
 
 ## Usage
 
-The basic usage refers to [`useStorage`](./useStorage) — the only difference
+The basic usage refers to [`useStorage`](/core/useStorage/index) — the only difference
 is the storage backend may be asynchronous.
 
 ```tsx
