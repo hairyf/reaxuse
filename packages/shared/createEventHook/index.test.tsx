@@ -192,23 +192,20 @@ describe('createEventHook', () => {
     expect(list).toEqual(['foo', 1, true, 'bar'])
   })
 
-  it('a listener error does not break other listeners', () => {
+  it('a synchronous listener error propagates and aborts the remaining listeners', () => {
     const calls: string[] = []
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    try {
-      const { on, trigger } = createEventHook<string>()
+    const { on, trigger } = createEventHook<string>()
 
-      on(() => {
-        throw new Error('listener boom')
-      })
-      on(value => calls.push(value))
-      trigger('xxx')
+    on(() => {
+      throw new Error('listener boom')
+    })
+    on(value => calls.push(value))
 
-      expect(calls).toEqual(['xxx'])
-    }
-    finally {
-      errorSpy.mockRestore()
-    }
+    // upstream parity: `Promise.all(fns.map(fn => fn(...args)))` has no
+    // per-listener guard — the sync throw escapes `trigger` and the second
+    // listener never runs
+    expect(() => trigger('xxx')).toThrowError('listener boom')
+    expect(calls).toEqual([])
   })
 
   it('integrates with useListener (registers on mount, off on unmount)', async () => {

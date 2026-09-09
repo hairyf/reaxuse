@@ -1,6 +1,3 @@
-// Relative import (not `@reaxuse/shared`): until this PR is merged the package
-// name resolves through the worktree node_modules junction to the main repo's
-// copy of @reaxuse/shared, which does not contain createEventHook yet.
 import { useEffect, useState } from 'react'
 import { createEventHook } from '../createEventHook'
 
