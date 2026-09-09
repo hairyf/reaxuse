@@ -8,8 +8,8 @@ const theDefault = {
 }
 
 export default function UseStorageDemo() {
-  const [state, setState] = useStorage('vue-use-local-storage', theDefault)
-  const [state2] = useStorage('vue-use-local-storage', theDefault)
+  const [state, setState] = useStorage('reaxuse-storage', theDefault)
+  const [state2] = useStorage('reaxuse-storage', theDefault, undefined, { mergeDefaults: true })
 
   const update = (patch: Partial<typeof theDefault>) =>
     setState(prev => ({ ...(prev ?? theDefault), ...patch }))

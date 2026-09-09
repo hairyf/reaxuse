@@ -179,4 +179,55 @@ describe('useStorageAsync', () => {
       expect(result.current[0]).toBe('NewValue')
     })
   })
+
+  it('re-reads on a matching-key event even for a different storage area (no storageArea guard)', async () => {
+    let ready = false
+    const { result, act } = await renderHook(() => useStorageAsync(KEY, '', new AsyncStubStorage(), {
+      onReady() {
+        ready = true
+      },
+    }))
+
+    await vi.waitFor(() => {
+      expect(ready).toBe(true)
+    })
+
+    // the event's storageArea is the real localStorage, NOT the custom async
+    // backend — the matching key must still trigger a re-read (upstream has
+    // no storageArea guard, and a custom backend never appears as an event's
+    // storageArea)
+    localStorage.setItem(KEY, 'FromOtherTab')
+    await act(() => {
+      window.dispatchEvent(new StorageEvent('storage', { storageArea: localStorage, key: KEY, newValue: 'FromOtherTab' }))
+    })
+
+    await vi.waitFor(() => {
+      expect(result.current[0]).toBe('FromOtherTab')
+    })
+  })
+
+  it('setValue always performs setItem, even when the serialized value is unchanged', async () => {
+    const storage = new AsyncStubStorage()
+    const setItemSpy = vi.spyOn(storage, 'setItem')
+    let ready = false
+    const { result, act } = await renderHook(() => useStorageAsync(KEY, 'a', storage, {
+      onReady() {
+        ready = true
+      },
+    }))
+
+    await vi.waitFor(() => {
+      expect(ready).toBe(true)
+    })
+    // drop the mount-time writeDefaults write
+    setItemSpy.mockClear()
+
+    await act(() => {
+      result.current[1]('a') // serialized 'a' === stored 'a' — must still write
+    })
+
+    await vi.waitFor(() => {
+      expect(setItemSpy).toHaveBeenCalledWith(KEY, 'a')
+    })
+  })
 })

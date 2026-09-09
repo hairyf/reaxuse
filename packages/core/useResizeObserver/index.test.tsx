@@ -215,6 +215,29 @@ describe('useResizeObserver', () => {
     second.remove()
   })
 
+  it('observes a getter target (runtime resolveTargets path)', async () => {
+    const element = appendElement('100px', '50px')
+    const entries: ResizeObserverEntry[] = []
+    const collect = (list: ReadonlyArray<ResizeObserverEntry>) => {
+      entries.push(...list)
+    }
+
+    // The public type only accepts elements and RefObjects (callback refs are
+    // deliberately excluded), but `resolveTargets` still resolves a function
+    // target at runtime — covered here via a cast.
+    const getter = (() => element) as unknown as ElementTargetOrArray
+    const { unmount } = await renderHook(() => useResizeObserver(getter, collect))
+
+    await expect.poll(() => entries.length).toBeGreaterThan(0)
+    await expect.poll(() => entries.at(-1)?.target).toBe(element)
+
+    element.style.width = '200px'
+    await expect.poll(() => entries.at(-1)?.contentRect.width).toBe(200)
+
+    await unmount()
+    element.remove()
+  })
+
   it('passes the box option through to the platform observer', async () => {
     const element = appendElement('100px', '50px')
     element.style.border = '10px solid transparent'

@@ -15,9 +15,9 @@ import { useStateManualHistory } from '@reaxuse/core'
 import { useState } from 'react'
 
 const [count, setCount] = useState(0)
-const [history, commit, { undo, redo, canUndo, canRedo }] = useStateManualHistory([count, setCount])
+const [history, commit, { undo, redo, canUndo, canRedo, setSource }] = useStateManualHistory([count, setCount])
 
-setCount(count + 1)
+setSource(count + 1)
 commit()
 
 console.log(history)
@@ -75,14 +75,14 @@ A full featured clone function can be passed via `clone`, e.g.
 [structuredClone](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone):
 
 ```tsx
-const refHistory = useStateManualHistory([target, setTarget], { clone: structuredClone })
+const stateHistory = useStateManualHistory([target, setTarget], { clone: structuredClone })
 ```
 
 Instead of `clone`, custom `dump` / `parse` functions control serialization and parsing — useful to
 store stringified snapshots:
 
 ```tsx
-const refHistory = useStateManualHistory([target, setTarget], {
+const stateHistory = useStateManualHistory([target, setTarget], {
   dump: JSON.stringify,
   parse: JSON.parse,
 })

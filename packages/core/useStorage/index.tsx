@@ -271,11 +271,14 @@ export function useStorage<T extends (string | number | boolean | object | null)
   }, [key, getStorage])
 
   const write = useCallback((value: T | null) => {
-    const storage = getStorage()
-    if (!storage)
-      return
     const { onError = defaultOnError } = optionsRef.current
     try {
+      // `getStorage()` resolves `window.localStorage`, whose getter can throw
+      // (e.g. privacy modes) — upstream wraps the setup resolution in the
+      // same try so a throwing storage escapes through `onError`
+      const storage = getStorage()
+      if (!storage)
+        return
       const oldValue = storage.getItem(key)
 
       if (value == null) {
@@ -315,9 +318,6 @@ export function useStorage<T extends (string | number | boolean | object | null)
       else if (guessSerializerType(rawInit) === 'object' && !Array.isArray(value))
         return { ...(rawInit as Record<string, unknown>), ...(value as Record<string, unknown>) } as T
       return value
-    }
-    else if (typeof rawValue !== 'string') {
-      return rawValue as T
     }
     else {
       return getSerializer().read(rawValue)

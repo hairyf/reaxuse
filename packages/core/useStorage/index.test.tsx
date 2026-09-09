@@ -89,6 +89,23 @@ describe('useStorage', () => {
     expect(localStorage.getItem(KEY)).toBeNull()
   })
 
+  it('starts undefined with an undefined initial value on empty storage', async () => {
+    const { result } = await renderHook(() => useStorage(KEY, undefined))
+
+    expect(result.current[0]).toBeUndefined()
+    expect(localStorage.getItem(KEY)).toBeNull()
+  })
+
+  it('reads a stored value with an undefined initial value', async () => {
+    const initial = { foo: 'bar' }
+    localStorage.setItem(KEY, JSON.stringify(initial))
+
+    const { result } = await renderHook(() => useStorage(KEY, undefined, undefined, { serializer: StorageSerializers.object }))
+
+    expect(result.current[0]).toEqual(initial)
+    expect(localStorage.getItem(KEY)).toBe(JSON.stringify(initial))
+  })
+
   it('reads a raw string with a null initial value', async () => {
     localStorage.setItem(KEY, 'null')
 

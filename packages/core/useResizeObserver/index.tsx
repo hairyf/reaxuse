@@ -139,6 +139,14 @@ export function useResizeObserver(
   const previousRef = useRef<{ window: Window | undefined, elements: Element[] } | undefined>(undefined)
   const [isSupported, setIsSupported] = useState(false)
 
+  // Disconnect the current observer — shared by the re-observe path, the
+  // unmount cleanup and `stop()`, so the disconnect logic lives in exactly
+  // one place.
+  const disconnect = useCallback(() => {
+    observerRef.current?.disconnect()
+    observerRef.current = undefined
+  }, [])
+
   // Re-observe after every render when the resolved targets or window
   // changed (upstream: `watch(targets, ..., { immediate: true })`). Diffing
   // keeps unchanged renders from re-observing, since each observe()
@@ -166,8 +174,7 @@ export function useResizeObserver(
     if (unchanged)
       return
 
-    observerRef.current?.disconnect()
-    observerRef.current = undefined
+    disconnect()
 
     if (supported && win) {
       // The constructor is reached through the resolved window so a custom
@@ -184,17 +191,16 @@ export function useResizeObserver(
   // Disconnect on unmount (upstream: `tryOnScopeDispose(stop)`). Kept as a
   // separate mount-only effect so render-driven re-runs of the effect above
   // never disconnect an observer whose targets are unchanged, and so a
-  // StrictMode remount keeps observing.
+  // StrictMode remount keeps observing. `disconnect` is referentially stable
+  // (empty `useCallback` deps), so this effect stays mount-only.
   useEffect(() => () => {
-    observerRef.current?.disconnect()
-    observerRef.current = undefined
-  }, [])
+    disconnect()
+  }, [disconnect])
 
   const stop = useCallback(() => {
     stoppedRef.current = true
-    observerRef.current?.disconnect()
-    observerRef.current = undefined
-  }, [])
+    disconnect()
+  }, [disconnect])
 
   return { isSupported, stop }
 }
