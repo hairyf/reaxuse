@@ -1,4 +1,5 @@
 import type { NProgress, NProgressOptions } from 'nprogress'
+import type { Dispatch, SetStateAction } from 'react'
 import { isClient } from '@reaxuse/shared'
 import nprogress from 'nprogress'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -11,46 +12,53 @@ export type UseNProgressOptions = Partial<NProgressOptions>
 
 export interface UseNProgressReturn {
   /**
+   * Current progress percentage (`0..1`), `null` after `remove()`, `1` after
+   * `done()` — the plain-state replacement for upstream's `progress` ref.
+   * Write through `setProgress`.
+   */
+  readonly progress: number | null | undefined
+
+  /**
+   * Setter for `progress` — the React mapping of upstream's writable `progress`
+   * ref. Takes a plain value or a functional updater (like a React `useState`
+   * setter, `prev => next`). A `number` result is also pushed to `nprogress`;
+   * a `null` / `undefined` result only clears the state — the bar element is
+   * removed through `remove()` (upstream: writing `progress.value`).
+   */
+  readonly setProgress: Dispatch<SetStateAction<number | null | undefined>>
+
+  /**
    * Whether the bar is currently showing — the React replacement for
    * upstream's writable `isLoading` computed: `true` while `progress` is a
    * number below 1. Write through `setIsLoading`.
    */
-  isLoading: boolean
+  readonly isLoading: boolean
 
   /**
-   * Current progress percentage (`0..1`), `null` after `remove()`, `1` after
-   * `done()` — the plain-state replacement for upstream's `progress` ref.
+   * Setter half of upstream's writable `isLoading` computed — takes a plain
+   * value or a functional updater (like a React `useState` setter,
+   * `prev => next`): `setIsLoading(true)` starts the bar, `setIsLoading(false)`
+   * completes it.
    */
-  progress: number | null | undefined
-
-  /**
-   * Setter half of upstream's writable `isLoading` computed:
-   * `setIsLoading(true)` starts the bar, `setIsLoading(false)` completes it.
-   */
-  setIsLoading: (load: boolean) => void
-
-  /**
-   * Set the progress percentage (`0..1`) and push it to `nprogress`.
-   */
-  setProgress: (n: number) => void
+  readonly setIsLoading: Dispatch<SetStateAction<boolean>>
 
   /**
    * Show the bar — upstream's `start`.
    */
-  start: () => NProgress
+  readonly start: () => NProgress
 
   /**
    * Complete the bar (the placebo `done` animation) — upstream's `done`.
    *
    * @param force - show the bar even when it is hidden
    */
-  done: (force?: boolean) => NProgress
+  readonly done: (force?: boolean) => NProgress
 
   /**
    * Reset `progress` to `null` and remove the bar from the DOM — upstream's
    * `remove`.
    */
-  remove: () => void
+  readonly remove: () => void
 }
 
 /**
@@ -66,9 +74,12 @@ export interface UseNProgressReturn {
  * - the writable `WritableComputedRef<boolean>` `isLoading` and the
  *   `Ref<number | null | undefined>` `progress` become plain state: `isLoading`
  *   is derived (`typeof progress === 'number' && progress < 1`) and written
- *   through `setIsLoading`, `progress` is a plain number that is written
- *   through `setProgress`; the object return replaces upstream's tuple-free
- *   object of refs;
+ *   through `setIsLoading`, `progress` is a plain number written through
+ *   `setProgress`; the object return mirrors upstream's object of refs with
+ *   every writable value paired with its setter —
+ *   `{ progress, setProgress, isLoading, setIsLoading, start, done, remove }`;
+ * - the setters are React `Dispatch<SetStateAction<...>>`: each accepts a plain
+ *   value or a functional updater (`prev => next`), like a `useState` setter;
  * - upstream monkey-patches the module-singleton `nprogress.set` so that its
  *   internal `set` calls (`start` → `set(0)`, `done` → `set(1)`) write back
  *   into `progress.value`, which is what makes `isLoading` flip. This port
@@ -102,9 +113,10 @@ export interface UseNProgressReturn {
  *
  * @__NO_SIDE_EFFECTS__
  * @example
- * const { isLoading, progress, setIsLoading, setProgress, done, remove } = useNProgress()
+ * const { progress, setProgress, isLoading, setIsLoading, done, remove } = useNProgress()
  * setIsLoading(true) // starts the bar, isLoading === true
  * setProgress(0.5) // progress === 0.5, the bar renders at 50%
+ * setProgress(prev => (prev ?? 0) + 0.1) // functional updater, like a useState setter
  * done() // progress === 1, isLoading === false
  * remove() // progress === null, the #nprogress element is gone
  */
@@ -113,6 +125,17 @@ export function useNProgress(
   options?: UseNProgressOptions,
 ): UseNProgressReturn {
   const [progress, setProgressState] = useState<number | null | undefined>(currentProgress)
+
+  // Latest progress, kept in sync synchronously on every write so the
+  // functional-updater forms of `setProgress` / `setIsLoading` resolve against
+  // the most recent value even before the next render commits (React's own
+  // `useState` setter cannot run the `nprogress.set` side effect inside its
+  // updater function).
+  const progressRef = useRef<number | null | undefined>(currentProgress)
+  const updateProgress = useCallback((next: number | null | undefined) => {
+    progressRef.current = next
+    setProgressState(next)
+  }, [])
 
   // mirror the incoming `currentProgress` prop into the internal state whenever
   // it changes between renders — upstream's `toRef(currentProgress)`. The
@@ -123,7 +146,7 @@ export function useNProgress(
   useEffect(() => {
     if (!Object.is(currentProgress, lastExternalRef.current)) {
       lastExternalRef.current = currentProgress
-      setProgressState(currentProgress)
+      updateProgress(currentProgress)
     }
   })
 
@@ -148,11 +171,14 @@ export function useNProgress(
     nprogress.remove()
   }, [])
 
-  const setProgress = useCallback((n: number) => {
-    setProgressState(n)
-    if (isClient)
-      nprogress.set(n)
-  }, [])
+  const setProgress = useCallback((updater: SetStateAction<number | null | undefined>) => {
+    const next = typeof updater === 'function'
+      ? updater(progressRef.current)
+      : updater
+    updateProgress(next)
+    if (typeof next === 'number' && isClient)
+      nprogress.set(next)
+  }, [updateProgress])
 
   const start = useCallback((): NProgress => {
     // upstream's patched `set` writes `progress.value = 0` from the internal
@@ -160,9 +186,9 @@ export function useNProgress(
     const wasStarted = nprogress.isStarted()
     const result = nprogress.start()
     if (!wasStarted)
-      setProgressState(0)
+      updateProgress(0)
     return result
-  }, [])
+  }, [updateProgress])
 
   const done = useCallback((force?: boolean): NProgress => {
     // upstream's `done` returns early (and so never calls the patched `set(1)`)
@@ -170,27 +196,30 @@ export function useNProgress(
     const status = nprogress.status
     const result = nprogress.done(force)
     if (force || status)
-      setProgressState(1)
+      updateProgress(1)
     return result
-  }, [])
+  }, [updateProgress])
 
-  const setIsLoading = useCallback((load: boolean) => {
-    if (load)
+  const setIsLoading = useCallback((updater: SetStateAction<boolean>) => {
+    const next = typeof updater === 'function'
+      ? updater(typeof progressRef.current === 'number' && progressRef.current < 1)
+      : updater
+    if (next)
       start()
     else
       done()
   }, [start, done])
 
   const remove = useCallback(() => {
-    setProgressState(null)
+    updateProgress(null)
     nprogress.remove()
-  }, [])
+  }, [updateProgress])
 
   return {
-    isLoading: typeof progress === 'number' && progress < 1,
     progress,
-    setIsLoading,
     setProgress,
+    isLoading: typeof progress === 'number' && progress < 1,
+    setIsLoading,
     start,
     done,
     remove,
