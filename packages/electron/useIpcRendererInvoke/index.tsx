@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react'
 import { resolveIpcRenderer } from '../_resolve'
 
 /**
- * Returns `Promise<any>` — resolves with the response from the main process.
+ * Returns `T | null` — the response from the main process once the
+ * asynchronous `invoke` call resolves.
  *
- * Send a message to the main process via channel and expect a result ~~asynchronously~~.
+ * Send a message to the main process via channel and expect a result asynchronously.
  *
  * You need to provide `ipcRenderer` to this function.
  *
@@ -34,9 +35,10 @@ import { resolveIpcRenderer } from '../_resolve'
 export function useIpcRendererInvoke<T>(ipcRenderer: IpcRenderer, channel: string, ...args: any[]): T | null
 
 /**
- * Returns `Promise<any>` — resolves with the response from the main process.
+ * Returns `T | null` — the response from the main process once the
+ * asynchronous `invoke` call resolves.
  *
- * Send a message to the main process via channel and expect a result ~~asynchronously~~.
+ * Send a message to the main process via channel and expect a result asynchronously.
  *
  * `ipcRenderer` will be automatically gotten (`window.require('electron')`, i.e. `nodeIntegration`).
  *
