@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react'
 /**
  * Upstream re-exports `Fn` from `@vueuse/shared` types; `@reaxuse/shared`
  * does not export it, so it is declared locally here (same pattern as
- * `packages/shared/src/useIntervalFn.ts`).
+ * `packages/shared/useIntervalFn/index.tsx`).
  */
 type Fn = () => void
 
@@ -28,6 +28,19 @@ export interface AsyncComputedOptions {
   /**
    * When true, skip the initial mount evaluation; evaluate only when `deps`
    * change. With the default `[]` deps the hook then never evaluates.
+   *
+   * This is the reaxuse replacement for upstream's `lazy`. Upstream's `lazy`
+   * starts evaluation on the first access to the returned computed; React has
+   * no first-access hook, so that semantic has no equivalent here.
+   *
+   * @default false
+   */
+  skipInitial?: boolean
+  /**
+   * @deprecated Use `skipInitial` instead. Kept as an alias with identical
+   * behavior (skip the mount evaluation); it does NOT carry upstream's
+   * "evaluate on the first access" semantics. `skipInitial` wins when both
+   * are passed.
    */
   lazy?: boolean
   /** Called when the evaluation callback rejects; the current state is kept. */
@@ -71,6 +84,8 @@ const EMPTY_DEPS: unknown[] = []
  *   reactive graph, so re-evaluation is driven by the explicit
  *   `options.deps` array, compared with `useEffect` semantics (default `[]`
  *   = evaluate once on mount);
+ * - `initialState` is optional; omitting it yields `T | undefined` (upstream
+ *   overload parity);
  * - upstream's `evaluating` ref becomes the `onEvaluating(value)` callback:
  *   `true` when an evaluation starts, `false` when it settles — resolved,
  *   rejected, or discarded by a newer evaluation or by unmount. An
@@ -90,14 +105,20 @@ const EMPTY_DEPS: unknown[] = []
  *   `onError` — pass a custom `onError` if cancelled runs must stay silent;
  * - sync (non-Promise) return values from `evaluationCallback` update the
  *   state synchronously within the effect;
- * - `lazy: true` skips the mount evaluation — evaluation then happens only
- *   when `deps` change (upstream starts on the first read of the computed);
+ * - `skipInitial: true` (alias: the deprecated `lazy`) skips the mount
+ *   evaluation, so evaluation happens only when `deps` change and with the
+ *   default `[]` deps it never runs. Upstream's `lazy` instead starts on the
+ *   first read of the returned computed, which has no React equivalent; the
+ *   deprecated `lazy` alias keeps the name but not that semantic;
+ * - upstream's `flush` option (`ConfigurableFlushSync`, default `'sync'`) has
+ *   no mapping: re-evaluation is driven by `deps` and runs in a React effect
+ *   (post-commit), the closest analogue of upstream's sync flush;
  * - upstream's `shallow` option (React state is never deep-wrapped) and the
  *   `Ref<boolean>`-as-`evaluating` overload are not portable and are
  *   collapsed into `options` only.
  *
- * The upstream `asyncComputed` alias is intentionally not ported
- * (upstream-only; deprecated there in favor of `computedAsync`).
+ * The upstream `asyncComputed` deprecated alias is intentionally not ported
+ * (upstream-only; use `computedAsync`).
  *
  * @__NO_SIDE_EFFECTS__
  * @example
@@ -118,22 +139,43 @@ export function computedAsync<T>(
   evaluationCallback: (onCancel: AsyncComputedOnCancel) => T | Promise<T>,
   initialState: State<T>,
   options?: AsyncComputedOptions,
-): T {
+): T
+export function computedAsync<T>(
+  evaluationCallback: (onCancel: AsyncComputedOnCancel) => T | Promise<T>,
+  initialState?: undefined,
+  options?: AsyncComputedOptions,
+): T | undefined
+export function computedAsync<T>(
+  evaluationCallback: (onCancel: AsyncComputedOnCancel) => T | Promise<T>,
+  initialState?: State<T>,
+  options?: AsyncComputedOptions,
+): T | undefined {
   const {
     deps = EMPTY_DEPS,
+    skipInitial: skipInitialOption,
     lazy = false,
     onEvaluating = noop,
     onError = defaultOnError,
   } = options ?? {}
 
-  const [state, setState] = useControllableState(initialState, { passive: true })
+  // `skipInitial` supersedes the deprecated `lazy` alias when both are passed.
+  const skipInitial = skipInitialOption ?? lazy
+
+  // `initialState` may be omitted; `useControllableState` takes a required
+  // `State<T | undefined>`. The tuple/object `State` forms are invariant in
+  // `T`, so the optional state is widened through `unknown` (the runtime
+  // value is passed through unchanged).
+  const [state, setState] = useControllableState<T | undefined>(
+    initialState as unknown as State<T | undefined>,
+    { passive: true },
+  )
 
   // Latest-input mirrors synced every render (house pattern) so the effect
   // always reads the newest inputs while `deps` stays the only trigger.
   const evaluationCallbackRef = useRef(evaluationCallback)
   evaluationCallbackRef.current = evaluationCallback
-  const lazyRef = useRef(lazy)
-  lazyRef.current = lazy
+  const skipInitialRef = useRef(skipInitial)
+  skipInitialRef.current = skipInitial
   const onEvaluatingRef = useRef(onEvaluating)
   onEvaluatingRef.current = onEvaluating
   const onErrorRef = useRef(onError)
@@ -145,15 +187,15 @@ export function computedAsync<T>(
   // Flipped by the dedicated mount effect below so async continuations can
   // never touch state or signals after unmount.
   const isMountedRef = useRef(true)
-  // `false` until the first evaluation effect run — drives `lazy`.
+  // `false` until the first evaluation effect run — drives `skipInitial`.
   const hasEvaluatedRef = useRef(false)
 
   useEffect(() => {
     const isFirstRun = !hasEvaluatedRef.current
     hasEvaluatedRef.current = true
 
-    if (isFirstRun && lazyRef.current) {
-      // lazy: skip the mount evaluation — evaluate only when deps change
+    if (isFirstRun && skipInitialRef.current) {
+      // skipInitial: skip the mount evaluation — evaluate only when deps change
       return
     }
 
