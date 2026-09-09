@@ -1,4 +1,4 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { State } from '@reaxuse/shared'
 import { deepClone, deepEqual, isRefLike, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -56,6 +56,28 @@ export function cloneFnJSON<T>(source: T): T {
 }
 
 /**
+ * Whether a `State<T>` source is reactive — ref-like objects, getters,
+ * `[value, setter]` tuples and `{ value, onChange }` pairs can all change
+ * without the caller passing a new plain value. A plain value is static for
+ * the lifetime of the hook unless the caller re-renders with a new one.
+ */
+function isReactiveState<T>(source: State<T>): boolean {
+  if (typeof source === 'function')
+    return true
+  if (isRefLike(source as object))
+    return true
+  if (Array.isArray(source) && source.length === 2 && typeof source[1] === 'function')
+    return true
+  return typeof source === 'object'
+    && source !== null
+    && !Array.isArray(source)
+    && 'value' in source
+    // mirrors `toValue`: a DOM-like `{ value }` (an input element) is a plain
+    // value, not a `{ value, onChange }` state pair
+    && !('addEventListener' in source)
+}
+
+/**
  * React port of VueUse's `useCloned`.
  *
  * Map from @vueuse/core `useCloned`
@@ -63,6 +85,13 @@ export function cloneFnJSON<T>(source: T): T {
  * source as state — `{ cloned, sync, isModified }`, mirroring the upstream
  * object return. The clone follows the source automatically: it re-syncs
  * whenever the resolved source changes, unless `manual` is set.
+ *
+ * `source` accepts a React `State<T>` — a plain value, a getter
+ * (`() => value`), a React ref (`{ current }`), a `[value, setter]` tuple, or
+ * a `{ value, onChange }` pair. The tuple and `{ value, onChange }` forms are
+ * the React state protocol and have no upstream equivalent (upstream takes
+ * `MaybeRefOrGetter<T>` — `T | Ref<T> | (() => T)`); every form is resolved
+ * through `toValue`.
  *
  * React divergences:
  * - upstream's writable `Ref<T>` becomes a plain state value. Edit the clone
@@ -89,7 +118,7 @@ export function cloneFnJSON<T>(source: T): T {
  * sync() // re-clone from the source, isModified back to false
  */
 export function useCloned<T>(
-  source: RefOrValue<T>,
+  source: State<T>,
   options: UseClonedOptions<T> = {},
 ): UseClonedReturn<T> {
   // upstream destructures its options once at setup — captured here the same
@@ -111,7 +140,7 @@ export function useCloned<T>(
   // immediate watch — or by the unconditional setup `sync()` for `manual` /
   // plain-value sources. With `immediate: false` no initial sync happens and
   // `cloned` keeps the empty initial value
-  const isReactiveSource = isRefLike(source) || typeof source === 'function'
+  const isReactiveSource = isReactiveState(source)
   const initialSync = manual || !isReactiveSource || immediate
 
   const [cloned, setCloned] = useState<T>(() => {

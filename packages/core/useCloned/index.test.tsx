@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useCloned } from '../useCloned'
@@ -39,6 +40,69 @@ describe('useCloned', () => {
     await rerender()
 
     expect(result.current.cloned).toEqual(data.value)
+  })
+
+  it('works with a state tuple source', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState({ test: 'test' })
+      return { ...useCloned([value, setValue]), setValue }
+    })
+
+    expect(result.current.cloned).toEqual({ test: 'test' })
+
+    await act(() => {
+      result.current.setValue({ test: 'success' })
+    })
+    await rerender()
+
+    expect(result.current.cloned).toEqual({ test: 'success' })
+  })
+
+  it('works with a value/onChange source', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [value, setValue] = useState({ test: 'test' })
+      return { ...useCloned({ value, onChange: setValue }), setValue }
+    })
+
+    expect(result.current.cloned).toEqual({ test: 'test' })
+
+    await act(() => {
+      result.current.setValue({ test: 'success' })
+    })
+    await rerender()
+
+    expect(result.current.cloned).toEqual({ test: 'success' })
+  })
+
+  it('treats tuple and value/onChange sources as reactive when immediate is false', async () => {
+    const tuple = await renderHook(() => {
+      const [value, setValue] = useState({ test: 'test' })
+      return { ...useCloned([value, setValue], { immediate: false }), setValue }
+    })
+
+    // the initial sync is skipped, exactly as for ref-like sources
+    expect(tuple.result.current.cloned).toEqual({})
+
+    await tuple.act(() => {
+      tuple.result.current.setValue({ test: 'tuple' })
+    })
+    await tuple.rerender()
+
+    expect(tuple.result.current.cloned).toEqual({ test: 'tuple' })
+
+    const pair = await renderHook(() => {
+      const [value, setValue] = useState({ test: 'test' })
+      return { ...useCloned({ value, onChange: setValue }, { immediate: false }), setValue }
+    })
+
+    expect(pair.result.current.cloned).toEqual({})
+
+    await pair.act(() => {
+      pair.result.current.setValue({ test: 'pair' })
+    })
+    await pair.rerender()
+
+    expect(pair.result.current.cloned).toEqual({ test: 'pair' })
   })
 
   it('works with refs and manual sync', async () => {

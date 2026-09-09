@@ -1,16 +1,20 @@
 import { useCloned } from '@reaxuse/core'
-import { useReducer } from 'react'
+import { useReducer, useState } from 'react'
 
-const template = { fruit: 'banana', drink: 'water' }
+const initialTemplate = { fruit: 'banana', drink: 'water' }
 
 export default function UseClonedDemo() {
-  const { cloned, isModified, sync } = useCloned(template)
+  // `source` accepts any React `State<T>`: a plain value, a getter
+  // (`() => value`), a ref (`{ current }`), a `[value, setter]` tuple, or a
+  // `{ value, onChange }` pair. This demo uses the tuple form.
+  const [template, setTemplate] = useState(initialTemplate)
+  const { cloned, isModified, sync } = useCloned([template, setTemplate])
 
   // `cloned` is plain state — editing it in place is picked up by the hook on
   // the next render (sets `isModified`), so a re-render is forced here
   const [, forceRender] = useReducer((count: number) => count + 1, 0)
 
-  const edit = (patch: Partial<typeof template>) => {
+  const edit = (patch: Partial<typeof initialTemplate>) => {
     Object.assign(cloned, patch)
     forceRender()
   }
@@ -32,6 +36,10 @@ export default function UseClonedDemo() {
         {' '}
         <button onClick={() => sync()} disabled={!isModified}>
           reset
+        </button>
+        {' '}
+        <button onClick={() => setTemplate({ fruit: 'apple', drink: 'tea' })}>
+          reload source
         </button>
       </p>
       <p>
