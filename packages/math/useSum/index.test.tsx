@@ -3,6 +3,11 @@ import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useSum } from '../useSum'
 
+// Upstream `source/vueuse/packages/math/useSum/index.test.ts` also covers getter
+// arguments (`useSum(() => b.value)`). Getters as data sources are rejected
+// repo-wide (rule 1, issue #462), so the getter form is intentionally not ported
+// and that upstream test is intentionally skipped here.
+
 describe('useSum', () => {
   it('should be defined', () => {
     expect(useSum).toBeDefined()
