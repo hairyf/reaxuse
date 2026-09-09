@@ -16,7 +16,7 @@ export default function UseBrowserLocationDemo() {
           }}
         />
       </div>
-      <pre lang="yaml">{JSON.stringify(location, null, 2)}</pre>
+      <pre lang="json">{JSON.stringify(location, null, 2)}</pre>
     </div>
   )
 }
