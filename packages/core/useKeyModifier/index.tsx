@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 export type KeyModifier = 'Alt' | 'AltGraph' | 'CapsLock' | 'Control' | 'Fn' | 'FnLock' | 'Meta' | 'NumLock' | 'ScrollLock' | 'Shift' | 'Symbol' | 'SymbolLock'
 
-const defaultEvents = ['mousedown', 'mouseup', 'keydown', 'keyup']
+const defaultEvents: (keyof WindowEventMap)[] = ['mousedown', 'mouseup', 'keydown', 'keyup']
 
 export interface UseModifierOptions<Initial> {
   /**
@@ -10,7 +10,7 @@ export interface UseModifierOptions<Initial> {
    *
    * @default ['mousedown', 'mouseup', 'keydown', 'keyup']
    */
-  events?: string[]
+  events?: (keyof WindowEventMap)[]
 
   /**
    * Initial value of the returned state
