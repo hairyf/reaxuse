@@ -61,6 +61,9 @@ const { results } = useFuse(search, data) // setSearch('Peter') recomputes on th
 
 `options` stays `RefOrValue` (a config object, not a value source).
 
+Mutating the `data` array in place is not detected (upstream's deep watcher was) — pass a new array
+reference when the collection changes.
+
 Options are passed through `fuseOptions`, plus `resultLimit` and `matchAllWhenSearchEmpty`:
 
 ```tsx
