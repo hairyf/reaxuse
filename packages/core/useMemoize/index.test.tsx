@@ -204,6 +204,52 @@ describe('useMemoize', () => {
         }
       })
 
+      it('keeps the build-time cache container when the cache option is re-pointed', async () => {
+        // documented behavior: the stateful container is resolved once at
+        // build — swapping `options.cache` on a later render is ignored
+        const cache2: UseMemoizeCache<string, string> = {
+          get: vi.fn(key => key),
+          set: vi.fn(),
+          has: vi.fn(() => true),
+          delete: vi.fn(),
+          clear: vi.fn(),
+        }
+
+        const { result, rerender } = await renderHook(
+          (props?: { cache?: UseMemoizeCache<string, string> }) => useMemoize(resolver, { cache: props?.cache }),
+          { initialProps: { cache } },
+        )
+
+        expect(result.current(1)).toBe(serializedKey)
+        expect(cache.get).toHaveBeenCalledTimes(1)
+
+        await rerender({ cache: cache2 })
+
+        expect(result.current(1)).toBe(serializedKey)
+        expect(cache2.get).not.toHaveBeenCalled()
+        expect(cache.get).toHaveBeenCalledTimes(2)
+      })
+
+      it('reads a fresh getKey from the latest options on every call', async () => {
+        const getKey1 = vi.fn((arg: number) => `k1-${arg}`)
+        const { result, rerender } = await renderHook(
+          (props?: { getKey?: (arg: number) => string }) => useMemoize(resolver, { getKey: props?.getKey }),
+          { initialProps: { getKey: getKey1 } },
+        )
+
+        expect(result.current(1)).toBe('result-1')
+        expect(result.current(1)).toBe('result-1')
+        expect(resolver).toHaveBeenCalledTimes(1)
+
+        // a swapped getKey misses the old cache entry, so the resolver runs
+        const getKey2 = vi.fn((arg: number) => `k2-${arg}`)
+        await rerender({ getKey: getKey2 })
+
+        expect(result.current(1)).toBe('result-1')
+        expect(getKey2).toHaveBeenCalledWith(1)
+        expect(resolver).toHaveBeenCalledTimes(2)
+      })
+
       it('should use given cache on get', async () => {
         const { result } = await renderHook(() => useMemoize(resolver, { cache }))
 
