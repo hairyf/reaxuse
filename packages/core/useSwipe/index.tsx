@@ -89,10 +89,12 @@ function getSwipeDirection(start: Position, end: Position, threshold: number): U
  *   self-contained `useEffect` (upstream composes `useEventListener`) and are
  *   removed on unmount;
  * - `target` accepts an element or a ref-like `{ current }` object
- *   (React equivalent of `RefOrValue`). It is re-resolved on every
- *   render and the listeners re-bind when the resolved element changes;
- *   ref-likes are re-read at bind time, so a `useRef` target that is `null`
- *   during first render still binds once React attaches the element;
+ *   (React equivalent of `RefOrValue`). The resolved element is re-read after
+ *   every commit and the listeners re-bind when it changes, so a `useRef`
+ *   target that is `null` during first render still binds once React attaches
+ *   the element. A `ref.current` write that causes no re-render cannot be
+ *   observed — React refs are not reactive like upstream's Vue ref — so
+ *   re-render (e.g. through state) after mutating it;
  * - `onSwipeStart` / `onSwipe` / `onSwipeEnd` are read through latest-value
  *   refs, so the listeners always call the newest callbacks without
  *   re-binding on renders;
@@ -121,7 +123,7 @@ export function useSwipe(
   const { threshold = 50, passive = true } = options
 
   // latest-value refs synced each render so the listeners registered in the
-  // mount effect always read the newest options (stable handler identities)
+  // bind effect always read the newest options (stable handler identities)
   const targetRef = useRef(target)
   const optionsRef = useRef(options)
   targetRef.current = target
@@ -140,10 +142,26 @@ export function useSwipe(
   const stoppedRef = useRef(false)
   const detachRef = useRef<(() => void) | null>(null)
 
-  // dependency-tracking read: refs populate before effects run, so the first
-  // render reports `null` for ref-like targets — the effect below re-resolves
-  // fresh and re-binds whenever the resolved element changes
-  const trackedTarget = resolveSwipeTarget(target)
+  // The element the listeners are bound to. A plain target resolves during
+  // render; a ref-like target is re-resolved after every commit, because React
+  // writes `ref.current` in the commit phase — after the render that mounted
+  // the element — so a ref that was still `null` while rendering must still
+  // re-bind once the element exists.
+  const [bindTarget, setBindTarget] = useState<EventTarget | null>(
+    () => resolveSwipeTarget(target) ?? null,
+  )
+  const bindTargetRef = useRef(bindTarget)
+  bindTargetRef.current = bindTarget
+
+  useEffect(() => {
+    if (stoppedRef.current)
+      return
+    const el = resolveSwipeTarget(targetRef.current) ?? null
+    if (bindTargetRef.current !== el) {
+      bindTargetRef.current = el
+      setBindTarget(el)
+    }
+  })
 
   const stop = useCallback(() => {
     stoppedRef.current = true
@@ -152,13 +170,10 @@ export function useSwipe(
   }, [])
 
   useEffect(() => {
-    if (stoppedRef.current)
+    if (stoppedRef.current || !bindTarget)
       return
 
-    const el = resolveSwipeTarget(targetRef.current)
-    if (!el)
-      return
-
+    const el = bindTarget
     const listenerOptions = { passive, capture: !passive }
 
     const getTouchEventCoords = (e: TouchEvent): [number, number] =>
@@ -223,7 +238,7 @@ export function useSwipe(
     detachRef.current = detach
 
     return detach
-  }, [trackedTarget, passive])
+  }, [bindTarget, passive])
 
   const { start, end } = coords
 

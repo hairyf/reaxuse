@@ -245,6 +245,51 @@ describe('useSwipe', () => {
     expect(result.current.direction).toBe('down')
   })
 
+  it('binds a ref-like target attached during the commit phase without another render', async () => {
+    const el = createTarget()
+    const targetRef: { current: EventTarget | null } = { current: null }
+    const onSwipeEnd = vi.fn()
+    const { act, rerender } = await renderHook<{ mounted: EventTarget | null }, UseSwipeReturn>(
+      ({ mounted } = { mounted: null as EventTarget | null }) => {
+        const swipe = useSwipe(targetRef, { threshold: THRESHOLD, onSwipeEnd })
+        // simulate React attaching the element during the commit phase that
+        // follows this render — after `useSwipe` already read the ref
+        targetRef.current = mounted
+        return swipe
+      },
+      { initialProps: { mounted: null as EventTarget | null } },
+    )
+
+    // single render that mounts the element: a render-driven re-bind would
+    // still see `null`, because the ref is written after the hook runs
+    await rerender({ mounted: el })
+
+    await act(() => {
+      dispatchSwipeSequence(el, [[0, 0], [THRESHOLD, 0], [THRESHOLD, 0]])
+    })
+
+    expect(onSwipeEnd).toHaveBeenCalledOnce()
+    expect(onSwipeEnd.mock.calls[0]?.[1]).toBe('right')
+  })
+
+  it('keeps its listeners when a re-render resolves the same target', async () => {
+    const element = createTarget()
+    const addSpy = vi.spyOn(element, 'addEventListener')
+    const removeSpy = vi.spyOn(element, 'removeEventListener')
+    const { rerender } = await renderHook<{ el: EventTarget | null }, UseSwipeReturn>(
+      ({ el } = { el: element }) => useSwipe(el, { threshold: THRESHOLD }),
+      { initialProps: { el: element } },
+    )
+
+    expect(addSpy).toHaveBeenCalledTimes(4)
+
+    await rerender({ el: element })
+    await rerender({ el: element })
+
+    expect(addSpy).toHaveBeenCalledTimes(4)
+    expect(removeSpy).not.toHaveBeenCalled()
+  })
+
   it('re-binds the listeners when the resolved target changes', async () => {
     const elA = createTarget()
     const elB = createTarget()

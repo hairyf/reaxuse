@@ -48,7 +48,7 @@ export default function UseSwipeDemo() {
 
   return (
     <div>
-      <div className="usw-container">
+      <div ref={container} className="usw-container">
         <button onClick={reset}>
           Reset
         </button>
