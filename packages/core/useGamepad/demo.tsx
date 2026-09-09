@@ -1,7 +1,7 @@
 import { useGamepad } from '@reaxuse/core'
 
 export default function UseGamepadDemo() {
-  const { isSupported, gamepads } = useGamepad()
+  const [gamepads, , { isSupported }] = useGamepad()
 
   if (!isSupported) {
     return (
