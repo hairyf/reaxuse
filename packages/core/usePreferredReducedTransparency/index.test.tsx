@@ -123,3 +123,15 @@ it('usePreferredReducedTransparency supports a custom window option', async () =
   })
   await expect.poll(() => result.current).toBe('reduce')
 })
+
+it('usePreferredReducedTransparency returns "no-preference" when matchMedia is unavailable', async () => {
+  const { result } = await renderHook(() => usePreferredReducedTransparency({ window: {} as unknown as Window }))
+
+  expect(result.current).toBe('no-preference')
+})
+
+it('usePreferredReducedTransparency returns "no-preference" when window is null', async () => {
+  const { result } = await renderHook(() => usePreferredReducedTransparency({ window: null as unknown as undefined }))
+
+  expect(result.current).toBe('no-preference')
+})
