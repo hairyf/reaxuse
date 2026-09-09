@@ -124,29 +124,35 @@ it('useTimeoutPoll fires the callback immediately on activation with immediateCa
     .toBeGreaterThanOrEqual(2)
 })
 
-it('useTimeoutPoll re-arms the pending run when the interval changes', async () => {
+it('useTimeoutPoll reads the interval only when scheduling the next run', async () => {
   let calls = 0
   const { rerender } = await renderHook(
     (props?: { interval: number }) => useTimeoutPoll(() => {
       calls += 1
     }, props?.interval ?? 50),
-    { initialProps: { interval: 50 } },
+    { initialProps: { interval: 500 } },
   )
+
+  // still pending — the first run is one 500ms interval away
+  await sleep(150)
+  expect(calls).toBe(0)
+
+  // upstream has no interval watcher (`useTimeoutFn` reads the interval only
+  // at dispatch): shrinking the interval does not re-arm the pending run,
+  // which still fires on the old 500ms cadence
+  rerender({ interval: 50 })
+  await sleep(150)
+  expect(calls).toBe(0)
 
   await expect
     .poll(() => calls, { interval: 20, timeout: 2000 })
     .toBeGreaterThanOrEqual(1)
 
-  // rerender is already act-wrapped; the pending 50ms run is re-armed to 500ms
-  rerender({ interval: 500 })
+  // the follow-up runs are scheduled with the new 50ms interval
   const count = calls
-  await sleep(150)
-  expect(calls).toBe(count)
-
-  rerender({ interval: 50 })
   await expect
     .poll(() => calls, { interval: 20, timeout: 2000 })
-    .toBeGreaterThan(count)
+    .toBeGreaterThanOrEqual(count + 2)
 })
 
 it('useTimeoutPoll stops polling after unmount', async () => {

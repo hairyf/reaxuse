@@ -49,8 +49,9 @@ export interface Pausable {
  * - `fn` and `interval` are plain values kept in refs (upstream: closure +
  *   `RefOrValue<number>`), so `pause` / `resume` stay referentially
  *   stable and a changing (typically stable) callback identity never restarts
- *   the chain. A changed `interval` re-arms the pending timeout while active,
- *   mirroring upstream's interval watch;
+ *   the chain. Like upstream, the `interval` is only read when a run is
+ *   scheduled — a changed `interval` does not re-arm the pending timeout,
+ *   which keeps its old cadence until the next schedule;
  * - the `isActive` shallow ref becomes a plain boolean state, flipped by
  *   `resume` / `pause` (upstream sets it synchronously during setup);
  * - the setup-time auto `resume()` (`immediate`, client-only) becomes a mount
@@ -126,16 +127,10 @@ export function useTimeoutPoll(
     schedule()
   }, [])
 
-  // re-arm the pending timeout with the new interval while active (upstream
-  // watches the interval and restarts the timer on change); no-op when paused
-  useEffect(() => {
-    if (isActiveRef.current)
-      schedule()
-  }, [interval])
-
-  // upstream resumes synchronously during setup when `immediate`; in React the
-  // equivalent is a mount effect — its cleanup also pauses the poll on unmount
-  // (upstream: tryOnScopeDispose(pause))
+  // upstream has no interval watcher: `useTimeoutFn` reads `toValue(interval)`
+  // only when the next run is dispatched, so a changed `interval` does not
+  // re-arm the pending timeout — it keeps its old cadence until the next
+  // `schedule()` reads the new value
   useEffect(() => {
     if (immediate)
       resume()
