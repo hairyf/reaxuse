@@ -1,6 +1,7 @@
 import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
+import type { Dispatch, SetStateAction } from 'react'
 import { toValue } from '@reaxuse/shared'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface UseFocusOptions extends ConfigurableWindow {
   /**
@@ -25,28 +26,22 @@ export interface UseFocusOptions extends ConfigurableWindow {
   preventScroll?: boolean
 }
 
-/**
- * Writable ref-like mirror of upstream's `WritableComputedRef<boolean>`: read
- * `value` for the current focus state, assign `value` to focus / blur the
- * target.
- */
-export interface UseFocusRef {
-  value: boolean
-}
-
-export interface UseFocusReturn {
+export type UseFocusReturn = readonly [
   /**
    * If read as true, then the element has focus. If read as false, then the
-   * element does not have focus. If set to true, then the element will be
-   * focused. If set to false, the element will be blurred.
+   * element does not have focus. This is the plain React state updated by the
+   * target's `focus` / `blur` events.
    */
-  focused: UseFocusRef
+  isFocused: boolean,
   /**
-   * The same focus state as a plain boolean — the React-friendly read for
-   * rendering.
+   * If set to true, then the element will be focused. If set to false, the
+   * element will be blurred. Accepts the React functional updater
+   * (`setFocused(prev => !prev)`). As upstream, the assignment itself only
+   * calls `focus()` / `blur()` on the element — the state is then updated by
+   * the `focus` / `blur` events.
    */
-  isFocused: boolean
-}
+  setFocused: Dispatch<SetStateAction<boolean>>,
+]
 
 /**
  * React port of VueUse's `useFocus`.
@@ -54,20 +49,18 @@ export interface UseFocusReturn {
  * Map from @vueuse/core `useFocus`
  * (`source/vueuse/packages/core/useFocus/`). Reactive utility to track or set
  * the focus state of a DOM element. Listens to the target's `focus` / `blur`
- * events and exposes the state through `focused`, a stable ref-like object
- * mirroring upstream's `WritableComputedRef<boolean>`: read `focused.value`
- * for the current state, assign `focused.value = true` / `focused.value =
- * false` to focus / blur the target. As upstream, the assignment itself only
- * calls `focus()` / `blur()` on the element — the state is then updated by the
- * `focus` / `blur` events. `isFocused` is the same state as a plain boolean,
- * convenient for rendering.
+ * events and exposes the state as the first element of a React tuple;
+ * calling `setFocused(true)` / `setFocused(false)` focuses / blurs the
+ * target. As upstream, the setter itself only calls `focus()` / `blur()` on
+ * the element — the state is then updated by the `focus` / `blur` events.
  *
  * React divergences:
- * - upstream returns `{ focused: WritableComputedRef<boolean> }`; reaxuse
- *   returns `{ focused, isFocused }` — `focused` keeps the upstream `.value`
- *   read/write contract (a `useMemo`-stable object with a `value`
- *   getter/setter backed by the hook's state), and `isFocused` is the plain
- *   boolean state the getter is backed by;
+ * - upstream returns `{ focused: WritableComputedRef<boolean> }`, so consumers
+ *   read and write `focused.value`; reaxuse returns the React tuple
+ *   `[isFocused, setFocused]` (array destructuring, no `.value`) — read the
+ *   state from element 0 and focus / blur the target with element 1
+ *   (`Dispatch<SetStateAction<boolean>>`, so the functional updater
+ *   `setFocused(prev => !prev)` is supported);
  * - upstream composes `useEventListener` + `computed` + `watch`; here the
  *   `focus` / `blur` listeners live in a `useEffect` that re-attaches when
  *   the resolved target changes, and upstream's immediate
@@ -81,10 +74,10 @@ export interface UseFocusReturn {
  *
  * @example
  * const input = useRef<HTMLInputElement>(null)
- * const { focused, isFocused } = useFocus(input)
+ * const [isFocused, setFocused] = useFocus(input)
  *
- * focused.value = true // focus the input
- * focused.value = false // blur the input
+ * setFocused(true) // focus the input
+ * setFocused(false) // blur the input
  */
 export function useFocus(
   target: RefOrValue<HTMLElement | null | undefined>,
@@ -141,15 +134,18 @@ export function useFocus(
     }
   }, [element, onFocus, onBlur])
 
-  // mirror of upstream's writable `computed` setter: assigning `focused.value`
-  // triggers `focus()` / `blur()` on the target. The state itself is updated
-  // by the `focus` / `blur` events (upstream behavior); the ref is kept in
-  // sync synchronously so reads in the same tick are correct.
-  const setFocused = useCallback((value: boolean) => {
+  // mirror of upstream's writable `computed` setter: calling `setFocused(true)`
+  // / `setFocused(false)` triggers `focus()` / `blur()` on the target. The
+  // state itself is updated by the `focus` / `blur` events (upstream
+  // behavior); the ref is kept in sync synchronously so reads in the same tick
+  // are correct. The functional updater form resolves against that ref, like
+  // `useState`'s setter.
+  const setFocused = useCallback<Dispatch<SetStateAction<boolean>>>((action) => {
+    const next = typeof action === 'function' ? action(isFocusedRef.current) : action
     const el = elementRef.current
-    if (!value && isFocusedRef.current)
+    if (!next && isFocusedRef.current)
       el?.blur()
-    else if (value && !isFocusedRef.current)
+    else if (next && !isFocusedRef.current)
       el?.focus({ preventScroll: preventScrollRef.current })
   }, [])
 
@@ -159,14 +155,5 @@ export function useFocus(
     setFocused(initialValueRef.current)
   }, [element, setFocused])
 
-  const focused = useMemo<UseFocusRef>(() => ({
-    get value(): boolean {
-      return isFocusedRef.current
-    },
-    set value(next: boolean) {
-      setFocused(next)
-    },
-  }), [setFocused])
-
-  return { focused, isFocused }
+  return [isFocused, setFocused]
 }
