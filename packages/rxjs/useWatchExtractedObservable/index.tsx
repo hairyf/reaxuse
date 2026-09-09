@@ -174,8 +174,12 @@ export function useWatchExtractedObservable<Value, E>(
       onCleanup,
     ).subscribe({
       next: snapshot => callbackRef.current(snapshot),
-      error: (err: unknown) => onErrorRef.current?.(err),
-      complete: () => onCompleteRef.current?.(),
+      // The option values are handed to the observer directly (upstream
+      // `error: subscriptionOptions?.onError`): an absent `onError` leaves the
+      // slot `undefined`, so RxJS treats the error as unhandled and rethrows it
+      // asynchronously (`hostReportError`) instead of swallowing it.
+      error: onErrorRef.current,
+      complete: onCompleteRef.current,
     })
 
     subscriptionRef.current = subscription

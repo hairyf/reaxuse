@@ -39,18 +39,27 @@ export function PlayerProgress() {
 }
 ```
 
-or passing a ref-like object to it, the subscription follows the source's changes.
+or resolving the source from a ref-like object — the subscription follows the source's changes.
 
 ```tsx
 import type { Observable } from 'rxjs'
 import { useWatchExtractedObservable } from '@reaxuse/rxjs'
 import { useRef, useState } from 'react'
 
-const player = useRef<Player | null>(null)
-const [progress, setProgress] = useState(0)
+interface Player {
+  progress$: Observable<number>
+}
 
-// nothing is subscribed until `player.current` becomes non-nullish
-useWatchExtractedObservable(player, p => p.progress$, setProgress)
+function PlayerProgress() {
+  const player = useRef<Player | null>(null)
+  const [progress, setProgress] = useState(0)
+
+  // the hook does not unwrap refs — resolve it at the call site; nothing is
+  // subscribed until `player.current` becomes non-nullish
+  useWatchExtractedObservable(player.current, p => p.progress$, setProgress)
+
+  return <p>{progress}</p>
+}
 ```
 
 A `null` / `undefined` resolved value subscribes to nothing and drops any previous subscription. Register per-run cleanup callbacks through

@@ -80,7 +80,7 @@ describe('useWatchExtractedObservable', () => {
     const callback = vi.fn()
 
     const { act, rerender } = await renderHook(
-      (props: { source: Wrapper | undefined }) => useWatchExtractedObservable(props.source, extractor, callback),
+      ({ source }: { source: Wrapper | undefined } = { source: undefined }) => useWatchExtractedObservable(source, extractor, callback),
       { initialProps: { source: undefined as Wrapper | undefined } },
     )
 
@@ -254,6 +254,49 @@ describe('useWatchExtractedObservable', () => {
     expect(onError).toHaveBeenCalledWith(error)
     // an error emits nothing
     expect(callback).toHaveBeenCalledTimes(1)
+  })
+
+  it('rethrows an observable error asynchronously when no onError is provided', async () => {
+    const error = new Error('Unhandled number')
+    const callback = vi.fn()
+    const captured: Event[] = []
+
+    // without `onError` the observer's `error` slot is `undefined`, so RxJS's
+    // SafeSubscriber reports the error as unhandled and `hostReportError`
+    // rethrows it on a macrotask — the window listener keeps that rethrow from
+    // failing the shared browser page (pattern: useWebWorker / useBattery)
+    const onWindowError = (e: Event) => {
+      e.preventDefault()
+      captured.push(e)
+    }
+    window.addEventListener('error', onWindowError)
+
+    try {
+      const { act, rerender } = await renderHook(
+        ({ num }: { num: number } = { num: 0 }) => useWatchExtractedObservable(
+          num,
+          (value: number) => (value % 2 === 1 ? throwError(error) : of(value)),
+          callback,
+          { deps: [num] },
+        ),
+        { initialProps: { num: 0 } },
+      )
+
+      expect(callback).toHaveBeenCalledWith(0)
+      expect(captured).toHaveLength(0)
+
+      await act(() => rerender({ num: 1 }))
+
+      // `hostReportError` schedules the rethrow on a macrotask
+      await new Promise(resolve => setTimeout(resolve, 0))
+
+      expect(captured.length).toBeGreaterThan(0)
+      // the error never reaches the callback
+      expect(callback).toHaveBeenCalledTimes(1)
+    }
+    finally {
+      window.removeEventListener('error', onWindowError)
+    }
   })
 
   it('forwards onComplete when the observable completes', async () => {
