@@ -153,26 +153,6 @@ describe('useAsyncState', () => {
     }
   })
 
-  it('supports initialState as a controlled state tuple', async () => {
-    const current = 200
-    const setCurrent = vi.fn()
-    const { result } = await renderHook(() => useAsyncState(Promise.resolve(100), [current, setCurrent] as const))
-    await vi.waitFor(() => {
-      expect(result.current.state).toBe(100)
-    })
-    expect(setCurrent).toHaveBeenCalledWith(100)
-  })
-
-  it('supports initialState as ref-like object', async () => {
-    const initialState = { current: 200 }
-    const asyncValue = Promise.resolve(100)
-    const { result } = await renderHook(() => useAsyncState(asyncValue, initialState))
-    await vi.waitFor(() => {
-      expect(result.current.state).toBe(100)
-    })
-    expect(initialState.current).toBe(200)
-  })
-
   it('does not set `state` from an outdated execution', async () => {
     const { result } = await renderHook(() => useAsyncState((returnValue: string, timeout: number) => promiseTimeout(timeout).then(() => returnValue), ''))
     await Promise.all([
@@ -185,7 +165,7 @@ describe('useAsyncState', () => {
   })
 
   it('does not set `isReady` from an outdated execution', async () => {
-    const { result } = await renderHook(() => useAsyncState(promiseTimeout, { current: undefined } as { current: void }))
+    const { result } = await renderHook(() => useAsyncState(promiseTimeout, undefined))
     void result.current.execute(0, 0)
     void result.current.execute(0, 100)
     await promiseTimeout(50)
@@ -193,7 +173,7 @@ describe('useAsyncState', () => {
   })
 
   it('does not set `isLoading` from an outdated execution', async () => {
-    const { result } = await renderHook(() => useAsyncState(promiseTimeout, { current: undefined } as { current: void }))
+    const { result } = await renderHook(() => useAsyncState(promiseTimeout, undefined))
     void result.current.execute(0, 0)
     void result.current.execute(0, 100)
     await promiseTimeout(50)
@@ -201,7 +181,7 @@ describe('useAsyncState', () => {
   })
 
   it('does not set `error` from an outdated execution', async () => {
-    const { result } = await renderHook(() => useAsyncState(promiseTimeout, { current: undefined } as { current: void }, { onError: noop }))
+    const { result } = await renderHook(() => useAsyncState(promiseTimeout, undefined, { onError: noop }))
     await Promise.all([
       result.current.execute(0, 100, true),
       result.current.execute(0, 0),
@@ -228,5 +208,28 @@ describe('useAsyncState', () => {
     await vi.waitFor(() => {
       expect(shallowResult.result.current.state).toBe(resolved)
     })
+  })
+
+  it('`setState` updates `state` without re-executing the async function', async () => {
+    const fn = vi.fn(() => Promise.resolve(1))
+    const { result } = await renderHook(() => useAsyncState(fn, 0, { immediate: false }))
+
+    expect(fn).not.toHaveBeenCalled()
+
+    result.current.setState(42)
+    await vi.waitFor(() => {
+      expect(result.current.state).toBe(42)
+    })
+    expect(fn).not.toHaveBeenCalled()
+    expect(result.current.isReady).toBeFalsy()
+    expect(result.current.isLoading).toBeFalsy()
+    expect(result.current.error).toBeUndefined()
+
+    // functional updater, resolved against the current state
+    result.current.setState(prev => prev + 1)
+    await vi.waitFor(() => {
+      expect(result.current.state).toBe(43)
+    })
+    expect(fn).not.toHaveBeenCalled()
   })
 })

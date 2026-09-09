@@ -6,8 +6,6 @@ category: State
 
 Reactive async state. It will not block your component and triggers changes once the promise is ready.
 
-`initialState` accepts the shared `State<Data>` sources: a value, lazy initializer, React ref-like object, controlled tuple, or `{ value, onChange }` pair.
-
 ## Usage
 
 ```tsx
@@ -25,6 +23,7 @@ const { state, isReady, isLoading, error, execute } = useAsyncState(
 | Property           | Description                                                                                                                    |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
 | `state`            | The result of the async function                                                                                               |
+| `setState`         | Set the state value directly, without re-executing the async function                                                          |
 | `isReady`          | `true` when the latest execution has resolved successfully. Reset to `false` on each execution and stays `false` if it rejects |
 | `isLoading`        | `true` while the promise is pending                                                                                            |
 | `error`            | The error if the promise was rejected                                                                                          |

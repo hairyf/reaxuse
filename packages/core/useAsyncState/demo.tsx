@@ -1,7 +1,7 @@
 import { useAsyncState } from '@reaxuse/core'
 
 export default function UseAsyncStateDemo() {
-  const { state, isReady, isLoading, execute } = useAsyncState(
+  const { state, setState, isReady, isLoading, execute } = useAsyncState(
     (args?: { id?: number }) => {
       const id = args?.id || 1
       return fetch(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res => res.json())
@@ -30,6 +30,9 @@ export default function UseAsyncStateDemo() {
       </pre>
       <button type="button" onClick={() => execute(2000, { id: 2 })}>
         Execute
+      </button>
+      <button type="button" onClick={() => setState({ id: 999, title: 'Set locally, no execution' })}>
+        Set state
       </button>
     </div>
   )
