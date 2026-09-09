@@ -18,9 +18,9 @@ export default function UseFocusDemo() {
   const input = useRef<HTMLInputElement>(null)
   const button = useRef<HTMLButtonElement>(null)
 
-  const { focused: paragraphFocus, isFocused: paragraphFocused } = useFocus(text)
-  const { focused: inputFocus, isFocused: inputFocused } = useFocus(input, { initialValue: true })
-  const { focused: buttonFocus, isFocused: buttonFocused } = useFocus(button)
+  const [paragraphFocused, setParagraphFocus] = useFocus(text)
+  const [inputFocused, setInputFocus] = useFocus(input, { initialValue: true })
+  const [buttonFocused, setButtonFocus] = useFocus(button)
 
   return (
     <div>
@@ -54,13 +54,13 @@ export default function UseFocusDemo() {
               ? 'The button has focus'
               : '\u00A0'}
       </p>
-      <button type="button" onClick={() => { paragraphFocus.value = !paragraphFocus.value }}>
+      <button type="button" onClick={() => { setParagraphFocus(prev => !prev) }}>
         Focus text
       </button>
-      <button type="button" onClick={() => { inputFocus.value = !inputFocus.value }}>
+      <button type="button" onClick={() => { setInputFocus(prev => !prev) }}>
         Focus input
       </button>
-      <button type="button" onClick={() => { buttonFocus.value = !buttonFocus.value }}>
+      <button type="button" onClick={() => { setButtonFocus(prev => !prev) }}>
         Focus button
       </button>
     </div>

@@ -1,4 +1,6 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import type { Dispatch, SetStateAction } from 'react'
+import type { UseFocusReturn } from '../useFocus'
+import { beforeEach, describe, expect, expectTypeOf, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { userEvent } from 'vitest/browser'
 import { useFocus } from '../useFocus'
@@ -20,42 +22,57 @@ describe('useFocus', () => {
   it('should initialize properly', async () => {
     const { result } = await renderHook(() => useFocus(target))
 
-    expect(result.current.focused.value).toBeFalsy()
-    expect(result.current.isFocused).toBeFalsy()
+    expect(result.current[0]).toBeFalsy()
   })
 
-  it('reflect focus state in reactive ref value', async () => {
+  it('reflects focus/blur events in element 0 of the tuple', async () => {
     const { result, act } = await renderHook(() => useFocus(target))
 
-    expect(result.current.focused.value).toBeFalsy()
+    expect(result.current[0]).toBeFalsy()
 
     await act(() => {
       target?.focus()
     })
-    expect(result.current.focused.value).toBeTruthy()
-    expect(result.current.isFocused).toBeTruthy()
+    expect(result.current[0]).toBeTruthy()
 
     await act(() => {
       target?.blur()
     })
-    expect(result.current.focused.value).toBeFalsy()
-    expect(result.current.isFocused).toBeFalsy()
+    expect(result.current[0]).toBeFalsy()
   })
 
-  it('reflect reactive ref `focused` state changes in DOM', async () => {
+  it('setFocused(true) focuses the target and setFocused(false) blurs it', async () => {
     const { result, act } = await renderHook(() => useFocus(target))
 
-    expect(result.current.focused.value).toBeFalsy()
+    expect(document.activeElement).not.toBe(target)
 
     await act(() => {
-      result.current.focused.value = true
+      result.current[1](true)
     })
     expect(document.activeElement).toBe(target)
+    expect(result.current[0]).toBeTruthy()
 
     await act(() => {
-      result.current.focused.value = false
+      result.current[1](false)
     })
     expect(document.activeElement).not.toBe(target)
+    expect(result.current[0]).toBeFalsy()
+  })
+
+  it('setFocused accepts a functional updater', async () => {
+    const { result, act } = await renderHook(() => useFocus(target))
+
+    await act(() => {
+      result.current[1](prev => !prev)
+    })
+    expect(document.activeElement).toBe(target)
+    expect(result.current[0]).toBeTruthy()
+
+    await act(() => {
+      result.current[1](prev => !prev)
+    })
+    expect(document.activeElement).not.toBe(target)
+    expect(result.current[0]).toBeFalsy()
   })
 
   it('should only focus when :focus-visible matches with focusVisible=true', async () => {
@@ -64,12 +81,12 @@ describe('useFocus', () => {
     await act(async () => {
       await userEvent.tab()
     })
-    expect(result.current.focused.value).toBeTruthy()
+    expect(result.current[0]).toBeTruthy()
 
     await act(async () => {
       await userEvent.tab()
     })
-    expect(result.current.focused.value).toBeFalsy()
+    expect(result.current[0]).toBeFalsy()
 
     // upstream reuses the `target` variable here, but the renderHook callback
     // re-reads its closure on every re-render — reassigning `target` would
@@ -86,15 +103,14 @@ describe('useFocus', () => {
       await userEvent.tab()
     })
 
-    expect(result.current.focused.value).toBeFalsy()
+    expect(result.current[0]).toBeFalsy()
   })
 
   describe('when target is missing', () => {
     it('should initialize properly', async () => {
       const { result } = await renderHook(() => useFocus(null))
 
-      expect(result.current.focused.value).toBeFalsy()
-      expect(result.current.isFocused).toBeFalsy()
+      expect(result.current[0]).toBeFalsy()
     })
   })
 
@@ -103,8 +119,23 @@ describe('useFocus', () => {
       const { result } = await renderHook(() => useFocus(target, { initialValue: true }))
 
       expect(document.activeElement).toBe(target)
-      expect(result.current.focused.value).toBeTruthy()
-      expect(result.current.isFocused).toBeTruthy()
+      expect(result.current[0]).toBeTruthy()
     })
+  })
+
+  it('returns a React tuple [isFocused, setFocused]', async () => {
+    const { result } = await renderHook(() => useFocus(target))
+
+    expectTypeOf(result.current).toEqualTypeOf<UseFocusReturn>()
+    expectTypeOf(result.current).toEqualTypeOf<
+      readonly [boolean, Dispatch<SetStateAction<boolean>>]
+    >()
+    expectTypeOf(result.current[0]).toEqualTypeOf<boolean>()
+    expectTypeOf(result.current[1]).toEqualTypeOf<Dispatch<SetStateAction<boolean>>>()
+
+    expect(Array.isArray(result.current)).toBe(true)
+    expect(result.current).toHaveLength(2)
+    expect(result.current[0]).toBe(false)
+    expect(result.current[1]).toBeTypeOf('function')
   })
 })
