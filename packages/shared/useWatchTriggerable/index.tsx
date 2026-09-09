@@ -1,5 +1,5 @@
 import type { IgnoredUpdater } from '../useWatchIgnorable'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useWatch } from '../useWatch'
 
 export type OnCleanup = (cleanupFn: () => void) => void
@@ -8,11 +8,15 @@ export interface UseWatchTriggerableCallback<V = any, OV = any, R = void> {
   (value: V, oldValue: OV, onCleanup: OnCleanup): R
 }
 
+/** Per-element optional old value for array sources (upstream `MapOldSources<T, true>`). */
+export type UseWatchTriggerableOldValues<T extends readonly any[]> = { [K in keyof T]: T[K] | undefined }
+
 export interface UseWatchTriggerableReturn<R = void> {
   /**
    * Execute the callback immediately with the current source value — the old
-   * value is unknown (`undefined`) for a manual call, and the invocation does
-   * not count as a source change.
+   * value is unknown (`undefined`, per-element for array sources) for a manual
+   * call, and the invocation does not count as a source change: a source
+   * change queued inside the callback is itself ignored.
    */
   trigger: () => R
 
@@ -53,7 +57,8 @@ export interface UseWatchTriggerableOptions {
  * source is the caller's own state value (house `useWatch` source convention)
  * and the return is the upstream `WatchTriggerableReturn` object shape — this
  * deliberately overrides the house array-destructure return convention, and
- * the hook holds no state of its own.
+ * the hook holds no observable state of its own (the internal render tick is
+ * invisible to the caller).
  *
  * Mapping: upstream builds on `watchIgnorable`, which counts every source
  * modification with a hidden `flush: 'sync'` shadow watcher (`syncCounter`),
@@ -71,21 +76,24 @@ export interface UseWatchTriggerableOptions {
  * `ignoreUpdates(updater)` snapshots the latest observed value, runs `updater`
  * synchronously and arms the barrier; the next change the watch observes is
  * skipped (upstream skips it too when no other changes follow) and the flag is
- * consumed either way, so later genuine changes fire again. A commit that
- * carries no source change disarms the barrier so a no-op updater cannot
- * consume a later genuine change. `ignorePrevAsyncUpdates()` arms the same
- * barrier for the changes queued before the call.
+ * consumed either way, so later genuine changes fire again.
+ * `ignorePrevAsyncUpdates()` arms the same barrier for the changes queued
+ * before the call. The barrier is disarmed again when a commit carries no
+ * source change (the updater produced nothing observable); an internal render
+ * tick guarantees such a commit even when the updater is a no-op `setState`
+ * that React would otherwise bail out of entirely — so a no-op updater can
+ * never consume a later genuine change (upstream counts 0 changes and fires).
  *
  * `trigger()` fires synchronously at the call site — it does not wait for
  * React to commit and is unaffected by batching: it hands the current source
  * value straight to the callback with the old value `undefined` (upstream
- * cannot know it either) and returns the callback's return value so async
- * work can be awaited. Unlike upstream, the invocation is NOT wrapped in the
- * ignore barrier: `trigger()` itself makes no source change, and the one-shot
- * barrier is uncounted — arming it with no change to follow would swallow the
- * next genuine change (no commit would arrive to disarm it). The trade-off: a
- * source change queued by the callback inside `trigger()` fires the watch
- * normally after its commit, where upstream would ignore it.
+ * cannot know it either; array sources get a per-element `undefined`) and
+ * returns the callback's return value so async work can be awaited. Like
+ * upstream, the invocation is wrapped in `ignoreUpdates`: a source change
+ * queued by the callback inside `trigger()` is suppressed after its commit
+ * (upstream counts it in `ignoreCounter`), and a callback that makes no
+ * source change is disarmed by the forced commit, so a later genuine change
+ * still fires.
  *
  * Divergences from upstream (React batching):
  * - Changes made inside `ignoreUpdates` and further changes made afterwards
@@ -93,10 +101,6 @@ export interface UseWatchTriggerableOptions {
  *   barrier skips as a whole — upstream would fire the callback with the
  *   latest value. Let the updater's batch commit before making changes that
  *   must fire.
- * - If the updater produces no change and the very next commit carries a
- *   source change, that change is skipped where upstream would fire it
- *   (upstream counts 0 changes); only a commit without a source change
- *   disarms the barrier in between.
  * - The `flush` option is not ported — the callback fires in the effect after
  *   commit (upstream `flush: 'pre'` timing); `eventFilter` and the other
  *   `WatchWithFilterOptions` members (`deep`, pause/resume) are not ported —
@@ -115,7 +119,7 @@ export interface UseWatchTriggerableOptions {
  */
 export function useWatchTriggerable<T extends any[], R>(
   source: readonly [...T],
-  callback: UseWatchTriggerableCallback<[...T], [...T] | undefined, R>,
+  callback: UseWatchTriggerableCallback<[...T], UseWatchTriggerableOldValues<[...T]>, R>,
   options?: UseWatchTriggerableOptions,
 ): UseWatchTriggerableReturn<R>
 export function useWatchTriggerable<T, R>(
@@ -125,6 +129,14 @@ export function useWatchTriggerable<T, R>(
 ): UseWatchTriggerableReturn<R>
 export function useWatchTriggerable(source: any, callback: UseWatchTriggerableCallback, options: UseWatchTriggerableOptions = {}): UseWatchTriggerableReturn<any> {
   const { immediate } = options
+
+  // — internal render tick — `ignoreUpdates` may run an updater that changes
+  // nothing observable (a no-op `setState` makes React bail out of rendering
+  // entirely), and a disarm that depended on a commit would then never run.
+  // Bumping this internal state after arming the barrier guarantees a commit,
+  // so the disarm effect below always gets a chance to run. The tick is
+  // invisible to the caller — it changes no returned value.
+  const [, forceCommit] = useState(0)
 
   // — upstream `onCleanup` plumbing: when a new side effect occurs, clean up
   // the previous side effect (both watch-fired and manual invocations) —
@@ -160,8 +172,10 @@ export function useWatchTriggerable(source: any, callback: UseWatchTriggerableCa
 
   // Disarm the barrier when a commit carries no source change (the updater
   // produced nothing observable) so it cannot consume a later genuine change.
+  // The internal render tick guarantees such a commit even when React would
+  // otherwise bail out of rendering entirely.
   useEffect(() => {
-    if (ignoreRef.current && Object.is(source, snapshotRef.current))
+    if (ignoreRef.current && isSameSource(source, snapshotRef.current))
       ignoreRef.current = false
   })
 
@@ -171,24 +185,54 @@ export function useWatchTriggerable(source: any, callback: UseWatchTriggerableCa
     snapshotRef.current = lastSeenRef.current
     updater()
     ignoreRef.current = true
-  }, [])
+    // Force a commit so the disarm effect runs even for a no-op updater.
+    forceCommit(x => x + 1)
+  }, [forceCommit])
 
   const ignorePrevAsyncUpdates = useCallback(() => {
     // Snapshot-style one-shot skip for the changes queued before this call.
     snapshotRef.current = lastSeenRef.current
     ignoreRef.current = true
-  }, [])
+    // Force a commit so the disarm effect runs even for a no-op invocation.
+    forceCommit(x => x + 1)
+  }, [forceCommit])
 
   const stop = useCallback(() => {
     stoppedRef.current = true
   }, [])
 
   const trigger = useCallback(() => {
-    // Manual invocation: hand the current value straight to the callback —
-    // the old value is unknown (as upstream) and no source change is made,
-    // so nothing needs to be ignored.
-    return triggerableCallback(source, undefined)
-  }, [source, triggerableCallback])
+    // Manual invocation wrapped in `ignoreUpdates` exactly like upstream: a
+    // source change queued by the callback is suppressed at the next watch
+    // fire (upstream counts it in `ignoreCounter`), and a callback that makes
+    // no change is disarmed by the forced commit so a later genuine change
+    // still fires. The old value is unknown — per-element `undefined` for
+    // array sources, `undefined` otherwise (upstream `getOldValue`).
+    let result!: any
+    ignoreUpdates(() => {
+      result = triggerableCallback(source, getOldValue(source))
+    })
+    return result
+  }, [source, triggerableCallback, ignoreUpdates])
 
   return { trigger, ignoreUpdates, ignorePrevAsyncUpdates, stop }
+}
+
+// For calls triggered by `trigger`, the old value is unknown, so it cannot be
+// returned — `undefined`, per-element for array sources (upstream
+// `getOldValue`).
+function getOldValue(source: any) {
+  return Array.isArray(source)
+    ? source.map(() => undefined)
+    : undefined
+}
+
+// Element-wise equality for array sources: each render builds a fresh array
+// literal, so `Object.is` on the arrays themselves could never match — the
+// disarm check compares the values instead.
+function isSameSource(a: any, b: any) {
+  if (Object.is(a, b))
+    return true
+  return Array.isArray(a) && Array.isArray(b) && a.length === b.length
+    && a.every((item, index) => Object.is(item, b[index]))
 }

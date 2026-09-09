@@ -161,6 +161,14 @@ describe('useWatchThrottled', () => {
 })
 
 describe('useWatchThrottled (component)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   function UseWatchThrottledDemo() {
     const [count, setCount] = useState(0)
     const [unrelated, setUnrelated] = useState(0)
@@ -204,8 +212,11 @@ describe('useWatchThrottled (component)', () => {
 
     await expect.element(screen.getByText('Count: 3')).toBeVisible()
     await expect.element(screen.getByText('Unrelated: 1')).toBeVisible()
-    // leading edge fires on the first click, the burst's latest value lands on
-    // the trailing edge — one throttle window, two calls
+    // the leading edge fires on the first click, the burst's latest value lands
+    // on the trailing edge — one throttle window, two calls; the trailing edge
+    // is advanced explicitly (mirrors upstream index.test.ts:32-40)
+    await expect.element(screen.getByText('Updates: 1')).toBeVisible()
+    await vi.advanceTimersByTimeAsync(500)
     await expect.element(screen.getByText('Updates: 2')).toBeVisible()
   })
 })

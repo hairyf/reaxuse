@@ -16,7 +16,7 @@ import { useWatchPausable } from '@reaxuse/shared'
 import { useState } from 'react'
 
 const [value, setValue] = useState('foo')
-const { pause, resume } = useWatchPausable(
+const { pause, resume, stop } = useWatchPausable(
   value,
   v => console.log(`Changed to ${v}!`),
 )

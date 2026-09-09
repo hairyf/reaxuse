@@ -30,8 +30,7 @@ export default function UseAsyncValidatorDemo() {
   // stable identity: the hook re-validates when the `value` identity changes
   const [form, setForm] = useState<Record<string, any>>(emptyForm)
   const { pass, isFinished, errorFields, execute } = useAsyncValidator(form, rules, {
-    // start clean and let the button drive the first validation
-    manual: true,
+    // upstream demo runs with the default `immediate` — validation starts on mount
     validateOption: { suppressWarning: true },
   })
 

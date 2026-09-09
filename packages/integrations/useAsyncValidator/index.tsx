@@ -15,9 +15,9 @@ export type AsyncValidatorError = Error & {
 
 export interface UseAsyncValidatorExecuteReturn {
   pass: boolean
-  errors: ValidateError[] | undefined
+  errors: ValidateError[]
   errorInfo: AsyncValidatorError | null
-  errorFields: Record<string, ValidateError[]> | undefined
+  errorFields: Record<string, ValidateError[]>
 }
 
 export interface UseAsyncValidatorReturn {

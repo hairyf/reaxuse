@@ -325,9 +325,115 @@ describe('useWatchWithFilter', () => {
     })
     expect(calls).toEqual([])
   })
+
+  it('debounceFilter exposes cancel / flush / isPending controls', async () => {
+    // direct filter-level coverage of the `CancelableEventFilter` surface
+    const filter = debounceFilter(100)
+    const calls: number[] = []
+    const invoke = (n: number) => () => calls.push(n)
+
+    filter(invoke(1))
+    expect(filter.isPending).toBe(true)
+
+    filter.flush()
+    expect(filter.isPending).toBe(false)
+    expect(calls).toEqual([1])
+
+    filter(invoke(2))
+    expect(filter.isPending).toBe(true)
+
+    filter.cancel()
+    expect(filter.isPending).toBe(false)
+
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(calls).toEqual([1])
+
+    // a settled timer clears `isPending` on its own
+    filter(invoke(3))
+    expect(filter.isPending).toBe(true)
+    await vi.advanceTimersByTimeAsync(100)
+    expect(filter.isPending).toBe(false)
+    expect(calls).toEqual([1, 3])
+  })
+
+  it('debounceFilter re-reads a reactive ms on every call', async () => {
+    // the reactive path for a dynamic delay (a plain getter is not part of
+    // the `RefOrValue<number>` type contract — rule: pass a ref)
+    const ms = { current: 100 }
+    const filter = debounceFilter(ms)
+    const calls: number[] = []
+    const invoke = (n: number) => () => calls.push(n)
+
+    filter(invoke(1))
+    ms.current = 50
+    await vi.advanceTimersByTimeAsync(50)
+    expect(calls).toEqual([])
+    await vi.advanceTimersByTimeAsync(50)
+    expect(calls).toEqual([1])
+
+    // the next call reads the shortened delay
+    filter(invoke(2))
+    await vi.advanceTimersByTimeAsync(100)
+    expect(calls).toEqual([1, 2])
+  })
+
+  it('invokes never with leading: false and trailing: false (throttleFilter)', async () => {
+    const calls: WatchCall[] = []
+    let setValue: (value: number) => void = () => {}
+
+    const { act } = await renderHook(() => {
+      const [value, update] = useState(0)
+      setValue = update
+      useWatchWithFilter(value, (next, prev) => calls.push({ value: next, oldValue: prev }), { eventFilter: throttleFilter(100, false, false) })
+    })
+
+    await act(() => setValue(1))
+    await act(() => setValue(2))
+    await act(async () => {
+      vi.advanceTimersByTime(100)
+    })
+    await act(() => setValue(3))
+    await act(async () => {
+      vi.advanceTimersByTime(1000)
+    })
+    expect(calls).toEqual([])
+  })
+
+  it('fires on mount with immediate: true through throttleFilter', async () => {
+    const calls: WatchCall[] = []
+    let setValue: (value: number) => void = () => {}
+
+    const { act } = await renderHook(() => {
+      const [value, update] = useState(0)
+      setValue = update
+      useWatchWithFilter(value, (next, prev) => calls.push({ value: next, oldValue: prev }), { eventFilter: throttleFilter(100), immediate: true })
+    })
+
+    // the mount call passes through the throttle filter — the leading edge of
+    // the first call fires immediately (upstream: throttleFilter first call
+    // always invokes on the leading edge)
+    expect(calls).toEqual([{ value: 0, oldValue: undefined }])
+
+    await act(() => setValue(1))
+    await act(async () => {
+      vi.advanceTimersByTime(100)
+    })
+    expect(calls).toEqual([
+      { value: 0, oldValue: undefined },
+      { value: 1, oldValue: 0 },
+    ])
+  })
 })
 
 describe('useWatchWithFilter (component)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   function UseWatchWithFilterDemo() {
     const [count, setCount] = useState(0)
     const [unrelated, setUnrelated] = useState(0)
@@ -371,6 +477,11 @@ describe('useWatchWithFilter (component)', () => {
 
     await expect.element(screen.getByText('Count: 3')).toBeVisible()
     await expect.element(screen.getByText('Unrelated: 1')).toBeVisible()
+    // the burst is still pending in the debounce window — nothing fired yet
+    await expect.element(screen.getByText('Updates: 0')).toBeVisible()
+    // the trailing edge lands once the 500ms window elapses (advanced
+    // explicitly — mirrors upstream index.test.ts)
+    await vi.advanceTimersByTimeAsync(500)
     await expect.element(screen.getByText('Updates: 1')).toBeVisible()
   })
 })

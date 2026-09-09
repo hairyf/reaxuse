@@ -55,18 +55,24 @@ export interface UseAxiosReturn<T, R = AxiosResponse<T>, _D = any, O extends Use
 
 export interface StrictUseAxiosReturn<T, R, D, O extends UseAxiosOptions = UseAxiosOptions<T>> extends UseAxiosReturn<T, R, D, O> {
   /**
-   * Manually call the axios request. Resolves with the `AxiosResponse` and
-   * rejects with the caught error.
+   * Manually call the axios request — returns the shared thenable shell
+   * (upstream `return promise`): `await execute()` resolves with the shell
+   * once the request finished, rejecting with the request error on failure;
+   * a bare unawaited call never settles eagerly, so it cannot produce an
+   * unhandled rejection.
    */
-  execute: (url?: string | AxiosRequestConfig<D>, config?: AxiosRequestConfig<D>) => Promise<R | undefined>
+  execute: (url?: string | AxiosRequestConfig<D>, config?: AxiosRequestConfig<D>) => Promise<StrictUseAxiosReturn<T, R, D, O>>
 }
 
 export interface EasyUseAxiosReturn<T, R, D> extends UseAxiosReturn<T, R, D> {
   /**
-   * Manually call the axios request. Resolves with the `AxiosResponse` and
-   * rejects with the caught error.
+   * Manually call the axios request — returns the shared thenable shell
+   * (upstream `return promise`): `await execute(url)` resolves with the shell
+   * once the request finished, rejecting with the request error on failure;
+   * a bare unawaited call never settles eagerly, so it cannot produce an
+   * unhandled rejection.
    */
-  execute: (url: string, config?: AxiosRequestConfig<D>) => Promise<R | undefined>
+  execute: (url: string, config?: AxiosRequestConfig<D>) => Promise<EasyUseAxiosReturn<T, R, D>>
 }
 
 /**
@@ -168,11 +174,13 @@ export function useAxios<T = any, R = AxiosResponse<T>, D = any>(config?: AxiosR
  *   captured earlier (e.g. the value `await` resolved with) still exposes
  *   fresh values — the same shape `useAsyncState` uses. The base itself is
  *   deliberately NOT thenable, so resolving it can never re-adopt `then`;
- * - `immediate` requests fire from a mount effect (upstream fires during
- *   setup) and the mount effect swallows the rejection with
- *   `void execute().catch(noop)` — `execute` itself rejects on failure so
- *   callers can `try`/`catch` it, and every internal request chain attaches
- *   its own handler so no unhandled rejection escapes;
+ * - `execute` returns the shared thenable shell (upstream `return promise`):
+ *   `await execute()` resolves with the shell once the request finished,
+ *   rejecting with the request error on failure, and a bare unawaited
+ *   `execute()` never settles eagerly — so no unhandled rejection can
+ *   escape. `immediate` requests fire from a mount effect (upstream fires
+ *   during setup), and the shell is never left without a rejection handler
+ *   there;
  * - a pending request is aborted on unmount (React-safety deviation: upstream
  *   only relies on the `isAborted` guard), so a late response can never
  *   populate `data`/`response` after the component is gone;
@@ -278,6 +286,11 @@ export function useAxios<T = any, R = AxiosResponse<T>, D = any>(...args: any[])
     reject: (reason?: any) => void
   }>>([])
   const baseRef = useRef<OverallUseAxiosReturn<T, R, D> | null>(null)
+  // the composite thenable shell returned by `execute` (upstream's `promise`)
+  // and awaited by `await useAxios(...)` — created once per render, but only
+  // READ from callbacks/effects that run after the render body, so the ref is
+  // always populated by call time
+  const shellRef = useRef<OverallUseAxiosReturn<T, R, D> & UseAxiosThenable<OverallUseAxiosReturn<T, R, D>> | null>(null)
 
   const abort = useCallback((message?: string) => {
     if (liveRef.current.isFinished || !liveRef.current.isLoading)
@@ -328,10 +341,10 @@ export function useAxios<T = any, R = AxiosResponse<T>, D = any>(...args: any[])
     })
   }, [])
 
-  const execute = useCallback(async (
+  const execute = useCallback((
     executeUrl: string | AxiosRequestConfig<D> | undefined = urlRef.current,
     config: AxiosRequestConfig<D> = {},
-  ): Promise<R | undefined> => {
+  ): OverallUseAxiosReturn<T, R, D> & UseAxiosThenable<OverallUseAxiosReturn<T, R, D>> => {
     liveRef.current.error = undefined
     setError(undefined)
 
@@ -340,12 +353,15 @@ export function useAxios<T = any, R = AxiosResponse<T>, D = any>(...args: any[])
       : urlRef.current ?? config.url
 
     if (_url === undefined) {
+      // upstream: `error.value = new AxiosError(...)`, `isFinished.value = true`,
+      // `return promise` — no throw here; the error surfaces only when the
+      // returned shell is awaited (its `waitUntilFinished` sees the error)
       const invalidUrlError = new AxiosError(AxiosError.ERR_INVALID_URL)
       liveRef.current.error = invalidUrlError
       liveRef.current.isFinished = true
       setError(invalidUrlError)
       setIsFinished(true)
-      throw invalidUrlError
+      return shellRef.current as OverallUseAxiosReturn<T, R, D> & UseAxiosThenable<OverallUseAxiosReturn<T, R, D>>
     }
 
     resetData()
@@ -360,37 +376,41 @@ export function useAxios<T = any, R = AxiosResponse<T>, D = any>(...args: any[])
     liveRef.current.isAborted = false
     setIsAborted(false)
 
-    try {
-      const result = await instanceRef.current(_url, {
-        ...configRef.current,
-        ...typeof executeUrl === 'object' ? executeUrl : config,
-        // the fresh controller created by `abort()` above, so the new request
-        // is not cancelled by the abort of the previous one
-        signal: abortControllerRef.current?.signal,
-      }) as R
-      if (liveRef.current.isAborted)
-        return undefined
-      liveRef.current.response = result
-      setResponse(result)
-      const payload = (result as unknown as { data?: T })?.data as T
-      liveRef.current.data = payload
-      setData(payload)
-      onSuccessRef.current(payload)
-      return result
-    }
-    catch (e) {
-      liveRef.current.error = e
-      setError(e)
-      onErrorRef.current(e)
-      throw e
-    }
-    finally {
-      onFinishRef.current?.()
-      if (currentExecuteCounter === executeCounterRef.current) {
-        loading(false)
-        drainWaiters()
-      }
-    }
+    // upstream fires the request and returns the shared thenable (`return
+    // promise`); the request updates state through its own promise chain and
+    // errors surface only when the returned shell is awaited — a bare
+    // unawaited `execute()` never settles eagerly, so no unhandled rejection
+    void instanceRef.current(_url, {
+      ...configRef.current,
+      ...typeof executeUrl === 'object' ? executeUrl : config,
+      // the fresh controller created by `abort()` above, so the new request
+      // is not cancelled by the abort of the previous one
+      signal: abortControllerRef.current?.signal,
+    })
+      .then((result: any) => {
+        if (liveRef.current.isAborted)
+          return
+        liveRef.current.response = result
+        setResponse(result)
+        const payload = (result as unknown as { data?: T })?.data as T
+        liveRef.current.data = payload
+        setData(payload)
+        onSuccessRef.current(payload)
+      })
+      .catch((e: unknown) => {
+        liveRef.current.error = e
+        setError(e)
+        onErrorRef.current(e)
+      })
+      .finally(() => {
+        onFinishRef.current?.()
+        if (currentExecuteCounter === executeCounterRef.current) {
+          loading(false)
+          drainWaiters()
+        }
+      })
+
+    return shellRef.current as OverallUseAxiosReturn<T, R, D> & UseAxiosThenable<OverallUseAxiosReturn<T, R, D>>
   }, [abort, drainWaiters, loading, resetData])
 
   // the base shell is deliberately NOT a thenable — `drainWaiters` resolves
@@ -473,6 +493,8 @@ export function useAxios<T = any, R = AxiosResponse<T>, D = any>(...args: any[])
   ): PromiseLike<OverallUseAxiosReturn<T, R, D> | TResult> {
     return waitUntilFinished().catch(onRejected)
   }
+
+  shellRef.current = shell
 
   return shell
 }

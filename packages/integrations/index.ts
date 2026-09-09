@@ -1,13 +1,8 @@
 /**
  * @reaxuse/integrations — React port of @vueuse/integrations
- *
- * TODO: map integrations with third-party services (axios, async-validator,
- * focus-trap, idb-keyval, jwt-decode, nprogress, qrcode …).
  */
 
 export * from './useAsyncValidator'
-// export * from './useAxios'
-// export * from './useAsyncValidator'
 export * from './useAxios'
 export * from './useChangeCase'
 export * from './useCookies'

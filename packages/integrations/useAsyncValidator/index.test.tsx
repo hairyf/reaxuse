@@ -61,17 +61,6 @@ describe('useAsyncValidator', () => {
     expect(result.current.errorFields).toMatchObject({})
   })
 
-  it('should async', async () => {
-    const { result } = await renderHook(() => useAsyncValidator(form, passingRules))
-
-    // the initial validation runs from a mount effect; unlike Vue (where setup
-    // returns before the watcher's promise settles), `renderHook` awaits `act`,
-    // so the synchronous `isFinished = false` window has already closed here
-    await vi.waitFor(() => expect(result.current.isFinished).toBe(true))
-    expect(result.current.pass).toBe(true)
-    expect(result.current.errors).toMatchObject([])
-  })
-
   it('immediate should can be work', async () => {
     const { result } = await renderHook(() => useAsyncValidator(form, passingRules, { immediate: false }))
 

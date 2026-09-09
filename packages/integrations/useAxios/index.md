@@ -22,17 +22,17 @@ const { data, isFinished } = useAxios('/api/posts')
 
 ### Return Values
 
-| Property           | Type                            | Description                              |
-| ------------------ | ------------------------------- | ---------------------------------------- |
-| `data`             | `T` / `T \| undefined`          | Response data (`T` with `initialData`)   |
-| `response`         | `AxiosResponse<T> \| undefined` | Full axios response                      |
-| `error`            | `unknown \| undefined`          | Error if request failed                  |
-| `isFinished`       | `boolean`                       | Request has completed (success or error) |
-| `isLoading`        | `boolean`                       | Request is in progress                   |
-| `isAborted`        | `boolean`                       | Request was aborted                      |
-| `abort` / `cancel` | `(message?: string) => void`    | Abort the current request                |
-| `isCanceled`       | `boolean`                       | Alias of `isAborted`                     |
-| `execute`          | `(url?, config?) => Promise<R>` | Execute/re-execute the request           |
+| Property           | Type                            | Description                                                     |
+| ------------------ | ------------------------------- | --------------------------------------------------------------- |
+| `data`             | `T` / `T \| undefined`          | Response data (`T` with `initialData`)                          |
+| `response`         | `AxiosResponse<T> \| undefined` | Full axios response                                             |
+| `error`            | `unknown \| undefined`          | Error if request failed                                         |
+| `isFinished`       | `boolean`                       | Request has completed (success or error)                        |
+| `isLoading`        | `boolean`                       | Request is in progress                                          |
+| `isAborted`        | `boolean`                       | Request was aborted                                             |
+| `abort` / `cancel` | `(message?: string) => void`    | Abort the current request                                       |
+| `isCanceled`       | `boolean`                       | Alias of `isAborted`                                            |
+| `execute`          | `(url?, config?) => Promise`    | Execute/re-execute the request (resolves with the return shell) |
 
 ### With Axios Instance
 
@@ -92,16 +92,22 @@ execute({ params: { key: 2 } })
 
 ### Awaiting Results
 
-The return value is thenable, so you can await it:
+The return value is thenable, so you can await it — `immediate` requests fire
+from a mount effect (upstream fires during setup), so from an async context
+(e.g. an event handler or a later effect) the shell is pending until the
+latest request settles:
 
 ```tsx
 import { useAxios } from '@reaxuse/integrations'
 
-const { data, isFinished, error } = await useAxios('/api/posts')
+const { data, isFinished, error, execute } = useAxios('/api/posts')
+
+// await a re-execution — resolves with the shell once the request settled
+const snapshot = await execute()
 // data is now populated
 ```
 
-Or await the execute function:
+Or await the `execute` function on a url-less hook:
 
 ```tsx
 import { useAxios } from '@reaxuse/integrations'
@@ -109,6 +115,10 @@ import { useAxios } from '@reaxuse/integrations'
 const { execute } = useAxios()
 const result = await execute(url)
 ```
+
+A bare `execute()` — without awaiting the returned shell — never settles
+eagerly, so it cannot produce an unhandled rejection; failures surface only
+when the shell is awaited.
 
 ### Options
 

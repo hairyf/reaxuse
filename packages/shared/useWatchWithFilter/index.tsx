@@ -77,10 +77,10 @@ function bypassFilter(invoke: FunctionArgs): void {
  * (`lastRejector` / `rejectOnCancel`) is dropped — the house `EventFilter`
  * contract returns `void` and the watch path consumes no promise, so
  * `rejectOnCancel` has no observable effect — and `isPending` is a plain
- * getter instead of a reactive ref. `ms` accepts a number, a ref-like
- * `{ current }` or a getter (upstream: `RefOrValue<number>`) and is
- * re-read on every call. Pending timers are cleared by `cancel()` — the
- * `useWatchWithFilter` hook calls it on stop / unmount.
+ * getter instead of a reactive ref. `ms` accepts a plain number or a React
+ * ref (upstream: `RefOrValue<number>`) and is re-read on every call. Pending
+ * timers are cleared by `cancel()` — the `useWatchWithFilter` hook calls it
+ * on stop / unmount.
  *
  * @example
  * ```ts
@@ -189,8 +189,8 @@ export function debounceFilter(ms: RefOrValue<number> = 200, options: DebounceFi
  * parameter) is dropped — the house `EventFilter` contract returns `void` —
  * and the object options form is not ported (positional
  * `throttleFilter(ms, trailing, leading)` like the house `useThrottleFn`).
- * `ms` accepts a number, a ref-like `{ current }` or a getter
- * (upstream: `RefOrValue<number>`) and is re-read on every call.
+ * `ms` accepts a plain number or a React ref (upstream:
+ * `RefOrValue<number>`) and is re-read on every call.
  *
  * @example
  * ```ts
