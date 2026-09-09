@@ -46,7 +46,7 @@ describe('useEventListener', () => {
 
       expect(removeSpy).not.toBeCalled()
 
-      result.current!()
+      result.current()
 
       expect(removeSpy).toBeCalledTimes(1)
       expect(removeSpy).toBeCalledWith(event, listener, options)
@@ -82,7 +82,7 @@ describe('useEventListener', () => {
 
       expect(removeSpy).not.toBeCalled()
 
-      result.current!()
+      result.current()
 
       expect(removeSpy).toBeCalledTimes(events.length)
       events.forEach(event => expect(removeSpy).toBeCalledWith(event, listener, options))
@@ -118,7 +118,7 @@ describe('useEventListener', () => {
 
       expect(removeSpy).not.toBeCalled()
 
-      result.current!()
+      result.current()
 
       expect(removeSpy).toBeCalledTimes(listeners.length)
       listeners.forEach(listener => expect(removeSpy).toBeCalledWith(event, listener, options))
@@ -155,7 +155,7 @@ describe('useEventListener', () => {
     it('should remove all listeners with all events', async () => {
       const { result } = await renderHook(() => useEventListener(target, events, listeners, options))
 
-      result.current!()
+      result.current()
 
       listeners.forEach(listener =>
         events.forEach((event) => {
@@ -209,7 +209,7 @@ describe('useEventListener', () => {
           return useEventListener(...getArgs(useTarget, targetRef, listener))
         })
 
-        result.current!()
+        result.current()
 
         ;(useTarget ? targetRef.current : window)!.dispatchEvent(new MouseEvent('click'))
 
@@ -342,6 +342,52 @@ describe('useEventListener', () => {
 
       expect(listener1).toHaveBeenCalledTimes(7)
       expect(listener2).toHaveBeenCalledTimes(4)
+    })
+
+    it('should re-register when only the listeners change', async () => {
+      const listener1 = vi.fn()
+      const listener2 = vi.fn()
+      const el = document.createElement('div')
+      const listeners = { current: [listener1] }
+
+      const { rerender } = await renderHook(() => useEventListener(el, 'click', listeners as any))
+
+      el.dispatchEvent(new Event('click'))
+      expect(listener1).toHaveBeenCalledTimes(1)
+      expect(listener2).not.toHaveBeenCalled()
+
+      // a listener-only change must re-bind (upstream `watchImmediate` re-runs
+      // on the raw listeners) — the target and event stay the same
+      listeners.current = [listener1, listener2]
+      await rerender()
+      el.dispatchEvent(new Event('click'))
+
+      expect(listener1).toHaveBeenCalledTimes(2)
+      expect(listener2).toHaveBeenCalledTimes(1)
+    })
+
+    it('should accept a getter returning multiple targets', async () => {
+      const listener = vi.fn()
+      const el1 = document.createElement('div')
+      const el2 = document.createElement('div')
+      const active = { current: true }
+
+      const { rerender } = await renderHook(() =>
+        // a zero-argument getter target resolves through the shared `toValue`
+        useEventListener((() => (active.current ? [el1, el2] : [])) as any, 'mousedown', listener),
+      )
+
+      el1.dispatchEvent(new Event('mousedown'))
+      el2.dispatchEvent(new Event('mousedown'))
+      expect(listener).toHaveBeenCalledTimes(2)
+
+      // disable — the getter now resolves to no targets
+      active.current = false
+      await rerender()
+      el1.dispatchEvent(new Event('mousedown'))
+      el2.dispatchEvent(new Event('mousedown'))
+      // events should no longer trigger
+      expect(listener).toHaveBeenCalledTimes(2)
     })
   })
 
