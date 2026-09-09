@@ -92,9 +92,12 @@ export function useStorageAsync<T = unknown>(key: string, initialValue: null, st
  *   go to the key of the current render, and when `writeDefaults` is on, a
  *   new key with no stored value is seeded with the initial value;
  * - real `storage` events are listened to when `listenToStorageChanges` is on
- *   (mirroring upstream's `useEventListener`). Unlike the sync `useStorage`
- *   port, no same-document synthetic events are dispatched — upstream's async
- *   variant writes through its watch without echoing;
+ *   (mirroring upstream's `useEventListener`); like upstream there is no
+ *   `storageArea` guard, so any matching-key event re-reads the storage — a
+ *   custom async backend never appears as an event's `storageArea`, and the
+ *   cross-tab reload relies on this. Unlike the sync `useStorage` port, no
+ *   same-document synthetic events are dispatched — upstream's async variant
+ *   writes through its watch without echoing;
  * - Vue reactivity options have no React equivalent and are omitted:
  *   `flush`/`deep`/`eventFilter` (writes are queued per `setValue` call) and
  *   `shallow` (React state is replaced wholesale).
@@ -184,14 +187,14 @@ export function useStorageAsync<T extends (string | number | boolean | object | 
         return
       const { onError = defaultOnError } = optionsRef.current
       try {
-        const oldValue = await storage.getItem(key)
         if (value == null) {
           await storage.removeItem(key)
         }
         else {
+          // upstream always performs the write (`storage.setItem` on every
+          // change) — no equality skip
           const serialized = await getSerializer().write(value)
-          if (oldValue !== serialized)
-            await storage.setItem(key, serialized)
+          await storage.setItem(key, serialized)
         }
       }
       catch (error) {
@@ -245,12 +248,10 @@ export function useStorageAsync<T extends (string | number | boolean | object | 
       return
 
     const onStorageEvent = (event: StorageEvent): void => {
-      if (event.storageArea !== storage)
-        return
-      // a `clear()` event (key === null) is ignored — upstream's `read`
-      // guards on `event.key !== key`, and a cleared key never matches
-      if (event.key === null || event.key !== key)
-        return
+      // upstream re-reads on any matching-key storage event — there is no
+      // `storageArea` guard, because a custom async backend never appears as
+      // an event's `storageArea`, and the cross-tab reload for the hook's
+      // target backends relies on this
       void read(event).then((value) => {
         if (value !== undefined)
           setInternal(value)

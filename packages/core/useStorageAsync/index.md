@@ -8,7 +8,7 @@ Reactive Storage with async support
 
 ## Usage
 
-The basic usage refers to [`useStorage`](/core/useStorage/) — the only difference
+The basic usage refers to [`useStorage`](/core/useStorage/).
 
 ```tsx
 import { useStorageAsync } from '@reaxuse/core'
@@ -34,8 +34,10 @@ const [accessToken, setAccessToken] = useStorageAsync('access.token', '', SomeAs
 console.log(accessToken) // ""
 
 setTimeout(() => {
-  // After some time, the async storage is ready
-  console.log(accessToken) // "the real value stored in storage"
+  // In React this closure captured the first render — the loaded value
+  // arrives on a re-render and cannot be read from here. Use the `onReady`
+  // option below to act on the loaded value.
+  console.log(accessToken) // "" — the first render value, unchanged
 }, 500)
 ```
 
