@@ -47,7 +47,10 @@ export interface UseColorModeOptions<T extends string = BasicColorMode> extends 
   /**
    * Custom storage ref
    *
-   * When provided, `useStorage` will be skipped
+   * When provided, the persistence layer is skipped entirely — no localStorage
+   * read/write and no storage-event listener (`useStorage` is still called
+   * internally for the rules of hooks, backed by an inert in-memory storage).
+   * A `null` `storageRef.current` falls back to `initialValue`.
    */
   storageRef?: RefObject<T | BasicColorSchema>
 
@@ -93,9 +96,10 @@ export type UseColorModeReturn<T extends string = BasicColorMode> = [
 
 const CSS_DISABLE_TRANS = '*,*::before,*::after{-webkit-transition:none!important;-moz-transition:none!important;-o-transition:none!important;-ms-transition:none!important;transition:none!important}'
 
-// Inert `StorageLike` backend — `useStorage` is still called when
-// `storageKey: null` (rules of hooks forbid conditional calls) but with this
-// no-op storage so nothing is ever persisted.
+// Inert `StorageLike` backend — `useStorage` must always be called (rules of
+// hooks forbid conditional calls), so it is backed by this no-op storage
+// whenever persistence is disabled (`storageKey: null`) or replaced by a
+// custom `storageRef`; nothing is ever read from or written to real storage.
 const inertStorage: StorageLike = {
   getItem: () => null,
   setItem: () => {},
@@ -135,7 +139,11 @@ const inertStorage: StorageLike = {
  * - `initialValue` is resolved once at mount; `storageRef` accepts a
  *   ref-like `{ current }` object as the external store, mirroring upstream's
  *   `Ref` — writes go to `storageRef.current` and trigger a re-render through
- *   internal state, and the current value is re-read on every render;
+ *   internal state, and the current value is re-read on every render. When
+ *   `storageRef` is provided the persistence layer is skipped entirely (no
+ *   localStorage read/write, no storage-event listener); a `null`
+ *   `storageRef.current` falls back to `initialMode`, whereas upstream's raw
+ *   `store.value` passthrough would expose `null`;
  * - `selector` accepts a string (queried on every update) or a plain element
  *   / ref-like `{ current }` object (upstream's `ElementRef`).
  *
@@ -182,16 +190,26 @@ export function useColorMode<T extends string = BasicColorMode>(
   const preferredDark = usePreferredDark({ window: win })
   const system: BasicColorMode = preferredDark ? 'dark' : 'light'
 
-  // persisted store — `useStorage` is always called (rules of hooks); with
-  // `storageKey: null` it is backed by an inert StorageLike, and with a custom
-  // `storageRef` its result is unused
+  // `storageRef` replaces the whole persistence layer (upstream's
+  // `storageRef || ...` short-circuit): `useStorage` is still called
+  // unconditionally (rules of hooks), but against the inert backend with
+  // `writeDefaults: false` + `listenToStorageChanges: false`, so no real
+  // localStorage is read or written and no storage-event listener is added.
+  // `storageKey: null` is likewise backed by the inert storage.
   const [stored, setStored] = useStorage<T | BasicColorSchema>(
     storageKey ?? 'reaxuse-use-color-mode',
     initialMode,
-    storageKey == null ? inertStorage : storage,
-    { window: win, listenToStorageChanges },
+    storageKey == null || storageRef ? inertStorage : storage,
+    storageRef
+      ? { window: win, writeDefaults: false, listenToStorageChanges: false }
+      : { window: win, listenToStorageChanges },
   )
+  // local (non-persisted) mode, used only when `storageKey: null`
   const [plainStore, setPlainStore] = useState<T | BasicColorSchema>(initialMode)
+  // re-render nudge for the `storageRef` path: the external value lives on the
+  // ref and is re-read on every render, so only a state bump is needed for a
+  // write through `setMode` to be observed
+  const [, setStoreVersion] = useState(0)
 
   const usePersistedStore = storageKey != null && !storageRef
   const store = (usePersistedStore ? stored : (storageRef ? storageRef.current : plainStore)) ?? initialMode
@@ -199,7 +217,7 @@ export function useColorMode<T extends string = BasicColorMode>(
   const setMode = useCallback((mode: T | BasicColorSchema) => {
     if (storageRef) {
       storageRef.current = mode
-      setPlainStore(mode)
+      setStoreVersion(v => v + 1)
     }
     else if (storageKey == null) {
       setPlainStore(mode)
