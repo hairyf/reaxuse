@@ -51,9 +51,16 @@ describe('useTitle', () => {
     })
 
     it('undefined', async () => {
-      const { result } = await renderHook(() => useTitle(undefined))
+      const { result, act } = await renderHook(() => useTitle(undefined))
 
       expect(result.current[0]).toBe(defaultTitle)
+
+      // the undefined initial title stays writable and writes through
+      await act(() => {
+        result.current[1]('new title')
+      })
+      expect(result.current[0]).toBe('new title')
+      expect(document.title).toBe('new title')
     })
   })
 
@@ -71,14 +78,15 @@ describe('useTitle', () => {
     expect(document.title).toBe('new title')
   })
 
-  it('setting null through the setter leaves document.title untouched', async () => {
+  it('setting null through the setter clears document.title', async () => {
     const { result, act } = await renderHook(() => useTitle('old title'))
 
     await act(() => {
       result.current[1](null)
     })
     expect(result.current[0]).toBe(null)
-    expect(document.title).toBe('old title')
+    // upstream: `document.title = format(newValue ?? '')`
+    expect(document.title).toBe('')
   })
 
   it('types: returns a writable [title, setTitle] tuple', async () => {

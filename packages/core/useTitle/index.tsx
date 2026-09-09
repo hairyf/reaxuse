@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
-export interface UseTitleOptions {
+export interface UseTitleOptionsBase {
   /**
    * Specify a custom `document` instance, e.g. working with iframes or in
    * testing environments.
@@ -13,21 +13,31 @@ export interface UseTitleOptions {
    * @returns restored title
    */
   restoreOnUnmount?: false | ((originalTitle: string, currentTitle: string) => string | null | undefined)
-  /**
-   * Observe `document.title` changes using a MutationObserver.
-   * Cannot be used together with `titleTemplate` option.
-   *
-   * @default false
-   */
-  observe?: boolean
-  /**
-   * The template string to parse the title (e.g., '%s | My Website')
-   * Cannot be used together with `observe` option.
-   *
-   * @default '%s'
-   */
-  titleTemplate?: string | ((title: string) => string)
 }
+
+/**
+ * `observe` and `titleTemplate` are mutually exclusive (upstream union type).
+ */
+export type UseTitleOptions = UseTitleOptionsBase & (
+  | {
+    /**
+     * Observe `document.title` changes using a MutationObserver.
+     * Cannot be used together with `titleTemplate` option.
+     *
+     * @default false
+     */
+    observe?: boolean
+  }
+  | {
+    /**
+     * The template string to parse the title (e.g., '%s | My Website')
+     * Cannot be used together with `observe` option.
+     *
+     * @default '%s'
+     */
+    titleTemplate?: string | ((title: string) => string)
+  }
+)
 
 export type UseTitleReturn = [
   title: string | null | undefined,
@@ -58,6 +68,14 @@ function formatTitle(raw: string, template: string | ((title: string) => string)
 }
 
 /**
+ * Read the `titleTemplate` option out of the `observe`|`titleTemplate` union
+ * (upstream discriminates with `'titleTemplate' in options`).
+ */
+function readTitleTemplate(options: UseTitleOptions): string | ((title: string) => string) | undefined {
+  return 'titleTemplate' in options ? options.titleTemplate : undefined
+}
+
+/**
  * React port of VueUse's `useTitle`.
  *
  * Map from @vueuse/core `useTitle`
@@ -75,16 +93,16 @@ function formatTitle(raw: string, template: string | ((title: string) => string)
  *   render without touching `document` (SSR-safe), so the adoption happens
  *   in a mount effect — during the first render (and on the server) `title`
  *   is `newTitle ?? null`;
- * - the title write is a `useEffect` on the state instead of a Vue watcher,
- *   and setting `null`/`undefined` through the setter clears the state but
- *   leaves `document.title` untouched (upstream would write `format('')`);
+ * - the title write is a `useEffect` on the state instead of a Vue watcher;
+ *   setting `null`/`undefined` through the setter writes `format('')` like
+ *   upstream (`document.title = format(newValue ?? '')`);
  * - a plain `newTitle` argument is re-synced when it changes across renders
  *   (React has no reactive refs; upstream only propagates ref sources
  *   and then returns a readonly computed — here the setter stays writable);
  * - `observe` registers a raw `MutationObserver` on the `<title>` element in
  *   an effect (upstream composes `useMutationObserver`); as upstream it is
- *   ignored when `titleTemplate` is set, and both options share a flat
- *   interface instead of upstream's union type.
+ *   ignored when `titleTemplate` is set, and the options keep upstream's
+ *   `observe`|`titleTemplate` union type.
  *
  * It's not SSR compatible: your value will be applied only on client-side.
  *
@@ -113,20 +131,30 @@ export function useTitle(
   optionsRef.current = options
 
   // upstream adopts the current title synchronously at setup
-  // (`toRef(newTitle ?? document?.title ?? null)`); React initializes state
-  // during render without touching `document` (SSR-safe), so the adoption
-  // happens in this mount effect instead
+  // (`toRef(newTitle ?? document?.title ?? null)`) and writes on every change
+  // via `watch(..., { immediate: true })`; React initializes state during
+  // render without touching `document` (SSR-safe), so the adoption happens in
+  // the first run of this effect and the write is an effect on the state. A
+  // nullish title writes `format('')`, clearing `document.title` like
+  // upstream's `format(newValue ?? '')`.
   useEffect(() => {
     const doc = resolveDocument(optionsRef.current.document)
     if (!doc)
       return
 
-    if (originalTitleRef.current === null)
+    if (originalTitleRef.current === null) {
+      // first run: capture the pre-hook title and adopt it when no explicit
+      // `newTitle` was given — the adoption commits on the next render, which
+      // re-runs this effect with the adopted value
       originalTitleRef.current = doc.title
+      if (newTitleRef.current == null && doc.title !== titleRef.current) {
+        setTitle(doc.title)
+        return
+      }
+    }
 
-    if (newTitleRef.current == null && doc.title !== titleRef.current)
-      setTitle(doc.title)
-  }, [])
+    doc.title = formatTitle(title ?? '', readTitleTemplate(optionsRef.current))
+  }, [title])
 
   // a plain `newTitle` argument is re-synced when it changes across renders
   // (React equivalent of upstream's reactive ref sources)
@@ -137,24 +165,11 @@ export function useTitle(
     setTitle(newTitle)
   }, [newTitle])
 
-  // the title write is an effect on the state (upstream: `watch`); skipped
-  // while the state is nullish so the mount adoption above is never clobbered
-  useEffect(() => {
-    if (title == null)
-      return
-
-    const doc = resolveDocument(optionsRef.current.document)
-    if (!doc)
-      return
-
-    doc.title = formatTitle(title, optionsRef.current.titleTemplate)
-  }, [title])
-
   // mirror external `document.title` changes back into the state; as
-  // upstream, only without `titleTemplate`
+  // upstream, only without `titleTemplate` (union arm guarantees it)
   useEffect(() => {
-    const { observe, titleTemplate, document: docOption } = optionsRef.current
-    if (!observe || titleTemplate)
+    const { document: docOption } = optionsRef.current
+    if (!('observe' in optionsRef.current) || !optionsRef.current.observe)
       return
 
     const doc = resolveDocument(docOption)
