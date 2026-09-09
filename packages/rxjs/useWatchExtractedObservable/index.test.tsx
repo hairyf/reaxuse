@@ -74,18 +74,19 @@ describe('useWatchExtractedObservable', () => {
     expect(callback).toHaveBeenNthCalledWith(2, 2)
   })
 
-  it('extracts once the source becomes non-nullish (ref-like source)', async () => {
-    const source: { current: Wrapper | undefined } = { current: undefined }
+  it('extracts once the source becomes non-nullish', async () => {
     const subject = new Subject<number>()
     const extractor = vi.fn((value: Wrapper) => value.obs$)
     const callback = vi.fn()
 
-    const { act, rerender } = await renderHook(() => useWatchExtractedObservable(source, extractor, callback))
+    const { act, rerender } = await renderHook(
+      (props: { source: Wrapper | undefined }) => useWatchExtractedObservable(props.source, extractor, callback),
+      { initialProps: { source: undefined as Wrapper | undefined } },
+    )
 
     expect(extractor).not.toHaveBeenCalled()
 
-    source.current = { obs$: subject.asObservable() }
-    await act(() => rerender())
+    await act(() => rerender({ source: { obs$: subject.asObservable() } }))
 
     expect(extractor).toHaveBeenCalledTimes(1)
 
@@ -236,7 +237,7 @@ describe('useWatchExtractedObservable', () => {
 
     const { act, rerender } = await renderHook(
       ({ num }: { num: number } = { num: 0 }) => useWatchExtractedObservable(
-        { current: num },
+        num,
         (value: number) => (value % 2 === 1 ? throwError(error) : of(value)),
         callback,
         { deps: [num], onError },

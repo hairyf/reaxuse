@@ -1,5 +1,5 @@
-import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
-import { pxValue, toValue } from '@reaxuse/shared'
+import type { ConfigurableWindow } from '@reaxuse/shared'
+import { pxValue } from '@reaxuse/shared'
 import { useEffect, useState } from 'react'
 
 /**
@@ -18,9 +18,9 @@ import { useEffect, useState } from 'react'
  * - the `matchMedia` query and its `change` listener attach inside a
  *   self-contained `useEffect` (upstream binds through `useEventListener`)
  *   and are removed on unmount;
- * - `query` accepts a plain string or a ref-like `{ current }` object (a
- *   React ref, `RefOrValue`); it is re-resolved on every render
- *   and the media query re-binds when the resolved string changes;
+ * - `query` is a read-only value source and takes a plain `string`
+ *   (upstream: `MaybeRefOrGetter<string>`; resolve a React ref or getter at
+ *   the call site) and the media query re-binds when it changes;
  * - the initial `matches` sync happens in the mount effect instead of during
  *   setup, so SSR renders the `false` default without touching `window`;
  * - the upstream `ssrSupport` branch (a numeric `ssrWidth` fallback that
@@ -34,15 +34,14 @@ import { useEffect, useState } from 'react'
  * const isPreferredDark = useMediaQuery('(prefers-color-scheme: dark)')
  */
 export function useMediaQuery(
-  query: RefOrValue<string>,
+  query: string,
   options: ConfigurableWindow & { ssrWidth?: number } = {},
 ): boolean {
   const { window: windowOption, ssrWidth } = options
   const [matches, setMatches] = useState(false)
 
-  // re-resolved on every render so ref-like `{ current }` queries
-  // re-bind whenever the resolved query string changes (upstream reactivity)
-  const trackedQuery = toValue(query)
+  // the query is re-read on every render so a changed string re-binds
+  const trackedQuery = query
   const trackedWindow = windowOption === undefined
     ? (typeof window === 'undefined' ? undefined : window)
     : windowOption

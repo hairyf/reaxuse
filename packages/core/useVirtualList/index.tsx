@@ -1,6 +1,4 @@
-import type { RefOrValue } from '@reaxuse/shared'
 import type { CSSProperties } from 'react'
-import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 type UseVirtualListItemSize = number | ((index: number) => number)
@@ -168,8 +166,10 @@ function getTotalSize<T>(source: readonly T[], itemSize: UseVirtualListItemSize)
  *   offset and size (kept in state, updated by `onScroll` / `scrollTo` / the
  *   container ref callback / a `ResizeObserver`), so the source list, the
  *   item-size function and the options are re-read every render — no `watch`
- *   setup needed; upstream's `RefOrValue<readonly T[]>` input accepts a plain
- *   array or a ref-like `{ current }` object;
+ *   setup needed; `list` is a read-only value source and takes a plain
+ *   `readonly T[]` (upstream: `MaybeRef<readonly T[]>`), so a React ref or
+ *   state value is resolved at the call site (`useVirtualList(itemsRef.current,
+ *   …)`);
  * - upstream's `watch` over the container size (via `useElementSize`) becomes
  *   the `ResizeObserver` attached to the container element, and the item-size
  *   recomputation that upstream's `totalSize` computed drives is simply a
@@ -184,8 +184,9 @@ function getTotalSize<T>(source: readonly T[], itemSize: UseVirtualListItemSize)
  *
  * SSR-safe: nothing touches `window` or the DOM during render.
  *
- * @param list - the source array, or a ref-like `{ current }` object holding
- *   it (the latest value is read on every render)
+ * @param list - the source array (a read-only value source — resolve a React
+ *   ref or state value at the call site); the latest value is read on every
+ *   render
  * @param options - `itemHeight` (vertical) or `itemWidth` (horizontal) as a
  *   fixed pixel size or an `(index) => size` function, plus the `overscan`
  *   buffer (`@default 5`)
@@ -205,7 +206,7 @@ function getTotalSize<T>(source: readonly T[], itemSize: UseVirtualListItemSize)
  * //   </div>
  * // </div>
  */
-export function useVirtualList<T = any>(list: RefOrValue<readonly T[]>, options: UseVirtualListOptions): UseVirtualListReturn<T> {
+export function useVirtualList<T = any>(list: readonly T[], options: UseVirtualListOptions): UseVirtualListReturn<T> {
   const isVertical = 'itemHeight' in options
   const itemSize: UseVirtualListItemSize = isVertical ? options.itemHeight : options.itemWidth
   const overscan = options.overscan ?? 5
@@ -225,7 +226,7 @@ export function useVirtualList<T = any>(list: RefOrValue<readonly T[]>, options:
   const isVerticalRef = useRef(isVertical)
   const rangeRef = useRef({ start: 0, end: 0 })
   isVerticalRef.current = isVertical
-  sourceRef.current = toValue(list) ?? []
+  sourceRef.current = list ?? []
   itemSizeRef.current = itemSize
   overscanRef.current = overscan
 
@@ -327,7 +328,7 @@ export function useVirtualList<T = any>(list: RefOrValue<readonly T[]>, options:
   }, [])
 
   // -- render-derived window (upstream: computed refs + `state`) -------------
-  const source = toValue(list) ?? []
+  const source = list ?? []
   const offset = getOffset(source, itemSize, scrollPosition)
   const viewCapacity = getViewCapacity(rangeRef.current.start, source, itemSize, containerSize)
 

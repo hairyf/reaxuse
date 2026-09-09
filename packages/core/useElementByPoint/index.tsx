@@ -7,13 +7,17 @@ import { useSupported } from '../useSupported'
 
 export interface UseElementByPointOptions<Multiple extends boolean = false> {
   /**
-   * X coordinate of the point to hit-test
+   * X coordinate of the point to hit-test. A read-only value source — pass a
+   * plain number (upstream: `MaybeRefOrGetter`); resolve a React ref or getter
+   * at the call site. The latest value is read on every scheduler tick.
    */
-  x: RefOrValue<number>
+  x: number
   /**
-   * Y coordinate of the point to hit-test
+   * Y coordinate of the point to hit-test. A read-only value source — pass a
+   * plain number (upstream: `MaybeRefOrGetter`); resolve a React ref or getter
+   * at the call site. The latest value is read on every scheduler tick.
    */
-  y: RefOrValue<number>
+  y: number
   /**
    * When enabled, return every element under the point
    * (`document.elementsFromPoint`) instead of the topmost one
@@ -83,10 +87,12 @@ type ElementByPointElement<M extends boolean> = M extends true ? HTMLElement[] :
  *   plain `element` value read directly off the result object;
  * - the Vue `ComputedRef<boolean>` `isSupported` becomes a plain boolean
  *   evaluated once in the mount effect (SSR-safe: `false` until then);
- * - `x`, `y` and `multiple` accept plain values or ref-like `{ current }`
- *   objects (upstream: `RefOrValue`) and are re-resolved on
- *   every tick through latest-value refs, so e.g. a `useMouse` position
- *   updates the hit element without re-running the hook;
+ * - `x` and `y` are read-only value sources and take plain numbers
+ *   (upstream: `MaybeRefOrGetter<number>`; resolve a React ref or getter at
+ *   the call site). They are re-read on every tick through latest-value refs,
+ *   so e.g. a `useMouse` position updates the hit element without re-running
+ *   the hook; `multiple` stays `RefOrValue<Multiple>` (a behavior toggle, not
+ *   a value source);
  * - the `document` option is inlined (upstream: `ConfigurableDocument`) and
  *   defaults to the global `document` only on the client, so SSR renders never
  *   touch the DOM;
@@ -132,8 +138,8 @@ export function useElementByPoint<M extends boolean = false>(options: UseElement
 
   const updateElement = useCallback(() => {
     const doc = documentRef.current
-    const pointX = toValue(xRef.current)
-    const pointY = toValue(yRef.current)
+    const pointX = xRef.current
+    const pointY = yRef.current
 
     if (toValue(multipleRef.current)) {
       const elements = doc?.elementsFromPoint(pointX, pointY) ?? []

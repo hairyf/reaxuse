@@ -1,25 +1,79 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { State } from '@reaxuse/shared'
 import type { Dispatch, SetStateAction } from 'react'
 import { clamp, isRefLike, noop, toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+/**
+ * Whether a `State<T>` source is reactive — ref-like objects, getters,
+ * `[value, setter]` tuples and `{ value, onChange }` pairs can all change
+ * without the caller passing a new plain value. A plain value is static for
+ * the lifetime of the hook unless the caller re-renders with a new one.
+ */
+function isReactiveState<T>(source: State<T> | undefined | null): boolean {
+  if (source === null || source === undefined)
+    return false
+  if (typeof source === 'function')
+    return true
+  if (isRefLike(source as object))
+    return true
+  if (Array.isArray(source) && source.length === 2 && typeof source[1] === 'function')
+    return true
+  return typeof source === 'object'
+    && !Array.isArray(source)
+    && 'value' in source
+    // mirrors `toValue`: a DOM-like `{ value }` (an input element) is a plain
+    // value, not a `{ value, onChange }` state pair
+    && !('addEventListener' in source)
+}
+
+/**
+ * Write a value back through a writable `State<T>` source — a ref-like
+ * `.current`, a `[value, setter]` tuple or a `{ value, onChange }` pair.
+ * Plain values and getters have no write path (upstream's `syncRef` only ever
+ * writes the Vue ref it was given).
+ */
+function writeState<T>(source: State<T> | undefined | null, value: T): void {
+  if (source === null || source === undefined)
+    return
+  if (Array.isArray(source) && source.length === 2 && typeof source[1] === 'function') {
+    (source as unknown as readonly [T, (next: T) => void])[1](value)
+    return
+  }
+  if (isRefLike(source as object)) {
+    (source as { current: T }).current = value
+    return
+  }
+  if (typeof source === 'object' && !Array.isArray(source)
+    && 'value' in source && !('addEventListener' in source)) {
+    (source as { onChange?: (next: T) => void }).onChange?.(value)
+  }
+}
+
 export interface UseOffsetPaginationOptions {
   /**
-   * Total number of items.
+   * Total number of items. A read-only value source — pass a plain number
+   * (upstream: `MaybeRefOrGetter<number>`; resolve a React ref or getter at
+   * the call site).
    */
-  total?: RefOrValue<number>
+  total?: number
 
   /**
-   * The number of items to display per page.
+   * The number of items to display per page. A read-only value source — pass
+   * a plain number (upstream: `MaybeRefOrGetter<number>`; resolve a React ref
+   * or getter at the call site). Only the initial value is adopted; navigate
+   * with `setCurrentPageSize`.
    * @default 10
    */
-  pageSize?: RefOrValue<number>
+  pageSize?: number
 
   /**
-   * The current page number.
+   * The current page number. Controllable — the hook writes it back, so it
+   * accepts a React `State<number>`: a plain number, a getter, a React ref
+   * (`{ current }`), a `[value, setter]` state tuple or a `{ value, onChange }`
+   * pair — resolved with `toValue`.
    * @default 1
    */
-  page?: RefOrValue<number>
+  page?: State<number>
 
   /**
    * Callback when the `page` change.
@@ -88,13 +142,18 @@ export type UseOffsetPaginationInfinityPageReturn = Omit<UseOffsetPaginationCont
  *    assigns `currentPage.value` / `currentPageSize.value` directly), while
  *    `pageCount` / `isFirstPage` / `isLastPage` are derived on every render
  *    (upstream: computed refs).
- * 2. `total` / `pageSize` accept a plain value or a ref-like (`{ current }`),
- *    and `page` accepts a plain value or a
- *    ref-like — all resolved with `toValue` (upstream: `RefOrValue`).
- *    A ref-like `page` / `pageSize` is kept in two-way sync with the internal
- *    state, mirroring upstream's `syncRef` (including writing the clamped
- *    value back to the ref-like); external mutations are adopted on the next
- *    render.
+ * 2. `total` and `pageSize` are read-only value sources and take plain
+ *    numbers (upstream: `MaybeRefOrGetter<number>`; resolve a React ref or
+ *    getter at the call site) — only their initial value is adopted.
+ *    `page` is controllable (the hook writes it), so it accepts a React
+ *    `State<number>` — a plain number, a getter, a React ref (`{ current }`),
+ *    a `[value, setter]` state tuple or a `{ value, onChange }` pair — all
+ *    resolved with `toValue` (upstream: `MaybeRef<number>`; the tuple and
+ *    `{ value, onChange }` forms are the React state protocol and have no
+ *    upstream equivalent). A reactive `page` is kept in two-way sync with the
+ *    internal state, mirroring upstream's `syncRef` (including writing the
+ *    clamped value back through the ref-like `.current`, the tuple setter or
+ *    the pair's `onChange`); external mutations are adopted on the next render.
  * 3. Change callbacks fire when the corresponding value actually changes
  *    (never on the initial render), receiving a snapshot of the pagination
  *    state — upstream fires them through `watch` with the reactive return
@@ -132,10 +191,6 @@ export function useOffsetPagination(options: UseOffsetPaginationOptions): UseOff
   } = options
 
   // latest-value refs so stable callbacks and effects always read current options
-  const totalRef = useRef(total)
-  totalRef.current = total
-  const pageSizeRef = useRef(pageSize)
-  pageSizeRef.current = pageSize
   const pageRef = useRef(page)
   pageRef.current = page
   const onPageChangeRef = useRef(onPageChange)
@@ -145,18 +200,16 @@ export function useOffsetPagination(options: UseOffsetPaginationOptions): UseOff
   const onPageCountChangeRef = useRef(onPageCountChange)
   onPageCountChangeRef.current = onPageCountChange
 
-  const isPageRefLike = isRefLike(page)
-  const isPageRefLikeRef = useRef(isPageRefLike)
-  isPageRefLikeRef.current = isPageRefLike
-  const isPageSizeRefLike = isRefLike(pageSize)
-  const isPageSizeRefLikeRef = useRef(isPageSizeRefLike)
-  isPageSizeRefLikeRef.current = isPageSizeRefLike
+  const isPageReactive = isReactiveState(page)
+  const isPageReactiveRef = useRef(isPageReactive)
+  isPageReactiveRef.current = isPageReactive
 
-  // upstream: currentPageSize = useClamp(pageSize, 1, Infinity)
-  const [currentPageSize, setCurrentPageSize] = useState(() => Math.max(1, toValue(pageSizeRef.current)))
+  // upstream: currentPageSize = useClamp(pageSize, 1, Infinity) — `pageSize`
+  // is a read-only value source, so only the initial value is adopted
+  const [currentPageSize, setCurrentPageSize] = useState(() => Math.max(1, pageSize))
 
   // upstream: pageCount = computed(...)
-  const pageCount = Math.max(1, Math.ceil(toValue(totalRef.current) / currentPageSize))
+  const pageCount = Math.max(1, Math.ceil(total / currentPageSize))
   const pageCountRef = useRef(pageCount)
   pageCountRef.current = pageCount
 
@@ -205,29 +258,37 @@ export function useOffsetPagination(options: UseOffsetPaginationOptions): UseOff
   const returnValueRef = useRef(returnValue)
   returnValueRef.current = returnValue
 
-  // --- ref-like two-way sync (upstream: syncRef(page/currentPage, 'both')) ---
-  // adopt external mutations of a ref-like `page` / `pageSize` on re-render
+  // --- controllable `page` two-way sync (upstream: syncRef(page/currentPage, 'both')) ---
+  // A single reconciliation runs after every render: a source value we did not
+  // write ourselves is adopted, otherwise an internal change is written back.
+  // Two independent effects (adopt + write-back) would ping-pong, because the
+  // adoption effect always runs before the write-back effect in the same
+  // commit and each would see the other's stale value.
+  const lastSyncedPageRef = useRef<number>(currentPage)
   useEffect(() => {
-    if (isPageRefLikeRef.current) {
-      const clamped = clamp((pageRef.current as { current: number }).current, 1, pageCountRef.current)
-      setCurrentPage(current => (current === clamped ? current : clamped))
+    if (!isPageReactiveRef.current)
+      return
+
+    const rawSource = toValue(pageRef.current)
+    const sourceValue = clamp(rawSource, 1, pageCountRef.current)
+    if (sourceValue !== lastSyncedPageRef.current) {
+      // external mutation → adopt it and normalize the source
+      lastSyncedPageRef.current = sourceValue
+      setCurrentPage(sourceValue)
+      writeState(pageRef.current, sourceValue)
+      return
     }
-    if (isPageSizeRefLikeRef.current) {
-      const clamped = Math.max(1, (pageSizeRef.current as { current: number }).current)
-      setCurrentPageSize(current => (current === clamped ? current : clamped))
+    if (currentPage !== lastSyncedPageRef.current) {
+      // internal change → write it back through the source
+      lastSyncedPageRef.current = currentPage
+      writeState(pageRef.current, currentPage)
+      return
+    }
+    if (rawSource !== currentPage) {
+      // an out-of-range source value is normalized to the clamped page
+      writeState(pageRef.current, currentPage)
     }
   })
-
-  // write internal state back to the ref-like (upstream syncRef both directions)
-  useEffect(() => {
-    if (isPageRefLikeRef.current)
-      (pageRef.current as { current: number }).current = currentPage
-  }, [currentPage])
-
-  useEffect(() => {
-    if (isPageSizeRefLikeRef.current)
-      (pageSizeRef.current as { current: number }).current = currentPageSize
-  }, [currentPageSize])
 
   // clamp currentPage down when pageCount shrinks (upstream useClamp bound)
   useEffect(() => {

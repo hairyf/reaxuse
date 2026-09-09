@@ -67,14 +67,18 @@ export interface UseMediaControlsOptions {
 
   /**
    * The source for the media, may either be a string, a `UseMediaSource` object, or a list
-   * of `UseMediaSource` objects.
+   * of `UseMediaSource` objects. A read-only value source — pass a plain value
+   * (upstream: `MaybeRefOrGetter`; resolve a React ref or getter at the call
+   * site).
    */
-  src?: RefOrValue<string | UseMediaSource | UseMediaSource[]>
+  src?: string | UseMediaSource | UseMediaSource[]
 
   /**
-   * A list of text tracks for the media
+   * A list of text tracks for the media. A read-only value source — pass a
+   * plain array (upstream: `MaybeRefOrGetter`; resolve a React ref or getter
+   * at the call site).
    */
-  tracks?: RefOrValue<UseMediaTextTrackSource[]>
+  tracks?: UseMediaTextTrackSource[]
 }
 
 export interface UseMediaTextTrack {
@@ -328,7 +332,12 @@ function updateNumberState(set: (value: number) => void, ref: { current: number 
  *    and call `el.load()` become effects that clean up the injected elements
  *    (removing them from the previous element when the target or options
  *    change) and that are SSR-safe — `document` is only reached through a
- *    guarded default and the effects run after mount.
+ *    guarded default and the effects run after mount. `options.src` and
+ *    `options.tracks` are read-only value sources and take plain values
+ *    (upstream: `MaybeRefOrGetter`; resolve a React ref or getter at the call
+ *    site). The `target` element param stays
+ *    `RefOrValue<HTMLMediaElement | null | undefined>` (a DOM target, not a
+ *    value source).
  * 5. `supportsPictureInPicture` is resolved once at setup (upstream reads a
  *    computed at setup too) and state defaults (`volume: 1`, `muted: false`,
  *    `rate: 1`, `currentTime: 0`, ...) stay until the events fill them in.
@@ -382,8 +391,8 @@ export function useMediaControls(
   // reactive values). The content is fingerprinted to a stable string: an
   // identity-based dep would loop, because the injections themselves update
   // state and re-render with a fresh option object.
-  const srcSignature = sourcesSignature(toValue(options.src))
-  const tracksSignatureValue = tracksSignature(toValue(options.tracks))
+  const srcSignature = sourcesSignature(options.src)
+  const tracksSignatureValue = tracksSignature(options.tracks)
 
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)

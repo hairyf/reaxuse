@@ -1,14 +1,12 @@
-import type { RefOrValue } from '@reaxuse/shared'
 import type { Dispatch, SetStateAction } from 'react'
-import { isRefLike, toValue } from '@reaxuse/shared'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 export interface UseCycleListOptions<T> {
   /**
-   * The initial value of the state.
-   * A ref can be provided to reuse.
+   * The initial value of the state. A read-only value source — pass a plain
+   * value (upstream: `MaybeRef<T>`; resolve a React ref at the call site).
    */
-  initialValue?: RefOrValue<T>
+  initialValue?: T
 
   /**
    * The default index when the current value is not found in the list.
@@ -63,11 +61,11 @@ export interface UseCycleListReturn<T> {
  *    `state.value`/`index.value` directly): `setIndex` is the same as `go`,
  *    while `setState` writes the item directly and `index` re-derives from
  *    `getIndexOf ?? list.indexOf`.
- * 2. `list` accepts a plain array or a ref-like (`{ current }`),
- *    resolved with `toValue` (upstream: `RefOrValue`).
- *    When a ref-like list's `current` is replaced, the current index is
- *    re-applied to the new list (upstream: `watch(listRef, ...)`) — plain
- *    arrays and ref-like objects are simply re-resolved on every render instead.
+ * 2. `list` is a read-only value source and takes a plain `T[]` (upstream:
+ *    `MaybeRefOrGetter<T[]>`; resolve a React ref or getter at the call site).
+ *    It is re-read on every render, so a new array from React state is picked
+ *    up like any other argument (upstream's `watch(listRef, ...)` only fires
+ *    for a reactive ref, which this port does not accept).
  * 3. `next`/`prev`/`go` are stable callbacks that return the would-be value
  *    synchronously (upstream returns the new state from the `set` helper);
  *    the state commit itself is asynchronous (React `setState`).
@@ -81,23 +79,21 @@ export interface UseCycleListReturn<T> {
  * next() // 'Cat'
  * go(3) // 'Shark'
  */
-export function useCycleList<T>(list: RefOrValue<T[]>, options?: UseCycleListOptions<T>): UseCycleListReturn<T> {
+export function useCycleList<T>(list: T[], options?: UseCycleListOptions<T>): UseCycleListReturn<T> {
   // latest-value refs synced each render so every control below is a stable
   // callback that always reads the newest list and options
   const listRef = useRef(list)
   listRef.current = list
   const optionsRef = useRef(options)
   optionsRef.current = options
-  const isListRefLikeRef = useRef(isRefLike(list))
-  isListRefLikeRef.current = isRefLike(list)
 
-  const getList = useCallback(() => toValue<T[]>(listRef.current), [])
+  const getList = useCallback(() => listRef.current, [])
   const getOptions = useCallback(() => optionsRef.current, [])
 
   // upstream: shallowRef(getInitialValue())
   const [state, setState] = useState<T>(() => {
     const options = getOptions()
-    return (toValue(options?.initialValue ?? getList()[0]) ?? undefined) as T
+    return (options?.initialValue ?? getList()[0]) as T
   })
 
   // upstream: computed<number>({ get, set }) — derived from state + list on
@@ -139,20 +135,6 @@ export function useCycleList<T>(list: RefOrValue<T[]>, options?: UseCycleListOpt
     const resolved = typeof action === 'function' ? action(indexRef.current) : action
     set(resolved)
   }, [set])
-
-  // upstream: watch(listRef, () => set(index.value)) — replacing the `current`
-  // of a ref-like list re-applies the current index to the new list. Runs on
-  // every render, no-op when the ref-like value did not change.
-  const lastListValueRef = useRef<T[]>(getList())
-  useEffect(() => {
-    if (!isListRefLikeRef.current)
-      return
-    const current = getList()
-    if (current !== lastListValueRef.current) {
-      lastListValueRef.current = current
-      set(indexRef.current)
-    }
-  })
 
   return { state, index, next, prev, go: set, setState, setIndex }
 }
