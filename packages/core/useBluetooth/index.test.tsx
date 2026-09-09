@@ -90,6 +90,23 @@ describe('useBluetooth', () => {
     await expect.poll(() => result.current.isConnected).toBe(true)
   })
 
+  it('clears a stale connection error when the device is reset', async () => {
+    const connectError = new Error('connect failed')
+    const device = createMockBluetoothDevice('device-1')
+    device.gatt.connect.mockRejectedValueOnce(connectError)
+    const navigator = createMockNavigator([device])
+
+    const { result } = await renderHook(() => useBluetooth({ navigator }))
+
+    await result.current.requestDevice()
+    await expect.poll(() => result.current.error).toBe(connectError)
+
+    device.dispatchDisconnect()
+
+    await expect.poll(() => result.current.device).toBeUndefined()
+    await expect.poll(() => result.current.error).toBeNull()
+  })
+
   it('disconnects the GATT server on unmount', async () => {
     const device = createMockBluetoothDevice('device-1')
     const navigator = createMockNavigator([device])
