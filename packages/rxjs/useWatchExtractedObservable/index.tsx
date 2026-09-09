@@ -1,6 +1,4 @@
-import type { RefOrValue } from '@reaxuse/shared'
 import type { Observable, Subscription } from 'rxjs'
-import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef } from 'react'
 
 /**
@@ -73,14 +71,15 @@ const EMPTY_DEPS: unknown[] = []
  *
  * React adaptation (upstream's Vue reactivity graph is replaced):
  *
- * - `value` accepts a plain value or a ref-like `{ current }` object
- *   (`RefOrValue` from `@reaxuse/shared`, resolved with `toValue`). There is
- *   no reactive graph: the effect re-runs when the resolved value's identity
- *   changes **or** when `options.deps` change (upstream re-runs whenever the
- *   tracked source mutates). A source object mutated **in place** therefore
- *   does not re-trigger — pass a new identity or list the mutation inputs in
- *   `deps`. `deps` is the React substitute for Vue's reactive tracking, the
- *   same convention as `computedAsync`'s `options.deps`
+ * - `value` is a read-only value source and takes a plain
+ *   `Value | null | undefined` (upstream: `T | WatchSource<T>`; resolve a
+ *   React ref or getter at the call site). There
+ *   is no reactive graph: the effect re-runs when the value's
+ *   identity changes **or** when `options.deps` change (upstream re-runs
+ *   whenever the tracked source mutates). A source object mutated **in place**
+ *   therefore does not re-trigger — pass a new identity or list the mutation
+ *   inputs in `deps`. `deps` is the React substitute for Vue's reactive
+ *   tracking, the same convention as `computedAsync`'s `options.deps`
  *   (`packages/core/src/computedAsync.ts`).
  * - The extractor is `(value, onCleanup) => Observable<E>`: upstream also
  *   passes Vue's `oldValue` as the second argument, which has no React
@@ -112,7 +111,7 @@ const EMPTY_DEPS: unknown[] = []
  * }, { onError: err => console.error(err) })
  */
 export function useWatchExtractedObservable<Value, E>(
-  value: RefOrValue<Value | null | undefined>,
+  value: Value | null | undefined,
   extractor: WatchExtractedObservableExtractor<Value, E>,
   callback: (snapshot: E) => void,
   options?: UseWatchExtractedObservableOptions,
@@ -123,7 +122,7 @@ export function useWatchExtractedObservable<Value, E>(
     onComplete,
   } = options ?? {}
 
-  const resolvedValue = toValue(value)
+  const resolvedValue = value
 
   // Latest-input mirrors synced every render (house pattern) so the effect
   // always reads the newest inputs while `effectDeps` stays the only trigger.

@@ -39,3 +39,15 @@ changes, the previous URL is revoked and a new one is created:
 const [file, setFile] = useState<File>()
 const url = useObjectUrl(file) // `undefined` until a file is set
 ```
+
+## Source Forms
+
+`object` is a read-only value source and takes a plain `Blob | MediaSource | null | undefined`
+(upstream: `MaybeRefOrGetter<...>`). Resolve a React ref or state value at the call site:
+
+```tsx
+const [file, setFile] = useState<File>()
+
+const url = useObjectUrl(file) // a new URL is created whenever `file` changes
+const refUrl = useObjectUrl(fileRef.current) // resolve a React ref at the call site
+```

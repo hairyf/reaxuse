@@ -39,7 +39,7 @@ describe('useVirtualList', () => {
 describe('useVirtualList, vertical', () => {
   it('returns all original items if they fit the container', async () => {
     const { result, act } = await renderHook(() =>
-      useVirtualList({ current: ['a', 'b', 'c', 'd', 'e', 'f'] }, { itemHeight: () => 50, overscan: 1 }),
+      useVirtualList(['a', 'b', 'c', 'd', 'e', 'f'], { itemHeight: () => 50, overscan: 1 }),
     )
     const div = createDiv({ clientHeight: 50 })
 
@@ -56,7 +56,7 @@ describe('useVirtualList, vertical', () => {
 
   it('returns the current visible window of items if there are too many for the container', async () => {
     const { result, act } = await renderHook(() =>
-      useVirtualList({ current: ['a', 'b', 'c', 'd', 'e', 'f', 'g'] }, { itemHeight: () => 50, overscan: 1 }),
+      useVirtualList(['a', 'b', 'c', 'd', 'e', 'f', 'g'], { itemHeight: () => 50, overscan: 1 }),
     )
     const div = createDiv({ clientHeight: 50 })
 
@@ -86,7 +86,7 @@ describe('useVirtualList, vertical', () => {
 
   it('correctly uses the scrollTo block option to align inside the container', async () => {
     const { result, act } = await renderHook(() =>
-      useVirtualList({ current: ['a', 'b', 'c', 'd', 'e', 'f', 'g'] }, { itemHeight: () => 50, overscan: 1 }),
+      useVirtualList(['a', 'b', 'c', 'd', 'e', 'f', 'g'], { itemHeight: () => 50, overscan: 1 }),
     )
     const div = createDiv({ clientHeight: 140 })
 
@@ -116,7 +116,7 @@ describe('useVirtualList, vertical', () => {
   it('recomputes the visible range when a reactive item height changes without scrolling', async () => {
     const { result, act, rerender } = await renderHook(
       (props?: { itemHeight?: number }) => useVirtualList(
-        { current: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] },
+        ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
         { itemHeight: () => props?.itemHeight ?? 50, overscan: 1 },
       ),
       { initialProps: {} },
@@ -141,7 +141,7 @@ describe('useVirtualList, vertical', () => {
 describe('useVirtualList, horizontal', () => {
   it('returns all original items if they fit the container', async () => {
     const { result, act } = await renderHook(() =>
-      useVirtualList({ current: ['a', 'b', 'c', 'd', 'e', 'f'] }, { itemWidth: () => 50, overscan: 1 }),
+      useVirtualList(['a', 'b', 'c', 'd', 'e', 'f'], { itemWidth: () => 50, overscan: 1 }),
     )
     const div = createDiv({ clientWidth: 50 })
 
@@ -158,7 +158,7 @@ describe('useVirtualList, horizontal', () => {
 
   it('returns the current visible window of items if there are too many for the container', async () => {
     const { result, act } = await renderHook(() =>
-      useVirtualList({ current: ['a', 'b', 'c', 'd', 'e', 'f', 'g'] }, { itemWidth: () => 50, overscan: 1 }),
+      useVirtualList(['a', 'b', 'c', 'd', 'e', 'f', 'g'], { itemWidth: () => 50, overscan: 1 }),
     )
     const div = createDiv({ clientWidth: 50 })
 
@@ -188,7 +188,7 @@ describe('useVirtualList, horizontal', () => {
 
   it('correctly uses the scrollTo inline option to align inside the container', async () => {
     const { result, act } = await renderHook(() =>
-      useVirtualList({ current: ['a', 'b', 'c', 'd', 'e', 'f', 'g'] }, { itemWidth: () => 50, overscan: 1 }),
+      useVirtualList(['a', 'b', 'c', 'd', 'e', 'f', 'g'], { itemWidth: () => 50, overscan: 1 }),
     )
     const div = createDiv({ clientWidth: 140 })
 
@@ -220,18 +220,18 @@ describe('useVirtualList, horizontal', () => {
     const readonlyInput: readonly string[] = ['a', 'b', 'c', 'd', 'e', 'f']
 
     const readonlyHook = await renderHook(() =>
-      useVirtualList({ current: readonlyInput }, { itemHeight: () => 50, overscan: 1 }),
+      useVirtualList(readonlyInput, { itemHeight: () => 50, overscan: 1 }),
     )
     const mutableHook = await renderHook(() =>
-      useVirtualList({ current: mutableInput }, { itemHeight: () => 50, overscan: 1 }),
+      useVirtualList(mutableInput, { itemHeight: () => 50, overscan: 1 }),
     )
 
     expect(readonlyHook.result.current.list).toBeDefined()
     expect(mutableHook.result.current.list).toBeDefined()
   })
 
-  it('reacts to changes in a source ref when mutated if no size changes are made to the container', async () => {
-    const mutableInput: { current: string[] } = { current: ['a', 'b'] }
+  it('reacts to in-place mutations of the source array on re-render when no size changes are made to the container', async () => {
+    const mutableInput: string[] = ['a', 'b']
 
     const { result, act, rerender } = await renderHook(
       () => useVirtualList(mutableInput, { itemHeight: () => 10 }),
@@ -243,7 +243,7 @@ describe('useVirtualList, horizontal', () => {
 
     expect(result.current.list.map(i => i.data)).toEqual(['a', 'b'])
 
-    mutableInput.current.push('c', 'd')
+    mutableInput.push('c', 'd')
     await rerender()
 
     expect(result.current.list.map(i => i.data)).toEqual(['a', 'b', 'c', 'd'])

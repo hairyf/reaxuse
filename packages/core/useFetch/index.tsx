@@ -71,12 +71,12 @@ export interface UseFetchReturn<T> {
 
   // methods
   get: () => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-  post: (payload?: RefOrValue<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-  put: (payload?: RefOrValue<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-  delete: (payload?: RefOrValue<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-  patch: (payload?: RefOrValue<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-  head: (payload?: RefOrValue<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-  options: (payload?: RefOrValue<unknown>, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+  post: (payload?: unknown, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+  put: (payload?: unknown, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+  delete: (payload?: unknown, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+  patch: (payload?: unknown, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+  head: (payload?: unknown, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+  options: (payload?: unknown, type?: string) => UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
 
   // type
   json: <JSON = any>() => UseFetchReturn<JSON> & PromiseLike<UseFetchReturn<JSON>>
@@ -200,7 +200,7 @@ export interface CreateFetchOptions {
   /**
    * The base URL that will be prefixed to all urls unless urls are absolute
    */
-  baseUrl?: RefOrValue<string>
+  baseUrl?: string
 
   /**
    * Determine the inherit behavior for beforeFetch, afterFetch, onFetchError
@@ -326,9 +326,9 @@ export function createFetch(config: CreateFetchOptions = {}) {
   const _options = config.options || {}
   const _fetchOptions = config.fetchOptions || {}
 
-  function useFactoryFetch(url: RefOrValue<string>, ...args: any[]): UseFetchReturn<any> & PromiseLike<UseFetchReturn<any>> {
-    const baseUrl = toValue(config.baseUrl)
-    const targetUrl = toValue(url)
+  function useFactoryFetch(url: string, ...args: any[]): UseFetchReturn<any> & PromiseLike<UseFetchReturn<any>> {
+    const baseUrl = config.baseUrl
+    const targetUrl = url
     const computedUrl = (baseUrl && !isAbsoluteURL(targetUrl))
       ? joinPaths(baseUrl, targetUrl)
       : targetUrl
@@ -400,9 +400,14 @@ export function createFetch(config: CreateFetchOptions = {}) {
  *   any in-flight request is aborted on unmount;
  * - `refetch` watches the url/payload the React way: a plain `url` value
  *   (e.g. driven by `useState`) re-fetches when the render value changes,
- *   while a ref-like (`{ current }`) url, and a ref-like
- *   payload/`refetch` flag, are polled at a small interval — the React analog
- *   of upstream's `watch` over reactive refs;
+ *   while a ref-like (`{ current }`) or getter `refetch` flag is polled at a
+ *   small interval — the React analog of upstream's `watch` over reactive
+ *   refs;
+ * - `url` and `baseUrl` are read-only value sources and take plain strings
+ *   (upstream: `MaybeRefOrGetter<string>`; resolve a React ref or getter at
+ *   the call site), and the request `payload` is a plain `unknown` (upstream:
+ *   `MaybeRefOrGetter<unknown>`). `refetch` stays `RefOrValue<boolean>` (a
+ *   behavior toggle, not a value source);
  * - `updateDataOnError`, `initialData`, `timeout` (via shared
  *   `useTimeoutFn`), `beforeFetch`/`afterFetch`/`onFetchError` and the
  *   `createFetch` factory (with `chain`/`overwrite` combination) all mirror
@@ -419,11 +424,11 @@ export function createFetch(config: CreateFetchOptions = {}) {
  *
  * @see https://vueuse.org/core/useFetch/
  */
-export function useFetch<T>(url: RefOrValue<string>): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-export function useFetch<T>(url: RefOrValue<string>, useFetchOptions: UseFetchOptions): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
-export function useFetch<T>(url: RefOrValue<string>, options: RequestInit, useFetchOptions?: UseFetchOptions): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+export function useFetch<T>(url: string): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+export function useFetch<T>(url: string, useFetchOptions: UseFetchOptions): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
+export function useFetch<T>(url: string, options: RequestInit, useFetchOptions?: UseFetchOptions): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>>
 
-export function useFetch<T>(url: RefOrValue<string>, ...args: any[]): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>> {
+export function useFetch<T>(url: string, ...args: any[]): UseFetchReturn<T> & PromiseLike<UseFetchReturn<T>> {
   const supportsAbort = typeof AbortController === 'function'
 
   let fetchOptions: RequestInit = {}
@@ -437,7 +442,7 @@ export function useFetch<T>(url: RefOrValue<string>, ...args: any[]): UseFetchRe
   interface InternalConfig {
     method: HttpMethod
     type: DataType
-    payload: RefOrValue<unknown> | undefined
+    payload: unknown
     payloadType?: string
   }
 
@@ -485,9 +490,9 @@ export function useFetch<T>(url: RefOrValue<string>, ...args: any[]): UseFetchRe
   // fetch is captured once at setup (upstream destructures it once too).
   const fetchRef = useRef<typeof window.fetch | undefined>(optionsRef.current.fetch ?? (isClient ? window.fetch : undefined))
 
-  const lastUrlRef = useRef(toValue(url))
+  const lastUrlRef = useRef(url)
   const lastRefetchRef = useRef(toValue(refetchOption))
-  const lastPayloadKeyRef = useRef(payloadKey(toValue(configRef.current.payload)))
+  const lastPayloadKeyRef = useRef(payloadKey(configRef.current.payload))
 
   // Live mirror of the current committed state — the shell getters read this,
   // so a shell captured before a re-render still exposes fresh values.
@@ -565,7 +570,7 @@ export function useFetch<T>(url: RefOrValue<string>, ...args: any[]): UseFetchRe
       headers: {},
     }
 
-    const payload = toValue(configRef.current.payload)
+    const payload = configRef.current.payload
     if (payload) {
       const headers = headersToObject(defaultFetchOptions.headers) as Record<string, string>
       // Set the payload to json type only if it's not provided and a literal
@@ -585,7 +590,7 @@ export function useFetch<T>(url: RefOrValue<string>, ...args: any[]): UseFetchRe
 
     let isCanceled = false
     const context: BeforeFetchContext = {
-      url: toValue(url),
+      url,
       options: {
         ...defaultFetchOptions,
         ...fetchOptionsRef.current,
@@ -720,7 +725,7 @@ export function useFetch<T>(url: RefOrValue<string>, ...args: any[]): UseFetchRe
   }, [supportsAbort])
 
   function setMethod(method: HttpMethod) {
-    return (payload?: RefOrValue<unknown>, payloadType?: string) => {
+    return (payload?: unknown, payloadType?: string) => {
       if (!executingRef.current) {
         configRef.current.method = method
         configRef.current.payload = payload
@@ -812,25 +817,25 @@ export function useFetch<T>(url: RefOrValue<string>, ...args: any[]): UseFetchRe
       void execute()
   }, [execute])
 
-  // mirror upstream `watch([refetch, toRef(url)])` — re-fetch when the url
-  // (or a ref-like payload, or the refetch flag) changes and refetch is on.
-  // A plain `url` value re-fires when the render value changes; ref-like
-  // sources are polled since React cannot observe their mutations.
+  // mirror upstream `watch([refetch, toRef(url), payload])` — re-fetch when the
+  // url or payload changes and refetch is on. `url` / `payload` are plain
+  // values, so a url change re-runs this effect (dependency below) while a
+  // payload change is detected by the poll; a ref-like/getter `refetch` flag
+  // must always be polled since React cannot observe its mutations.
   useEffect(() => {
-    const needsPolling = isRefLike(url) || typeof url === 'function'
-      || isRefLike(refetchOption) || typeof refetchOption === 'function'
-      || isRefLike(configRef.current.payload) || typeof configRef.current.payload === 'function'
+    const needsPolling = isRefLike(refetchOption)
+      || typeof refetchOption === 'function'
+      || Boolean(toValue(refetchOption))
 
     const check = () => {
       const nextRefetch = toValue(refetchOption)
-      const nextUrl = toValue(url)
-      const urlChanged = nextUrl !== lastUrlRef.current
-      const payloadChanged = payloadKey(toValue(configRef.current.payload)) !== lastPayloadKeyRef.current
+      const urlChanged = url !== lastUrlRef.current
+      const payloadChanged = payloadKey(configRef.current.payload) !== lastPayloadKeyRef.current
       const refetchTurnedOn = nextRefetch && !lastRefetchRef.current
       const shouldExecute = (nextRefetch && (urlChanged || payloadChanged)) || refetchTurnedOn
 
-      lastUrlRef.current = nextUrl
-      lastPayloadKeyRef.current = payloadKey(toValue(configRef.current.payload))
+      lastUrlRef.current = url
+      lastPayloadKeyRef.current = payloadKey(configRef.current.payload)
       lastRefetchRef.current = nextRefetch
 
       if (shouldExecute)

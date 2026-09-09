@@ -1,4 +1,3 @@
-import type { RefObject } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useMediaQuery } from '../useMediaQuery'
@@ -56,54 +55,44 @@ describe('useMediaQuery', () => {
   // `ssrWidth` is passed per-hook via the options object — that path is
   // covered by the scenario below.
   it('should support ssr media queries', async () => {
-    const query = { current: '(min-width: 500px)' }
     const { result, rerender } = await renderHook(
-      (props?: { query: { current: string }, ssrWidth: number }) =>
-        useMediaQuery(props!.query, { window: null as unknown as undefined, ssrWidth: props!.ssrWidth }),
-      { initialProps: { query, ssrWidth: 500 } },
+      (props: { query: string, ssrWidth: number }) =>
+        useMediaQuery(props.query, { window: null as unknown as undefined, ssrWidth: props.ssrWidth }),
+      { initialProps: { query: '(min-width: 500px)', ssrWidth: 500 } },
     )
     expect(result.current).toBe(true)
 
-    query.current = '(min-width: 501px)'
-    await rerender({ query, ssrWidth: 500 })
+    await rerender({ query: '(min-width: 501px)', ssrWidth: 500 })
     expect(result.current).toBe(false)
 
-    query.current = '(min-width: 500px) and (max-width: 37rem)'
-    await rerender({ query, ssrWidth: 500 })
+    await rerender({ query: '(min-width: 500px) and (max-width: 37rem)', ssrWidth: 500 })
     expect(result.current).toBe(true)
 
-    query.current = '(max-width: 31rem)'
-    await rerender({ query, ssrWidth: 500 })
+    await rerender({ query: '(max-width: 31rem)', ssrWidth: 500 })
     expect(result.current).toBe(false)
 
-    query.current = '(max-width: 31rem), (min-width: 400px)'
-    await rerender({ query, ssrWidth: 500 })
+    await rerender({ query: '(max-width: 31rem), (min-width: 400px)', ssrWidth: 500 })
     expect(result.current).toBe(true)
 
-    query.current = '(max-width: 31rem), not all and (min-width: 400px)'
-    await rerender({ query, ssrWidth: 500 })
+    await rerender({ query: '(max-width: 31rem), not all and (min-width: 400px)', ssrWidth: 500 })
     expect(result.current).toBe(false)
 
-    query.current = 'not all (min-width: 400px) and (max-width: 600px)'
-    await rerender({ query, ssrWidth: 500 })
+    await rerender({ query: 'not all (min-width: 400px) and (max-width: 600px)', ssrWidth: 500 })
     expect(result.current).toBe(false)
 
-    query.current = 'not all (max-width: 100px) and (min-width: 1000px)'
-    await rerender({ query, ssrWidth: 500 })
+    await rerender({ query: 'not all (max-width: 100px) and (min-width: 1000px)', ssrWidth: 500 })
     expect(result.current).toBe(true)
   })
 
-  it('should re-resolve a ref query on re-render', async () => {
-    const query = { current: '(min-width: 500px)' }
+  it('should re-resolve a plain query string on re-render', async () => {
     const { result, rerender } = await renderHook(
-      (props?: { query: RefObject<string> }) =>
-        useMediaQuery(props!.query, { window: null as unknown as undefined, ssrWidth: 500 }),
-      { initialProps: { query } },
+      (props: { query: string }) =>
+        useMediaQuery(props.query, { window: null as unknown as undefined, ssrWidth: 500 }),
+      { initialProps: { query: '(min-width: 500px)' } },
     )
     expect(result.current).toBe(true)
 
-    query.current = '(min-width: 501px)'
-    await rerender({ query })
+    await rerender({ query: '(min-width: 501px)' })
     expect(result.current).toBe(false)
   })
 
@@ -191,17 +180,15 @@ describe('useMediaQuery', () => {
 
   it('should re-bind the media query when the query string changes', async () => {
     const stub = stubMatchMedia(true)
-    const query = { current: '(min-width: 1024px)' }
     const { result, rerender } = await renderHook(
-      (props?: { query: { current: string } }) => useMediaQuery(props!.query),
-      { initialProps: { query } },
+      (props: { query: string }) => useMediaQuery(props.query),
+      { initialProps: { query: '(min-width: 1024px)' } },
     )
 
     expect(result.current).toBe(true)
     expect(stub.queries).toEqual(['(min-width: 1024px)'])
 
-    query.current = '(min-width: 768px)'
-    await rerender({ query })
+    await rerender({ query: '(min-width: 768px)' })
     expect(result.current).toBe(true)
     expect(stub.queries).toEqual(['(min-width: 1024px)', '(min-width: 768px)'])
 

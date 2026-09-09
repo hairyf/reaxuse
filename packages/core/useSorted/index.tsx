@@ -1,5 +1,3 @@
-import type { RefOrValue } from '@reaxuse/shared'
-import { toValue } from '@reaxuse/shared'
 import { useMemo } from 'react'
 
 /**
@@ -24,8 +22,11 @@ const defaultCompare: UseSortedCompareFn<any> = (a, b) => a - b
  *
  * 1. Plain value, not a `Ref` — the sorted array is recomputed with
  *    `useMemo` whenever the source array identity or `compareFn` changes
- *    (upstream re-sorts through Vue's reactivity). Pass a ref-like
- *    `{ current }` object to resolve the array at render time.
+ *    (upstream re-sorts through Vue's reactivity). `source` is a read-only
+ *    value source and takes a plain `readonly T[]` (upstream:
+ *    `MaybeRefOrGetter<T[]>`); resolve a React ref/getter at the call site
+ *    (`useSorted(ref.current)`) — the hook never writes the source, so no
+ *    reactive wrapper is needed.
  * 2. `UseSortedOptions` is not ported — pass the compare function as the
  *    second positional argument. Upstream's `dirty` flag sorts the source
  *    array in place by writing back through the Vue ref, which contradicts
@@ -41,11 +42,9 @@ const defaultCompare: UseSortedCompareFn<any> = (a, b) => a - b
  *
  * const objSorted = useSorted(objArr, (a, b) => a.age - b.age)
  */
-export function useSorted<T = any>(source: RefOrValue<T[]>, compareFn?: UseSortedCompareFn<T>): T[] {
-  const resolved = toValue(source)
-
+export function useSorted<T = any>(source: readonly T[], compareFn?: UseSortedCompareFn<T>): T[] {
   return useMemo(
-    () => [...resolved].sort(compareFn ?? defaultCompare),
-    [resolved, compareFn],
+    () => [...source].sort(compareFn ?? defaultCompare),
+    [source, compareFn],
   )
 }

@@ -31,6 +31,21 @@ import { useFetch } from '@reaxuse/core'
 const { isFetching, error, data } = await useFetch(url)
 ```
 
+### Source Forms
+
+`url` and `baseUrl` are read-only value sources and take plain strings, and the request `payload` is
+a plain `unknown` (upstream: `MaybeRefOrGetter`). Resolve a React ref or state value at the call
+site:
+
+```tsx
+const [url, setUrl] = useState('https://example.com')
+
+const { data } = useFetch(url, { refetch: true }) // re-fetches when `url` changes
+const { data: refData } = useFetch(urlRef.current, { refetch: true }) // resolve a ref yourself
+```
+
+`refetch` itself stays a plain value or React ref (a behavior toggle, not a value source).
+
 ### Refetching on URL change
 
 Using a React ref object for the url parameter will allow the

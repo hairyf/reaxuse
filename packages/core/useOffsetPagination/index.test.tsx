@@ -160,6 +160,31 @@ describe('useOffsetPagination', () => {
     })
   })
 
+  describe('when the page is a state tuple', () => {
+    it('adopts external tuple updates and writes the clamped page back', async () => {
+      const source: [number, (value: number) => void] = [2, (value) => {
+        source[0] = value
+      }]
+      const { result, act, rerender } = await renderHook(() => useOffsetPagination({ total: 40, page: source, pageSize: 10 }))
+
+      expect(result.current.currentPage).toBe(2)
+
+      // external mutation is adopted on re-render
+      source[0] = 3
+      await act(async () => {
+        rerender()
+      })
+      expect(result.current.currentPage).toBe(3)
+
+      // internal navigation writes the clamped value back through the tuple
+      await act(async () => {
+        result.current.next()
+      })
+      expect(source[0]).toBe(4)
+      expect(result.current.currentPage).toBe(4)
+    })
+  })
+
   describe('currentPageSize', () => {
     describe('when pageSize is given as a value', () => {
       it('returns the given initial page size', async () => {
@@ -190,16 +215,14 @@ describe('useOffsetPagination', () => {
       })
     })
 
-    describe('when pageSize is given as a ref-like', () => {
-      it('changes when the given pageSize changes', async () => {
-        const pageSizeRef = { current: 11 }
-        const { result, act, rerender } = await renderHook(() => useOffsetPagination({ pageSize: pageSizeRef }))
+    describe('when pageSize changes through setCurrentPageSize', () => {
+      it('changes when setCurrentPageSize is called', async () => {
+        const { result, act } = await renderHook(() => useOffsetPagination({ pageSize: 11 }))
 
         expect(result.current.currentPageSize).toBe(11)
 
-        pageSizeRef.current = 23
         await act(async () => {
-          rerender()
+          result.current.setCurrentPageSize(23)
         })
         expect(result.current.currentPageSize).toBe(23)
       })
@@ -367,32 +390,27 @@ describe('useOffsetPagination', () => {
   describe('onPageSizeChange', () => {
     it('is called when the page size changes', async () => {
       const onPageSizeChange = vi.fn()
-      const pageSizeRef = { current: 5 }
-      const { act, rerender } = await renderHook(() => useOffsetPagination({ total: 50, pageSize: pageSizeRef, onPageSizeChange }))
+      const { result, act } = await renderHook(() => useOffsetPagination({ total: 50, pageSize: 5, onPageSizeChange }))
 
       expect(onPageSizeChange).toBeCalledTimes(0)
 
-      pageSizeRef.current = 2
       await act(async () => {
-        rerender()
+        result.current.setCurrentPageSize(2)
       })
       expect(onPageSizeChange).toBeCalledTimes(1)
 
-      pageSizeRef.current = 7
       await act(async () => {
-        rerender()
+        result.current.setCurrentPageSize(7)
       })
       expect(onPageSizeChange).toBeCalledTimes(2)
     })
 
     it('is called with the correct UseOffsetPaginationReturn values', async () => {
-      const pageSizeRef = { current: 5 }
       const onPageSizeChange = vi.fn()
-      const { act, rerender } = await renderHook(() => useOffsetPagination({ total: 35, pageSize: pageSizeRef, onPageSizeChange }))
+      const { result, act } = await renderHook(() => useOffsetPagination({ total: 35, pageSize: 5, onPageSizeChange }))
 
-      pageSizeRef.current = 3
       await act(async () => {
-        rerender()
+        result.current.setCurrentPageSize(3)
       })
       expect(onPageSizeChange).toBeCalledWith({
         currentPage: 1,
@@ -404,9 +422,8 @@ describe('useOffsetPagination', () => {
         prev: expect.any(Function),
       })
 
-      pageSizeRef.current = 30
       await act(async () => {
-        rerender()
+        result.current.setCurrentPageSize(30)
       })
       expect(onPageSizeChange).toBeCalledWith({
         currentPage: 1,
@@ -423,32 +440,27 @@ describe('useOffsetPagination', () => {
   describe('onPageCountChange', () => {
     it('is called when the page count changes', async () => {
       const onPageCountChange = vi.fn()
-      const pageSizeRef = { current: 5 }
-      const { act, rerender } = await renderHook(() => useOffsetPagination({ total: 50, pageSize: pageSizeRef, onPageCountChange }))
+      const { result, act } = await renderHook(() => useOffsetPagination({ total: 50, pageSize: 5, onPageCountChange }))
 
       expect(onPageCountChange).toBeCalledTimes(0)
 
-      pageSizeRef.current = 2
       await act(async () => {
-        rerender()
+        result.current.setCurrentPageSize(2)
       })
       expect(onPageCountChange).toBeCalledTimes(1)
 
-      pageSizeRef.current = 7
       await act(async () => {
-        rerender()
+        result.current.setCurrentPageSize(7)
       })
       expect(onPageCountChange).toBeCalledTimes(2)
     })
 
     it('is called with the correct UseOffsetPaginationReturn values', async () => {
-      const pageSizeRef = { current: 5 }
       const onPageCountChange = vi.fn()
-      const { act, rerender } = await renderHook(() => useOffsetPagination({ total: 35, pageSize: pageSizeRef, onPageCountChange }))
+      const { result, act } = await renderHook(() => useOffsetPagination({ total: 35, pageSize: 5, onPageCountChange }))
 
-      pageSizeRef.current = 3
       await act(async () => {
-        rerender()
+        result.current.setCurrentPageSize(3)
       })
       expect(onPageCountChange).toBeCalledWith({
         currentPage: 1,
@@ -460,9 +472,8 @@ describe('useOffsetPagination', () => {
         prev: expect.any(Function),
       })
 
-      pageSizeRef.current = 30
       await act(async () => {
-        rerender()
+        result.current.setCurrentPageSize(30)
       })
       expect(onPageCountChange).toBeCalledWith({
         currentPage: 1,

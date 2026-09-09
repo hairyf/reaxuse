@@ -1,5 +1,3 @@
-import type { RefOrValue } from '@reaxuse/shared'
-import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export type EventSourceStatus = 'CONNECTING' | 'OPEN' | 'CLOSED'
@@ -131,8 +129,9 @@ const DEFAULT_EVENT = 'message'
  * - `open`, `close` are stable callbacks reading the mounted EventSource
  *   through a latest-value ref (upstream: closures over the same refs), and
  *   `close()` runs on unmount (upstream: `tryOnScopeDispose`);
- * - `url` accepts a plain value or a ref-like `{ current }` object
- *   (upstream: `RefOrValue`); when `autoConnect` is on, a URL
+ * - `url` is a read-only value source and takes a plain
+ *   `string | URL | undefined` (upstream: `MaybeRefOrGetter`; resolve a React
+ *   ref or getter at the call site); when `autoConnect` is on, a URL
  *   change between renders reconnects, mirroring upstream's `watch(urlRef,
  *   open)` — the initial connection is still only opened once by `immediate`;
  * - the per-event message listeners are registered with the raw
@@ -146,7 +145,7 @@ const DEFAULT_EVENT = 'message'
  * @see https://vueuse.org/core/useEventSource/
  */
 export function useEventSource<Events extends string[], Data = any>(
-  url: RefOrValue<string | URL | undefined>,
+  url: string | URL | undefined,
   events: Events = [] as unknown as Events,
   options: UseEventSourceOptions<Data> = {},
 ): UseEventSourceReturn<Events, Data> {
@@ -164,7 +163,7 @@ export function useEventSource<Events extends string[], Data = any>(
   const eventSourceRef = useRef<EventSource | null>(null)
   const statusRef = useRef<EventSourceStatus>(status)
   statusRef.current = status
-  const resolvedUrl = toValue(url)
+  const resolvedUrl = url
   const urlRef = useRef<string | URL | undefined>(resolvedUrl)
   urlRef.current = resolvedUrl
   const eventsRef = useRef<Events>(events)

@@ -1,7 +1,8 @@
 import { useCycleList } from '@reaxuse/core'
 
-// ref-like `{ current }` list — mirrors upstream's `shallowRef` demo
-const list = { current: ['Dog', 'Cat', 'Lizard', 'Shark', 'Whale', 'Dolphin', 'Octopus', 'Seal'] }
+// a plain read-only list (upstream's demo passes a `shallowRef`; resolve a
+// React ref at the call site instead)
+const list = ['Dog', 'Cat', 'Lizard', 'Shark', 'Whale', 'Dolphin', 'Octopus', 'Seal']
 
 export default function UseCycleListDemo() {
   const { state, next, prev } = useCycleList(list)
