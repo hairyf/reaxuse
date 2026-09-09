@@ -6,6 +6,8 @@ category: Browser
 
 Reactive `env(safe-area-inset-*)`
 
+![image](https://webkit.org/wp-content/uploads/safe-areas-1.png)
+
 ## Usage
 
 In order to make the page to be fully rendered in the screen, the additional attribute
@@ -29,3 +31,5 @@ const {
   update,
 } = useScreenSafeArea()
 ```
+
+For further details, you may refer to this documentation: [Designing Websites for iPhone X](https://webkit.org/blog/7929/designing-websites-for-iphone-x/)
