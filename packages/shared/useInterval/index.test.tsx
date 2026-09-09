@@ -1,3 +1,4 @@
+import { StrictMode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
 import { useInterval } from '../useInterval'
@@ -9,6 +10,16 @@ describe('useInterval', () => {
 
   afterEach(() => {
     vi.useRealTimers()
+  })
+
+  it('uses a default interval of 1000ms', async () => {
+    const { result, act } = await renderHook(() => useInterval())
+    expect(result.current).toBe(0)
+
+    await act(async () => {
+      vi.advanceTimersByTime(1000)
+    })
+    expect(result.current).toBe(1)
   })
 
   it('increments the counter on every interval (starts automatically)', async () => {
@@ -176,6 +187,63 @@ describe('useInterval', () => {
       vi.advanceTimersByTime(10)
     })
     expect(result.current.counter).toBe(2)
+  })
+
+  it('immediateCallback ticks immediately when resume() starts a paused timer', async () => {
+    const calls: number[] = []
+    const { result, act } = await renderHook(() =>
+      useInterval(10, { controls: true, immediate: false, immediateCallback: true, callback: count => calls.push(count) }))
+
+    expect(result.current.counter).toBe(0)
+    expect(calls).toEqual([])
+
+    await act(async () => {
+      result.current.resume()
+    })
+    expect(result.current.counter).toBe(1)
+    expect(calls).toEqual([1])
+
+    await act(async () => {
+      vi.advanceTimersByTime(10)
+    })
+    expect(result.current.counter).toBe(2)
+  })
+
+  it('live-restarts when the interval changes while active (upstream watch)', async () => {
+    const { result, rerender, act } = await renderHook(
+      ({ ms }: { ms: number } = { ms: 10 }) => useInterval(ms, { controls: true }),
+      { initialProps: { ms: 10 } },
+    )
+
+    await act(async () => {
+      vi.advanceTimersByTime(10)
+    })
+    expect(result.current.counter).toBe(1)
+
+    // changing the interval re-arms the timer with the new delay
+    await rerender({ ms: 30 })
+    await act(async () => {
+      vi.advanceTimersByTime(10)
+    })
+    expect(result.current.counter).toBe(1)
+
+    await act(async () => {
+      vi.advanceTimersByTime(20)
+    })
+    expect(result.current.counter).toBe(2)
+  })
+
+  it('immediateCallback fires once despite a StrictMode double-mount', async () => {
+    const calls: number[] = []
+    function StrictModeDemo() {
+      useInterval(100000, { immediateCallback: true, callback: () => calls.push(1) })
+      return <span>interval</span>
+    }
+
+    const screen = await render(<StrictMode><StrictModeDemo /></StrictMode>)
+    await expect.element(screen.getByText('interval')).toBeVisible()
+    // StrictMode double-invokes effects in dev; the startedRef guard keeps a single start
+    expect(calls).toEqual([1])
   })
 
   it('stops the timer on unmount', async () => {

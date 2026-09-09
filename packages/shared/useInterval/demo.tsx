@@ -1,7 +1,7 @@
 import { useInterval } from '@reaxuse/shared'
 
 export default function UseIntervalDemo() {
-  const { counter, isActive, pause, resume } = useInterval(1000, { controls: true })
+  const { counter, isActive, pause, resume, reset } = useInterval(1000, { controls: true })
 
   return (
     <div>
@@ -11,6 +11,7 @@ export default function UseIntervalDemo() {
         {counter}
       </p>
       <button onClick={() => (isActive ? pause() : resume())}>{isActive ? 'Pause' : 'Resume'}</button>
+      <button onClick={reset}>Reset</button>
     </div>
   )
 }

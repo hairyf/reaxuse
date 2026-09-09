@@ -61,15 +61,17 @@ export type UseIntervalReturn = number | UseIntervalControls
  * `ShallowRef<number>`; since `useIntervalFn` is mapped in its own module,
  * this port inlines the interval logic to stay self-contained — the counter
  * is a plain `number` state (no `.value`), the setup-time `resume()`
- * (`immediate`) becomes an empty-dependency `useEffect` on mount, and
+ * (`immediate`) becomes a mount `useEffect` (guarded against the StrictMode
+ * double-invocation so `immediateCallback` fires only once), and
  * `tryOnScopeDispose(pause)` becomes the effect cleanup. `{ controls: true }`
  * exposes `counter` / `reset` plus the `Pausable` controls (`isActive` /
  * `pause` / `resume`). `interval` accepts a number or a React ref (upstream:
- * `RefOrValue<number>`) evaluated on start / `resume`; unlike
- * upstream's reactive watch on the interval, a changed value takes effect on
- * the next `resume()`. `immediateCallback` follows `useIntervalFn`'s
- * semantics (upstream `useInterval` doesn't forward it). `pause` / `resume` /
- * `reset` are stable `useCallback`s.
+ * `RefOrValue<number>`); like upstream's reactive watch, a changed interval
+ * live-restarts the timer while it is active (a ref's `.current` mutation is
+ * only picked up on the next render — React has no reactive refs).
+ * `immediateCallback` follows `useIntervalFn`'s semantics (upstream
+ * `useInterval` doesn't forward it). `pause` / `resume` / `reset` are stable
+ * `useCallback`s.
  *
  * @example
  * // count will increase every 200ms
@@ -105,6 +107,8 @@ export function useInterval(
   // initialize lazily so the first render already reflects it
   const [isActive, setIsActive] = useState(() =>
     immediate && toValue(interval) > 0)
+  // mirrored ref so the interval-change effect can check activeness synchronously
+  const isActiveRef = useRef(false)
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -120,6 +124,7 @@ export function useInterval(
   }, [])
 
   const pause = useCallback(() => {
+    isActiveRef.current = false
     setIsActive(false)
     if (timerRef.current !== null) {
       clearInterval(timerRef.current)
@@ -131,6 +136,7 @@ export function useInterval(
     const ms = toValue(intervalRef.current)
     if (ms <= 0)
       return
+    isActiveRef.current = true
     setIsActive(true)
     if (immediateCallbackRef.current)
       tick()
@@ -143,14 +149,29 @@ export function useInterval(
 
   // upstream resumes synchronously during setup when `immediate`; in React the
   // equivalent is a mount effect — its cleanup also pauses the timer on unmount
-  // (upstream: tryOnScopeDispose(pause))
+  // (upstream: tryOnScopeDispose(pause)). The `startedRef` guard skips the
+  // StrictMode double-invocation so `immediateCallback` fires only once.
+  const startedRef = useRef(false)
   useEffect(() => {
-    if (immediate)
+    if (immediate && !startedRef.current) {
+      startedRef.current = true
       resume()
-    return () => {
-      pause()
     }
-  }, [])
+    return pause
+  }, [immediate, resume])
+
+  // restart the timer when the interval changes while active
+  // (upstream: a `watch` on the interval calls `resume()`)
+  const mountedRef = useRef(false)
+  const intervalMs = toValue(interval)
+  useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true
+      return
+    }
+    if (isActiveRef.current)
+      resume()
+  }, [intervalMs, resume])
 
   if (exposeControls)
     return { counter, reset, isActive, pause, resume }
