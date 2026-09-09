@@ -136,6 +136,29 @@ describe('useTextSelection', () => {
     expect(result.current).toBe(snapshot)
   })
 
+  it('falls back to the global window when `window: undefined` is passed', async () => {
+    const windowSelection = window.getSelection()
+    expect(windowSelection).not.toBeNull()
+
+    const { result, act } = await renderHook(() => useTextSelection({ window: undefined }))
+
+    // `undefined` falls through to the global window (no crash), and the
+    // pre-effect snapshot is the empty one — the same shape SSR renders,
+    // since effects never run on the server.
+    expect(result.current.text).toBe('')
+    expect(result.current.rects).toEqual([])
+    expect(result.current.ranges).toEqual([])
+    expect(result.current.selection).toBe(windowSelection)
+
+    // the fallback path listens on the real window's document and updates
+    await act(() => {
+      selectHelloWorldNode()
+      dispatchSelectionChange()
+    })
+    await expect.poll(() => result.current.text).toBe('Hello World')
+    expect(result.current.selection).toBe(windowSelection)
+  })
+
   it('supports a custom window option', async () => {
     let fakeText = 'Fake text'
     const fakeSelection = {
