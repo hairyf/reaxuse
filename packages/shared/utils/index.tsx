@@ -208,7 +208,7 @@ export function isRefLike<T>(value: RefOrValue<T> | undefined | null): value is 
 export function toValue<T>(value: StateValue<T>): T
 export function toValue<T>(value: StateValue<T> | undefined | null): T | undefined | null
 export function toValue<T>(value: StateValue<T> | undefined | null): T | undefined | null {
-  if (Array.isArray(value))
+  if (Array.isArray(value) && value.length === 2 && typeof value[1] === 'function')
     return value[0]
   if (value !== null && value !== undefined && typeof value === 'object' && 'value' in value && !('addEventListener' in value))
     return value.value

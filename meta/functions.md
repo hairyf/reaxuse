@@ -152,6 +152,7 @@
 | `useCloned`                       | packages/core/useCloned                       | `packages/core/useCloned/index.tsx`                       | ✅ ported                     |
 | `useColorMode`                    | packages/core/useColorMode                    | `packages/core/useColorMode/index.tsx`                    | ✅ ported                     |
 | `useConfirmDialog`                | packages/core/useConfirmDialog                | `packages/core/useConfirmDialog/index.tsx`                | ✅ ported                     |
+| `useControllableState`            | —                                             | `packages/shared/useControllableState/index.tsx`          | 🚧 ported (no upstream match) |
 | `useCookies`                      | packages/integrations/useCookies              | `packages/integrations/useCookies/index.tsx`              | ✅ ported                     |
 | `useCountdown`                    | packages/core/useCountdown                    | `packages/core/useCountdown/index.tsx`                    | ✅ ported                     |
 | `useCounter`                      | packages/shared/useCounter                    | `packages/shared/useCounter/index.tsx`                    | ✅ ported                     |

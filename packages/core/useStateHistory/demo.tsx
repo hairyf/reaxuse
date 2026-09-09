@@ -9,7 +9,7 @@ function format(ts: number) {
 
 export default function UseStateHistoryDemo() {
   const [count, setCount] = useState(0)
-  const [history, undo, redo, { canUndo, canRedo, setSource }] = useStateHistory(count, setCount, { capacity: 10 })
+  const [history, undo, redo, { canUndo, canRedo, setSource }] = useStateHistory([count, setCount], { capacity: 10 })
 
   return (
     <div>

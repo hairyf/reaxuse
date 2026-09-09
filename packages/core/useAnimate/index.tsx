@@ -277,7 +277,7 @@ export function useAnimate(
 
     if (!animateRef.current) {
       const animation = el.animate(
-        toValue(keyframesRef.current),
+        toValue(keyframesRef.current) ?? null,
         animateOptionsRef.current,
       )
       animateRef.current = animation
@@ -398,7 +398,7 @@ export function useAnimate(
     if (el && animateRef.current) {
       animateRef.current.effect = new KeyframeEffect(
         el,
-        toValue(keyframesRef.current),
+        toValue(keyframesRef.current) ?? null,
         animateOptionsRef.current,
       )
     }

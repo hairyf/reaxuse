@@ -746,6 +746,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useControllableState',
+    file: 'packages/shared/useControllableState/index.tsx',
+    pkg: 'shared',
+  },
+  {
     name: 'useCookies',
     file: 'packages/integrations/useCookies/index.tsx',
     pkg: 'integrations',

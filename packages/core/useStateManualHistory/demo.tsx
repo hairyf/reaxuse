@@ -9,7 +9,7 @@ function format(ts: number) {
 
 export default function UseStateManualHistoryDemo() {
   const [count, setCount] = useState(0)
-  const [history, commit, { setSource, undo, redo, canUndo, canRedo }] = useStateManualHistory(count, setCount, { capacity: 10 })
+  const [history, commit, { setSource, undo, redo, canUndo, canRedo }] = useStateManualHistory([count, setCount], { capacity: 10 })
 
   return (
     <div>

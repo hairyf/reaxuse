@@ -10,7 +10,7 @@ function format(ts: number) {
 export default function UseStateDebouncedHistoryDemo() {
   const [delay, setDelay] = useState(1000)
   const [count, setCount] = useState(0)
-  const [history, undo, redo, { canUndo, canRedo, setSource }] = useStateDebouncedHistory(count, setCount, {
+  const [history, undo, redo, { canUndo, canRedo, setSource }] = useStateDebouncedHistory([count, setCount], {
     clone: true,
     debounce: delay,
     capacity: 10,
