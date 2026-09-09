@@ -57,7 +57,6 @@ const {
     },
   ],
 })
-```
 
 // <video ref={video} />
 // {tracks.map(track => (
@@ -65,8 +64,7 @@ const {
 // {track.label}
 // </button>
 // ))}
-
-````
+```
 
 ## Playback Controls
 
@@ -87,7 +85,7 @@ const {
   unmute, // () => void
   toggleMute, // () => void
 } = useMediaControls(videoRef)
-````
+```
 
 <DemoContainer name="UseMediaControls" />
 
