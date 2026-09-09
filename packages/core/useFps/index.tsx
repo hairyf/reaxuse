@@ -26,9 +26,9 @@ export interface UseFpsOptions {
  * - the setup-time `useRafFn` subscription becomes `useRafFn`'s mount effect,
  *   cancelled on unmount;
  * - `last` / `ticks` bookkeeping live in refs instead of the setup closure,
- *   so the running frame loop always reads the latest values (the first frame
- *   only seeds `last`, so the first rate is reported one frame later than
- *   upstream's setup-time seed).
+ *   so the running frame loop always reads the latest values; `last` is
+ *   seeded at setup time (upstream parity), so the first rate is reported
+ *   after `every` frames.
  *
  * @example
  * const fps = useFps()
@@ -37,19 +37,16 @@ export function useFps(options?: UseFpsOptions): number {
   const [fps, setFps] = useState(0)
   const every = options?.every ?? 10
 
-  const lastRef = useRef<number | null>(null)
+  // Seeded at setup like upstream's `let last = performance.now()`; the
+  // `typeof` guard keeps SSR renders from touching `performance`.
+  const lastRef = useRef<number | null>(typeof performance === 'undefined' ? null : performance.now())
   const ticksRef = useRef(0)
 
   useRafFn(() => {
-    if (typeof performance === 'undefined')
+    if (typeof performance === 'undefined' || lastRef.current == null)
       return
 
     const now = performance.now()
-    if (lastRef.current == null) {
-      lastRef.current = now
-      return
-    }
-
     ticksRef.current += 1
     if (ticksRef.current >= every) {
       const diff = now - lastRef.current
