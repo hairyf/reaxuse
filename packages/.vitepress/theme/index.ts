@@ -2,6 +2,7 @@ import type { Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 import Contributors from './components/Contributors.vue'
 import DemoContainer from './components/DemoContainer.vue'
+import FunctionsList from './components/FunctionsList.vue'
 import Note from './components/Note.vue'
 import ReloadPrompt from './components/ReloadPrompt.vue'
 import './styles/main.css'
@@ -14,6 +15,7 @@ export default {
   extends: DefaultTheme,
   enhanceApp({ app }) {
     app.component('DemoContainer', DemoContainer)
+    app.component('FunctionsList', FunctionsList)
     app.component('Note', Note)
     app.component('Contributors', Contributors)
     app.component('ReloadPrompt', ReloadPrompt)
