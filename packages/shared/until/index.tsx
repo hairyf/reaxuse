@@ -7,6 +7,50 @@ import { promiseTimeout } from '../utils'
  */
 const UNTIL_POLL_INTERVAL = 50
 
+/**
+ * Minimal structural equality — `Object.is` for primitives (so `NaN` equals
+ * `NaN`), arrays compared by length and element, plain objects by own-key
+ * count and value. Used by `changedTimes` when `deep: true`.
+ */
+function deepEquals(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b))
+    return true
+  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null)
+    return false
+  const aIsArray = Array.isArray(a)
+  const bIsArray = Array.isArray(b)
+  if (aIsArray !== bIsArray)
+    return false
+  if (aIsArray && bIsArray) {
+    const arrA = a as unknown[]
+    const arrB = b as unknown[]
+    if (arrA.length !== arrB.length)
+      return false
+    return arrA.every((item, index) => deepEquals(item, arrB[index]))
+  }
+  const keysA = Object.keys(a as object)
+  const keysB = Object.keys(b as object)
+  if (keysA.length !== keysB.length)
+    return false
+  return keysA.every(key => deepEquals((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key]))
+}
+
+/**
+ * Clone used to snapshot the source between polls when `changedTimes` runs
+ * with `deep: true` — the poller re-reads the same reference, so a reference
+ * copy could never see an in-place mutation.
+ */
+function cloneDeep<T>(value: T): T {
+  if (value === null || typeof value !== 'object')
+    return value
+  if (Array.isArray(value))
+    return (value as unknown[]).map(item => cloneDeep(item)) as T
+  const result: Record<string, unknown> = {}
+  for (const key of Object.keys(value as object))
+    result[key] = cloneDeep((value as Record<string, unknown>)[key])
+  return result as T
+}
+
 export interface UntilToMatchOptions {
   /**
    * Milliseconds timeout for promise to resolve/reject if the when condition does not meet.
@@ -154,20 +198,29 @@ function createUntil<T>(r: any, isNot = false): UntilValueInstance<T, boolean> |
 
   function changedTimes(n = 1, options?: UntilToMatchOptions) {
     // count actual changes, not ticks: the poller may re-read an unchanged
-    // source several times before the next mutation
+    // source several times before the next mutation. Change detection is
+    // `Object.is`-aware, so an unchanged `NaN` source never counts; with
+    // `deep: true` the last observed value is deep-cloned, so nested
+    // mutations of a same-referent array/object are detected structurally
+    // (the poller cannot rely on reference replacement the way a Vue watch
+    // does).
     let count = 0
     let hasBaseline = false
     let lastValue: any
 
+    const deep = options?.deep ?? false
+    const snapshot = (value: any) => (deep ? cloneDeep(value) : value)
+
     return toMatch((v) => {
       if (!hasBaseline) {
         hasBaseline = true
-        lastValue = v
+        lastValue = snapshot(v)
         return count >= n
       }
-      if (v !== lastValue) {
+      const changed = deep ? !deepEquals(lastValue, v) : !Object.is(lastValue, v)
+      if (changed) {
         count += 1
-        lastValue = v
+        lastValue = snapshot(v)
       }
       return count >= n
     }, options)
