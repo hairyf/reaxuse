@@ -4,7 +4,7 @@ category: Browser
 
 # useClipboard
 
-Reactive [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API)
+Reactive [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API). Provides the ability to respond to clipboard commands (cut, copy, and paste) as well as to asynchronously read from and write to the system clipboard. Access to the contents of the clipboard is gated behind the [Permissions API](https://developer.mozilla.org/en-US/docs/Web/API/Permissions_API). Without user permission, reading or altering the clipboard contents is not permitted.
 
 ## Usage
 
@@ -28,12 +28,12 @@ copy() // copies 'World'
 
 ### Options
 
-| Option         | Type                    | Default | Description                                                       |
-| -------------- | ----------------------- | ------- | ----------------------------------------------------------------- |
-| `source`       | `string \| Ref<string>` | —       | Default content to copy when `copy()` is called without arguments |
-| `read`         | `boolean`               | `false` | Enable reading clipboard content on copy/cut events               |
-| `copiedDuring` | `number`                | `1500`  | Milliseconds before `copied` resets to `false`                    |
-| `legacy`       | `boolean`               | `false` | Fallback to `document.execCommand` if Clipboard API unavailable   |
+| Option         | Type      | Default | Description                                                       |
+| -------------- | --------- | ------- | ----------------------------------------------------------------- |
+| `source`       | `string`  | —       | Default content to copy when `copy()` is called without arguments |
+| `read`         | `boolean` | `false` | Enable reading clipboard content on copy/cut events               |
+| `copiedDuring` | `number`  | `1500`  | Milliseconds before `copied` resets to `false`                    |
+| `legacy`       | `boolean` | `false` | Fallback to `document.execCommand` if Clipboard API unavailable   |
 
 ### Return Values
 

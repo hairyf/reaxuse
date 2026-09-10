@@ -5,7 +5,7 @@ utils: formatTimeAgoIntl
 
 # useTimeAgoIntl
 
-Reactive time ago with i18n supported, built on the browser-native [`Intl.RelativeTimeFormat`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/RelativeTimeFormat) API
+Reactive time ago with i18n supported. Automatically update the time ago string when the time changes. Powered by `Intl.RelativeTimeFormat`.
 
 ## Usage
 
