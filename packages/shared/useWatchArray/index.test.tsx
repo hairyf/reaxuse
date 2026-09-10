@@ -6,9 +6,9 @@ import { useWatchArray } from '../useWatchArray'
 
 interface ArrayWatchCall {
   newList: number[]
-  oldList: number[] | undefined
+  oldList: number[]
   added: number[]
-  removed: number[] | undefined
+  removed: number[]
 }
 
 async function renderListWatch(calls: ArrayWatchCall[]) {
@@ -69,7 +69,14 @@ it('useWatchArray works with list splice (renderHook)', async () => {
 })
 
 it('useWatchArray fires on mount with immediate: true (renderHook)', async () => {
-  const calls: ArrayWatchCall[] = []
+  // with `immediate: true` the callback types oldList/removed as possibly
+  // undefined (the mount fire has no previous list)
+  const calls: Array<{
+    newList: number[]
+    oldList: number[] | undefined
+    added: number[]
+    removed: number[] | undefined
+  }> = []
   let setList: Dispatch<SetStateAction<number[]>> = () => {}
 
   const { act } = await renderHook(() => {
