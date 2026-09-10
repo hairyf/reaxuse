@@ -32,7 +32,7 @@ bus.off(listener)
 bus.reset()
 ```
 
-Upstream auto-unsubscribes listeners when its effect scope is disposed; React has no scope disposal, so `on` / `once` return an unsubscribe function instead. When a component owns a subscription, unsubscribe from a `useEffect` cleanup:
+React has no scope disposal, so `on` / `once` return an unsubscribe function; when a component owns a subscription, unsubscribe from a `useEffect` cleanup:
 
 ```tsx
 import { useEventBus } from '@reaxuse/core'
