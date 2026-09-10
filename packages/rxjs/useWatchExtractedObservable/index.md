@@ -4,13 +4,9 @@ category: '@RxJS'
 
 # useWatchExtractedObservable
 
-Watch the values of an RxJS [`Observable`](https://rxjs.dev/guide/observable) extracted from a source value
+Watch the values of an RxJS [`Observable`](https://rxjs.dev/guide/observable) as extracted from one or more hooks.
 
-## Install
-
-```bash
-npm i rxjs
-```
+Automatically unsubscribe on observable change, and automatically unsubscribe from it when the component is unmounted.
 
 ## Usage
 
@@ -39,62 +35,35 @@ export function PlayerProgress() {
 }
 ```
 
-or resolving the source from a ref-like object — the subscription follows the source's changes.
+If you want to add custom error handling to an `Observable` that might error, you can supply an optional `onError` configuration. Without this, RxJS will treat any error in the supplied `Observable` as an "unhandled error" and it will be thrown in a new call stack and reported to `window.onerror` (or `process.on('error')` if you happen to be in Node).
+
+You can also supply an optional `onComplete` configuration if you need to attach special behavior when the watched observable completes.
 
 ```tsx
-import type { Observable } from 'rxjs'
-import { useWatchExtractedObservable } from '@reaxuse/rxjs'
-import { useRef, useState } from 'react'
-
-interface Player {
-  progress$: Observable<number>
-}
-
-function PlayerProgress() {
-  const player = useRef<Player | null>(null)
-  const [progress, setProgress] = useState(0)
-
-  // the hook does not unwrap refs — resolve it at the call site; nothing is
-  // subscribed until `player.current` becomes non-nullish
-  useWatchExtractedObservable(player.current, p => p.progress$, setProgress)
-
-  return <p>{progress}</p>
-}
-```
-
-A `null` / `undefined` resolved value subscribes to nothing and drops any previous subscription. Register per-run cleanup callbacks through
-the extractor's second argument; they run before the next subscription is created and on unmount / `stop()`.
-
-```tsx
-useWatchExtractedObservable(player, (p, onCleanup) => {
-  const socket = p.openSocket()
-  onCleanup(() => socket.close())
-  return socket.messages$
-}, setProgress)
-```
-
-## Source Forms
-
-`value` is a read-only value source and takes a plain `Value | null | undefined` (upstream:
-`T | WatchSource<T>`). Resolve a React ref or state value at the call site; the effect re-runs when
-the value's identity changes or when `deps` change:
-
-```tsx
-const [player, setPlayer] = useState<AudioPlayer | null>(null)
-
-useWatchExtractedObservable(player, p => p.progress$, cb)
-useWatchExtractedObservable(playerRef.current, p => p.progress$, cb) // resolve a ref yourself
+useWatchExtractedObservable(player, p => p.progress$, setProgress, {
+  onError: (err: unknown) => {
+    console.error(err)
+  },
+  onComplete: () => {
+    setProgress(100) // or 0, or whatever
+  },
+})
 ```
 
 ## Subscription Options
 
-| Option       | Type                     | Description                                                      |
-| ------------ | ------------------------ | ---------------------------------------------------------------- |
-| `onError`    | `(err: unknown) => void` | Called when the extracted `Observable` errors                    |
-| `onComplete` | `() => void`             | Called when the extracted `Observable` completes                 |
-| `deps`       | `unknown[]`              | Extra effect dependencies; replaces upstream's reactive tracking |
+| Option       | Type                     | Description                          |
+| ------------ | ------------------------ | ------------------------------------ |
+| `onError`    | `(err: unknown) => void` | Error handler for Observable errors  |
+| `onComplete` | `() => void`             | Called when the Observable completes |
 
 ## Return Value
 
-The hook returns `{ stop }` — upstream's `WatchHandle`. `stop` is a stable, idempotent callback: it runs the pending `onCleanup` callbacks,
-unsubscribes the active subscription, and permanently detaches the hook (later source / `deps` changes no longer subscribe).
+Returns a `WatchHandle` that can be used to stop watching:
+
+```tsx
+const { stop } = useWatchExtractedObservable(player, p => p.progress$, setProgress)
+
+// Later, stop watching
+stop()
+```

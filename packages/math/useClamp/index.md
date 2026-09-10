@@ -4,7 +4,7 @@ category: '@Math'
 
 # useClamp
 
-Reactively clamp a value between two other values
+Reactively clamp a value between two other values.
 
 ## Usage
 
@@ -20,7 +20,7 @@ setValue(15) // value is 10
 setValue(-5) // value is 0
 ```
 
-### Writable Value
+### Writable Ref
 
 `value` seeds the hook's internal state; the returned setter clamps on write:
 
@@ -48,5 +48,3 @@ const [clamped] = useClamp(5, 0, max)
 
 setMax(3) // clamped is 3 on the next render
 ```
-
-Re-render with a new `value` — e.g. from `useState` — to re-seed the hook.
