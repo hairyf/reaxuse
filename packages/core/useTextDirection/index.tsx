@@ -121,10 +121,16 @@ export function useTextDirection(options: UseTextDirectionOptions = {}): UseText
     // write through to the DOM (upstream's writable computed `set()`)
     if (!customDocument)
       return
+    const element = customDocument.querySelector(selector)
+    if (!element)
+      return
+    // `UseTextDirectionValue` can never be falsy, so the else branch is
+    // unreachable through the typed API — kept to mirror upstream's untyped
+    // setter, which accepts `''` and removes the attribute.
     if (next)
-      customDocument.querySelector(selector)?.setAttribute('dir', next)
+      element.setAttribute('dir', next)
     else
-      customDocument.querySelector(selector)?.removeAttribute('dir')
+      element.removeAttribute('dir')
   }, [applyDir, customDocument, selector])
 
   return [dir, setDir]

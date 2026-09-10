@@ -23,7 +23,7 @@ export interface WebNotificationOptions {
   /**
    * The text direction of the notification.
    *
-   * @default 'auto'
+   * @default ''
    */
   dir?: 'auto' | 'ltr' | 'rtl'
   /**

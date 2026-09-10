@@ -2,12 +2,17 @@ import { describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useWebWorkerFn } from '../useWebWorkerFn'
 
+// defined by the importScripts'ed blob script inside the worker; declared
+// here only so the test file type-checks (the `fn` body is stringified)
+declare const DOUBLE: (n: number) => number
+
 // Upstream ships no tests for useWebWorkerFn. These use real dedicated
 // workers spawned from blob: URLs and expect.poll for the async
 // postMessage/onmessage round-trips, mirroring useWebWorker.test.tsx. The
 // heavy worker functions busy-wait inside the worker thread so RUNNING stays
 // observable without blocking the main thread. External `dependencies`
-// (importScripts) are not exercised: they need a reachable script URL.
+// (importScripts) are exercised with blob: URLs, which share the document
+// origin and are importable from a blob worker in chromium.
 
 describe('useWebWorkerFn', () => {
   it('returns an object mirroring the upstream return shape', async () => {
@@ -169,10 +174,44 @@ describe('useWebWorkerFn', () => {
     revoke.mockRestore()
   })
 
-  it('rejects when no window is available (SSR guard)', async () => {
+  it('throws when no window is available (SSR guard)', async () => {
     const { result } = await renderHook(() => useWebWorkerFn(() => 42, { window: null as unknown as Window }))
 
-    await expect(result.current.workerFn()).rejects.toThrow('no window')
+    // synchronous throw, mirroring upstream whose `workerFn` reaches
+    // `new Worker` / `new Blob` and throws there too
+    expect(() => result.current.workerFn()).toThrow('no window')
     expect(result.current.workerStatus).toBe('PENDING')
+  })
+
+  it('imports external dependencies (importScripts) into the worker', async () => {
+    // a blob: URL script shares the document origin, so the blob worker can
+    // import it; the script defines a global helper used by `fn` at call time
+    const depUrl = URL.createObjectURL(new Blob(['self.DOUBLE = (n) => n * 2'], { type: 'text/javascript' }))
+    const { result, act } = await renderHook(() => useWebWorkerFn((n: number) => DOUBLE(n), { dependencies: [depUrl] }))
+
+    let p!: Promise<number>
+    await act(() => {
+      p = result.current.workerFn(21)
+    })
+
+    await expect(p).resolves.toBe(42)
+  })
+
+  it('handles worker onerror by rejecting with the ErrorEvent', async () => {
+    const { result, act } = await renderHook(() => useWebWorkerFn(() => new Promise<number>(() => {
+      // the promise never settles; an uncaught async throw fires the
+      // worker's `error` event, which the hook routes to the pending promise
+      setTimeout(() => {
+        throw new Error('async boom')
+      }, 20)
+    })))
+
+    let p!: Promise<unknown>
+    await act(() => {
+      p = result.current.workerFn()
+    })
+
+    await expect(p).rejects.toMatchObject({ message: expect.stringContaining('async boom') })
+    await expect.poll(() => result.current.workerStatus).toBe('ERROR')
   })
 })

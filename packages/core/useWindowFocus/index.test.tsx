@@ -34,6 +34,21 @@ it('useWindowFocus removes its listeners on unmount', async () => {
   expect(result.current).toBe(document.hasFocus())
 })
 
+it('useWindowFocus treats an explicitly null window as no window (no tracking)', async () => {
+  const { result } = await renderHook(() => useWindowFocus({ window: null as unknown as Window }))
+
+  // upstream: `if (!window) return shallowRef(false)` — no listeners, no
+  // hasFocus sync; a JS-passed `null` must not fall through `??` to the real
+  // global window
+  expect(result.current).toBe(false)
+
+  expect(() => {
+    window.dispatchEvent(new Event('focus'))
+    window.dispatchEvent(new Event('blur'))
+  }).not.toThrow()
+  expect(result.current).toBe(false)
+})
+
 it('useWindowFocus supports a custom window option', async () => {
   const listeners: Record<string, Array<() => void>> = {}
   const fakeWindow = {

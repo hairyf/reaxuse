@@ -1,13 +1,30 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
+/**
+ * The type of wake lock to request. Mirrors upstream's own
+ * `WakeLockType` (defined locally rather than referenced from lib.dom, for
+ * parity with older TS libs) and is re-exported from the package barrel.
+ */
+export type WakeLockType = 'screen'
+
+/**
+ * Mirrors upstream's own `WakeLockSentinel` interface (upstream defines it
+ * locally for older TS libs instead of referencing lib.dom directly) and is
+ * re-exported from the package barrel. lib.dom's `WakeLockSentinel` is
+ * assignable to this shape.
+ */
+export interface WakeLockSentinel extends EventTarget {
+  type: WakeLockType
+  released: boolean
+  release: () => Promise<void>
+}
 
 /**
  * Specify a custom `navigator` or `document` instance, e.g. working with
  * iframes or in testing environments.
  *
  * Upstream composes these from the shared `ConfigurableNavigator` /
- * `ConfigurableDocument` option types; they are inlined here so this module
- * exports no same-named types (`export *` in `index.ts` would collide with
- * other hooks, TS2308).
+ * `ConfigurableDocument` option types; they are inlined here.
  */
 export interface UseWakeLockOptions {
   /**
@@ -83,9 +100,10 @@ export interface UseWakeLockReturn {
  *   only while it is still the current sentinel — upstream achieves the
  *   same by re-binding its listener through the sentinel ref;
  * - auto-release on unmount mirrors upstream's `tryOnScopeDispose`;
- * - `WakeLockSentinel`/`WakeLockType` are referenced from lib.dom directly
- *   (upstream defines its own interfaces for older TS libs) and are not
- *   re-exported.
+ * - `WakeLockSentinel`/`WakeLockType` are defined locally and re-exported,
+ *   mirroring upstream's own interfaces (defined for older TS libs rather
+ *   than referenced from lib.dom directly), so `import type {
+ *   WakeLockSentinel } from '@reaxuse/core'` keeps parity.
  *
  * @example
  * const { isSupported, isActive, request, release } = useWakeLock()
@@ -105,17 +123,28 @@ export function useWakeLock(options: UseWakeLockOptions = {}): UseWakeLockReturn
   const sentinelRef = useRef<WakeLockSentinel | null>(null)
   const visibilityRef = useRef<DocumentVisibilityState>('visible')
 
+  // Resolve the configurable navigator/document once per options change and
+  // reuse them in every effect below (upstream destructures
+  // `{ navigator = defaultNavigator, document = defaultDocument }` once at
+  // setup). Cannot use destructuring defaults directly — the TDZ would throw
+  // (`const { navigator = navigator } = options`).
+  const { navigator: nav, document: doc } = useMemo(
+    () => ({
+      navigator: options.navigator ?? (typeof navigator === 'undefined' ? undefined : navigator),
+      document: options.document ?? (typeof document === 'undefined' ? undefined : document),
+    }),
+    [options.navigator, options.document],
+  )
+
   // Resolve the navigator and compute support after mount (upstream:
   // `useSupported(() => navigator && 'wakeLock' in navigator)`).
   useEffect(() => {
-    const nav = options.navigator ?? (typeof navigator === 'undefined' ? undefined : navigator)
     navigatorRef.current = nav
     setIsSupported(Boolean(nav && 'wakeLock' in nav))
-  }, [options.navigator])
+  }, [nav])
 
   // Track `document.visibilityState` (upstream: `useDocumentVisibility`).
   useEffect(() => {
-    const doc = options.document ?? (typeof document === 'undefined' ? undefined : document)
     if (!doc)
       return
 
@@ -129,7 +158,7 @@ export function useWakeLock(options: UseWakeLockOptions = {}): UseWakeLockReturn
     return () => {
       doc.removeEventListener('visibilitychange', update)
     }
-  }, [options.document])
+  }, [doc])
 
   const forceRequest = useCallback(async (type: WakeLockType) => {
     await sentinelRef.current?.release()
@@ -163,13 +192,12 @@ export function useWakeLock(options: UseWakeLockOptions = {}): UseWakeLockReturn
     if (!isSupported || documentVisibility !== 'visible' || !requestedType)
       return
 
-    const doc = options.document ?? (typeof document === 'undefined' ? undefined : document)
     if (doc?.visibilityState !== 'visible')
       return
 
     setRequestedType(false)
     void forceRequest(requestedType)
-  }, [documentVisibility, forceRequest, isSupported, options.document, requestedType])
+  }, [documentVisibility, forceRequest, isSupported, doc, requestedType])
 
   const request = useCallback(async (type: WakeLockType) => {
     if (visibilityRef.current === 'visible')

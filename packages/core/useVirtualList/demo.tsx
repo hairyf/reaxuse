@@ -33,8 +33,9 @@ export default function UseVirtualListDemo() {
   const { list, containerProps, wrapperProps, scrollTo } = useVirtualList(
     filteredItems,
     {
-      // Keep in sync with the item's row (row height + spacing).
-      itemHeight: i => filteredItems[i].height + 8,
+      // Keep in sync with the item's row (row height; border-box height
+      // already includes the border).
+      itemHeight: i => filteredItems[i].height,
       overscan: 10,
     },
   )
