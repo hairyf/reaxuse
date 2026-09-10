@@ -4,7 +4,11 @@ category: Utilities
 
 # useToString
 
-Reactively convert a ref to string
+Convert a value to its string representation.
+
+`value` is a plain read-only value — pass the state value (or `ref.current`)
+directly. Unlike upstream, getters and refs are not unwrapped; the value is
+coerced as-is on every call.
 
 ## Usage
 
