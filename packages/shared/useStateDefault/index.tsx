@@ -74,10 +74,10 @@ function isRefState<T>(source: State<T>): source is { current: T } {
  * const [value, setValue] = useStateDefault(raw, 'default')
  *
  * setValue('hello')
- * console.log(value) // 'hello'
+ * console.log(value) // 'hello' after the next render (React derives at render)
  *
  * setValue(undefined)
- * console.log(value) // 'default'
+ * console.log(value) // 'default' after the next render
  */
 export function useStateDefault<T = any>(
   source: State<T | undefined | null>,
@@ -103,15 +103,21 @@ export function useStateDefault<T = any>(
     // upstream: `set(value) { source.value = value }` — write through to the
     // source so external readers see the update. `toValue`'s precedence is
     // mirrored here: tuple setter → `{ value, onChange }` → ref-like `.current`;
-    // a plain value / getter source stays read-only.
+    // a plain value / getter source stays read-only — no write path exists,
+    // so the version bump (re-render) is skipped there too.
     const currentSource = sourceRef.current
-    if (isStateTuple(currentSource))
+    if (isStateTuple(currentSource)) {
       currentSource[1](resolved)
-    else if (isObjectState(currentSource))
+      bump()
+    }
+    else if (isObjectState(currentSource)) {
       currentSource.onChange?.(resolved)
-    else if (isRefState(currentSource))
+      bump()
+    }
+    else if (isRefState(currentSource)) {
       currentSource.current = resolved
-    bump()
+      bump()
+    }
   }, [])
 
   return [toValue(source) ?? defaultValue, setValue]
