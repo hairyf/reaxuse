@@ -3,7 +3,9 @@ import { useState } from 'react'
 
 export default function UseQueryDemo() {
   const [page, setPage] = useQuery('page', '1', { transform: Number })
-  const [search, setSearch] = useQuery('search', '')
+  // `T` is inferred from the default, so a `''` literal would narrow the
+  // setter to `(value: '') => void` — pin `T` to `string` explicitly
+  const [search, setSearch] = useQuery<string>('search', '')
   const [pageDraft, setPageDraft] = useState(1)
   const [searchDraft, setSearchDraft] = useState('')
 
