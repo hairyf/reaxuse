@@ -15,13 +15,6 @@ const { x, y } = useMouse({ type: 'client' })
 const { element } = useElementByPoint({ x, y })
 ```
 
-`x` and `y` accept plain numbers, React refs. When `multiple` is
-enabled, `element` is an `HTMLElement[]` with every element under the point (`document.elementsFromPoint`):
-
-```tsx
-const { element } = useElementByPoint({ x, y, multiple: true })
-```
-
 ## Source Forms
 
 `x` and `y` are read-only value sources and take plain numbers (upstream:
