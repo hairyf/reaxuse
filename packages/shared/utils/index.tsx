@@ -218,3 +218,27 @@ export function toValue<T>(value: StateValue<T> | undefined | null): T | undefin
     return (value as RefObject<T | null>).current as T
   return value as T | undefined | null
 }
+
+/**
+ * Write a value back through a writable `State<T>` source — a ref-like
+ * `.current`, a `[value, setter]` tuple or a `{ value, onChange }` pair.
+ * Plain values and getters have no write path and are skipped. This is the
+ * write-side counterpart of `toValue`; hooks that push values into a
+ * `State<T>` import it from here rather than re-implementing the branches.
+ */
+export function writeState<T>(source: StateValue<T> | undefined | null, value: T): void {
+  if (source === null || source === undefined)
+    return
+  if (Array.isArray(source) && source.length === 2 && typeof source[1] === 'function') {
+    (source as unknown as readonly [T, (next: T) => void])[1](value)
+    return
+  }
+  if (isRefLike(source as RefOrValue<T>)) {
+    (source as { current: T }).current = value
+    return
+  }
+  if (typeof source === 'object' && !Array.isArray(source)
+    && 'value' in source && !('addEventListener' in source)) {
+    (source as { onChange?: (next: T) => void }).onChange?.(value)
+  }
+}
