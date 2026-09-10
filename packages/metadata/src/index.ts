@@ -10,4 +10,4 @@
 export type { PackageManifest } from '../../../meta/packages'
 export { packages } from '../../../meta/packages'
 export type { FunctionInfo } from './functions'
-export { functions } from './functions'
+export { addonCategoryNames, categoryNames, coreCategoryNames, functions } from './functions'

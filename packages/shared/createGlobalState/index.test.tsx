@@ -80,8 +80,15 @@ describe('createGlobalState', () => {
     expect(second.result.current[0]).toBe('updated')
   })
 
+  it('accepts a plain initial value', async () => {
+    const useGlobalState = createGlobalState({ count: 0 })
+    const { result } = await renderHook(() => useGlobalState())
+
+    expect(result.current[0]).toEqual({ count: 0 })
+  })
+
   it('supports the plain value and the functional updater form', async () => {
-    const useGlobalState = createGlobalState(() => ({ count: 0 }))
+    const useGlobalState = createGlobalState({ count: 0 })
     const { result, act } = await renderHook(() => useGlobalState())
 
     await act(() => result.current[1]({ count: 5 }))
@@ -91,42 +98,38 @@ describe('createGlobalState', () => {
     expect(result.current[0]).toEqual({ count: 10 })
   })
 
-  it('runs the factory exactly once, with the first call args', async () => {
-    const factory = vi.fn((start: number) => start)
-    const useGlobalState = createGlobalState(factory)
+  it('resolves a function initializer exactly once, at createGlobalState time', async () => {
+    const init = vi.fn(() => 5)
+    const useGlobalState = createGlobalState(init)
 
-    const first = await renderHook(() => useGlobalState(10))
-    const second = await renderHook(() => useGlobalState(99))
-
-    expect(factory).toHaveBeenCalledTimes(1)
-    expect(factory).toHaveBeenCalledWith(10)
-
-    expect(first.result.current[0]).toBe(10)
-    // the second consumer ignores its own args and shares the first state
-    expect(second.result.current[0]).toBe(10)
-  })
-
-  it('runs a factory resolving to undefined exactly once', async () => {
-    const factory = vi.fn(() => undefined)
-    const useGlobalState = createGlobalState<undefined | string>(factory)
+    // resolved eagerly, when `createGlobalState` is called (module scope) —
+    // react-use resolves `initialState instanceof Function ? initialState() : initialState`
+    expect(init).toHaveBeenCalledTimes(1)
 
     const first = await renderHook(() => useGlobalState())
     const second = await renderHook(() => useGlobalState())
 
-    // the `initialized` flag, not `state ??=`, guarantees a single run even
-    // when the factory yields `undefined`
-    expect(factory).toHaveBeenCalledTimes(1)
+    // hook calls never re-run the initializer
+    expect(init).toHaveBeenCalledTimes(1)
+    expect(first.result.current[0]).toBe(5)
+    expect(second.result.current[0]).toBe(5)
+  })
+
+  it('starts with undefined when called without arguments, and stays writable', async () => {
+    const useGlobalState = createGlobalState<undefined | string>()
+
+    const first = await renderHook(() => useGlobalState())
     expect(first.result.current[0]).toBeUndefined()
-    expect(second.result.current[0]).toBeUndefined()
 
     // the store is writable afterwards
     await first.act(() => first.result.current[1]('now-defined'))
-    expect(second.result.current[0]).toBe('now-defined')
+    expect(first.result.current[0]).toBe('now-defined')
   })
 
-  it('returns a stable setter across renders', async () => {
+  it('returns a stable setter, shared across renders and consumers', async () => {
     const useGlobalState = createGlobalState(() => 0)
     const { result, act, rerender } = await renderHook(() => useGlobalState())
+    const second = await renderHook(() => useGlobalState())
 
     const setState = result.current[1]
     await act(() => result.current[1](1))
@@ -134,5 +137,7 @@ describe('createGlobalState', () => {
 
     expect(result.current[0]).toBe(1)
     expect(result.current[1]).toBe(setState)
+    // react-use shares one `store.setState` across every consumer
+    expect(second.result.current[1]).toBe(setState)
   })
 })

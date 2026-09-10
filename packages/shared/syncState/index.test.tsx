@@ -1,24 +1,24 @@
-import type { SyncRefOptions, SyncRefTransform } from '../syncRef'
+import type { SyncStateOptions, SyncStateTransform } from '../syncState'
 import { useState } from 'react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
-import { syncRef } from '../syncRef'
+import { syncState } from '../syncState'
 
 // type-level helpers (upstream imports these from @type-challenges/utils,
 // which reaxuse does not depend on)
 type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2) ? true : false
 type Expect<T extends true> = T
 
-describe('syncRef', () => {
+describe('syncState', () => {
   it('should be defined', () => {
-    expect(syncRef).toBeDefined()
+    expect(syncState).toBeDefined()
   })
 
   it('should work', async () => {
     const a = { current: 'foo' }
     const b = { current: 'bar' }
 
-    const { result, rerender } = await renderHook(() => syncRef(a, b))
+    const { result, rerender } = await renderHook(() => syncState(a, b))
 
     // upstream: immediate sync on setup (default `immediate: true`) — here the
     // initial sync runs in the mount effect, i.e. once the hook has rendered
@@ -51,7 +51,7 @@ describe('syncRef', () => {
     const left = { current: 'left' }
     const right = { current: 'right' }
 
-    const { rerender } = await renderHook(() => syncRef(left, right, { direction: 'rtl' }))
+    const { rerender } = await renderHook(() => syncState(left, right, { direction: 'rtl' }))
 
     expect(left.current).toBe('right')
     expect(right.current).toBe('right')
@@ -74,7 +74,7 @@ describe('syncRef', () => {
     const left = { current: 'left' }
     const right = { current: 'right' }
 
-    const { rerender } = await renderHook(() => syncRef(left, right, { direction: 'ltr' }))
+    const { rerender } = await renderHook(() => syncState(left, right, { direction: 'ltr' }))
 
     expect(left.current).toBe('left')
     expect(right.current).toBe('left')
@@ -97,7 +97,7 @@ describe('syncRef', () => {
     const left = { current: 10 }
     const right = { current: 2 }
 
-    const { rerender } = await renderHook(() => syncRef(left, right, {
+    const { rerender } = await renderHook(() => syncState(left, right, {
       transform: {
         ltr: left => left * 2,
         rtl: right => Math.floor(right / 3),
@@ -123,7 +123,7 @@ describe('syncRef', () => {
     const left = { current: 10 }
     const right = { current: 2 }
 
-    const { rerender } = await renderHook(() => syncRef(left, right, {
+    const { rerender } = await renderHook(() => syncState(left, right, {
       direction: 'rtl',
       transform: {
         rtl: right => Math.round(right / 2),
@@ -149,7 +149,7 @@ describe('syncRef', () => {
     const a = { current: 'foo' }
     const b = { current: 'bar' }
 
-    const { rerender } = await renderHook(() => syncRef(a, b, { immediate: false }))
+    const { rerender } = await renderHook(() => syncState(a, b, { immediate: false }))
 
     expect(a.current).toBe('foo')
     expect(b.current).toBe('bar')
@@ -161,6 +161,95 @@ describe('syncRef', () => {
     expect(b.current).toBe('baz')
   })
 
+  it('syncs a [value, setter] tuple side two-way', async () => {
+    const left = { current: 'left' }
+    const { result, rerender } = await renderHook(() => {
+      const [right, setRight] = useState('right')
+      const stop = syncState(left, [right, setRight])
+      return { right, setRight, stop }
+    })
+
+    // immediate sync: left → tuple side (through the setter)
+    await vi.waitFor(() => {
+      expect(result.current.right).toBe('left')
+    })
+    expect(left.current).toBe('left')
+
+    // external left change propagates into the tuple side
+    left.current = 'from-left'
+    await rerender()
+    await vi.waitFor(() => {
+      expect(result.current.right).toBe('from-left')
+    })
+
+    // setter-driven change propagates back into the ref-like left side
+    result.current.setRight('from-right')
+    await rerender()
+    expect(left.current).toBe('from-right')
+
+    // stop tears the sync down
+    result.current.stop()
+    left.current = 'stopped'
+    await rerender()
+    expect(result.current.right).toBe('from-right')
+  })
+
+  it('syncs a { value, onChange } pair and propagates value changes back', async () => {
+    const left = { current: 'left' }
+    const onChange = vi.fn()
+    const { result, rerender } = await renderHook(
+      ({ value }: { value: string } = { value: 'right' }) => {
+        const stop = syncState(left, { value, onChange })
+        return { stop }
+      },
+      { initialProps: { value: 'right' } },
+    )
+
+    // immediate sync publishes through onChange
+    await vi.waitFor(() => {
+      expect(onChange).toHaveBeenCalledWith('left')
+    })
+    expect(left.current).toBe('left')
+
+    // a left-side change publishes through onChange
+    left.current = 'from-left'
+    await rerender({ value: 'right' })
+    await vi.waitFor(() => {
+      expect(onChange).toHaveBeenLastCalledWith('from-left')
+    })
+    expect(left.current).toBe('from-left')
+
+    // a changed `value` prop propagates back to the left side
+    await rerender({ value: 'from-pair' })
+    expect(left.current).toBe('from-pair')
+
+    // stop tears the sync down — no further onChange calls
+    result.current.stop()
+    const callsAfterStop = onChange.mock.calls.length
+    left.current = 'stopped'
+    await rerender({ value: 'from-pair' })
+    expect(onChange).toHaveBeenCalledTimes(callsAfterStop)
+  })
+
+  it('treats a plain-value side as read-only', async () => {
+    const plain = 'static'
+    const target = { current: 'target' }
+    const { rerender } = await renderHook(() => syncState(plain, target))
+
+    // immediate sync: plain → target
+    expect(target.current).toBe('static')
+
+    // the plain side has no write path — a target change never writes back
+    target.current = 'changed'
+    await rerender()
+    expect(target.current).toBe('changed')
+
+    // and a later re-render does not clobber the target with the stale plain
+    // value (the read-only side is not recorded as written)
+    await rerender()
+    expect(target.current).toBe('changed')
+  })
+
   it('should type check the transform contract', () => {
     /* eslint-disable ts/no-unused-expressions */
     // upstream makes `transform` required when L and R are unrelated; the
@@ -169,39 +258,39 @@ describe('syncRef', () => {
     type L = number
     type R = string
 
-    'test' as any as Expect<Equal<SyncRefTransform<L, R>, {
+    'test' as any as Expect<Equal<SyncStateTransform<L, R>, {
       ltr: (left: L) => R
       rtl: (right: R) => L
     }>>
 
-    'test' as any as Expect<Equal<SyncRefOptions<L, R>['transform'], Partial<SyncRefTransform<L, R>> | undefined>>
+    'test' as any as Expect<Equal<SyncStateOptions<L, R>['transform'], Partial<SyncStateTransform<L, R>> | undefined>>
 
     // a fully-specified transform is assignable
-    const full: SyncRefOptions<L, R> = {
+    const full: SyncStateOptions<L, R> = {
       transform: {
         ltr: left => String(left * 2),
         rtl: right => right.length,
       },
     }
-    full satisfies SyncRefOptions<L, R>
+    full satisfies SyncStateOptions<L, R>
 
     // a Partial transform (one convertor missing) is assignable too
-    const partial: SyncRefOptions<L, R> = {
+    const partial: SyncStateOptions<L, R> = {
       transform: {
         rtl: right => right.length,
       },
     }
-    partial satisfies SyncRefOptions<L, R>
+    partial satisfies SyncStateOptions<L, R>
     /* eslint-enable ts/no-unused-expressions */
   })
 })
 
-describe('syncRef (component)', () => {
-  function SyncRefDemo() {
+describe('syncState (component)', () => {
+  function SyncStateDemo() {
     const [a, setA] = useState('')
     const [b, setB] = useState('')
 
-    // ref-like bridges onto the state — the syncRef effect writes a side's
+    // ref-like bridges onto the state — the syncState effect writes a side's
     // `.current`, which lands in state and re-renders the inputs
     const aRef = {
       get current() {
@@ -220,7 +309,7 @@ describe('syncRef (component)', () => {
       },
     }
 
-    syncRef(aRef, bRef)
+    syncState(aRef, bRef)
 
     return (
       <div>
@@ -231,7 +320,7 @@ describe('syncRef (component)', () => {
   }
 
   it('syncs both inputs two-way', async () => {
-    const screen = await render(<SyncRefDemo />)
+    const screen = await render(<SyncStateDemo />)
     const inputA = screen.getByPlaceholder('A')
     const inputB = screen.getByPlaceholder('B')
 

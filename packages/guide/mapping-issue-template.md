@@ -163,6 +163,6 @@ gh issue create \
   --body-file <rendered-body.md>
 ```
 
-A generator script (`scripts/create-mapping-issues.ts`) scans the submodule,
-resolves the mapping files, computes LOC/size/labels, renders this template per
-function, and creates the issues (dry-run mode first).
+The mapping files are resolved from the `source/vueuse` submodule; LOC/size/labels are
+computed per function and this template is rendered per function when creating issues
+(dry-run mode first).

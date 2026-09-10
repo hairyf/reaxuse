@@ -1,10 +1,13 @@
-import { useCallback, useMemo, useSyncExternalStore } from 'react'
+import { useMemo, useSyncExternalStore } from 'react'
 
-export type GlobalStateSetter<State> = (update: State | ((prev: State) => State)) => void
+export type GlobalStateInitAction<State> = State | (() => State)
+export type GlobalStateSetAction<State> = State | ((prev: State) => State)
+export type GlobalStateSetter<State> = (update: GlobalStateSetAction<State>) => void
 
 /**
  * Keep state in the global scope, reusable across React components — React
- * port of VueUse's `createGlobalState`.
+ * port of VueUse's `createGlobalState`, with the parameter following
+ * react-use's `createGlobalState`.
  *
  * Map from @vueuse/shared `createGlobalState`
  * Mapping: upstream runs the factory inside a detached `effectScope(true)`
@@ -13,10 +16,17 @@ export type GlobalStateSetter<State> = (update: State | ((prev: State) => State)
  * port keeps the state in a module-level external store (a per-factory closure
  * holding the value plus a `Set` of listeners) and every consumer reads it
  * through `useSyncExternalStore`. The store is never disposed or reset, so
- * state survives unmount exactly like upstream's detached scope; the factory
- * still runs exactly once, with the arguments of the first hook call.
+ * state survives unmount exactly like upstream's detached scope.
  *
- * Two deviations from upstream:
+ * The parameter follows react-use `createGlobalState`: it is the **initial
+ * state** — a plain value, or a zero-arg function computing it. It is resolved
+ * exactly once, at `createGlobalState` call time (module scope), mirroring
+ * react-use's `store.state = initialState instanceof Function ? initialState()
+ * : initialState`; the initializer therefore never runs during a component
+ * render, and the returned hook takes no arguments. This differs from upstream
+ * VueUse, where the factory receives the arguments of the first hook call.
+ *
+ * Deviations from upstream:
  * - module-level external store instead of `effectScope(true)` — the scope's
  *   only job was keeping the state alive outside any component; a module-level
  *   closure does that without a scope, and `useSyncExternalStore` makes every
@@ -26,16 +36,13 @@ export type GlobalStateSetter<State> = (update: State | ((prev: State) => State)
  *   naming rules — a state-like writable hook returns `[value, setValue]`.
  *   Derive computed values inside the consumer from `state`, and expose
  *   actions through the factory's returned state or a plain function.
+ * - the parameter is react-use's initial state (value or zero-arg initializer)
+ *   instead of upstream's variadic factory (see above).
  *
- * The factory runs on the first snapshot read, i.e. during the first render of
- * the first consumer (React's `useSyncExternalStore` has no pre-render setup
- * path — the first `getSnapshot` must already return the value). In
- * StrictMode / concurrent rendering a discarded render can therefore
- * initialize the module store before the first committed consumer mounts;
- * this is harmless because the store is module-wide and the factory still runs
- * exactly once. The tuple is memoized on the snapshot, so its identity is
- * stable across renders for a given state (effect deps / memoized children
- * keyed on the tuple do not churn).
+ * The tuple is memoized on the snapshot, so its identity is stable across
+ * renders for a given state (effect deps / memoized children keyed on the
+ * tuple do not churn); `setState` is a single function shared by every
+ * consumer, like react-use's `store.setState`.
  *
  * ```ts
  * const useGlobalState = createGlobalState(() => 0)
@@ -47,18 +54,24 @@ export type GlobalStateSetter<State> = (update: State | ((prev: State) => State)
  * ```
  *
  * @see https://vueuse.org/createGlobalState
- * @param stateFactory A factory function to create the state; invoked once, with the first call's args
- *
- * @__NO_SIDE_EFFECTS__
+ * @see https://github.com/streamich/react-use/blob/master/src/factory/createGlobalState.ts
+ * @param initialState The initial state — a plain value or a zero-arg function
+ * computing it; resolved exactly once, at `createGlobalState` call time.
  */
-export function createGlobalState<State, Args extends unknown[] = []>(
-  stateFactory: (...args: Args) => State,
-): (...args: Args) => [State, GlobalStateSetter<State>] {
-  // module-wide store: the value plus every subscribed consumer
-  let state: State | undefined
-  let initialized = false
-  // args of the first hook call — upstream passes them to the factory once
-  let firstArgs: Args | undefined
+export function createGlobalState<State = unknown>(
+  initialState: GlobalStateInitAction<State>,
+): () => [State, GlobalStateSetter<State>]
+export function createGlobalState<State = undefined>(): () => [State, GlobalStateSetter<State>]
+/* @__NO_SIDE_EFFECTS__ */
+export function createGlobalState<State = undefined>(
+  initialState?: GlobalStateInitAction<State>,
+): () => [State, GlobalStateSetter<State>] {
+  // resolved exactly once, at `createGlobalState` call time — like react-use's
+  // `store.state = initialState instanceof Function ? initialState() : initialState`.
+  // Eager module-scope resolution means the initializer never runs during a
+  // component render, and a zero-arg initializer runs exactly once even when
+  // it returns `undefined`.
+  let state = (typeof initialState === 'function' ? (initialState as () => State)() : initialState) as State
 
   const listeners = new Set<() => void>()
 
@@ -71,33 +84,21 @@ export function createGlobalState<State, Args extends unknown[] = []>(
     }
   }
 
-  // lazily initialises on the first snapshot read; the factory never re-runs
-  // (an explicit flag, not `state ??=`, so a factory returning `undefined`
-  // still runs exactly once)
-  const getSnapshot = (): State => {
-    if (!initialized) {
-      state = stateFactory(...(firstArgs as Args))
-      initialized = true
-    }
-    return state as State
+  const getSnapshot = (): State => state
+
+  // a single setter shared by every consumer (react-use returns
+  // `store.setState`): assigns then notifies every subscriber, never resets
+  const setState: GlobalStateSetter<State> = (update) => {
+    state = typeof update === 'function'
+      ? (update as (prev: State) => State)(state)
+      : update
+
+    for (const listener of listeners)
+      listener()
   }
 
-  return function useGlobalState(...args: Args): [State, GlobalStateSetter<State>] {
-    if (firstArgs === undefined)
-      firstArgs = args
-
+  return function useGlobalState(): [State, GlobalStateSetter<State>] {
     const snapshot = useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
-
-    // stable setter — assigns then notifies every subscriber, never resets
-    const setState = useCallback<GlobalStateSetter<State>>((update) => {
-      state = typeof update === 'function'
-        ? (update as (prev: State) => State)(state as State)
-        : update
-      initialized = true
-
-      for (const listener of listeners)
-        listener()
-    }, [])
 
     return useMemo(
       () => [snapshot, setState] as [State, GlobalStateSetter<State>],

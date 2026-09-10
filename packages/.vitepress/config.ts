@@ -9,7 +9,7 @@ import { withPwa } from '@vite-pwa/vitepress'
 import UnoCSSPostCSS from 'unocss/postcss'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitepress'
-import { currentVersion } from '../../meta/versions'
+import { currentVersion, versions } from '../../meta/versions'
 import { functions } from '../../packages/metadata/src/functions'
 import { ChangeLog } from './plugins/changelog'
 import { Contributors } from './plugins/contributors'
@@ -140,12 +140,24 @@ function getFunctionsSideBar() {
     }))
 }
 
-// Guide pages (mirrors VueUse's `Guide` links, adapted to reaxuse's pages).
+// Guide pages (mirrors VueUse's Guide links, adapted to reaxuse's pages).
 const Guide = [
-  { text: 'Introduction', link: '/guide/' },
+  { text: 'Get Started', link: '/guide/' },
   { text: 'Installation', link: '/guide/installation' },
+  { text: 'Best Practice', link: '/guide/best-practice' },
+  { text: 'Configurations', link: '/guide/config' },
+  { text: 'Components', link: '/guide/components' },
   { text: 'Architecture', link: '/guide/architecture' },
+  { text: 'Work with AI', link: '/guide/work-with-ai' },
+  { text: 'Contributing', link: '/contributing' },
+  { text: 'Guidelines', link: '/guidelines' },
   { text: 'Mapping Issue Template', link: '/guide/mapping-issue-template' },
+]
+
+// Utility links (mirrors VueUse's Links list, adapted to reaxuse).
+const Links = [
+  { text: 'Export Size', link: '/export-size' },
+  { text: 'Recent Updated', link: '/functions.html#sort=updated' },
 ]
 
 // Function categories present in the docs, in VueUse's canonical order
@@ -186,19 +198,25 @@ const DefaultSideBar = [
   { text: 'Guide', items: Guide },
   { text: 'Core Functions', items: CoreCategories },
   { text: 'Add-ons', items: AddonCategories },
+  { text: 'Links', items: Links },
 ]
 
 // Routes to precache in the service worker (virtual:pwa), mirroring
-// VueUse's packageNames entries.
+// VueUse's packageNames entries. Links use the docs page dir derived from
+// the registry file (several hooks export multiple names from one page).
 const packageNames: [string, { url: string, hash: string }][] = [
   ['/', { url: '/index.html', hash: '' }],
   ['/functions', { url: '/functions.html', hash: '' }],
-  ...functions.map(fn => [`${fn.pkg}/${fn.name}`, { url: `/${fn.pkg}/${fn.name}/`, hash: '' }] as [string, { url: string, hash: string }]),
+  ...[...new Map(functions.map((fn) => {
+    const dir = fn.file.replace(/^packages\/\w+\/([^/]+)\/index\.tsx$/, '$1')
+    const url = `/${fn.pkg}/${dir}/`
+    return [url, { url, hash: '' }] as const
+  })).entries()],
 ]
 
 // Per-page head additions (og meta), mirroring VueUse's transformHead.ts.
 function transformHead(context: TransformContext): HeadConfig[] {
-  const title = context.pageData.title ? `${context.pageData.title} | reaxuse` : 'reaxuse'
+  const title = context.pageData.title ? `${context.pageData.title} | ReaxUse` : 'ReaxUse'
   return [
     ['meta', { property: 'og:title', content: title }],
     ['meta', { property: 'og:image', content: '/reaxuse.svg' }],
@@ -210,7 +228,7 @@ const FunctionsSideBar = getFunctionsSideBar()
 
 export default withPwa(defineConfig({
   lang: 'en-US',
-  title: 'reaxuse',
+  title: 'ReaxUse',
   description: 'Reactive utilities for React — an experimental 1:1 AI-mapped port of VueUse',
   lastUpdated: true,
   head: [
@@ -246,8 +264,8 @@ export default withPwa(defineConfig({
           maximumFileSizeToCacheInBytes: 10_000_000,
         },
         manifest: {
-          name: 'reaxuse',
-          short_name: 'reaxuse',
+          name: 'ReaxUse',
+          short_name: 'ReaxUse',
           description: 'Reactive utilities for React — an experimental 1:1 AI-mapped port of VueUse',
           theme_color: '#3b82f6',
           icons: [
@@ -272,20 +290,53 @@ export default withPwa(defineConfig({
         text: 'Guide',
         items: [
           { text: 'Guide', items: Guide },
+          { text: 'Links', items: Links },
         ],
       },
       {
         text: 'Functions',
         items: [
-          { text: 'All Functions', link: '/functions' },
+          {
+            text: '',
+            items: [
+              { text: 'All Functions', link: '/functions#' },
+              { text: 'Recent Updated', link: '/functions#sort=updated' },
+            ],
+          },
           { text: 'Core', items: CoreCategories },
           { text: 'Add-ons', items: AddonCategories },
         ],
       },
       { text: 'Architecture', link: '/guide/architecture' },
+      {
+        text: currentVersion,
+        items: [
+          {
+            items: [
+              { text: 'Release Notes', link: 'https://github.com/hairyf/reaxuse/releases' },
+            ],
+          },
+          {
+            text: 'Versions',
+            items: versions.map(i => i.version === currentVersion
+              ? {
+                  text: `${i.version} (Current)`,
+                  activeMatch: '/', // always active
+                  link: '/',
+                }
+              : {
+                  text: i.version,
+                  link: i.link!,
+                }),
+          },
+        ],
+      },
     ],
     sidebar: {
       '/guide/': DefaultSideBar,
+      '/contributing': DefaultSideBar,
+      '/guidelines': DefaultSideBar,
+      '/export-size': DefaultSideBar,
       '/functions': FunctionsSideBar,
       '/core/': FunctionsSideBar,
       '/shared/': FunctionsSideBar,

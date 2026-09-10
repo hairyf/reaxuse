@@ -1,4 +1,4 @@
-import { computedAsync } from '@reaxuse/core'
+import { useAsync } from '@reaxuse/core'
 import { useState } from 'react'
 
 const LOOKUP_DELAY = 500
@@ -9,13 +9,13 @@ const SAMPLE_RESULTS: Record<string, string> = {
   vueuse: 'vueuse — 950k weekly downloads, MIT license',
 }
 
-export default function ComputedAsyncDemo() {
+export default function UseAsyncDemo() {
   const [term, setTerm] = useState('vueuse')
   // bumping the counter re-runs the lookup without changing the term
   const [refreshTick, setRefreshTick] = useState(0)
   const [evaluating, setEvaluating] = useState(false)
 
-  const value = computedAsync(
+  const value = useAsync(
     (onCancel) => {
       // simulated ~500ms async lookup for the current term
       return new Promise<string>((resolve) => {

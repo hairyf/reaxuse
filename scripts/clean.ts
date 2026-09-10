@@ -1,32 +1,21 @@
-import { rmSync } from 'node:fs'
-import { join } from 'node:path'
-import { globSync } from 'tinyglobby'
-import { root } from './utils'
+import { execSync } from 'node:child_process'
+import fs from 'node:fs/promises'
 
 /**
- * Remove build artifacts across the monorepo (dist, coverage, .turbo, tsbuildinfo),
- * mirroring VueUse's `scripts/clean.ts`.
+ * Remove ignored build artifacts across the monorepo, mirroring VueUse's
+ * `scripts/clean.ts` (`git clean -Xdn` over all git-ignored paths).
+ * Filtered out: `node_modules`, `.vitepress` (docs cache/output),
+ * `.eslintcache`, `.md`, `public`, and reaxuse's git-ignored `skills/`
+ * directory (local skill definitions must survive a clean).
  */
-const patterns = [
-  'packages/*/dist',
-  'docs/.vitepress/dist',
-  'docs/.vitepress/cache',
-  'coverage',
-  '.turbo',
-]
+const result = execSync('git clean -Xdn', { encoding: 'utf-8' })
 
-let removed = 0
-for (const pattern of patterns) {
-  for (const target of globSync(pattern, { cwd: root, onlyDirectories: true })) {
-    rmSync(join(root, target), { recursive: true, force: true })
-    console.log(`[clean] removed ${target}`)
-    removed++
-  }
+const items = result.split('\n')
+  .map(i => i.replace('Would remove ', '').trim())
+  .filter(Boolean)
+  .filter(i => !['node_modules', '.vitepress', '.eslintcache', '.md', 'public', 'skills'].some(j => i.includes(j)))
+
+for (const item of items) {
+  console.log(`Removing ${item}`)
+  await fs.rm(item, { force: true, recursive: true })
 }
-
-for (const file of globSync('**/*.tsbuildinfo', { cwd: root })) {
-  rmSync(join(root, file), { force: true })
-  removed++
-}
-
-console.log(`[clean] done (${removed} targets)`)

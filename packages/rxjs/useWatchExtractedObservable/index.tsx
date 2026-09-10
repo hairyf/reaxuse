@@ -25,8 +25,8 @@ export type WatchExtractedObservableExtractor<Value, E> = (
 export interface UseWatchExtractedObservableOptions {
   /**
    * Extra React effect dependencies — the React substitute for Vue's
-   * reactive tracking (same convention as `computedAsync`'s `options.deps`,
-   * `packages/core/src/computedAsync.ts`). The resolved source value's
+   * reactive tracking (same convention as `useAsync`'s `options.deps`,
+   * `packages/core/useAsync/index.tsx`). The resolved source value's
    * identity is always compared as well, so a new source object re-extracts
    * even without `deps`. Defaults to `[]`.
    */
@@ -79,8 +79,8 @@ const EMPTY_DEPS: unknown[] = []
  *   whenever the tracked source mutates). A source object mutated **in place**
  *   therefore does not re-trigger — pass a new identity or list the mutation
  *   inputs in `deps`. `deps` is the React substitute for Vue's reactive
- *   tracking, the same convention as `computedAsync`'s `options.deps`
- *   (`packages/core/src/computedAsync.ts`).
+ *   tracking, the same convention as `useAsync`'s `options.deps`
+ *   (`packages/core/useAsync/index.tsx`).
  * - The extractor is `(value, onCleanup) => Observable<E>`: upstream also
  *   passes Vue's `oldValue` as the second argument, which has no React
  *   equivalent (React keeps no previous-value tracking) and is dropped.

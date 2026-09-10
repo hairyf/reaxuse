@@ -1,4 +1,4 @@
-# Introduction
+# Get Started
 
 `reaxuse` is an experimental React hooks library that aims to be a **1:1 port of
 [VueUse](https://vueuse.org)**.

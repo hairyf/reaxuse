@@ -14,9 +14,9 @@ type Fn = () => void
  *
  * @param cancelCallback The provided callback is invoked when a re-evaluation of the computed value is triggered before the previous one finished
  */
-export type AsyncComputedOnCancel = (cancelCallback: Fn) => void
+export type UseAsyncOnCancel = (cancelCallback: Fn) => void
 
-export interface AsyncComputedOptions {
+export interface UseAsyncOptions {
   /**
    * React dependency array driving re-evaluation (replaces upstream's
    * automatic reactive-dep tracking). Defaults to `[]` = evaluate once on
@@ -65,10 +65,11 @@ const EMPTY_DEPS: unknown[] = []
 
 /**
  * Create an asynchronous computed dependency — React port of VueUse's
- * `computedAsync`.
+ * `computedAsync`, renamed `useAsync` for the React port.
  *
  * Map from @vueuse/core `computedAsync`
- * (`source/vueuse/packages/core/computedAsync/`): re-evaluates an async
+ * (`source/vueuse/packages/core/computedAsync/`), renamed `useAsync` for the
+ * React port: re-evaluates an async
  * function when its inputs change, exposes the in-flight state, supports
  * cancellation through the `onCancel` callback handed to
  * `evaluationCallback`, and protects against stale out-of-order resolutions
@@ -118,11 +119,11 @@ const EMPTY_DEPS: unknown[] = []
  *   collapsed into `options` only.
  *
  * The upstream `asyncComputed` deprecated alias is intentionally not ported
- * (upstream-only; use `computedAsync`).
+ * (upstream-only; use `useAsync`).
  *
  * @__NO_SIDE_EFFECTS__
  * @example
- * const downloads = computedAsync(
+ * const downloads = useAsync(
  *   async (onCancel) => {
  *     const controller = new AbortController()
  *     onCancel(() => controller.abort())
@@ -135,20 +136,20 @@ const EMPTY_DEPS: unknown[] = []
  *
  * @see https://vueuse.org/computedAsync/
  */
-export function computedAsync<T>(
-  evaluationCallback: (onCancel: AsyncComputedOnCancel) => T | Promise<T>,
+export function useAsync<T>(
+  evaluationCallback: (onCancel: UseAsyncOnCancel) => T | Promise<T>,
   initialState: State<T>,
-  options?: AsyncComputedOptions,
+  options?: UseAsyncOptions,
 ): T
-export function computedAsync<T>(
-  evaluationCallback: (onCancel: AsyncComputedOnCancel) => T | Promise<T>,
+export function useAsync<T>(
+  evaluationCallback: (onCancel: UseAsyncOnCancel) => T | Promise<T>,
   initialState?: undefined,
-  options?: AsyncComputedOptions,
+  options?: UseAsyncOptions,
 ): T | undefined
-export function computedAsync<T>(
-  evaluationCallback: (onCancel: AsyncComputedOnCancel) => T | Promise<T>,
+export function useAsync<T>(
+  evaluationCallback: (onCancel: UseAsyncOnCancel) => T | Promise<T>,
   initialState?: State<T>,
-  options?: AsyncComputedOptions,
+  options?: UseAsyncOptions,
 ): T | undefined {
   const {
     deps = EMPTY_DEPS,

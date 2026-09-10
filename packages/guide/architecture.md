@@ -142,18 +142,22 @@ VueUse's repo automation scripts (run with `tsx`) are all mirrored and working.
 
 | VueUse script                                | reaxuse                                                                                               | status |
 | -------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------ |
-| `scripts/clean.ts`                           | same — removes `dist`/`coverage`/`.turbo`                                                             | ✅     |
+| `scripts/clean.ts`                           | same — removes git-ignored build artifacts (`git clean -Xdn`)                                         | ✅     |
 | `scripts/update.ts`                          | same — regenerates `meta/functions.md`, `packages/functions.md`, `packages/metadata/src/functions.ts` | ✅     |
 | `scripts/publish.ts`                         | same — publishes `@reaxuse/*` to npm (`publish:ci`)                                                   | ✅     |
-| `scripts/changelog.ts`                       | same — per-function changelog from git history                                                        | ✅     |
 | `scripts/export-size.ts`                     | same — gzip size report of built bundles (`size`)                                                     | ✅     |
 | `scripts/backport.ts`                        | same — cherry-pick commits to older branches                                                          | ✅     |
 | `scripts/redirects.ts`                       | same — Netlify `_redirects` for docs                                                                  | ✅     |
 | `scripts/utils.ts` / `scripts/tsconfig.json` | same                                                                                                  | ✅     |
 
-Root `package.json` scripts mirror VueUse's (`typecheck`, `lint`, `build`, `test`, `dev`/`docs`,
-`update`, `clean`, `size`, `release`, `publish:ci`, `backport`, `changelog`, `up`); the docs
-commands run VitePress with **`packages`** as the docs root.
+Root `package.json` scripts mirror VueUse's (`up`, `backport`, `build`, `build:packages`,
+`build:redirects`, `clean`, `dev`/`docs`, `docs:build`, `docs:build:vitepress`, `docs:serve`,
+`lint`, `lint:fix`, `publish:ci`, `release`, `release:prepare`, `size`, `test`, `test:cov`,
+`test:exports`, `test:unit`, `test:all`, `typecheck`, `update`, `watch`, `prepare`; React
+adaptations: `tsc` in place of `vue-tsc`); the docs commands run VitePress with **`packages`**
+as the docs root. reaxuse-specific one-off scripts (`add-mapfrom`, `contract-check`,
+`create-mapping-issues`, `driver-core`, `unify-demo-layout`, `update-branch`) were removed in
+the VueUse alignment.
 
 ## 7. Tests — vitest + vitest-browser-react
 

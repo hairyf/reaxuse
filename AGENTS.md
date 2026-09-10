@@ -1,32 +1,39 @@
-# AGENTS.md
+# reaxuse 开发规范
 
-Rules for AI agents working on the reaxuse repository. These apply to every
-agent session — including issue-mapping agents, implement subagents, and any
-automated issue handling.
+> 自动化流水线 SOP（子代理执行 / 上游监控 / Issues 监控 / PR 合并 / Nightly Release / 编排）见 [docs/orchestration.md](docs/orchestration.md)。
 
-## Naming rules for mapped functions
+## 1. 来源判定与命名规范
 
-- 如果是 `ref*`（VueUse 的 `refAutoReset` / `refDebounced` / `refDefault` / `refManualReset` / `refThrottled` / `refWithControl` 等 ref 系函数），统一我们的实现都要是 `useState*`（如 `useStateAutoReset` / `useStateDebounced` / `useStateDefault` / `useStateManualReset` / `useStateThrottled` / `useStateWithControl`）。
-- 如果是 `on*`（VueUse 的 `onClickOutside` / `onElementRemoval` / `onKeyStroke` / `onLongPress` / `onStartTyping` 等 on 系函数），统一我们的实现命名为 `use*`（如 `useClickOutside` / `useElementRemoval` / `useKeyStroke` / `useLongPress` / `useStartTyping`）。
-- `use*RefHistory` 系列（`useRefHistory` / `useManualRefHistory` / `useDebouncedRefHistory` / `useThrottledRefHistory`）也按此规则改名为 `useState*History`（如 `useStateHistory` / `useStateManualHistory` / `useStateDebouncedHistory` / `useStateThrottledHistory`）。
-- 例外：`useState*History` 系列（`useStateHistory` / `useStateManualHistory` / `useStateDebouncedHistory` / `useStateThrottledHistory`）的返回值与 VueUse 保持一致，返回对象（如 `const { history, undo, redo, canUndo, canRedo, setSource, ... } = useStateHistory([state, setState])`），不使用数组解构。
-- 返回值的风格也要是 React：用数组解构形式（`useState*History` 系列除外，见上一条），如 `const [num, setNum, control] = useStateWithControl(0)`，而不是 Vue 风格的单一 ref 对象。
-- VueUse 上游源名（`ref*` / `on*` / `use*RefHistory`）必须保留在 issue 的 Target / Upstream API / Map from / vueuse 侧代码中，只有 reaxuse 侧（标题、reaxuse 路径、Map to、Expected implementation 的 reaxuse 部分）改用 `useState*` / `use*` 命名。
+### 1.1 来源分类与镜像策略
 
-## Issue handling rules
+| 来源分类       | 代表库    | 镜像策略     | 命名与解构风格                                                                                                              |
+| :------------- | :-------- | :----------- | :-------------------------------------------------------------------------------------------------------------------------- |
+| **Vue 体系**   | VueUse    | 转换适配     | `ref*` → `useState*`；`on*` → `use*`；`use*RefHistory` → `useState*History`<br/>其余优先 React 数组解构，多可写值使用对象。 |
+| **React 体系** | react-use | **直接镜像** | 完全保持上游原生 React 的 API 命名、参数类型与返回值结构。                                                                  |
 
-- 如果 issues 不符合上述两个要求（命名不是 `useState*` 形式，或返回值不是 React 风格），应该抛出给父代理处理，不要自行猜测修改。
+### 1.2 VueUse 侧命名转换细节
 
-## Export placeholder rules (index.ts)
+- **命名映射**：`ref*` → `useState*`；`on*` → `use*`；`use*RefHistory` → `useState*History`。
+- **上游兼容**：JSDoc、Target、Map from 等位置保留上游原名；reaxuse 内部实现、路径、标题统一步骤改用新名。
+- **返回值风格**：
+  - `useState*History` 系列：返回**对象结构**（如 `const { history, undo, redo } = useStateHistory([state, setState])`）。
+  - 其他 VueUse 转换 Hook：统一采用 **React 数组解构**（如 `const [val, setVal, control] = useStateWithControl(0)`）。
+- **异常处理**：若需求不符合上述命名或返回值规范，直接**抛回给父代理**，严禁自行臆测修改。
 
-- 所有包的 `packages/<pkg>/index.ts` 已预置占位符：每个尚未实现的 Hook 一行 `// export * from './useXxx'`（按字母序，与已实现行混排）。
-- 实现某个 Hook 时，**只取消自己那一行的注释**（`// export * from './useXxx'` → `export * from './useXxx'`），**禁止新增导出行**。
-- 如果目标 Hook 在 index.ts 中没有占位符（罕见），先检查占位符清单是否遗漏，再决定是否按字母序插入新占位符并取消注释。
-- 多个并发 PR 各自取消不同的注释行，git 三方合并可自动处理，互不冲突。
-- `scripts/update-branch.sh` 负责合并时：--theirs 优先 + 取消分支新增行对应的占位符 + 清理残留（真实行已存在时删除其占位符注释）。
+## 2. 绑定标准
 
-## Hook layout
-
-- 每个 Hook 的实现、测试、文档与 demo 共置在 `packages/<pkg>/<hook>/` 目录（对齐 VueUse 的 `packages/core/<fn>/` 布局）：实现 `index.tsx`、测试 `index.test.tsx`（vitest-browser-react）、文档 `index.md`、demo `demo.tsx`。**不再使用** `packages/<pkg>/src/<hook>.ts` 扁平布局。
-- 包级 barrel 位于包根 `packages/<pkg>/index.ts`（`export * from './useXxx'`），由 `npm run update` 生成的函数注册表 `packages/metadata/src/functions.ts` 记录每个导出的 `file: 'packages/<pkg>/<hook>/index.tsx'`。
-- 包内跨 hook 的相对导入写作 `'../useY'`；测试文件放在 `packages/<pkg>/<hook>/index.test.tsx` 并从 `'../useX'` 导入被测实现。
+- **参数类型**：
+  - **只读 value-source 参数**：仅接受纯类型 `T`（严禁 `RefOrValue` / `State<T>` / getter）。
+  - **内部写入参数**：仅接受 `State<T>`。
+  - **DOM Hook 参数**：仅接受 `RefOrValue<T>`。
+- **返回值约束（VueUse 转换类）**：
+  - **≥2 个可写值**：返回对象，镜像 VueUse 结构，每个可写值配对专属 setter（如 `useDraggable` → `{ x, setX, y, setY }`）。
+  - **恰 1 个可写值**：纯单值返回元组 `[value, setValue, otherObject]`；富记录/异步状态/DOM ref 返回对象 + 配对 setter。
+  - **0 个可写值**：结构与命名完全镜像 VueUse（如 `useClipboard`）。
+- **返回值约束（react-use 等原生 React 类）**：
+  - **完全保持上游设计**：如上游返回元组/对象/函数，直接保持一致，不做强制改写。
+- **文档镜像**：
+  - VueUse 源：镜像上游 `index.md` 结构，替换关键词（`ref` → `controllable state`）。
+  - react-use\其他源：参考上游 README/文档改写为 reaxuse 标准 markdown。
+  - React 特有差异仅在 JSDoc 中写明，严禁自造章节。
+- **质量底线**：CI 必须 100% 绿（允许 flaky 测试重跑一次）。

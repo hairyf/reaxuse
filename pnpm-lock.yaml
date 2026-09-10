@@ -11,6 +11,9 @@ importers:
       '@antfu/eslint-config':
         specifier: ^9.5.1
         version: 9.5.1(@typescript-eslint/typescript-estree@8.70.0(typescript@5.9.3))(@typescript-eslint/utils@8.70.0(eslint@10.10.0(jiti@2.7.0))(typescript@5.9.3))(@vue/compiler-sfc@3.5.42)(eslint-plugin-format@2.0.1(eslint@10.10.0(jiti@2.7.0)))(eslint@10.10.0(jiti@2.7.0))(typescript@5.9.3)(vitest@5.0.0)
+      '@antfu/ni':
+        specifier: ^30.5.0
+        version: 30.5.0
       '@reaxuse/core':
         specifier: workspace:*
         version: link:packages/core

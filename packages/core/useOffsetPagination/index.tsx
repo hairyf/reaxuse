@@ -1,6 +1,6 @@
 import type { State } from '@reaxuse/shared'
 import type { Dispatch, SetStateAction } from 'react'
-import { clamp, isRefLike, noop, toValue } from '@reaxuse/shared'
+import { clamp, isRefLike, noop, toValue, writeState } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -24,29 +24,6 @@ function isReactiveState<T>(source: State<T> | undefined | null): boolean {
     // mirrors `toValue`: a DOM-like `{ value }` (an input element) is a plain
     // value, not a `{ value, onChange }` state pair
     && !('addEventListener' in source)
-}
-
-/**
- * Write a value back through a writable `State<T>` source — a ref-like
- * `.current`, a `[value, setter]` tuple or a `{ value, onChange }` pair.
- * Plain values and getters have no write path (upstream's `syncRef` only ever
- * writes the Vue ref it was given).
- */
-function writeState<T>(source: State<T> | undefined | null, value: T): void {
-  if (source === null || source === undefined)
-    return
-  if (Array.isArray(source) && source.length === 2 && typeof source[1] === 'function') {
-    (source as unknown as readonly [T, (next: T) => void])[1](value)
-    return
-  }
-  if (isRefLike(source as object)) {
-    (source as { current: T }).current = value
-    return
-  }
-  if (typeof source === 'object' && !Array.isArray(source)
-    && 'value' in source && !('addEventListener' in source)) {
-    (source as { onChange?: (next: T) => void }).onChange?.(value)
-  }
 }
 
 export interface UseOffsetPaginationOptions {
