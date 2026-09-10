@@ -120,9 +120,9 @@ function createWorkerBlobUrl(fn: (...args: any[]) => any, deps: string[], localD
  * - the "one instance at a time" guard reads a synchronous ref mirror of the
  *   status (React state updates are async), so two back-to-back `workerFn()`
  *   calls cannot spawn overlapping workers;
- * - `workerFn` rejects when no `window` is available (SSR): upstream would
- *   only ever reach `new Worker` from a user interaction, so this surfaces
- *   the failure as a rejected promise instead of a thrown error.
+ * - `workerFn` throws synchronously when no `window` is available (SSR),
+ *   mirroring upstream, which reaches `new Worker` / `new Blob` inside
+ *   `workerFn` and throws there too.
  *
  * @example
  * const { workerFn, workerStatus, workerTerminate } = useWebWorkerFn(() => {
@@ -160,7 +160,6 @@ export function useWebWorkerFn<T extends (...fnArgs: any[]) => any>(fn: T, optio
   }>({})
   const timeoutIdRef = useRef<number | undefined>(undefined)
   const workerStatusRef = useRef<WebWorkerStatus>('PENDING')
-  workerStatusRef.current = workerStatus
 
   const workerTerminate = useCallback((status: WebWorkerStatus = 'PENDING') => {
     const current = workerRef.current
@@ -234,8 +233,11 @@ export function useWebWorkerFn<T extends (...fnArgs: any[]) => any>(fn: T, optio
     }
 
     if (!windowRef.current) {
-      // SSR guard: without a `window` there is no `Worker`/`URL`/`Blob`
-      return Promise.reject(new Error('[useWebWorkerFn] no window: a Web Worker cannot be created.'))
+      // SSR guard: without a `window` there is no `Worker`/`URL`/`Blob`.
+      // Synchronous throw for parity with upstream, whose `workerFn` reaches
+      // `new Worker` (via `createWorkerBlobUrl` → `new Blob`) and throws
+      // there too.
+      throw new Error('[useWebWorkerFn] no window: a Web Worker cannot be created.')
     }
 
     workerRef.current = generateWorker()
