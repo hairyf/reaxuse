@@ -6,8 +6,9 @@ import { useWatch } from '../useWatch'
  * Structural equality, mirroring the semantics of test `toEqual`: primitives
  * are compared with `Object.is`, and `Date`, `RegExp`, `Array`, `Map`, `Set`
  * and objects (plain or class instances) are compared by contents. Functions
- * compare by reference, and `Map`/`Set` entries are matched by reference
- * because key lookups cannot deep-match.
+ * compare by reference, and `Map` keys are matched by reference because key
+ * lookups cannot deep-match, while `Map` values and `Set` items are compared
+ * deeply.
  *
  * Shared single source of truth — used by {@link useWatchDeep} and imported
  * from `@reaxuse/shared` by core hooks that need deep change detection
@@ -54,10 +55,15 @@ export function deepEqual(a: unknown, b: unknown): boolean {
     if (a.size !== bSet.size) {
       return false
     }
+    // Unordered deep item matching — pairs with deepClone, which clones Set
+    // items, so a deep-cloned set deep-equals the original.
+    const unmatched = [...bSet]
     for (const item of a) {
-      if (!bSet.has(item)) {
+      const index = unmatched.findIndex(candidate => deepEqual(item, candidate))
+      if (index === -1) {
         return false
       }
+      unmatched.splice(index, 1)
     }
     return true
   }
@@ -97,7 +103,10 @@ export function deepClone<T>(value: T): T {
       result.add(deepClone(item))
     return result as T
   }
-  const result: Record<string, unknown> = {}
+  // Preserve the prototype so class instances clone back into their class
+  // (pairs with deepEqual, which compares by constructor); plain objects keep
+  // the Object prototype.
+  const result: Record<string, unknown> = Object.create(Object.getPrototypeOf(value) as object) as Record<string, unknown>
   for (const key of Object.keys(value))
     result[key] = deepClone((value as Record<string, unknown>)[key])
   return result as T
