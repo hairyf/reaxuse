@@ -4,7 +4,7 @@ category: Array
 
 # useArrayEvery
 
-Reactive `Array.every`
+Returns **true** if every element passes the predicate.
 
 ## Usage
 
