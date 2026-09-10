@@ -25,7 +25,10 @@
 | `createGenericProjection`         | packages/math/createGenericProjection         | `packages/math/createGenericProjection/index.tsx`         | ✅ ported                     |
 | `createGlobalState`               | packages/shared/createGlobalState             | `packages/shared/createGlobalState/index.tsx`             | ✅ ported                     |
 | `createInjectionState`            | packages/shared/createInjectionState          | `packages/shared/createInjectionState/index.tsx`          | ✅ ported                     |
+| `createPortalSlot`                | —                                             | `packages/core/createPortalSlot/index.tsx`                | 🚧 ported (no upstream match) |
 | `createProjection`                | packages/math/createProjection                | `packages/math/createProjection/index.tsx`                | ✅ ported                     |
+| `createPromisifiedComponent`      | —                                             | `packages/core/createPromisifiedComponent/index.tsx`      | 🚧 ported (no upstream match) |
+| `createSharedHook`                | —                                             | `packages/shared/createSharedHook/index.tsx`              | 🚧 ported (no upstream match) |
 | `createSingletonPromise`          | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
 | `customStorageEventName`          | —                                             | `packages/core/useStorage/index.tsx`                      | 🚧 ported (no upstream match) |
 | `debounceFilter`                  | —                                             | `packages/shared/useWatchWithFilter/index.tsx`            | 🚧 ported (no upstream match) |
@@ -145,6 +148,7 @@
 | `useEventBus`                     | packages/core/useEventBus                     | `packages/core/useEventBus/index.tsx`                     | ✅ ported                     |
 | `useEventListener`                | packages/core/useEventListener                | `packages/core/useEventListener/index.tsx`                | ✅ ported                     |
 | `useEventSource`                  | packages/core/useEventSource                  | `packages/core/useEventSource/index.tsx`                  | ✅ ported                     |
+| `useExtractedObservable`          | packages/rxjs/useExtractedObservable          | `packages/rxjs/useExtractedObservable/index.tsx`          | ✅ ported                     |
 | `useEyeDropper`                   | packages/core/useEyeDropper                   | `packages/core/useEyeDropper/index.tsx`                   | ✅ ported                     |
 | `useFavicon`                      | packages/core/useFavicon                      | `packages/core/useFavicon/index.tsx`                      | ✅ ported                     |
 | `useFetch`                        | packages/core/useFetch                        | `packages/core/useFetch/index.tsx`                        | ✅ ported                     |
