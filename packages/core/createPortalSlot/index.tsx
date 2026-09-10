@@ -160,7 +160,7 @@ export function createPortalSlot<
     return template.current({
       ...forwarded,
       $slots: { default: () => children } as GenerateSlotsFromSlotMap<MapSlotNameToSlotProps>,
-    })
+    } as unknown as TemplateBindings)
   }
   SlotTarget.displayName = `${name}.reuse`
 
