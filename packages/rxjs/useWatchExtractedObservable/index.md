@@ -88,11 +88,11 @@ useWatchExtractedObservable(playerRef.current, p => p.progress$, cb) // resolve 
 
 ## Subscription Options
 
-| Option       | Type                     | Description                                                 |
-| ------------ | ------------------------ | ----------------------------------------------------------- |
-| `onError`    | `(err: unknown) => void` | Called when the extracted `Observable` errors               |
-| `onComplete` | `() => void`             | Called when the extracted `Observable` completes            |
-| `deps`       | `unknown[]`              | Extra effect dependencies; replaces Vue's reactive tracking |
+| Option       | Type                     | Description                                                      |
+| ------------ | ------------------------ | ---------------------------------------------------------------- |
+| `onError`    | `(err: unknown) => void` | Called when the extracted `Observable` errors                    |
+| `onComplete` | `() => void`             | Called when the extracted `Observable` completes                 |
+| `deps`       | `unknown[]`              | Extra effect dependencies; replaces upstream's reactive tracking |
 
 ## Return Value
 

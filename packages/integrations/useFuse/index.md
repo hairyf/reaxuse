@@ -4,7 +4,7 @@ category: '@Integrations'
 
 # useFuse
 
-Easily implement fuzzy search using a composable with [Fuse.js](https://github.com/krisk/fuse)
+Easily implement fuzzy search using a hook with [Fuse.js](https://github.com/krisk/fuse)
 
 ## Install Fuse.js as a peer dependency
 

@@ -32,7 +32,7 @@ bus.off(listener)
 bus.reset()
 ```
 
-Upstream auto-unsubscribes listeners when the Vue effect scope is disposed; React has no scope disposal, so `on` / `once` return an unsubscribe function instead. When a component owns a subscription, unsubscribe from a `useEffect` cleanup:
+Upstream auto-unsubscribes listeners when its effect scope is disposed; React has no scope disposal, so `on` / `once` return an unsubscribe function instead. When a component owns a subscription, unsubscribe from a `useEffect` cleanup:
 
 ```tsx
 import { useEventBus } from '@reaxuse/core'
@@ -49,7 +49,7 @@ function NewsTicker() {
 
 ## TypeScript
 
-Using `EventBusKey` is the key to bind the event type to the key, similar to Vue's [`InjectionKey`](https://antfu.me/posts/typed-provide-and-inject-in-vue) util.
+Using `EventBusKey` is the key to bind the event type to the key, similar to upstream's [`InjectionKey`](https://antfu.me/posts/typed-provide-and-inject-in-vue) util.
 
 ```ts
 // fooKey.ts

@@ -75,5 +75,5 @@ of `value` / `rules` and skips the automatic run entirely when `manual` is `true
 - the initial validation fires from a mount effect (upstream fires it during setup). In React
   StrictMode dev builds that effect is double-invoked, so the first validation may run twice; the
   extra run is idempotent;
-- `errors` and `errorFields` are derived during render from `errorInfo` (upstream computes them with
-  `computed`), and `execute` is stable and ignores results that arrive after unmount.
+- `errors` and `errorFields` are derived during render from `errorInfo` (upstream: derived values),
+  and `execute` is stable and ignores results that arrive after unmount.

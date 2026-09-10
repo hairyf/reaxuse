@@ -4,7 +4,7 @@ category: Reactivity
 
 # computedAsync
 
-Computed for async functions
+Derived value for async functions
 
 ## Usage
 
@@ -77,7 +77,7 @@ const downloads = computedAsync(fetchDownloads) // string | undefined
 ## React divergences
 
 - **`skipInitial` replaces upstream `lazy`.** Upstream `lazy: true` starts evaluating on the _first access_ to the returned computed, so a lazy hook with no reactive dependencies still evaluates once when read. React has no first-access hook, so reaxuse renames the option to `skipInitial`: it skips the mount evaluation and evaluates only when `deps` change (with the default `[]` deps it never evaluates). The upstream `lazy` name is kept as a deprecated alias with the same `skipInitial` behavior — it does **not** carry the first-access semantics.
-- **`flush` is not ported.** Upstream's `flush` option (`ConfigurableFlushSync`, default `'sync'`) controls Vue's `watchEffect` flush timing. Re-evaluation here is driven by `deps` inside a React effect (post-commit), which is the closest analogue of upstream's sync flush.
+- **`flush` is not ported.** Upstream's `flush` option (`ConfigurableFlushSync`, default `'sync'`) controls upstream's `watchEffect` flush timing. Re-evaluation here is driven by `deps` inside a React effect (post-commit), which is the closest analogue of upstream's sync flush.
 - **`evaluating` ref → `onEvaluating` callback.** Upstream accepts a `Ref<boolean>` (or an `options.evaluating` ref); React uses the `onEvaluating(value)` callback instead.
 - **`shallow` is not ported.** React state is never deep-wrapped, so upstream's `shallow` option has no effect to configure.
 - **`asyncComputed` alias is not ported.** Upstream re-exports the deprecated `asyncComputed = computedAsync` alias; use `computedAsync` directly.

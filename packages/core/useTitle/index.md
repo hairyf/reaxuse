@@ -7,7 +7,7 @@ category: Browser
 Reactive document title.
 
 ::: warning
-This composable isn't compatible with SSR.
+This hook isn't compatible with SSR.
 :::
 
 ## Usage
