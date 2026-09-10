@@ -7,8 +7,9 @@
  * Map from @vueuse/shared `makeDestructurable`
  * Upstream semantics are kept verbatim: given `(obj, arr)` the returned value
  * can be destructured as an object (`const { foo, bar } = obj`) or as an array
- * (`const [foo, bar] = obj`) — the array mode is backed by `Object.assign` plus
- * a non-enumerable `Symbol.iterator` defined on a shallow clone of `obj`.
+ * (`const [foo, bar] = obj`) — the array mode is backed by a non-enumerable
+ * `Symbol.iterator` defined on a shallow clone of `obj` (spread
+ * `{ ...obj }`); `Object.assign` appears only in the no-Symbol SSR fallback.
  *
  * @example
  * const foo = { name: 'foo' }
@@ -17,6 +18,7 @@
  * const { foo: f1, bar: b1 } = obj // object destructuring
  * const [f2, b2] = obj // array destructuring
  */
+/* @__NO_SIDE_EFFECTS__ */
 export function makeDestructurable<
   T extends Record<string, unknown>,
   A extends readonly any[],

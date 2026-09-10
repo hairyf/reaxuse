@@ -106,6 +106,24 @@ describe('createGlobalState', () => {
     expect(second.result.current[0]).toBe(10)
   })
 
+  it('runs a factory resolving to undefined exactly once', async () => {
+    const factory = vi.fn(() => undefined)
+    const useGlobalState = createGlobalState<undefined | string>(factory)
+
+    const first = await renderHook(() => useGlobalState())
+    const second = await renderHook(() => useGlobalState())
+
+    // the `initialized` flag, not `state ??=`, guarantees a single run even
+    // when the factory yields `undefined`
+    expect(factory).toHaveBeenCalledTimes(1)
+    expect(first.result.current[0]).toBeUndefined()
+    expect(second.result.current[0]).toBeUndefined()
+
+    // the store is writable afterwards
+    await first.act(() => first.result.current[1]('now-defined'))
+    expect(second.result.current[0]).toBe('now-defined')
+  })
+
   it('returns a stable setter across renders', async () => {
     const useGlobalState = createGlobalState(() => 0)
     const { result, act, rerender } = await renderHook(() => useGlobalState())

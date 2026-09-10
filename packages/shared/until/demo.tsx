@@ -14,6 +14,9 @@ export default function UntilDemo() {
     if (gotSeven)
       return
     let cancelled = false
+    // NOTE: `until` has no abort API — its 50ms poll keeps running until the
+    // condition holds (count reaches 7) even if this component unmounts; the
+    // `cancelled` flag only prevents the state write after unmount.
     void until(() => countRef.current).toBe(7).then(() => {
       if (!cancelled)
         setGotSeven(true)

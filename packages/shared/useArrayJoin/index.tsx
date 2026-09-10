@@ -11,6 +11,11 @@ export type UseArrayJoinReturn = string
  * with new state to see the updated result. The return is a plain string,
  * no `.value`.
  *
+ * `list` holds plain values only: the elements are joined with
+ * `Array.prototype.join`, so no per-element unwrap happens (upstream
+ * `toValue`s each element). A function element would be stringified to its
+ * source instead of invoked.
+ *
  * @example
  * const [list, setList] = useState(['foo', 0, { prop: 'val' }])
  * useArrayJoin(list) // 'foo,0,[object Object]'

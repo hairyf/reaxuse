@@ -66,6 +66,33 @@ describe('syncRefs', () => {
     expect(target.current).toBe('bar')
   })
 
+  it('syncs a later change when immediate is false', async () => {
+    const target = { current: 'bar' }
+
+    const { result, act } = await renderHook(() => {
+      const [source, setSource] = useState('foo')
+      return { stop: syncRefs(source, target, { immediate: false }), setSource }
+    })
+
+    // nothing on mount
+    expect(target.current).toBe('bar')
+
+    // a later source change syncs post-commit
+    await act(() => result.current.setSource('baz'))
+    expect(target.current).toBe('baz')
+  })
+
+  it('returns a stable stop across renders', async () => {
+    const target = { current: 'bar' }
+
+    const { result, rerender } = await renderHook(() => syncRefs('foo', target))
+
+    const stop = result.current
+    await rerender()
+
+    expect(result.current).toBe(stop)
+  })
+
   it('does not clobber targets when an unrelated re-render happens', async () => {
     const target = { current: 'foo' }
 

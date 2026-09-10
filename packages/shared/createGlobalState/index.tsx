@@ -1,4 +1,4 @@
-import { useCallback, useSyncExternalStore } from 'react'
+import { useCallback, useMemo, useSyncExternalStore } from 'react'
 
 export type GlobalStateSetter<State> = (update: State | ((prev: State) => State)) => void
 
@@ -26,6 +26,16 @@ export type GlobalStateSetter<State> = (update: State | ((prev: State) => State)
  *   naming rules — a state-like writable hook returns `[value, setValue]`.
  *   Derive computed values inside the consumer from `state`, and expose
  *   actions through the factory's returned state or a plain function.
+ *
+ * The factory runs on the first snapshot read, i.e. during the first render of
+ * the first consumer (React's `useSyncExternalStore` has no pre-render setup
+ * path — the first `getSnapshot` must already return the value). In
+ * StrictMode / concurrent rendering a discarded render can therefore
+ * initialize the module store before the first committed consumer mounts;
+ * this is harmless because the store is module-wide and the factory still runs
+ * exactly once. The tuple is memoized on the snapshot, so its identity is
+ * stable across renders for a given state (effect deps / memoized children
+ * keyed on the tuple do not churn).
  *
  * ```ts
  * const useGlobalState = createGlobalState(() => 0)
@@ -89,6 +99,9 @@ export function createGlobalState<State, Args extends unknown[] = []>(
         listener()
     }, [])
 
-    return [snapshot, setState]
+    return useMemo(
+      () => [snapshot, setState] as [State, GlobalStateSetter<State>],
+      [snapshot, setState],
+    )
   }
 }

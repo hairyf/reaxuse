@@ -40,10 +40,10 @@ function App() {
 import { syncRef } from '@reaxuse/shared'
 
 // right follows left
-const stop = syncRef(a, b, { direction: 'ltr' })
+const stopLTR = syncRef(a, b, { direction: 'ltr' })
 
 // left follows right
-const stop = syncRef(a, b, { direction: 'rtl' })
+const stopRTL = syncRef(a, b, { direction: 'rtl' })
 ```
 
 ### Custom Transform

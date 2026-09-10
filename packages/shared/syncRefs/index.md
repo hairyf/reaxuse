@@ -19,9 +19,11 @@ function Form() {
 
   const stop = syncRefs(source, target)
 
-  console.log(target.current) // hello
+  // the sync effect runs after the commit, not during render — at this point
+  // target.current is still 'target'; once the component has mounted it
+  // becomes 'hello'
 
-  setSource('foo') // re-render → target.current === 'foo'
+  setSource('foo') // the re-render's effect copies 'foo' into target.current
 
   // stop()
 }
@@ -37,18 +39,20 @@ You can also pass an array of ref-likes to sync.
 import { syncRefs } from '@reaxuse/shared'
 import { useState } from 'react'
 
-const [source, setSource] = useState('hello')
-const target1 = { current: 'target1' }
-const target2 = { current: 'target2' }
+function Form() {
+  const [source, setSource] = useState('hello')
+  const target1 = { current: 'target1' }
+  const target2 = { current: 'target2' }
 
-const stop = syncRefs(source, [target1, target2])
+  const stop = syncRefs(source, [target1, target2])
 
-console.log(target1.current) // hello
-console.log(target2.current) // hello
+  // the sync effect runs after the commit — target1/target2 are still
+  // 'target1'/'target2' here and become 'hello' once the component has mounted
 
-setSource('foo') // re-render → both targets become 'foo'
+  setSource('foo') // the re-render's effect copies 'foo' into both targets
 
-stop()
+  stop()
+}
 ```
 
 ## Options

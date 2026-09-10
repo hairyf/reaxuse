@@ -107,6 +107,38 @@ describe('until', () => {
     }
   })
 
+  it('should not count an unchanged NaN source as a change', async () => {
+    let settled = false
+    const pending = until(() => Number.NaN).changed({ timeout: 100 })
+    void pending.then(() => {
+      settled = true
+    })
+
+    // two polls pass — before the fix `NaN !== NaN` counted a change on the
+    // first tick and the promise resolved (~50ms); now an unchanged NaN
+    // source never counts and the promise stays pending until the timeout
+    await vi.advanceTimersByTimeAsync(60)
+    expect(settled).toBe(false)
+
+    // it resolves with the (NaN) source at the timeout instead of hanging
+    await vi.advanceTimersByTimeAsync(100)
+    expect(await pending).toBeNaN()
+  })
+
+  it('should count deep mutations of the same array reference', async () => {
+    const array = [1, 2, 3]
+    const pending = until(() => array).changedTimes(1, { deep: true })
+
+    setTimeout(() => {
+      array.push(4)
+    }, 110)
+    vi.advanceTimersByTime(200)
+
+    // a same-referent nested mutation counts under `deep: true` — before the
+    // fix the strict `!==` compare never saw a change and the promise hung
+    expect(await pending).toEqual([1, 2, 3, 4])
+  })
+
   it('should support `not`', async () => {
     const v = { value: 0 }
 

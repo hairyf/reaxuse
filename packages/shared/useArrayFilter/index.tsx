@@ -10,7 +10,7 @@ export type UseArrayFilterReturn<T = any> = T[]
  * (no `.value`) over the plain `list` array the caller passes. Pass a
  * `useState` array directly — the filtered result updates on the next render.
  *
- * @see https://vueuse.org/shared/useArrayFilter/
+ * @see https://vueuse.org/useArrayFilter
  *
  * @example
  * const [list, setList] = useState([0, 1, 2, 3, 4])
