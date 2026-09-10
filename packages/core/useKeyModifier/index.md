@@ -36,7 +36,7 @@ console.log(capsLockState) // true
 
 ## Initial State
 
-By default, the returned state is `null` until the first event is received. You can explicitly pass the initial state to it via:
+By default, the returned controllable state will be `null` until the first event is received. You can explicitly pass the initial state to it via:
 
 ```tsx
 import { useKeyModifier } from '@reaxuse/core'
