@@ -33,7 +33,7 @@ const qrcode = useQRCode(text) // setText(next) re-encodes on the next render
 
 ### Memoize `options`
 
-React has no dependency-tracking equivalent of Vue's `watch` source, so `options` is compared by
+React has no dependency-tracking equivalent of upstream's `watch` source, so `options` is compared by
 identity: **pass a memoized object** (`useMemo` or a module-level constant). A fresh literal on
 every render re-runs the effect and re-encodes the QR code.
 

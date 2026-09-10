@@ -33,7 +33,7 @@ This code will be injected to `<head>`:
 
 ### Custom ID
 
-If you need to define your own id, you can pass `id` in the options.
+If you need to define your own id, you can pass `id` as first argument.
 
 ```tsx
 import { useStyleTag } from '@reaxuse/core'

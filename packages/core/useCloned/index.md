@@ -26,8 +26,8 @@ sync() // re-clone from the source, isModified back to false
 The return is a React tuple `[cloned, setCloned, { isModified, sync }]` — upstream returns an object
 `{ cloned: Ref<T>, isModified, sync }`. `cloned` is a plain state value (not a writable ref), and
 `setCloned` replaces it with the React immutable-update protocol: it never re-syncs from the source
-(use `sync()` for that). Changes to the source (a new value, a React ref update, or a new state tuple /
-`{ value, onChange }` value) re-sync the clone on the next render.
+(use `sync()` for that). Changes to the source are not reflected in the cloned controllable state
+immediately.
 
 ## Source Forms
 

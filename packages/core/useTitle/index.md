@@ -7,7 +7,7 @@ category: Browser
 Reactive document title.
 
 ::: warning
-This composable isn't compatible with SSR.
+This hook isn't compatible with SSR.
 :::
 
 ## Usage
@@ -26,6 +26,19 @@ Set initial title immediately:
 import { useTitle } from '@reaxuse/core'
 // ---cut---
 const [title] = useTitle('New Title')
+```
+
+Pass a value derived from state and the title will be updated when the source state changes:
+
+```tsx
+import { useTitle } from '@reaxuse/core'
+import { useState } from 'react'
+
+const [messages, setMessages] = useState(0)
+
+const title = !messages ? 'No message' : `${messages} new messages`
+
+useTitle(title) // document title will match the state "title"
 ```
 
 Pass an optional template tag [Vue Meta Title Template](https://vue-meta.nuxtjs.org/guide/metainfo.html) to update the title to be injected into this template:

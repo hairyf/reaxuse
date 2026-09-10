@@ -40,8 +40,6 @@ useEffect(() => {
 }, [isSupported, permissionGranted, show])
 ```
 
-The on* members are stable subscribe functions returning an `off` handle:
-
 ```tsx
 const { onClick, onShow, onError, onClose } = useWebNotification()
 

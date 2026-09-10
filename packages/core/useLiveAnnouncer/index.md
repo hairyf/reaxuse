@@ -30,8 +30,6 @@ function ScreenReaderNotifications() {
 }
 ```
 
-The hook renders a visually hidden ARIA live region into the document. Calling `announce` (or `polite` / `assertive`) writes a message into the matching region, which screen readers then announce.
-
 The message stays in the live region until it is replaced by the next announcement. Pass a `timeout` (in milliseconds) to automatically clear it after a delay:
 
 ```tsx
@@ -42,8 +40,6 @@ announce('Saved successfully', 'polite', 3000)
 polite('Saved successfully', 3000)
 assertive('Network error', 3000)
 ```
-
-A new announcement cancels any pending auto-clear for the same mode, so a re-announced message is never wiped early.
 
 ## Accessibility
 

@@ -31,10 +31,10 @@ undo() // count back to 0
 
 ### React adjustments
 
-This port carries the `adjustment` label — Vue reactivity does not translate 1:1, so the behavior
+This port carries the `adjustment` label — upstream reactivity does not translate 1:1, so the behavior
 is reworked for React hooks:
 
-- **Source as a `[state, setState]` pair** — upstream tracks a writable Vue `Ref` that the hook can
+- **Source as a `[state, setState]` pair** — upstream tracks a writable `Ref` that the hook can
   read and write synchronously. React state lives in the component, so the source is passed in as
   the controlled tuple `[state, setState]`; upstream's `setSource` option is superseded by the
   tuple's setter.
@@ -44,7 +44,7 @@ is reworked for React hooks:
   the new value synchronously and forwards it to your state setter, so `commit()` always snapshots
   the newest value. Commits after a plain `setState` from a previous render work as usual.
 - **Storage and reactivity** — history records live in refs; a version counter triggers re-renders
-  (upstream: reactive refs + `computed`). Records are plain objects — upstream's `markRaw` has no
+  (upstream: reactive refs + derived values). Records are plain objects — upstream's `markRaw` has no
   React equivalent to port, and timestamps use `Date.now()` (upstream: `timestamp()`).
 - **Mutable sources** — React state is normally replaced instead of mutated; the `clone` option and
   custom `dump` / `parse` still support mutation-style sources, mirroring upstream.

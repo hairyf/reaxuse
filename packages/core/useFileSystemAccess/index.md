@@ -34,21 +34,6 @@ function handleSave() {
 }
 ```
 
-Pass options to restrict the picker and choose the data type:
-
-```tsx
-const [data, setData, { open, save }] = useFileSystemAccess({
-  dataType: 'Text',
-  types: [{
-    description: 'text',
-    accept: {
-      'text/plain': ['.txt', '.html'],
-    },
-  }],
-  excludeAcceptAllOption: true,
-})
-```
-
 ## Return Values
 
 - `data` — the current file content, re-read as `Text`, `ArrayBuffer` or `Blob` per the `dataType` option (`undefined` before a file is picked or created).

@@ -59,7 +59,7 @@ const sortedPlain = useSorted([3, 1, 2]) // a plain literal works too
 
 ### React adjustments
 
-- **Plain value, not a `Ref`** — returns a sorted `T[]` (no `.value`), recomputed with `useMemo`
+- **Plain value, not a `Ref`** — returns a sorted `T[]`, recomputed with `useMemo`
   when the source array identity, `compareFn` or `sortFn` changes. Pass a React ref to resolve the
   array at render time.
 - **`UseSortedOptions` partially ported** — the `(source, options)` and `(source, compareFn, options)` overloads are supported with `compareFn` and the pure algorithm option `sortFn` (both plain values, read at render time); a Vue-style `useSorted(source, { compareFn })` call sorts correctly. Upstream's `dirty` option is **not** ported — it sorts the source array in place by writing back through the Vue ref, which contradicts React's immutable-update contract (an in-place mutation would not trigger a re-render). A sorted copy is always returned and the source is never mutated.

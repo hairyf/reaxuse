@@ -43,8 +43,7 @@ return <span ref={el} style={{ display: 'inline-block' }}>useAnimate</span>
 
 ### Custom Keyframes
 
-Either an array of keyframe objects, or a keyframe object, or a ref-like `{ current }` object. See
-[Keyframe Formats](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats) for more details.
+Either an array of keyframe objects, or a keyframe object, or a controllable state. See [Keyframe Formats](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats) for more details.
 
 ```tsx
 import { useAnimate } from '@reaxuse/core'
@@ -67,8 +66,7 @@ useAnimate(el, keyframes, 1000)
 
 ### Options
 
-The third argument accepts a duration number or an options object with the following additional properties on top of
-[KeyframeAnimationOptions](https://developer.mozilla.org/en-US/docs/Web/API/Element/animate#parameters):
+The third argument accepts a duration number or an options object with the following additional properties on top of [KeyframeAnimationOptions](https://developer.mozilla.org/en-US/docs/Web/API/Element/animate#parameters):
 
 ```tsx
 import { useAnimate } from '@reaxuse/core'

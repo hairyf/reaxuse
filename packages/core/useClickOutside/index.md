@@ -4,7 +4,7 @@ category: Sensors
 
 # useClickOutside
 
-Listen for clicks outside of an element. Useful for modals or dropdowns
+Listen for clicks outside of an element. Useful for modals or dropdowns.
 
 ## Usage
 

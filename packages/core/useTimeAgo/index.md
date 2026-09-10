@@ -5,7 +5,7 @@ utils: formatTimeAgo
 
 # useTimeAgo
 
-Reactive time ago
+Reactive time ago. Automatically update the time ago string when the time changes.
 
 ## Usage
 

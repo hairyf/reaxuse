@@ -42,26 +42,3 @@ function Component() {
   )
 }
 ```
-
-The returned `onDrop` / `onDragEnter` / `onDragLeave` are stable registration functions following the `useListener` protocol — each accepts a callback and returns an `off` handle:
-
-```tsx
-import { useDropZone } from '@reaxuse/core'
-import { useListener } from '@reaxuse/shared'
-import { useRef } from 'react'
-
-const dropZoneRef = useRef<HTMLDivElement>(null)
-const { isOverDropZone, onDrop, onDragEnter, onDragLeave } = useDropZone(dropZoneRef)
-
-useListener(onDrop, (files) => {
-  console.log('dropped:', files)
-})
-
-useListener(onDragEnter, () => {
-  console.log('drag entered')
-})
-
-useListener(onDragLeave, () => {
-  console.log('drag left')
-})
-```
