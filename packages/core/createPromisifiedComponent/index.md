@@ -1,0 +1,209 @@
+---
+category: Component
+---
+
+# createPromisifiedComponent
+
+Template as Promise. Useful for constructing custom Dialogs, Modals, Toasts, etc.
+
+## Usage
+
+```tsx
+import { createPromisifiedComponent } from '@reaxuse/core'
+
+const Promisified = createPromisifiedComponent<ReturnType>()
+
+async function open() {
+  const result = await Promisified.start()
+  // button is clicked, result is 'ok'
+}
+```
+
+```tsx
+<Promisified>
+  {({ promise, resolve, reject, args }) => (
+    /* your UI */
+    <button onClick={() => resolve('ok')}>
+      OK
+    </button>
+  )}
+</Promisified>
+```
+
+## Features
+
+- **Programmatic** - call your UI as a promise
+- **Template** - use a React component to render, not a new DSL
+- **TypeScript** - full type safety via generic type
+- **Renderless** - you take full control of the UI
+- **Transition** - accepted for API parity (see below)
+
+This function is migrated from [vue-template-promise](https://github.com/antfu/vue-template-promise)
+
+## Usage
+
+`createPromisifiedComponent` returns a **React component** that you can use anywhere in your tree.
+
+```ts
+import { createPromisifiedComponent } from '@reaxuse/core'
+
+const Promisified = createPromisifiedComponent()
+const MyPromise = createPromisifiedComponent<boolean>() // with generic type
+```
+
+Use a render prop as children to access the promise and resolve functions.
+
+```tsx
+<Promisified>
+  {({ promise, resolve, reject, args }) => (
+    /* you can have anything */
+    <button onClick={() => resolve('ok')}>
+      OK
+    </button>
+  )}
+</Promisified>
+```
+
+The template will not be rendered initially, until you call the `start` method from the component.
+
+```ts
+const result = await Promisified.start()
+```
+
+Once `resolve` or `reject` is called in the template, the promise will be resolved or rejected, returning the value you passed in. Once resolved, the template will be removed automatically.
+
+### Passing Arguments
+
+You can pass arguments to the `start` with arguments.
+
+```ts
+import { createPromisifiedComponent } from '@reaxuse/core'
+
+const Promisified = createPromisifiedComponent<boolean, [string, number]>()
+
+const result = await Promisified.start('hello', 123)
+```
+
+And in the template render prop, you can access the arguments via `args` property.
+
+```tsx
+<Promisified>
+  {({ args, resolve }) => (
+    <>
+      <div>{args[0]}</div>
+      {/* hello */}
+      <div>{args[1]}</div>
+      {/* 123 */}
+      <button onClick={() => resolve(true)}>
+        OK
+      </button>
+    </>
+  )}
+</Promisified>
+```
+
+### Singleton Mode
+
+Use the `singleton` option to ensure only one instance of the promise can be active at a time. If `start` is called while a promise is already active, it will return the existing promise instead of creating a new one.
+
+```ts
+import { createPromisifiedComponent } from '@reaxuse/core'
+
+const Promisified = createPromisifiedComponent<boolean>({
+  singleton: true,
+})
+
+// These will return the same promise if called in quick succession
+const result1 = Promisified.start()
+const result2 = Promisified.start() // returns the same promise as result1
+```
+
+### Transition
+
+The `transition` option is accepted for API parity with upstream, where it
+passes props to Vue's `TransitionGroup` to animate the template. React has no
+built-in transition-group system, so this option has **no runtime effect** in
+reaxuse — animate the rendered template with CSS animations or a transition
+library instead.
+
+### Template Props
+
+The render prop provides the following props:
+
+| Prop          | Type                                     | Description                                               |
+| ------------- | ---------------------------------------- | --------------------------------------------------------- |
+| `promise`     | `Promise<Return> \| undefined`           | The current promise instance                              |
+| `resolve`     | `(v: Return \| Promise<Return>) => void` | Resolve the promise with a value                          |
+| `reject`      | `(v: any) => void`                       | Reject the promise                                        |
+| `args`        | `Args`                                   | Arguments passed to `start()`                             |
+| `isResolving` | `boolean`                                | `true` when resolving another promise passed to `resolve` |
+| `key`         | `number`                                 | Unique key for list rendering                             |
+
+```tsx
+<Promisified>
+  {({ promise, resolve, reject, args, isResolving }) => (
+    <>
+      {isResolving
+        ? <div>Loading...</div>
+        : (
+            <>
+              <button onClick={() => resolve('ok')}>
+                OK
+              </button>
+              <button onClick={() => reject('cancelled')}>
+                Cancel
+              </button>
+            </>
+          )}
+    </>
+  )}
+</Promisified>
+```
+
+### React divergences from upstream
+
+- **children-as-function replaces `v-slot`.** The template is a render function passed as the children of the component; it receives the instance props (promise, resolve, reject, args, isResolving, options, key).
+- **`resolve` / `reject` from event handlers or effects.** Vue's reactivity tolerates calling `resolve` during the slot render; React does not allow store updates during render, so call them from handlers (see the demo).
+- **`transition` is a no-op.** Accepted for API parity; see the Transition section.
+- **Promises survive unmount.** Instances live in the factory closure, so unmounting the component does not settle its pending promises — they resolve once `resolve` is called, and re-mounting the component re-renders the remaining instances.
+
+## Motivation
+
+The common approach to call a dialog or a modal programmatically would be like this:
+
+```ts
+const dialog = useDialog()
+const result = await dialog.open({
+  title: 'Hello',
+  content: 'World',
+})
+```
+
+This would work by sending these information to the top-level component and let it render the dialog. However, it limits the flexibility you could express in the UI. For example, you could want the title to be red, or have extra buttons, etc. You would end up with a lot of options like:
+
+```ts
+const result = await dialog.open({
+  title: 'Hello',
+  titleClass: 'text-red',
+  content: 'World',
+  contentClass: 'text-blue text-sm',
+  buttons: [
+    { text: 'OK', class: 'bg-red', onClick: () => {} },
+    { text: 'Cancel', class: 'bg-blue', onClick: () => {} },
+  ],
+  // ...
+})
+```
+
+Even this is not flexible enough. If you want more, you might end up with manual render function.
+
+```tsx
+const result = await dialog.open({
+  title: 'Hello',
+  contentSlot: () => <MyComponent content={content} />,
+})
+```
+
+This is like reinventing a new DSL in the script to express the UI template.
+
+So this function allows **expressing the UI in templates instead of scripts**, where it is supposed to be, while still being able to be manipulated programmatically.

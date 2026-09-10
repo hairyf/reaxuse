@@ -1,6 +1,6 @@
 // export * from './computedInject'
 export * from './createPortalSlot'
-// export * from './createTemplatePromise'
+export * from './createPromisifiedComponent'
 // export * from './createUnrefFn'
 export * from './unrefElement'
 export * from './useActiveElement'
