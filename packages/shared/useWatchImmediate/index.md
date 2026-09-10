@@ -13,13 +13,21 @@ current value.
 
 ```tsx
 import { useWatchImmediate } from '@reaxuse/shared'
+import { useState } from 'react'
 
 const [obj, setObj] = useState('vue-use')
 
-// changing the value from some external store/composables
-setObj('VueUse')
-
+// logs 'vue-use' on mount, then the new value on every change
 useWatchImmediate(obj, (updated) => {
-  console.log(updated) // Console.log will be logged twice
+  console.log(updated)
 })
+
+// later, from an event handler:
+setObj('VueUse') // logs 'VueUse'
 ```
+
+`useWatchImmediate` takes no options — `immediate` is always `true`, and
+upstream's `deep`/`flush`/`once` are not ported (tracking is by `Object.is`
+identity and effects always run after commit). It returns `void`: upstream's
+`WatchHandle.stop()` is not provided — watching ends when the component
+unmounts.
