@@ -1,31 +1,13 @@
-import { syncRefs } from '@reaxuse/shared'
+import { syncStates } from '@reaxuse/shared'
 import { useState } from 'react'
 
-export default function SyncRefsDemo() {
+export default function SyncStatesDemo() {
   const [source, setSource] = useState('')
   const [target1, setTarget1] = useState('')
   const [target2, setTarget2] = useState('')
 
-  // ref-like bridges onto the target state so synced values re-render the inputs
-  const target1Ref = {
-    get current() {
-      return target1
-    },
-    set current(value: string) {
-      setTarget1(value)
-    },
-  }
-  const target2Ref = {
-    get current() {
-      return target2
-    },
-    set current(value: string) {
-      setTarget2(value)
-    },
-  }
-
   // the source is a plain value — pass the state value (or `ref.current`)
-  syncRefs(source, [target1Ref, target2Ref])
+  syncStates(source, [[target1, setTarget1], [target2, setTarget2]])
 
   return (
     <div>

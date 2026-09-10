@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
-import { syncRefs } from '../syncRefs'
+import { syncStates } from '../syncStates'
 
-describe('syncRefs', () => {
+describe('syncStates', () => {
   it('should be defined', () => {
-    expect(syncRefs).toBeDefined()
+    expect(syncStates).toBeDefined()
   })
 
   it('should work with array', async () => {
@@ -14,7 +14,7 @@ describe('syncRefs', () => {
 
     const { result, act } = await renderHook(() => {
       const [source, setSource] = useState('foo')
-      return { stop: syncRefs(source, [target1, target2]), setSource }
+      return { stop: syncStates(source, [target1, target2]), setSource }
     })
 
     // upstream: immediate sync on setup (default `immediate: true`) — here the
@@ -42,7 +42,7 @@ describe('syncRefs', () => {
 
     const { result, act } = await renderHook(() => {
       const [source, setSource] = useState('foo')
-      return { stop: syncRefs(source, target), setSource }
+      return { stop: syncStates(source, target), setSource }
     })
 
     expect(target.current).toBe('foo')
@@ -61,7 +61,7 @@ describe('syncRefs', () => {
   it('does not sync on mount when immediate is false', async () => {
     const target = { current: 'bar' }
 
-    await renderHook(() => syncRefs('foo', target, { immediate: false }))
+    await renderHook(() => syncStates('foo', target, { immediate: false }))
 
     expect(target.current).toBe('bar')
   })
@@ -71,7 +71,7 @@ describe('syncRefs', () => {
 
     const { result, act } = await renderHook(() => {
       const [source, setSource] = useState('foo')
-      return { stop: syncRefs(source, target, { immediate: false }), setSource }
+      return { stop: syncStates(source, target, { immediate: false }), setSource }
     })
 
     // nothing on mount
@@ -85,7 +85,7 @@ describe('syncRefs', () => {
   it('returns a stable stop across renders', async () => {
     const target = { current: 'bar' }
 
-    const { result, rerender } = await renderHook(() => syncRefs('foo', target))
+    const { result, rerender } = await renderHook(() => syncStates('foo', target))
 
     const stop = result.current
     await rerender()
@@ -96,7 +96,7 @@ describe('syncRefs', () => {
   it('does not clobber targets when an unrelated re-render happens', async () => {
     const target = { current: 'foo' }
 
-    const { rerender } = await renderHook(() => syncRefs('foo', target))
+    const { rerender } = await renderHook(() => syncStates('foo', target))
 
     target.current = 'custom'
     await rerender()
@@ -111,7 +111,7 @@ describe('syncRefs', () => {
 
     const { result, act } = await renderHook(() => {
       const [, setVersion] = useState(0)
-      syncRefs(source.current, target)
+      syncStates(source.current, target)
       return { bump: () => setVersion(version => version + 1) }
     })
 
@@ -122,15 +122,40 @@ describe('syncRefs', () => {
 
     expect(target.current).toBe('bar')
   })
+
+  it('syncs a [value, setter] tuple target through its setter', async () => {
+    const { result, act } = await renderHook(() => {
+      const [source, setSource] = useState('foo')
+      const [target, setTarget] = useState('bar')
+      const stop = syncStates(source, [target, setTarget])
+      return { target, setSource, stop }
+    })
+
+    // immediate sync writes through the tuple setter
+    await vi.waitFor(() => {
+      expect(result.current.target).toBe('foo')
+    })
+
+    // a source change propagates through the setter
+    await act(() => result.current.setSource('next'))
+    await vi.waitFor(() => {
+      expect(result.current.target).toBe('next')
+    })
+
+    // stop tears the sync down
+    result.current.stop()
+    await act(() => result.current.setSource('stopped'))
+    expect(result.current.target).toBe('next')
+  })
 })
 
-describe('syncRefs (component)', () => {
-  function SyncRefsDemo() {
+describe('syncStates (component)', () => {
+  function SyncStatesDemo() {
     const [source, setSource] = useState('')
     const [target1, setTarget1] = useState('')
     const [target2, setTarget2] = useState('')
 
-    // ref-like bridges onto the target state — the syncRefs effect writes a
+    // ref-like bridges onto the target state — the syncStates effect writes a
     // target's `.current`, which lands in state and re-renders the input
     const target1Ref = {
       get current() {
@@ -149,7 +174,7 @@ describe('syncRefs (component)', () => {
       },
     }
 
-    syncRefs(source, [target1Ref, target2Ref])
+    syncStates(source, [target1Ref, target2Ref])
 
     return (
       <div>
@@ -176,7 +201,7 @@ describe('syncRefs (component)', () => {
   }
 
   it('syncs the source input to the target inputs', async () => {
-    const screen = await render(<SyncRefsDemo />)
+    const screen = await render(<SyncStatesDemo />)
     const sourceInput = screen.getByPlaceholder('Source')
     const target1 = screen.getByPlaceholder('Target1')
     const target2 = screen.getByPlaceholder('Target2')
