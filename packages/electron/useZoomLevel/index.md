@@ -4,7 +4,7 @@ category: '@Electron'
 
 # useZoomLevel
 
-Reactive [WebFrame](https://www.electronjs.org/docs/api/web-frame#webframe) zoom level
+Reactive [WebFrame](https://www.electronjs.org/docs/api/web-frame#webframe) zoom level.
 
 ## Usage
 
@@ -39,9 +39,3 @@ useZoomLevel(level) // zoom level will match with the state
 
 setLevel(2) // zoom level will change
 ```
-
-## Notes
-
-- Upstream has no range guard for zoom levels, so neither has this port — `0` is a valid level, and `useZoomLevel(webFrame, 0)` does not throw (unlike `useZoomFactor`).
-- Without an explicit `webFrame` and without `nodeIntegration`, the hook throws `provide WebFrame module or enable nodeIntegration` (same as upstream).
-- `electron` is imported as a type only, so the hook can be used (and tested) in a plain browser as long as a `webFrame` stub is passed.
