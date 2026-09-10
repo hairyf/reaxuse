@@ -4,7 +4,7 @@ category: Browser
 
 # useWebWorkerFn
 
-Run expensive functions without blocking the UI, using a simple syntax that makes use of Promise
+Run expensive functions without blocking the UI, using a simple syntax that makes use of Promise. A port of [alewin/useWorker](https://github.com/alewin/useWorker).
 
 ## Usage
 
@@ -53,3 +53,7 @@ const { workerFn, workerStatus, workerTerminate } = useWebWorkerFn(
 ## Web Worker
 
 Before you start using this function, we suggest you read the [Web Worker](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) documentation.
+
+## Credit
+
+This function is a React port of https://github.com/alewin/useWorker by Alessio Koci, with the help of [@Donskelle](https://github.com/Donskelle) to migration.
