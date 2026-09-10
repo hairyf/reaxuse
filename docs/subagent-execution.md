@@ -5,11 +5,14 @@
 
 ## 1. 环境准备
 
-- **仅限 Worktree 操作**：路径必须位于 `D:\reaxuse-wt\...`（分支 `fix/<feature-or-hook>`），严禁直接修改主树；`node_modules` 使用 junction 连接。
-- **配置隔离**：生成 git-ignored 的 `vitest.worktree.config.ts` 并配置独立 cacheDir。
+- **仅限 Worktree 操作**：Worktree 根目录与主树同级（主树 `D:\projects\reaxuse` → `D:\projects\reaxuse-wt\<slug>`，分支 `fix/<feature-or-hook>`），严禁直接修改主树。
+- **依赖连接**：为主树中的每个 `node_modules`（根目录 + `packages/*` + `playgrounds/*`）在 Worktree 的同位置创建 junction（`cmd /c mklink /J`）；**严禁在 Worktree 内执行任何安装命令**。
+- **配置隔离**：生成 git-ignored 的 `vitest.worktree.config.ts`（独立 `cacheDir`，如 `.worktree-vite`）并据此运行测试；该文件严禁提交。
+- **上游只读**：上游 submodule 无需在 Worktree 内初始化，直接从主树 `source/vueuse/...` 只读引用。
 
 ## 2. 编码铁律
 
+- **需求优先级**：Issue 标题 = 最终命名；**最后一条所有者评论 = 最终需求**（见 [orchestration.md](orchestration.md) §5）；正文中的 `packages/<pkg>/src/<hook>.ts` 为历史路径，实际布局是 `packages/<pkg>/<hook>/index.tsx`。
 - **严格按需修改**：严禁修改无关代码；禁止修改 `packages/shared/**`（必要时上报提案）。
 - **禁忌指令**：严禁执行 `npm/pnpm install|ci`、`npm run update`、`git add -A` 或编辑元数据文件。
 - **严禁使用 `git stash`**：由于全局共享 `refs/stash`，并发使用会导致改动穿透。使用 `git diff` / `git show` 或临时副本比对。
