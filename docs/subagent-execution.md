@@ -13,7 +13,8 @@
 ## 2. 编码铁律
 
 - **需求优先级**：Issue 标题 = 最终命名；**最后一条所有者评论 = 最终需求**（见 [orchestration.md](orchestration.md) §5）；正文中的 `packages/<pkg>/src/<hook>.ts` 为历史路径，实际布局是 `packages/<pkg>/<hook>/index.tsx`。
-- **严格按需修改**：严禁修改无关代码；禁止修改 `packages/shared/**`（必要时上报提案）。
+- **严格按需修改**：严禁修改无关代码。
+- **`packages/shared/**` 例外（唯一授权）**：默认禁止修改 `packages/shared/**`（必要时上报提案）。唯一例外是**新增 shared 类 Hook**：允许新建 `packages/shared/<hook>/**` 目录（`index.tsx` / `index.test.tsx` / `index.md` / `demo.tsx`），并在 `packages/shared/index.ts` 的 ASCII 排序位置**新增一行**导出（若已有注释占位则取消注释）。严禁改动已有的 shared 实现、类型、工具函数或其它导出行；确需改动必须上报提案。
 - **禁忌指令**：严禁执行 `npm/pnpm install|ci`、`npm run update`、`git add -A` 或编辑元数据文件。
 - **严禁使用 `git stash`**：由于全局共享 `refs/stash`，并发使用会导致改动穿透。使用 `git diff` / `git show` 或临时副本比对。
 
