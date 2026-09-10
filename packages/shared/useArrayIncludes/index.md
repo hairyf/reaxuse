@@ -23,6 +23,22 @@ useArrayIncludes(objects, { id: 2 }, (element, value) => element.id === value.id
 useArrayIncludes(objects, { id: 1 }, { fromIndex: 1, comparator: (element, value) => element.id === value.id }) // false
 ```
 
+### Use with reactive array
+
+```tsx
+import { useArrayIncludes } from '@reaxuse/shared'
+import { useState } from 'react'
+
+const [list, setList] = useState([0, 2, 4, 6, 8])
+const result = useArrayIncludes(list, 10) // false
+
+setList([...list, 10])
+// result: true on the next render
+
+setList(list.slice(0, -1))
+// result: false on the next render
+```
+
 The `list` and `value` arguments are plain read-only values: pass the array/value
 directly (e.g. from `useState`), or `ref.current` if you keep them in a ref. The
 result recomputes on the render that passes a new value.

@@ -4,20 +4,41 @@ category: Array
 
 # useArrayUnique
 
-Reactive `Array.unique`
+reactive unique array
 
 ## Usage
+
+### Use with array of multiple refs
 
 ```tsx
 import { useArrayUnique } from '@reaxuse/shared'
 import { useState } from 'react'
 
-const [list, setList] = useState([0, 2, 2, 4, 4, 4])
+const [item1, setItem1] = useState(0)
+const [item2, setItem2] = useState(1)
+const [item3, setItem3] = useState(1)
+const [item4, setItem4] = useState(2)
+const [item5, setItem5] = useState(3)
+const list = [item1, item2, item3, item4, item5]
 const result = useArrayUnique(list)
-// result: [0, 2, 4]
+// result: [0, 1, 2, 3]
 
-setList([0, 2, 4, 6, 6])
-// result: [0, 2, 4, 6] on the next render
+setItem5(1)
+// result: [0, 1, 2] on the next render
+```
+
+### Use with reactive array
+
+```tsx
+import { useArrayUnique } from '@reaxuse/shared'
+import { useState } from 'react'
+
+const [list, setList] = useState([1, 2, 2, 3])
+const result = useArrayUnique(list)
+// result: [1, 2, 3]
+
+setList([...list, 1])
+// result: [1, 2, 3] on the next render
 ```
 
 ### Use with custom function
