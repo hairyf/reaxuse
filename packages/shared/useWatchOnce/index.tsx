@@ -1,10 +1,18 @@
 import type { UseWatchCallback, UseWatchOptions } from '../useWatch'
-import { useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import { useWatch } from '../useWatch'
 
+export interface UseWatchOnceReturn {
+  /**
+   * Stop watching before the callback has fired — further source changes are
+   * ignored. Calling it after the callback fired is a no-op.
+   */
+  stop: () => void
+}
+
 // overloads
-export function useWatchOnce<T extends any[]>(source: readonly [...T], callback: UseWatchCallback<[...T]>, options?: UseWatchOptions): void
-export function useWatchOnce<T>(source: T, callback: UseWatchCallback<T>, options?: UseWatchOptions): void
+export function useWatchOnce<T extends any[]>(source: readonly [...T], callback: UseWatchCallback<[...T]>, options?: UseWatchOptions): UseWatchOnceReturn
+export function useWatchOnce<T>(source: T, callback: UseWatchCallback<T>, options?: UseWatchOptions): UseWatchOnceReturn
 
 // implementation
 /**
@@ -23,9 +31,9 @@ export function useWatchOnce<T>(source: T, callback: UseWatchCallback<T>, option
  * toward the once, matching upstream.
  *
  * Divergences from upstream:
- * - Returns `void` — upstream returns a `WatchHandle`; here disposal follows
- *   the component lifecycle and there is no stop-handle infrastructure (house
- *   `useWatch` has none).
+ * - Returns `{ stop }` instead of the full Vue `WatchHandle` — `stop` disables
+ *   further fires early (matching upstream's `stop()`); disposal otherwise
+ *   follows the component lifecycle.
  * - The source is a plain value (or array of values) tracked across renders —
  *   Vue's `WatchSource` forms (ref / getter / reactive) have no React
  *   equivalent, and the `deep` / `flush` watch options don't apply.
@@ -35,8 +43,12 @@ export function useWatchOnce<T>(source: T, callback: UseWatchCallback<T>, option
  * useWatchOnce(count, (value, oldValue) => console.log(value, oldValue))
  * ```
  */
-export function useWatchOnce(source: any, callback: UseWatchCallback, options: UseWatchOptions = {}) {
+export function useWatchOnce(source: any, callback: UseWatchCallback, options: UseWatchOptions = {}): UseWatchOnceReturn {
   const stoppedRef = useRef(false)
+
+  const stop = useCallback(() => {
+    stoppedRef.current = true
+  }, [])
 
   function wrapped(value: any, oldValue: any) {
     if (stoppedRef.current)
@@ -47,4 +59,6 @@ export function useWatchOnce(source: any, callback: UseWatchCallback, options: U
   }
 
   useWatch(source, wrapped, options)
+
+  return { stop }
 }

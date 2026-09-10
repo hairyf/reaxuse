@@ -59,6 +59,26 @@ describe('useWatchOnce', () => {
     expect(calls).toEqual([{ value: 7, oldValue: undefined }])
   })
 
+  it('stop() before the first fire suppresses all later calls (renderHook)', async () => {
+    const spy = vi.fn()
+    let setValue: (value: number) => void = () => {}
+    let stop: () => void = () => {}
+
+    const { act } = await renderHook(() => {
+      const [value, update] = useState(0)
+      setValue = update
+      const { stop: stopWatch } = useWatchOnce(value, spy)
+      stop = stopWatch
+    })
+
+    expect(spy).not.toBeCalled()
+
+    await act(() => stop())
+    await act(() => setValue(1))
+    await act(() => setValue(2))
+    expect(spy).not.toBeCalled()
+  })
+
   it('supports array sources and stops after the first element change (component)', async () => {
     const calls: Array<{ value: [number, string], oldValue: [number, string] | undefined }> = []
 
