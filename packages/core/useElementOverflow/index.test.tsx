@@ -148,6 +148,20 @@ describe('useElementOverflow', () => {
     const onUpdated = vi.fn()
     const observed: MutationObserverInit[] = []
 
+    // the hook wires the same `onUpdated` into the resize observer too, so a
+    // real one adds its own initial delivery to the call count and races the
+    // synchronous mutation callback below — stub it out to isolate the
+    // mutation path
+    vi.stubGlobal('ResizeObserver', class {
+      constructor(_callback: ResizeObserverCallback) {}
+
+      observe(): void {}
+
+      unobserve(): void {}
+
+      disconnect(): void {}
+    })
+
     vi.stubGlobal('MutationObserver', class {
       constructor(callback: MutationCallback) {
         mutationCallback = callback
