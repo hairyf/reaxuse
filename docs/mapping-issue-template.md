@@ -91,7 +91,7 @@ const now = useNow()
 > reaxuse side is written by the mapper (it generally matches the VueUse
 > shape, with React differences documented inline).
 
-General conventions to apply (from `packages/guide/architecture.md` § Mapping decisions):
+General conventions to apply (from [`packages/guide/architecture.md`](../packages/guide/architecture.md) § Mapping decisions):
 
 ```tsx
 // vueuse                    // reaxuse (expected)

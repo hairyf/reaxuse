@@ -143,15 +143,12 @@ function getFunctionsSideBar() {
 // Guide pages (mirrors VueUse's Guide links, adapted to reaxuse's pages).
 const Guide = [
   { text: 'Get Started', link: '/guide/' },
-  { text: 'Installation', link: '/guide/installation' },
   { text: 'Best Practice', link: '/guide/best-practice' },
   { text: 'Configurations', link: '/guide/config' },
   { text: 'Components', link: '/guide/components' },
-  { text: 'Architecture', link: '/guide/architecture' },
   { text: 'Work with AI', link: '/guide/work-with-ai' },
   { text: 'Contributing', link: '/contributing' },
   { text: 'Guidelines', link: '/guidelines' },
-  { text: 'Mapping Issue Template', link: '/guide/mapping-issue-template' },
 ]
 
 // Utility links (mirrors VueUse's Links list, adapted to reaxuse).

@@ -23,7 +23,7 @@
 - The package structure mirrors VueUse 1:1, but every API is React-flavored (`useState` / `useEffect` / `useMemo` …)
 - AI continuously maps upstream composables to React hooks
 
-See [docs/architecture.md](docs/architecture.md) for the full VueUse → reaxuse architecture mapping.
+See [packages/guide/architecture.md](packages/guide/architecture.md) for the full VueUse → reaxuse architecture mapping.
 
 ## Package structure (mirroring VueUse)
 
@@ -47,9 +47,9 @@ npm run typecheck
 
 ## Ported examples
 
-- `useToggle` → [`packages/core/src/useToggle.ts`](packages/core/src/useToggle.ts)
-- `useCounter` → [`packages/core/src/useCounter.ts`](packages/core/src/useCounter.ts)
-- `useNow` → [`packages/core/src/useNow.ts`](packages/core/src/useNow.ts)
+- `useToggle` → [`packages/shared/useToggle/index.tsx`](packages/shared/useToggle/index.tsx)
+- `useCounter` → [`packages/shared/useCounter/index.tsx`](packages/shared/useCounter/index.tsx)
+- `useNow` → [`packages/core/useNow/index.tsx`](packages/core/useNow/index.tsx)
 
 ## TODO
 
