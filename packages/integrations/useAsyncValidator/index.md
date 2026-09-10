@@ -4,7 +4,7 @@ category: '@Integrations'
 
 # useAsyncValidator
 
-Wrapper for [`async-validator`](https://github.com/yiminghe/async-validator)
+Wrapper for [`async-validator`](https://github.com/yiminghe/async-validator).
 
 ## Install
 
@@ -41,39 +41,8 @@ function Demo() {
 }
 ```
 
-Await the result when you need the finished snapshot:
-
-```tsx
-const { pass, errors } = await useAsyncValidator(form, rules)
-```
-
-Trigger the validation manually:
-
-```tsx
-const { pass, errors, execute } = useAsyncValidator(form, rules, { manual: true })
-
-const { pass: ok, errorFields } = await execute()
-```
-
 ## Value sources
 
 `value` and `rules` are the hook's **read-only value sources** and take plain values
 (`Record<string, any>` and `Rules`; upstream: `MaybeRefOrGetter`). The object is validated as-is, so a
 form field literally named `value` is not special.
-
-## Adjustment for React (no deep watch)
-
-Upstream re-runs the validation from `watch([valueRef, validator], execute, { immediate, deep: true })`.
-React has no deep observation, so this port re-runs it from an effect that compares the **identity**
-of `value` / `rules` and skips the automatic run entirely when `manual` is `true`:
-
-- mutating the **same** object in place does **not** re-trigger validation — pass a new object (or new
-  `rules`) or call `execute()` yourself;
-- the validated `value` must keep a stable identity across renders. An object literal created inline
-  in the render body (`useAsyncValidator({ name }, rules)`) is a new identity on every render, so it
-  re-validates on every render — hold it in `useState`/`useRef`/`useMemo` instead;
-- the initial validation fires from a mount effect (upstream fires it during setup). In React
-  StrictMode dev builds that effect is double-invoked, so the first validation may run twice; the
-  extra run is idempotent;
-- `errors` and `errorFields` are derived during render from `errorInfo` (upstream: derived values),
-  and `execute` is stable and ignores results that arrive after unmount.
