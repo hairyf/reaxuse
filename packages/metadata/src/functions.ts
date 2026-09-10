@@ -86,6 +86,16 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'computedAsync',
+    file: 'packages/core/computedAsync/index.tsx',
+    pkg: 'core',
+  },
+  {
+    name: 'computedAsync',
+    file: 'packages/core/computedAsync/index.tsx',
+    pkg: 'core',
+  },
+  {
     name: 'createCookies',
     file: 'packages/integrations/useCookies/index.tsx',
     pkg: 'integrations',
@@ -101,9 +111,34 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'createGenericProjection',
+    file: 'packages/math/createGenericProjection/index.tsx',
+    pkg: 'math',
+  },
+  {
     name: 'createGlobalState',
     file: 'packages/shared/createGlobalState/index.tsx',
     pkg: 'shared',
+  },
+  {
+    name: 'createInjectionState',
+    file: 'packages/shared/createInjectionState/index.tsx',
+    pkg: 'shared',
+  },
+  {
+    name: 'createInjectionState',
+    file: 'packages/shared/createInjectionState/index.tsx',
+    pkg: 'shared',
+  },
+  {
+    name: 'createInjectionState',
+    file: 'packages/shared/createInjectionState/index.tsx',
+    pkg: 'shared',
+  },
+  {
+    name: 'createProjection',
+    file: 'packages/math/createProjection/index.tsx',
+    pkg: 'math',
   },
   {
     name: 'createSingletonPromise',
@@ -266,6 +301,11 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
+    name: 'mapGamepadToXbox360Controller',
+    file: 'packages/core/useGamepad/index.tsx',
+    pkg: 'core',
+  },
+  {
     name: 'moveArrayElement',
     file: 'packages/integrations/useSortable/index.tsx',
     pkg: 'integrations',
@@ -346,9 +386,9 @@ export const functions: FunctionInfo[] = [
     pkg: 'shared',
   },
   {
-    name: 'toArray',
-    file: 'packages/shared/utils/index.tsx',
-    pkg: 'shared',
+    name: 'toArgsFlat',
+    file: 'packages/math/utils/index.tsx',
+    pkg: 'math',
   },
   {
     name: 'toArray',
@@ -359,6 +399,16 @@ export const functions: FunctionInfo[] = [
     name: 'toArray',
     file: 'packages/shared/utils/index.tsx',
     pkg: 'shared',
+  },
+  {
+    name: 'toArray',
+    file: 'packages/shared/utils/index.tsx',
+    pkg: 'shared',
+  },
+  {
+    name: 'toObserver',
+    file: 'packages/rxjs/toObserver/index.tsx',
+    pkg: 'rxjs',
   },
   {
     name: 'toValue',
@@ -384,6 +434,16 @@ export const functions: FunctionInfo[] = [
     name: 'unrefElement',
     file: 'packages/core/unrefElement/index.tsx',
     pkg: 'core',
+  },
+  {
+    name: 'until',
+    file: 'packages/shared/until/index.tsx',
+    pkg: 'shared',
+  },
+  {
+    name: 'until',
+    file: 'packages/shared/until/index.tsx',
+    pkg: 'shared',
   },
   {
     name: 'until',
@@ -694,6 +754,16 @@ export const functions: FunctionInfo[] = [
     name: 'useClamp',
     file: 'packages/math/useClamp/index.tsx',
     pkg: 'math',
+  },
+  {
+    name: 'useClickOutside',
+    file: 'packages/core/useClickOutside/index.tsx',
+    pkg: 'core',
+  },
+  {
+    name: 'useClickOutside',
+    file: 'packages/core/useClickOutside/index.tsx',
+    pkg: 'core',
   },
   {
     name: 'useClickOutside',
@@ -1126,12 +1196,17 @@ export const functions: FunctionInfo[] = [
     pkg: 'integrations',
   },
   {
+    name: 'useKeyDown',
+    file: 'packages/core/useKeyStroke/index.tsx',
+    pkg: 'core',
+  },
+  {
     name: 'useKeyModifier',
     file: 'packages/core/useKeyModifier/index.tsx',
     pkg: 'core',
   },
   {
-    name: 'useKeyStroke',
+    name: 'useKeyPressed',
     file: 'packages/core/useKeyStroke/index.tsx',
     pkg: 'core',
   },
@@ -1142,6 +1217,16 @@ export const functions: FunctionInfo[] = [
   },
   {
     name: 'useKeyStroke',
+    file: 'packages/core/useKeyStroke/index.tsx',
+    pkg: 'core',
+  },
+  {
+    name: 'useKeyStroke',
+    file: 'packages/core/useKeyStroke/index.tsx',
+    pkg: 'core',
+  },
+  {
+    name: 'useKeyUp',
     file: 'packages/core/useKeyStroke/index.tsx',
     pkg: 'core',
   },
@@ -1311,6 +1396,16 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'useNow',
+    file: 'packages/core/useNow/index.tsx',
+    pkg: 'core',
+  },
+  {
+    name: 'useNow',
+    file: 'packages/core/useNow/index.tsx',
+    pkg: 'core',
+  },
+  {
     name: 'useNProgress',
     file: 'packages/integrations/useNProgress/index.tsx',
     pkg: 'integrations',
@@ -1431,6 +1526,16 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
   },
   {
+    name: 'usePrevious',
+    file: 'packages/core/usePrevious/index.tsx',
+    pkg: 'core',
+  },
+  {
+    name: 'usePrevious',
+    file: 'packages/core/usePrevious/index.tsx',
+    pkg: 'core',
+  },
+  {
     name: 'useProjection',
     file: 'packages/math/useProjection/index.tsx',
     pkg: 'math',
@@ -1529,6 +1634,21 @@ export const functions: FunctionInfo[] = [
     name: 'useSortable',
     file: 'packages/integrations/useSortable/index.tsx',
     pkg: 'integrations',
+  },
+  {
+    name: 'useSorted',
+    file: 'packages/core/useSorted/index.tsx',
+    pkg: 'core',
+  },
+  {
+    name: 'useSorted',
+    file: 'packages/core/useSorted/index.tsx',
+    pkg: 'core',
+  },
+  {
+    name: 'useSorted',
+    file: 'packages/core/useSorted/index.tsx',
+    pkg: 'core',
   },
   {
     name: 'useSorted',
