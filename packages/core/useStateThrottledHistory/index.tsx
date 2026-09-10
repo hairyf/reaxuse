@@ -122,12 +122,20 @@ export interface UseStateThrottledHistoryControls<Raw, Serialized = Raw> {
   batch: (fn: (cancel: () => void) => void) => void
 }
 
-export type UseStateThrottledHistoryReturn<Raw, Serialized = Raw> = [
-  history: UseRefHistoryRecord<Serialized>[],
-  undo: () => void,
-  redo: () => void,
-  controls: UseStateThrottledHistoryControls<Raw, Serialized>,
-]
+export interface UseStateThrottledHistoryReturn<Raw, Serialized = Raw> extends UseStateThrottledHistoryControls<Raw, Serialized> {
+  /**
+   * An array of history records for undo, newest comes first
+   */
+  history: UseRefHistoryRecord<Serialized>[]
+  /**
+   * Undo the last change
+   */
+  undo: () => void
+  /**
+   * Redo the last change
+   */
+  redo: () => void
+}
 
 function fnBypass<Value, Result>(value: Value) {
   return value as unknown as Result
@@ -166,8 +174,9 @@ function defaultParse<Raw, Serialized>(clone?: boolean | ((value: Raw) => Raw)) 
  * and changes inside the window collapse into a single trailing commit that
  * carries the latest value.
  *
- * Return tuple follows this repo's React idiom:
- * `const [history, undo, redo, controls] = useStateThrottledHistory([source, setSource])`.
+ * The return object mirrors VueUse's `UseRefHistoryReturn` (refs flattened to
+ * plain values):
+ * `const { history, undo, redo, canUndo, canRedo, ... } = useStateThrottledHistory([source, setSource])`.
  *
  * Adjustments from upstream (Vue reactivity does not translate 1:1):
  *
@@ -201,7 +210,7 @@ function defaultParse<Raw, Serialized>(clone?: boolean | ((value: Raw) => Raw)) 
  *
  * @example
  * const [count, setCount] = useState(0)
- * const [history, undo, redo, { canUndo, canRedo }] = useStateThrottledHistory([count, setCount], { throttle: 1000 })
+ * const { history, undo, redo, canUndo, canRedo } = useStateThrottledHistory([count, setCount], { throttle: 1000 })
  *
  * setCount(1) // first change after a quiet window commits immediately
  * setCount(2) // changes inside the window collapse into one trailing commit
@@ -452,5 +461,10 @@ export function useStateThrottledHistory<Raw, Serialized = Raw>(
     batch,
   }
 
-  return [history, undo, redo, controls]
+  return {
+    history,
+    undo,
+    redo,
+    ...controls,
+  }
 }

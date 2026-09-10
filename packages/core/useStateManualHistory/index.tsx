@@ -88,11 +88,16 @@ export interface UseStateManualHistoryControls<Raw, Serialized = Raw> {
   setSource: Dispatch<SetStateAction<Raw>>
 }
 
-export type UseStateManualHistoryReturn<Raw, Serialized = Raw> = [
-  history: UseRefHistoryRecord<Serialized>[],
-  commit: () => void,
-  controls: UseStateManualHistoryControls<Raw, Serialized>,
-]
+export interface UseStateManualHistoryReturn<Raw, Serialized = Raw> extends UseStateManualHistoryControls<Raw, Serialized> {
+  /**
+   * An array of history records for undo, newest comes first
+   */
+  history: UseRefHistoryRecord<Serialized>[]
+  /**
+   * Create a new history record immediately for the current value
+   */
+  commit: () => void
+}
 
 function fnBypass<Value, Result>(value: Value) {
   return value as unknown as Result
@@ -128,8 +133,9 @@ function defaultParse<Raw, Serialized>(clone?: boolean | ((value: Raw) => Raw)) 
  * change history of a state when the user calls `commit()`, also provides
  * undo and redo functionality.
  *
- * Return tuple follows this repo's React idiom:
- * `const [history, commit, controls] = useStateManualHistory([source, setSource])`.
+ * The return object mirrors VueUse's `UseManualRefHistoryReturn` (refs
+ * flattened to plain values):
+ * `const { history, commit, undo, redo, ... } = useStateManualHistory([source, setSource])`.
  *
  * Adjustments from upstream (Vue reactivity does not translate 1:1):
  *
@@ -150,7 +156,7 @@ function defaultParse<Raw, Serialized>(clone?: boolean | ((value: Raw) => Raw)) 
  *
  * @example
  * const [count, setCount] = useState(0)
- * const [history, commit, { undo, redo, canUndo, canRedo }] = useStateManualHistory([count, setCount])
+ * const { history, commit, undo, redo, canUndo, canRedo } = useStateManualHistory([count, setCount])
  *
  * setCount(count + 1)
  * commit() // record the new value
@@ -268,5 +274,9 @@ export function useStateManualHistory<Raw, Serialized = Raw>(
     setSource: setSourceTracked,
   }
 
-  return [history, commit, controls]
+  return {
+    history,
+    commit,
+    ...controls,
+  }
 }

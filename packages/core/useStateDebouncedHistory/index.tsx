@@ -114,12 +114,20 @@ export interface UseStateDebouncedHistoryControls<Raw, Serialized = Raw> {
   batch: (fn: (cancel: () => void) => void) => void
 }
 
-export type UseStateDebouncedHistoryReturn<Raw, Serialized = Raw> = [
-  history: UseRefHistoryRecord<Serialized>[],
-  undo: () => void,
-  redo: () => void,
-  controls: UseStateDebouncedHistoryControls<Raw, Serialized>,
-]
+export interface UseStateDebouncedHistoryReturn<Raw, Serialized = Raw> extends UseStateDebouncedHistoryControls<Raw, Serialized> {
+  /**
+   * An array of history records for undo, newest comes first
+   */
+  history: UseRefHistoryRecord<Serialized>[]
+  /**
+   * Undo the last change
+   */
+  undo: () => void
+  /**
+   * Redo the last change
+   */
+  redo: () => void
+}
 
 function fnBypass<Value, Result>(value: Value) {
   return value as unknown as Result
@@ -158,17 +166,18 @@ function defaultParse<Raw, Serialized>(clone?: boolean | ((value: Raw) => Raw)) 
  * it is recorded once the window closes (no leading edge), providing undo and
  * redo functionality.
  *
- * Return tuple follows this repo's React idiom:
- * `const [history, undo, redo, controls] = useStateDebouncedHistory([source, setSource])`.
+ * The return object mirrors VueUse's `UseRefHistoryReturn` (refs flattened to
+ * plain values):
+ * `const { history, undo, redo, canUndo, canRedo, ... } = useStateDebouncedHistory([source, setSource])`.
  *
  * Adjustments from upstream (Vue reactivity does not translate 1:1):
  *
  * 1. Naming + return shape: `useDebouncedRefHistory` becomes
  *    `useStateDebouncedHistory` (`ref*` family → `useState*`, see
- *    `useStateManualHistory`) and the upstream object return
- *    (`{ history, undo, redo, ... }`) becomes a tuple
- *    `[history, undo, redo, controls]` — with `history` a plain snapshots
- *    array and `undo` / `redo` stable callbacks driving the state setter.
+ *    `useStateManualHistory`) and the return object mirrors the upstream
+ *    object (`{ history, undo, redo, ... }`) with refs flattened to plain
+ *    values — `history` is a plain snapshots array and `undo` / `redo` are
+ *    stable callbacks driving the state setter.
  * 2. Source: upstream tracks a writable Vue `Ref<Raw>` and commits through a
  *    watcher; React state lives in the component, so the source is the
  *    controlled tuple `[state, setState]` of an existing `useState`; commits are
@@ -200,7 +209,7 @@ function defaultParse<Raw, Serialized>(clone?: boolean | ((value: Raw) => Raw)) 
  *
  * @example
  * const [count, setCount] = useState(0)
- * const [history, undo, redo, { canUndo, canRedo }] = useStateDebouncedHistory([count, setCount], { debounce: 1000 })
+ * const { history, undo, redo, canUndo, canRedo } = useStateDebouncedHistory([count, setCount], { debounce: 1000 })
  *
  * setCount(1) // scheduled — committed once 1000ms pass without changes
  * undo() // count back to the previous record
@@ -440,5 +449,10 @@ export function useStateDebouncedHistory<Raw, Serialized = Raw>(
     batch,
   }
 
-  return [history, undo, redo, controls]
+  return {
+    history,
+    undo,
+    redo,
+    ...controls,
+  }
 }

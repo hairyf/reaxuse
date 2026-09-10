@@ -9,7 +9,8 @@ automated issue handling.
 - 如果是 `ref*`（VueUse 的 `refAutoReset` / `refDebounced` / `refDefault` / `refManualReset` / `refThrottled` / `refWithControl` 等 ref 系函数），统一我们的实现都要是 `useState*`（如 `useStateAutoReset` / `useStateDebounced` / `useStateDefault` / `useStateManualReset` / `useStateThrottled` / `useStateWithControl`）。
 - 如果是 `on*`（VueUse 的 `onClickOutside` / `onElementRemoval` / `onKeyStroke` / `onLongPress` / `onStartTyping` 等 on 系函数），统一我们的实现命名为 `use*`（如 `useClickOutside` / `useElementRemoval` / `useKeyStroke` / `useLongPress` / `useStartTyping`）。
 - `use*RefHistory` 系列（`useRefHistory` / `useManualRefHistory` / `useDebouncedRefHistory` / `useThrottledRefHistory`）也按此规则改名为 `useState*History`（如 `useStateHistory` / `useStateManualHistory` / `useStateDebouncedHistory` / `useStateThrottledHistory`）。
-- 返回值的风格也要是 React：用数组解构形式，如 `const [num, setNum, control] = useStateWithControl(0)`，而不是 Vue 风格的单一 ref 对象。
+- 例外：`useState*History` 系列（`useStateHistory` / `useStateManualHistory` / `useStateDebouncedHistory` / `useStateThrottledHistory`）的返回值与 VueUse 保持一致，返回对象（如 `const { history, undo, redo, canUndo, canRedo, setSource, ... } = useStateHistory([state, setState])`），不使用数组解构。
+- 返回值的风格也要是 React：用数组解构形式（`useState*History` 系列除外，见上一条），如 `const [num, setNum, control] = useStateWithControl(0)`，而不是 Vue 风格的单一 ref 对象。
 - VueUse 上游源名（`ref*` / `on*` / `use*RefHistory`）必须保留在 issue 的 Target / Upstream API / Map from / vueuse 侧代码中，只有 reaxuse 侧（标题、reaxuse 路径、Map to、Expected implementation 的 reaxuse 部分）改用 `useState*` / `use*` 命名。
 
 ## Issue handling rules

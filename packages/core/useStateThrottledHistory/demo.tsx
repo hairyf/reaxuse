@@ -10,7 +10,7 @@ function format(ts: number) {
 export default function UseStateThrottledHistoryDemo() {
   const [delay, setDelay] = useState(1000)
   const [count, setCount] = useState(0)
-  const [history, undo, redo, { canUndo, canRedo, setSource }] = useStateThrottledHistory([count, setCount], {
+  const { history, undo, redo, canUndo, canRedo, setSource } = useStateThrottledHistory([count, setCount], {
     clone: true,
     throttle: delay,
     capacity: 10,

@@ -7,7 +7,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 function DebouncedHistoryDemo() {
   const [count, setCount] = useState(0)
-  const [history, undo, redo, { canUndo, canRedo }] = useStateDebouncedHistory([count, setCount], { debounce: 200 })
+  const { history, undo, redo, canUndo, canRedo } = useStateDebouncedHistory([count, setCount], { debounce: 200 })
 
   return (
     <div>
@@ -35,7 +35,7 @@ it('once the value has changed and some time has passed, ensure the snapshot is 
   // passed, ensure the snapshot is updated` (debounce: 10)
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateDebouncedHistory([v, setV], { debounce: 10 })
+    const { history, undo, redo, ...controls } = useStateDebouncedHistory([v, setV], { debounce: 10 })
     return { history, undo, redo, controls, v, setV }
   })
 
@@ -56,7 +56,7 @@ it('when debounce is undefined', async () => {
   // mirrors upstream `when debounce is undefined`
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateDebouncedHistory([v, setV])
+    const { history, undo, redo, ...controls } = useStateDebouncedHistory([v, setV])
     return { history, undo, redo, controls, v, setV }
   })
 
@@ -70,7 +70,7 @@ it('useStateDebouncedHistory collapses rapid changes into a single trailing comm
   const dumps: number[] = []
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateDebouncedHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateDebouncedHistory([v, setV], {
       debounce: 100,
       dump: (value) => {
         dumps.push(value)
@@ -96,7 +96,7 @@ it('useStateDebouncedHistory should be able to undo and redo across debounce bou
   const dumps: number[] = []
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateDebouncedHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateDebouncedHistory([v, setV], {
       debounce: 300,
       dump: (value) => {
         dumps.push(value)
@@ -155,7 +155,7 @@ it('useStateDebouncedHistory commit() forces a record and swallows the pending e
   const dumps: number[] = []
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateDebouncedHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateDebouncedHistory([v, setV], {
       debounce: 300,
       dump: (value) => {
         dumps.push(value)
@@ -189,7 +189,7 @@ it('useStateDebouncedHistory pause and resume', async () => {
   const dumps: number[] = []
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateDebouncedHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateDebouncedHistory([v, setV], {
       debounce: 100,
       dump: (value) => {
         dumps.push(value)
@@ -239,7 +239,7 @@ it('useStateDebouncedHistory clear cancels the pending debounced commit', async 
   const dumps: number[] = []
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateDebouncedHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateDebouncedHistory([v, setV], {
       debounce: 300,
       dump: (value) => {
         dumps.push(value)
@@ -272,7 +272,7 @@ it('useStateDebouncedHistory does not record on mount', async () => {
   const dumps: number[] = []
   const { result } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateDebouncedHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateDebouncedHistory([v, setV], {
       debounce: 100,
       dump: (value) => {
         dumps.push(value)
@@ -292,7 +292,7 @@ it('useStateDebouncedHistory cancels the pending debounced commit on unmount', a
   const dumps: number[] = []
   const { result, act, unmount } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateDebouncedHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateDebouncedHistory([v, setV], {
       debounce: 300,
       dump: (value) => {
         dumps.push(value)
@@ -317,7 +317,7 @@ it('useStateDebouncedHistory cancels the pending debounced commit on unmount', a
 it('useStateDebouncedHistory object with clone', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState({ foo: 'bar' })
-    const [history, undo, redo, controls] = useStateDebouncedHistory([v, setV], { debounce: 0, clone: true })
+    const { history, undo, redo, ...controls } = useStateDebouncedHistory([v, setV], { debounce: 0, clone: true })
     return { history, undo, redo, controls, v }
   })
 
@@ -349,7 +349,7 @@ it('useStateDebouncedHistory object with clone', async () => {
 it('useStateDebouncedHistory dump + parse', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState({ a: 'bar' })
-    const [history, undo, redo, controls] = useStateDebouncedHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateDebouncedHistory([v, setV], {
       debounce: 0,
       dump: value => JSON.stringify(value),
       parse: value => JSON.parse(value) as { a: string },
@@ -374,7 +374,7 @@ it('useStateDebouncedHistory dump + parse', async () => {
 it('useStateDebouncedHistory capacity limits the undo stack', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateDebouncedHistory([v, setV], { debounce: 0, capacity: 2 })
+    const { history, undo, redo, ...controls } = useStateDebouncedHistory([v, setV], { debounce: 0, capacity: 2 })
     return { history, undo, redo, controls, v, setV }
   })
 
@@ -395,7 +395,7 @@ it('useStateDebouncedHistory reset supersedes the pending debounced commit', asy
   const dumps: number[] = []
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateDebouncedHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateDebouncedHistory([v, setV], {
       debounce: 300,
       dump: (value) => {
         dumps.push(value)
@@ -432,7 +432,7 @@ it('useStateDebouncedHistory batch records a single commit and cancel leaves the
   const dumps: number[] = []
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateDebouncedHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateDebouncedHistory([v, setV], {
       debounce: 300,
       dump: (value) => {
         dumps.push(value)

@@ -114,12 +114,20 @@ export interface UseStateHistoryControls<Raw, Serialized = Raw> {
   batch: (fn: (cancel: () => void) => void) => void
 }
 
-export type UseStateHistoryReturn<Raw, Serialized = Raw> = [
-  history: UseRefHistoryRecord<Serialized>[],
-  undo: () => void,
-  redo: () => void,
-  controls: UseStateHistoryControls<Raw, Serialized>,
-]
+export interface UseStateHistoryReturn<Raw, Serialized = Raw> extends UseStateHistoryControls<Raw, Serialized> {
+  /**
+   * An array of history records for undo, newest comes first
+   */
+  history: UseRefHistoryRecord<Serialized>[]
+  /**
+   * Undo the last change
+   */
+  undo: () => void
+  /**
+   * Redo the last change
+   */
+  redo: () => void
+}
 
 function fnBypass<Value, Result>(value: Value) {
   return value as unknown as Result
@@ -155,8 +163,9 @@ function defaultParse<Raw, Serialized>(clone?: boolean | ((value: Raw) => Raw)) 
  * a state automatically — every change to the source commits a history record
  * — also provides undo and redo functionality.
  *
- * Return tuple follows this repo's React idiom:
- * `const [history, undo, redo, controls] = useStateHistory([source, setSource])`.
+ * The return object mirrors VueUse's `UseRefHistoryReturn` (refs flattened to
+ * plain values):
+ * `const { history, undo, redo, canUndo, canRedo, ... } = useStateHistory([source, setSource])`.
  *
  * Adjustments from upstream (Vue reactivity does not translate 1:1):
  *
@@ -188,7 +197,7 @@ function defaultParse<Raw, Serialized>(clone?: boolean | ((value: Raw) => Raw)) 
  *
  * @example
  * const [count, setCount] = useState(0)
- * const [history, undo, redo, { canUndo, canRedo }] = useStateHistory([count, setCount])
+ * const { history, undo, redo, canUndo, canRedo } = useStateHistory([count, setCount])
  *
  * setCount(1) // every change commits a history record
  * undo() // count back to the previous record
@@ -405,5 +414,10 @@ export function useStateHistory<Raw, Serialized = Raw>(
     batch,
   }
 
-  return [history, undo, redo, controls]
+  return {
+    history,
+    undo,
+    redo,
+    ...controls,
+  }
 }

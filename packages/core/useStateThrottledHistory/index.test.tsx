@@ -7,7 +7,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 function ThrottledHistoryDemo() {
   const [count, setCount] = useState(0)
-  const [history, undo, redo, { canUndo, canRedo }] = useStateThrottledHistory([count, setCount], { throttle: 500 })
+  const { history, undo, redo, canUndo, canRedo } = useStateThrottledHistory([count, setCount], { throttle: 500 })
 
   return (
     <div>
@@ -35,7 +35,7 @@ it('useStateThrottledHistory should take the first snapshot right after the chan
   // second after given time` (throttle: 10, here 100 with real timers)
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateThrottledHistory([v, setV], { throttle: 100 })
+    const { history, undo, redo, ...controls } = useStateThrottledHistory([v, setV], { throttle: 100 })
     return { history, undo, redo, controls, v, setV }
   })
 
@@ -63,7 +63,7 @@ it('useStateThrottledHistory collapses rapid setSource calls into a single trail
   const dumps: number[] = []
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateThrottledHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateThrottledHistory([v, setV], {
       throttle: 100,
       dump: (value) => {
         dumps.push(value)
@@ -87,7 +87,7 @@ it('useStateThrottledHistory should be able to undo and redo across throttle bou
   const dumps: number[] = []
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateThrottledHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateThrottledHistory([v, setV], {
       throttle: 300,
       dump: (value) => {
         dumps.push(value)
@@ -141,7 +141,7 @@ it('useStateThrottledHistory commit() forces a record and swallows the pending e
   const dumps: number[] = []
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateThrottledHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateThrottledHistory([v, setV], {
       throttle: 300,
       dump: (value) => {
         dumps.push(value)
@@ -174,7 +174,7 @@ it('useStateThrottledHistory pause and resume', async () => {
   const dumps: number[] = []
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateThrottledHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateThrottledHistory([v, setV], {
       throttle: 100,
       dump: (value) => {
         dumps.push(value)
@@ -223,7 +223,7 @@ it('useStateThrottledHistory clear cancels the pending trailing commit', async (
   const dumps: number[] = []
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateThrottledHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateThrottledHistory([v, setV], {
       throttle: 300,
       dump: (value) => {
         dumps.push(value)
@@ -253,7 +253,7 @@ it('useStateThrottledHistory does not record on mount', async () => {
   const dumps: number[] = []
   const { result } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateThrottledHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateThrottledHistory([v, setV], {
       throttle: 100,
       dump: (value) => {
         dumps.push(value)
@@ -273,7 +273,7 @@ it('useStateThrottledHistory cancels the pending trailing commit on unmount', as
   const dumps: number[] = []
   const { result, act, unmount } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateThrottledHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateThrottledHistory([v, setV], {
       throttle: 300,
       dump: (value) => {
         dumps.push(value)
@@ -297,7 +297,7 @@ it('useStateThrottledHistory cancels the pending trailing commit on unmount', as
 it('useStateThrottledHistory object with clone', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState({ foo: 'bar' })
-    const [history, undo, redo, controls] = useStateThrottledHistory([v, setV], { throttle: 0, clone: true })
+    const { history, undo, redo, ...controls } = useStateThrottledHistory([v, setV], { throttle: 0, clone: true })
     return { history, undo, redo, controls, v }
   })
 
@@ -329,7 +329,7 @@ it('useStateThrottledHistory object with clone', async () => {
 it('useStateThrottledHistory dump + parse', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState({ a: 'bar' })
-    const [history, undo, redo, controls] = useStateThrottledHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateThrottledHistory([v, setV], {
       throttle: 0,
       dump: value => JSON.stringify(value),
       parse: value => JSON.parse(value) as { a: string },
@@ -354,7 +354,7 @@ it('useStateThrottledHistory dump + parse', async () => {
 it('useStateThrottledHistory capacity limits the undo stack', async () => {
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateThrottledHistory([v, setV], { throttle: 0, capacity: 2 })
+    const { history, undo, redo, ...controls } = useStateThrottledHistory([v, setV], { throttle: 0, capacity: 2 })
     return { history, undo, redo, controls, v, setV }
   })
 
@@ -375,7 +375,7 @@ it('useStateThrottledHistory reset supersedes the pending trailing commit', asyn
   const dumps: number[] = []
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateThrottledHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateThrottledHistory([v, setV], {
       throttle: 300,
       dump: (value) => {
         dumps.push(value)
@@ -412,7 +412,7 @@ it('useStateThrottledHistory batch records a single commit and cancel leaves the
   const dumps: number[] = []
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const [history, undo, redo, controls] = useStateThrottledHistory([v, setV], {
+    const { history, undo, redo, ...controls } = useStateThrottledHistory([v, setV], {
       throttle: 300,
       dump: (value) => {
         dumps.push(value)

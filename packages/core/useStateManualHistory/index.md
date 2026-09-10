@@ -15,7 +15,7 @@ import { useStateManualHistory } from '@reaxuse/core'
 import { useState } from 'react'
 
 const [count, setCount] = useState(0)
-const [history, commit, { undo, redo, canUndo, canRedo, setSource }] = useStateManualHistory([count, setCount])
+const { history, commit, undo, redo, canUndo, canRedo, setSource } = useStateManualHistory([count, setCount])
 
 setSource(count + 1)
 commit()
@@ -40,8 +40,8 @@ is reworked for React hooks:
   tuple's setter.
 - **Same-tick commits** — React `setState` is asynchronous. Calling `commit()` right after your own
   `setState` would snapshot the previous rendered value. For updates you want to commit in the same
-  tick, use `controls.setSource()` (value or updater form, a drop-in for `setState`): it applies
-  the new value synchronously and forwards it to your `setSource`, so `commit()` always snapshots
+  tick, use `setSource()` (value or updater form, a drop-in for `setState`): it applies
+  the new value synchronously and forwards it to your state setter, so `commit()` always snapshots
   the newest value. Commits after a plain `setState` from a previous render work as usual.
 - **Storage and reactivity** — history records live in refs; a version counter triggers re-renders
   (upstream: reactive refs + `computed`). Records are plain objects — upstream's `markRaw` has no
@@ -60,10 +60,10 @@ import { useStateManualHistory } from '@reaxuse/core'
 import { useState } from 'react'
 
 const [target, setTarget] = useState({ foo: 1, bar: 2 })
-const [history, commit, controls] = useStateManualHistory([target, setTarget], { clone: true })
+const { history, commit, setSource } = useStateManualHistory([target, setTarget], { clone: true })
 
 // prefer replacing the state in React…
-controls.setSource({ foo: 2, bar: 2 })
+setSource({ foo: 2, bar: 2 })
 commit()
 
 // …but a mutated source is snapshotted correctly as well
@@ -93,7 +93,7 @@ const stateHistory = useStateManualHistory([target, setTarget], {
 All history is kept by default (unlimited). Set the maximal amount of history with `capacity`:
 
 ```tsx
-const [history, commit, { clear }] = useStateManualHistory([target, setTarget], {
+const { history, commit, clear } = useStateManualHistory([target, setTarget], {
   capacity: 15, // limit to 15 history records
 })
 

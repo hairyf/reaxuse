@@ -13,7 +13,7 @@ import { useStateThrottledHistory } from '@reaxuse/core'
 import { useState } from 'react'
 
 const [count, setCount] = useState(0)
-const [history, undo, redo, { canUndo, canRedo }] = useStateThrottledHistory([count, setCount], { throttle: 1000 })
+const { history, undo, redo, canUndo, canRedo } = useStateThrottledHistory([count, setCount], { throttle: 1000 })
 
 setCount(1)
 // first change after a quiet window commits immediately (leading edge)
@@ -55,7 +55,7 @@ is reworked for React hooks:
   commit still fires while tracking is paused (upstream behavior), and pending timers are cancelled
   on unmount.
 - **Same-tick commits** — for updates that must be visible to a manual `commit()` in the same tick,
-  use `controls.setSource()` (value or updater form, a drop-in for `setState`) — see
+  use `setSource()` (value or updater form, a drop-in for `setState`) — see
   [`useStateManualHistory`](/core/useStateManualHistory/) for the full explanation.
 - **Not ported** — upstream's `dispose` (disposal follows the component lifecycle; use `clear()`)
   and `shouldCommit`.
@@ -71,9 +71,9 @@ import { useStateThrottledHistory } from '@reaxuse/core'
 import { useState } from 'react'
 
 const [target, setTarget] = useState({ foo: 1, bar: 2 })
-const [history, undo, redo, controls] = useStateThrottledHistory([target, setTarget], { clone: true, throttle: 500 })
+const { history, setSource } = useStateThrottledHistory([target, setTarget], { clone: true, throttle: 500 })
 
-controls.setSource({ foo: 2, bar: 2 }) // committed on the leading edge
+setSource({ foo: 2, bar: 2 }) // committed on the leading edge
 ```
 
 ### History Capacity
@@ -81,7 +81,7 @@ controls.setSource({ foo: 2, bar: 2 }) // committed on the leading edge
 All history is kept by default (unlimited). Set the maximal amount of history with `capacity`:
 
 ```tsx
-const [history, undo, redo, { clear }] = useStateThrottledHistory([target, setTarget], {
+const { history, clear } = useStateThrottledHistory([target, setTarget], {
   capacity: 15, // limit to 15 history records
 })
 

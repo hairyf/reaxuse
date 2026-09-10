@@ -13,7 +13,7 @@ import { useStateHistory } from '@reaxuse/core'
 import { useState } from 'react'
 
 const [count, setCount] = useState(0)
-const [history, undo, redo, { canUndo, canRedo }] = useStateHistory([count, setCount])
+const { history, undo, redo, canUndo, canRedo } = useStateHistory([count, setCount])
 
 setCount(1) // every change commits a history record
 
@@ -49,7 +49,7 @@ is reworked for React hooks:
   the applied value and the following effect run carrying it is skipped (upstream:
   `ignoreUpdates` plus `ignorePrevAsyncUpdates`).
 - **Same-tick commits** — for updates that must be visible to a manual `commit()` in the same tick,
-  use `controls.setSource()` (value or updater form, a drop-in for `setState`) — see
+  use `setSource()` (value or updater form, a drop-in for `setState`) — see
   [`useStateManualHistory`](/core/useStateManualHistory/) for the full explanation.
 - **Not ported** — upstream's `dispose` (disposal follows the component lifecycle; use `clear()`).
 
@@ -64,9 +64,9 @@ import { useStateHistory } from '@reaxuse/core'
 import { useState } from 'react'
 
 const [target, setTarget] = useState({ foo: 1, bar: 2 })
-const [history, undo, redo, controls] = useStateHistory([target, setTarget], { clone: true })
+const { history, setSource } = useStateHistory([target, setTarget], { clone: true })
 
-controls.setSource({ foo: 2, bar: 2 }) // committed immediately
+setSource({ foo: 2, bar: 2 }) // committed immediately
 ```
 
 A full featured clone function can be passed via `clone`, e.g.
@@ -91,7 +91,7 @@ const stateHistory = useStateHistory([target, setTarget], {
 All history is kept by default (unlimited). Set the maximal amount of history with `capacity`:
 
 ```tsx
-const [history, undo, redo, { clear }] = useStateHistory([target, setTarget], {
+const { history, clear } = useStateHistory([target, setTarget], {
   capacity: 15, // limit to 15 history records
 })
 

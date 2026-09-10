@@ -2,7 +2,8 @@
  * contract-check.ts — verify every existing hook in packages/{core,shared}/<hook>/index.tsx
  * satisfies the house contracts:
  *   A. naming: ref* upstream → useState*; use*RefHistory upstream → useState*History
- *   B. useState* family returns a React array tuple
+ *   B. useState* family returns a React array tuple — except useState*History,
+ *      which mirrors VueUse's object return instead
  *   C. registered in the package index.ts
  *   D. docs page (index.md) + demo.tsx exist
  *   E. JSDoc carries a "Map from @vueuse/..." mapping
@@ -118,13 +119,20 @@ for (const pkg of PKGS) {
       if (naming)
         findings.push(naming)
 
-      // B. useState* family must return a tuple
+      // B. useState* family must return a tuple — except useState*History,
+      // which mirrors VueUse's object return (`useRefHistory` et al.)
       if (hook.startsWith('useState')) {
         const ret = returnTypeOfHook(src, hook)
         if (ret) {
           const shape = resolveReturnShape(src, ret)
-          if (!shape.trim().startsWith('['))
+          const isTuple = shape.trim().startsWith('[')
+          if (hook.endsWith('History')) {
+            if (isTuple)
+              findings.push(`${pkg}/${hook}: useState*History must return an object like VueUse, got tuple '${ret.trim()}'`)
+          }
+          else if (!isTuple) {
             findings.push(`${pkg}/${hook}: useState* family must return a tuple, got '${ret.trim()}' (resolved '${shape.trim()}')`)
+          }
         }
         else {
           findings.push(`${pkg}/${hook}: could not extract return type`)

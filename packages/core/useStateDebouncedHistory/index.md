@@ -15,7 +15,7 @@ import { useStateDebouncedHistory } from '@reaxuse/core'
 import { useState } from 'react'
 
 const [count, setCount] = useState(0)
-const [history, undo, redo, { canUndo, canRedo }] = useStateDebouncedHistory([count, setCount], { debounce: 1000 })
+const { history, undo, redo, canUndo, canRedo } = useStateDebouncedHistory([count, setCount], { debounce: 1000 })
 
 setCount(1)
 // committed once 1000ms pass without further changes
@@ -57,7 +57,7 @@ is reworked for React hooks:
   commit still fires while tracking is paused (upstream behavior), and pending timers are cancelled
   on unmount.
 - **Same-tick commits** — for updates that must be visible to a manual `commit()` in the same tick,
-  use `controls.setSource()` (value or updater form, a drop-in for `setState`) — see
+  use `setSource()` (value or updater form, a drop-in for `setState`) — see
   [`useStateManualHistory`](/core/useStateManualHistory/) for the full explanation.
 - **Not ported** — upstream's `dispose` (disposal follows the component lifecycle; use `clear()`)
   and `shouldCommit`.
@@ -73,9 +73,9 @@ import { useStateDebouncedHistory } from '@reaxuse/core'
 import { useState } from 'react'
 
 const [target, setTarget] = useState({ foo: 1, bar: 2 })
-const [history, undo, redo, controls] = useStateDebouncedHistory([target, setTarget], { clone: true, debounce: 500 })
+const { history, setSource } = useStateDebouncedHistory([target, setTarget], { clone: true, debounce: 500 })
 
-controls.setSource({ foo: 2, bar: 2 }) // committed once the window closes
+setSource({ foo: 2, bar: 2 }) // committed once the window closes
 ```
 
 ### History Capacity
@@ -83,7 +83,7 @@ controls.setSource({ foo: 2, bar: 2 }) // committed once the window closes
 All history is kept by default (unlimited). Set the maximal amount of history with `capacity`:
 
 ```tsx
-const [history, undo, redo, { clear }] = useStateDebouncedHistory([target, setTarget], {
+const { history, clear } = useStateDebouncedHistory([target, setTarget], {
   capacity: 15, // limit to 15 history records
 })
 
