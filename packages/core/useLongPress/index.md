@@ -50,18 +50,6 @@ return (
 )
 ```
 
-### Return Value
-
-Returns a stop function that clears any pending long-press timer and removes the event listeners.
-
-```tsx
-const target = useRef<HTMLButtonElement | null>(null)
-const stop = useLongPress(target, handler)
-
-// Later, stop listening
-stop()
-```
-
 ### Custom Delay
 
 By default, the handler fires after 500ms. You can customize this with the `delay` option. It can be a number or a function that receives the `PointerEvent`.
@@ -126,3 +114,11 @@ useLongPress(target, handler, {
   },
 })
 ```
+
+## Component Usage
+
+Not ported — upstream ships a `OnLongPress` component (Vue, render-slot based); in React the hook is used directly.
+
+## Directive Usage
+
+Not ported — upstream ships a `vOnLongPress` directive (Vue, `v-` directive); in React the hook is used directly.

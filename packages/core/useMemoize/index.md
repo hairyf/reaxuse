@@ -7,7 +7,7 @@ category: Utilities
 Cache results of functions depending on arguments. It can also be used for asynchronous functions and will reuse existing promises to avoid fetching the same data at the same time.
 
 ::: tip
-The results are not cleared automatically. Call `clear()` in case you no longer need the results or use your own
+The results are not cleared automatically. Call `clear()` in case you no longer need the results or use own
 caching mechanism to avoid memory leaks.
 :::
 
@@ -36,15 +36,14 @@ getUser.clear() // Clear full cache
 
 ### Resolving cache key
 
-The key for caching is determined by the arguments given to the function and will be serialized by default with
-`JSON.stringify`. This allows equal objects to receive the same cache key. In case you want to customize the key you
-can pass `getKey`.
+The key for caching is determined by the arguments given to the function and will be serialized by default with `JSON.stringify`.
+This will allow equal objects to receive the same cache key. In case you want to customize the key you can pass `getKey`.
 
 ::: warning Performance Consideration
-Using `JSON.stringify` as the default key generator can be **slow for large or complex objects**. For better
-performance with complex arguments, it's highly recommended to provide a custom `getKey` function that generates keys
-based on primitive values or unique identifiers.
+Using `JSON.stringify` as the default key generator can be **slow for large or complex objects**. For better performance with complex arguments, it's highly recommended to provide a custom `getKey` function that generates keys based on primitive values or unique identifiers.
 :::
+
+#### Basic Example
 
 ```tsx
 import { useMemoize } from '@reaxuse/core'

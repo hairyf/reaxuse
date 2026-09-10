@@ -27,37 +27,15 @@ undo() // count back to the previous record
 redo() // count forward again
 ```
 
-### React adjustments
+The source is the controlled `[state, setState]` tuple of an existing `useState`; commits are driven by an effect on state changes (upstream: `useWatchIgnorable`).
 
-This port carries the `adjustment` label — upstream reactivity does not translate 1:1, so the behavior
-is reworked for React hooks:
+Internally, an effect is used to trigger a history point when the state is modified. This means that history points are triggered asynchronously batching modifications in the same "tick".
 
-- **Source as a `[state, setState]` pair** — upstream tracks a writable `Ref` that the hook
-  watches and can write synchronously. React state lives in the component, so the source is passed
-  in as the controlled tuple `[state, setState]`; commits are driven by an effect on state changes
-  (upstream: `useWatchIgnorable`).
-- **Watcher becomes an effect** — upstream's `deep` and `flush` watch options don't apply: replace
-  the state instead of mutating it, a mutated object does not re-render and stays invisible to the
-  history. The `clone` option and custom `dump` / `parse` still support mutation-style sources
-  (see [`useStateManualHistory`](/core/useStateManualHistory/)). Multiple state updates in the same
-  tick render once and collapse into a single commit carrying the final value (upstream auto
-  batching with the default `flush: 'pre'`); there is no per-assignment `flush: 'sync'` timing.
-- **Event filter not ported** — upstream composes `pausableFilter(eventFilter)`; only the pausable
-  half is ported (`pause` / `resume` / `isTracking`). The generic `eventFilter` option has no React
-  translation — use `useStateThrottledHistory` for time-based throttling of the commits.
-- **Restores never record** — `undo` / `redo` / `reset` and a manual `commit()` / `batch()` mark
-  the applied value and the following effect run carrying it is skipped (upstream:
-  `ignoreUpdates` plus `ignorePrevAsyncUpdates`).
-- **Same-tick commits** — for updates that must be visible to a manual `commit()` in the same tick,
-  use `setSource()` (value or updater form, a drop-in for `setState`) — see
-  [`useStateManualHistory`](/core/useStateManualHistory/) for the full explanation.
-- **Not ported** — upstream's `dispose` (disposal follows the component lifecycle; use `clear()`).
+You can use `undo` to reset the state to the last history point.
 
-### History of mutable objects
+### Objects / arrays
 
-If you are going to mutate the source, pass a custom clone function or use `clone: true` — a
-shortcut for a minimal clone function `x => JSON.parse(JSON.stringify(x))` used in both `dump` and
-`parse`:
+When working with objects or arrays, since changing their attributes does not change the reference, it will not trigger the committing. React state is normally replaced instead of mutated — the `clone` option and custom `dump` / `parse` support mutation-style sources and create clones for each history record:
 
 ```tsx
 import { useStateHistory } from '@reaxuse/core'
@@ -69,17 +47,43 @@ const { history, setSource } = useStateHistory([target, setTarget], { clone: tru
 setSource({ foo: 2, bar: 2 }) // committed immediately
 ```
 
-A full featured clone function can be passed via `clone`, e.g.
-[structuredClone](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone):
+#### Custom Clone Function
+
+`useStateHistory` only embeds the minimal clone function `x => JSON.parse(JSON.stringify(x))`. To use a full featured or custom clone function, you can set up via the `clone` options.
+
+For example, using [structuredClone](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone):
 
 ```tsx
+import { useStateHistory } from '@reaxuse/core'
+
 const stateHistory = useStateHistory([target, setTarget], { clone: structuredClone })
 ```
 
-Instead of `clone`, custom `dump` / `parse` functions control serialization and parsing — useful to
-store stringified snapshots:
+Or by using [lodash's `cloneDeep`](https://lodash.com/docs/4.17.15#cloneDeep):
 
 ```tsx
+import { useStateHistory } from '@reaxuse/core'
+import { cloneDeep } from 'lodash-es'
+
+const stateHistory = useStateHistory([target, setTarget], { clone: cloneDeep })
+```
+
+Or a more lightweight [`klona`](https://github.com/lukeed/klona):
+
+```tsx
+import { useStateHistory } from '@reaxuse/core'
+import { klona } from 'klona'
+
+const stateHistory = useStateHistory([target, setTarget], { clone: klona })
+```
+
+#### Custom Dump and Parse Function
+
+Instead of using the `clone` options, you can pass custom functions to control the serialization and parsing. In case you do not need history values to be objects, this can save an extra clone when undoing. It is also useful in case you want to have the snapshots already stringified to be saved to local storage for example.
+
+```tsx
+import { useStateHistory } from '@reaxuse/core'
+
 const stateHistory = useStateHistory([target, setTarget], {
   dump: JSON.stringify,
   parse: JSON.parse,
@@ -88,7 +92,7 @@ const stateHistory = useStateHistory([target, setTarget], {
 
 ### History Capacity
 
-All history is kept by default (unlimited). Set the maximal amount of history with `capacity`:
+We will keep all the history by default (unlimited) until you explicitly clear them up, you can set the maximal amount of history to be kept by `capacity` options.
 
 ```tsx
 const { history, clear } = useStateHistory([target, setTarget], {
@@ -97,3 +101,52 @@ const { history, clear } = useStateHistory([target, setTarget], {
 
 clear() // explicitly clear all the history
 ```
+
+### History WatchOptionFlush Timing
+
+Multiple state updates in the same tick render once and collapse into a single commit carrying the final value; there is no per-assignment `flush: 'sync'` timing. You can use `commit()` in case you need to create multiple history points in the same "tick"
+
+```tsx
+import { useStateHistory } from '@reaxuse/core'
+import { useState } from 'react'
+
+const [r, setR] = useState(0)
+const { history, commit, setSource } = useStateHistory([r, setR])
+
+setSource(1)
+commit()
+
+setSource(2)
+commit()
+
+console.log(history)
+/* [
+  { snapshot: 2 },
+  { snapshot: 1 },
+  { snapshot: 0 },
+] */
+```
+
+On the other hand, you can use `batch(fn)` to generate a single history point for several operations
+
+```tsx
+import { useStateHistory } from '@reaxuse/core'
+import { useState } from 'react'
+
+const [r, setR] = useState({ names: [], version: 1 })
+const { history, batch, setSource } = useStateHistory([r, setR])
+
+batch(() => {
+  setSource(current => ({ names: [...current.names, 'Lena'], version: current.version + 1 }))
+})
+
+console.log(history)
+/* [
+  { snapshot: { names: [ 'Lena' ], version: 2 },
+  { snapshot: { names: [], version: 1 },
+] */
+```
+
+## Recommended Readings
+
+- [History and Persistence](https://patak.dev/vue/history-and-persistence.html) - by [@patak-dev](https://github.com/patak-dev)
