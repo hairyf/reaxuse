@@ -139,6 +139,7 @@
 | `useElementByPoint`               | packages/core/useElementByPoint               | `packages/core/useElementByPoint/index.tsx`               | ✅ ported                     |
 | `useElementHover`                 | packages/core/useElementHover                 | `packages/core/useElementHover/index.tsx`                 | ✅ ported                     |
 | `useElementOverflow`              | packages/core/useElementOverflow              | `packages/core/useElementOverflow/index.tsx`              | ✅ ported                     |
+| `useElementRemoval`               | —                                             | `packages/core/useElementRemoval/index.tsx`               | 🚧 ported (no upstream match) |
 | `useElementSize`                  | packages/core/useElementSize                  | `packages/core/useElementSize/index.tsx`                  | ✅ ported                     |
 | `useElementVisibility`            | packages/core/useElementVisibility            | `packages/core/useElementVisibility/index.tsx`            | ✅ ported                     |
 | `useEventBus`                     | packages/core/useEventBus                     | `packages/core/useEventBus/index.tsx`                     | ✅ ported                     |
@@ -252,6 +253,7 @@
 | `useStorage`                      | packages/core/useStorage                      | `packages/core/useStorage/index.tsx`                      | ✅ ported                     |
 | `useStorageAsync`                 | packages/core/useStorageAsync                 | `packages/core/useStorageAsync/index.tsx`                 | ✅ ported                     |
 | `useStyleTag`                     | packages/core/useStyleTag                     | `packages/core/useStyleTag/index.tsx`                     | ✅ ported                     |
+| `useSubject`                      | packages/rxjs/useSubject                      | `packages/rxjs/useSubject/index.tsx`                      | ✅ ported                     |
 | `useSubscription`                 | packages/rxjs/useSubscription                 | `packages/rxjs/useSubscription/index.tsx`                 | ✅ ported                     |
 | `useSum`                          | packages/math/useSum                          | `packages/math/useSum/index.tsx`                          | ✅ ported                     |
 | `useSupported`                    | packages/core/useSupported                    | `packages/core/useSupported/index.tsx`                    | ✅ ported                     |

@@ -786,7 +786,7 @@ export const functions: FunctionInfo[] = [
     name: 'useControllableState',
     file: 'packages/shared/useControllableState/index.tsx',
     pkg: 'shared',
-    category: 'Uncategorized',
+    category: 'State',
     lastUpdated: 1788979068000,
   },
   {
@@ -942,6 +942,13 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
     category: 'Elements',
     lastUpdated: 1788970770000,
+  },
+  {
+    name: 'useElementRemoval',
+    file: 'packages/core/useElementRemoval/index.tsx',
+    pkg: 'core',
+    category: 'Sensors',
+    lastUpdated: 1789019081000,
   },
   {
     name: 'useElementSize',
@@ -1735,6 +1742,13 @@ export const functions: FunctionInfo[] = [
     lastUpdated: 1788966564000,
   },
   {
+    name: 'useSubject',
+    file: 'packages/rxjs/useSubject/index.tsx',
+    pkg: 'rxjs',
+    category: '@RxJS',
+    lastUpdated: 1789019077000,
+  },
+  {
     name: 'useSubscription',
     file: 'packages/rxjs/useSubscription/index.tsx',
     pkg: 'rxjs',
@@ -2119,7 +2133,6 @@ export const categoryNames: string[] = [
   '@Math',
   '@RxJS',
   'Lifecycle',
-  'Uncategorized',
 ]
 
 export const coreCategoryNames = categoryNames.filter(c => !c.startsWith('@'))

@@ -1,3 +1,7 @@
+---
+category: State
+---
+
 # useControllableState
 
 A hook for combining controlled and uncontrolled state sources.
