@@ -72,4 +72,20 @@ describe('useClamp', () => {
     await rerender()
     expect(result.current.clamp[0]).toBe(0)
   })
+
+  it('re-exposes the raw seed when bounds loosen (no upstream write-back)', async () => {
+    const { result, rerender, act } = await renderHook(() => {
+      const [max, setMax] = useState(10)
+      return { clamp: useClamp(15, 0, max), setMax }
+    })
+
+    // the out-of-bounds seed (15) is clamped for display
+    expect(result.current.clamp[0]).toBe(10)
+
+    // loosening the bounds re-exposes the raw seed — upstream's writable
+    // computed would have written the clamped value back into its ref instead
+    await act(() => result.current.setMax(100))
+    await rerender()
+    expect(result.current.clamp[0]).toBe(15)
+  })
 })

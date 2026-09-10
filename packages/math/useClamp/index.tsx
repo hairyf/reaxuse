@@ -14,7 +14,12 @@ import { useCallback } from 'react'
  *
  * React divergence: all three parameters are plain `number`, not upstream's
  * `MaybeRefOrGetter<number>`. The caller re-renders with new values (e.g. from
- * `useState`) instead of passing a ref/getter.
+ * `useState`) instead of passing a ref/getter. Upstream's writable computed
+ * also writes the clamped value back into its internal ref on every read, so an
+ * out-of-bounds seed stays clamped even after the bounds loosen; here `value`
+ * is a plain prop that re-seeds internal state when it changes and the raw seed
+ * is re-clamped on every render, so loosening the bounds re-exposes the raw
+ * seed until the next `setValue`.
  *
  * @__NO_SIDE_EFFECTS__
  *
