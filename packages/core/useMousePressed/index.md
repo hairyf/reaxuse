@@ -6,7 +6,7 @@ category: Sensors
 
 Reactive mouse pressing state
 
-## Usage
+## Basic Usage
 
 ```tsx
 import { useMousePressed } from '@reaxuse/core'

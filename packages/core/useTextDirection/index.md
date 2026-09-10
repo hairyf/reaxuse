@@ -16,6 +16,8 @@ const [dir, setDir] = useTextDirection() // ['ltr' | 'rtl' | 'auto', setter]
 setDir('ltr') // writes dir="ltr" back to <html>
 ```
 
+## Options
+
 By default it targets the `<html>` tag. Pass a `selector` to target another element:
 
 ```tsx

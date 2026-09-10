@@ -6,7 +6,7 @@ category: Sensors
 
 Reactive utility to track or set the focus state of a DOM element
 
-## Usage
+## Basic Usage
 
 ```tsx
 import { useFocus } from '@reaxuse/core'

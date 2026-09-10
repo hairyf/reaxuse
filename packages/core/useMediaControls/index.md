@@ -8,6 +8,8 @@ Reactive media controls for both `audio` and `video` elements
 
 ## Usage
 
+### Basic Usage
+
 ```tsx
 import { useMediaControls } from '@reaxuse/core'
 import { useEffect, useRef } from 'react'

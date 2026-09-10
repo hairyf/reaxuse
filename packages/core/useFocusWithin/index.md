@@ -6,7 +6,7 @@ category: Sensors
 
 Reactive utility to track if an element or one of its descendants has focus. It is meant to match the behavior of the `:focus-within` CSS pseudo-class. A common use case would be on a form element to see if any of its inputs currently have focus.
 
-## Usage
+## Basic Usage
 
 ```tsx
 import { useFocusWithin } from '@reaxuse/core'

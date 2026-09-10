@@ -80,7 +80,7 @@ const breakpoints = useBreakpoints(breakpointsTailwind, {
 | `current()`           | Array of all matching breakpoints         |
 | `active()`            | String of the current active breakpoint   |
 
-#### Server Side Rendering
+#### Server Side Rendering and Nuxt
 
 If you are using `useBreakpoints` with SSR enabled, then you need to specify which screen size you would like to render
 on the server and before hydration to avoid a hydration mismatch
