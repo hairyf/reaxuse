@@ -26,8 +26,3 @@ if (error)
 
 return <img src={url} alt="avatar" />
 ```
-
-## Component Usage
-
-Not ported — upstream ships a `UseImage` component (Vue, render-slot based);
-in React the hook is used directly.
