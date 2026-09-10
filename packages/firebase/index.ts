@@ -5,7 +5,7 @@
  * dependency — keep it external to the bundle.
  */
 
-// export * from './useAuth'
+export * from './useAuth'
 // export * from './useFirestore'
 export * from './useRTDB'
 export {}
