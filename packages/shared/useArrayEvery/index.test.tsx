@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { expect, it } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
-import { useArrayEvery } from '../useArrayEvery'
+import { useArrayEvery } from './index'
 
 function EveryDemo() {
   const [list, setList] = useState([0, 2, 4, 6, 8])
