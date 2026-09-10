@@ -12,6 +12,8 @@
   },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
+  "unpkg": "./dist/index.iife.min.js",
+  "jsdelivr": "./dist/index.iife.min.js",
   "types": "./dist/index.d.ts",
   "files": [
     "*/index.tsx",

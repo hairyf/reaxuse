@@ -5,10 +5,10 @@ const base = createTsDownConfig(
   packages.find(pkg => pkg.name === 'integrations')!,
 )
 
-export default {
-  ...base,
+export default base.map(config => ({
+  ...config,
   deps: {
-    ...base.deps,
+    ...config.deps,
     // focus-trap ships an ambient `declare module` d.ts (no top-level named
     // exports); the d.ts bundler cannot correlate its types and emits broken
     // `undefined` references instead. Keep its declarations as an import.
@@ -16,9 +16,9 @@ export default {
     dts: {
       neverBundle: [
         ...externals,
-        ...(base.deps?.dts?.neverBundle || []),
+        ...(config.deps?.dts?.neverBundle || []),
         'focus-trap',
       ],
     },
   },
-}
+}))
