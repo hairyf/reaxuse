@@ -4,7 +4,7 @@ category: Component
 
 # useMounted
 
-Mounted state in ref
+Mounted state in ref.
 
 ## Usage
 
