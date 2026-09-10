@@ -1,22 +1,12 @@
-import { execFileSync } from 'node:child_process'
-import process from 'node:process'
-import { root } from './utils'
+import { execSync } from 'node:child_process'
+import { version } from '../package.json'
 
-/**
- * Publish all reaxuse packages to npm.
- * Used by the `publish:ci` script in the release workflow (CI only).
- */
-export function publish() {
-  const packages = ['shared', 'core', 'integrations', 'math', 'metadata']
-  for (const pkg of packages) {
-    console.log(`[publish] publishing @reaxuse/${pkg}…`)
-    execFileSync('npm', ['publish', '--workspace', `@reaxuse/${pkg}`, '--access', 'public'], {
-      cwd: root,
-      stdio: 'inherit',
-    })
-  }
-  console.log('[publish] done')
-}
+let command = 'pnpm publish -r --access public --no-git-checks'
 
-if (process.argv[1]?.endsWith('publish.ts'))
-  publish()
+if (version.includes('beta'))
+  command += ' --tag beta'
+
+if (version.includes('alpha'))
+  command += ' --tag alpha'
+
+execSync(command, { stdio: 'inherit' })
