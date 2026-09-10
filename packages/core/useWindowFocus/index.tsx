@@ -15,7 +15,9 @@ import { useEffect, useState } from 'react'
  *   (upstream composes `useEventListener`) and are removed on unmount;
  * - the initial `document.hasFocus()` sync happens in the mount effect
  *   instead of during setup, so SSR renders the `false` default without
- *   touching `window.document` (matching upstream's no-window value).
+ *   touching `window.document` (matching upstream's no-window value), and a
+ *   falsy `window` — including a JS-passed `null` — disables tracking
+ *   entirely, mirroring upstream's `if (!window) return false`.
  *
  * @example
  * const focused = useWindowFocus()
@@ -24,7 +26,11 @@ export function useWindowFocus(options: ConfigurableWindow = {}): boolean {
   const [focused, setFocused] = useState(false)
 
   useEffect(() => {
-    const win = options.window ?? (typeof window === 'undefined' ? undefined : window)
+    // `options.window !== undefined` (not `??`): a JS-passed `null` must be
+    // preserved so the falsy check below disables tracking, mirroring
+    // upstream's `if (!window) return false` — falling through to the real
+    // global `window` would attach listeners where upstream attaches none.
+    const win = options.window !== undefined ? options.window : (typeof window === 'undefined' ? undefined : window)
     if (!win)
       return
 
