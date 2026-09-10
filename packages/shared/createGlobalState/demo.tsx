@@ -2,8 +2,9 @@ import { createGlobalState } from '@reaxuse/shared'
 import { useState } from 'react'
 
 // module-level store: every `Counter` below reads and writes the same state,
-// and it survives unmounting any of them
-const useGlobalCount = createGlobalState(() => ({ count: 0 }))
+// and it survives unmounting any of them — the argument is the initial state,
+// a plain value or a function computing it (resolved exactly once)
+const useGlobalCount = createGlobalState({ count: 0 })
 
 function Counter({ label }: { label: string }) {
   const [state, setState] = useGlobalCount()
