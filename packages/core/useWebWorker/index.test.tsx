@@ -195,4 +195,54 @@ describe('useWebWorker', () => {
     })
     await expect.poll(() => result.current.data).toBe('echo:factory')
   })
+
+  it('posts with a Transferable[] transfer list', async () => {
+    const url = createWorkerUrl('self.onmessage = e => self.postMessage(e.data.byteLength)')
+    const { result, act } = await renderHook(() => useWebWorker<number>(url))
+
+    await expect.poll(() => result.current.worker).toBeInstanceOf(Worker)
+
+    const buffer = new ArrayBuffer(16)
+    await act(() => {
+      result.current.post(buffer, [buffer])
+    })
+    await expect.poll(() => result.current.data).toBe(16)
+  })
+
+  it('posts with StructuredSerializeOptions', async () => {
+    const url = createWorkerUrl('self.onmessage = e => self.postMessage(e.data.byteLength)')
+    const { result, act } = await renderHook(() => useWebWorker<number>(url))
+
+    await expect.poll(() => result.current.worker).toBeInstanceOf(Worker)
+
+    const buffer = new ArrayBuffer(16)
+    await act(() => {
+      result.current.post(buffer, { transfer: [buffer] })
+    })
+    await expect.poll(() => result.current.data).toBe(16)
+  })
+
+  it('a remount cycle terminates an adopted Worker instance (StrictMode)', async () => {
+    const url = createWorkerUrl(echoWorkerSource)
+    const external = new Worker(url)
+
+    const first = await renderHook(() => useWebWorker<string>(external))
+    await expect.poll(() => first.result.current.worker).toBe(external)
+
+    // StrictMode's dev mount → cleanup → mount cycle runs the mount cleanup
+    // between effect runs, terminating the adopted instance (documented
+    // divergence — prefer the factory-function form). `unmount` here stands
+    // in for that synthetic cleanup.
+    await first.unmount()
+
+    // the remount re-adopts the same, now-terminated instance
+    const second = await renderHook(() => useWebWorker<string>(external))
+    await expect.poll(() => second.result.current.worker).toBe(external)
+
+    await second.act(() => {
+      second.result.current.post('dead?')
+    })
+    await new Promise(resolve => setTimeout(resolve, 200))
+    expect(second.result.current.data).toBeNull()
+  })
 })

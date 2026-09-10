@@ -101,6 +101,10 @@ export function useWebWorker<Data = any>(
     if (!current)
       return
 
+    // Forwards once (upstream: `postMessage(...args)`). The branch structure
+    // is required: `Worker.postMessage` is overloaded, so TS needs the
+    // `Transferable[]` vs `StructuredSerializeOptions` variants narrowed
+    // separately before the call.
     if (Array.isArray(options))
       current.postMessage(message, options)
     else if (options)
