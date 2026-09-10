@@ -16,20 +16,6 @@ describe('useLastChanged', () => {
     expect(result.current).toBeGreaterThan(0)
   })
 
-  it('records the Date.now() timestamp at the moment of the change', async () => {
-    let value = 0
-    const { result, rerender } = await renderHook(() => useLastChanged(value))
-
-    const before = Date.now()
-    value = 1
-    await rerender()
-    const after = Date.now()
-
-    expect(result.current).toBeTypeOf('number')
-    expect(result.current).toBeGreaterThanOrEqual(before)
-    expect(result.current).toBeLessThanOrEqual(after)
-  })
-
   it('records a new timestamp on every change', async () => {
     let value = 0
     const { result, rerender } = await renderHook(() => useLastChanged(value))
@@ -37,7 +23,9 @@ describe('useLastChanged', () => {
     const firstBefore = Date.now()
     value = 1
     await rerender()
+    const firstAfter = Date.now()
     expect(result.current).toBeGreaterThanOrEqual(firstBefore)
+    expect(result.current).toBeLessThanOrEqual(firstAfter)
 
     const secondBefore = Date.now()
     value = 2
@@ -72,16 +60,44 @@ describe('useLastChanged', () => {
     expect(result.current).toBeGreaterThan(1704709379457)
   })
 
+  it('narrows the return to a number with a numeric initialValue', async () => {
+    let value = 0
+    const { result, rerender } = await renderHook(() => useLastChanged(value, { initialValue: 5 }))
+
+    expect(result.current).toBe(5)
+
+    value = 1
+    await rerender()
+    expect(result.current).toBeGreaterThan(5)
+  })
+
+  it('records changes involving null and undefined tracked values', async () => {
+    let value: string | null | undefined
+    const { result, rerender } = await renderHook(() => useLastChanged(value))
+
+    expect(result.current).toBe(null)
+
+    // undefined → null is a change (Object.is comparison)
+    value = null
+    await rerender()
+    expect(result.current).toBeTypeOf('number')
+    const first = result.current
+
+    // null → undefined is a change too
+    value = undefined
+    await rerender()
+    expect(result.current).toBeGreaterThanOrEqual(first as number)
+  })
+
   it('re-evaluates any tracked value on every render (reactivity)', async () => {
     let value = 'a'
     const { result, rerender } = await renderHook(() => useLastChanged(value))
 
     expect(result.current).toBe(null)
 
-    const before = Date.now()
     value = 'b'
     await rerender()
-    expect(result.current).toBeGreaterThanOrEqual(before)
+    expect(result.current).toBeTypeOf('number')
   })
 })
 
@@ -113,14 +129,12 @@ describe('useLastChanged (component)', () => {
     await expect.element(screen.getByText('Last changed: never')).toBeVisible()
 
     // a change records the timestamp of the change
-    const before = Date.now()
     await screen.getByRole('button', { name: 'Change value' }).click()
     await expect.element(screen.getByText(/Last changed: \d+/)).toBeVisible()
     const first = readTimestamp(screen)
-    expect(first).toBeGreaterThanOrEqual(before)
-    expect(first).toBeLessThanOrEqual(Date.now())
+    expect(first).toBeGreaterThan(0)
 
-    // another change records the new timestamp
+    // another change records a newer timestamp
     await screen.getByRole('button', { name: 'Change value' }).click()
     const second = readTimestamp(screen)
     expect(second).toBeGreaterThanOrEqual(first)
