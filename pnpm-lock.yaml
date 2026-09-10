@@ -278,12 +278,6 @@ importers:
 
   packages/metadata: {}
 
-  packages/router:
-    dependencies:
-      react:
-        specifier: '>=18'
-        version: 19.2.8
-
   packages/rxjs:
     dependencies:
       '@reaxuse/shared':
