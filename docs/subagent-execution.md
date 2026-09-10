@@ -1,0 +1,65 @@
+# 子代理执行与 Worktree
+
+> 编排入口与轮询频率见 [orchestration.md](orchestration.md)。
+> Hook 命名与返回值标准见根目录 [AGENTS.md](../AGENTS.md)。
+
+## 1. 环境准备
+
+- **仅限 Worktree 操作**：路径必须位于 `D:\reaxuse-wt\...`（分支 `fix/<feature-or-hook>`），严禁直接修改主树；`node_modules` 使用 junction 连接。
+- **配置隔离**：生成 git-ignored 的 `vitest.worktree.config.ts` 并配置独立 cacheDir。
+
+## 2. 编码铁律
+
+- **严格按需修改**：严禁修改无关代码；禁止修改 `packages/shared/**`（必要时上报提案）。
+- **禁忌指令**：严禁执行 `npm/pnpm install|ci`、`npm run update`、`git add -A` 或编辑元数据文件。
+- **严禁使用 `git stash`**：由于全局共享 `refs/stash`，并发使用会导致改动穿透。使用 `git diff` / `git show` 或临时副本比对。
+
+## 3. 核心协议（高优先级）
+
+### 3.1 返回值约束协议
+
+- **VueUse 转换类 Tuple 强制家族**：所有 `useState*`（含 `useState*History`）必须返回 `[value, setValue]` 或 `[value, setValue, controls]` / `[history, undo, redo, controls]`。
+- **VueUse 可写白名单**：`useStorage` / `useSessionStorage` / `useLocalStorage` / `useStorageAsync` / `useScrollLock` / `useTitle` / `useUrlSearchParams` / `useTextDirection` 默认返回 `[value, setValue]`。
+- **react-use 直接镜像类**：不受 VueUse tuple 白名单约束，严格与 react-use 原生签名对齐。
+
+### 3.2 引用链协议
+
+- 工具函数与类型唯一实现于 `@reaxuse/shared`，其他包必须统一引用。
+- **例外处理**：当 barrel `export *` 触发 TS2308 同名类型冲突且无法直接导入时，允许本地声明并登记记录。
+- `integrations` 包禁止从 `@reaxuse/core` 导入代码，须使用本地 `MaybeElement` / `resolveElement`。
+- **React 19 规范**：需要可写 ref 容器时使用 `{ current: T }` 类型，禁止使用 `as MutableRefObject<T>`。
+
+### 3.3 useListener 协议
+
+- 凡是返回 listener callback 的 Hook，消费方式统一采用 `useListener(onXxx, cb)`。
+- 注册函数 `onXxx` 必须返回 `{ off: () => void }` 或 `void`。
+
+## 4. 本地验证与提交
+
+```powershell
+# 1. 验证流程
+npx vitest run --config vitest.worktree.config.ts packages/<pkg>/<hook>/index.test.tsx
+npx eslint packages/<pkg>/<hook>/
+npx tsc --noEmit                          # 允许基线 2 个既有 unocss 错误，零新增
+
+# 2. 提交与推送
+git add <改动文件>
+git commit -m "feat(<pkg>): implement <hook>"
+git push -u origin fix/<feature-or-hook>
+
+# 3. 创建 PR
+gh pr create --repo hairyf/reaxuse --base main --head fix/<feature-or-hook> --title "feat(<pkg>): implement <hook>" --body-file <temp.md>
+gh pr checks <PR> --repo hairyf/reaxuse --watch
+```
+
+> **注意**：一个 Hook/功能变更对应一个 PR，被 review 指出问题时需重新指派原子代理在原分支追加提交，严禁主动执行 merge 或 close 操作。
+
+## 5. 环境避坑与铁律
+
+- **主树同步**：操作前同步主树 `git -C D:\reaxuse fetch origin main; git -C D:\reaxuse reset --hard origin/main`，防止 junction 失效引发类型误报。
+- **Worktree 安全清理**：删除 worktree 前必须先执行 `cmd /c rmdir <wt>\node_modules` 移除软链接，防止 `git worktree remove` 误删主树文件。
+- **PowerShell 路径规范**：.NET 文件 API 必须使用绝对路径。
+- **构建与测试限制**：
+  - 修改 Markdown 文档后须先运行 `npx eslint --fix <file>`，避免提交拦截。
+  - 测试文件涉及 rxjs 时，必须使用值导入（`import { Observable } from 'rxjs'`），禁止使用 `import type`。
+  - 不得在 worktree 内执行 `npm install`。依赖新增统一在主树根目录安装：`npm install --save-dev <pkg>`。
