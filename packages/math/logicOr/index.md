@@ -1,6 +1,5 @@
 ---
 category: '@Math'
-alias: or
 related: logicAnd, logicNot
 ---
 
