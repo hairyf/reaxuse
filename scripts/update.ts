@@ -9,9 +9,31 @@ interface MappedFunction {
   name: string
   file: string
   pkg: string
+  /** Docs-page directory (`packages/<pkg>/<page>`), shared by every export of that page. */
+  dir: string
   /** Docs-page category, read from the co-located index.md frontmatter. */
   category: string
   /** Last commit unix-ms touching the hook source file (for `sort=updated`). */
+  lastUpdated?: number
+}
+
+/**
+ * Page-level view of the registry — the reaxuse analogue of VueUse's
+ * `metadata.functions`, which is keyed by function *directory*
+ * (`packages/<package>/<name>/`) rather than by exported symbol. Every
+ * export of a page (`useBreakpoints` + `breakpointsTailwind` + …) collapses
+ * onto a single entry here, which is what the generated agent skill
+ * (`packages/skills/build.ts`) consumes.
+ */
+interface MappedPage {
+  name: string
+  pkg: string
+  /** Docs page, relative to the repo root (`packages/<pkg>/<page>/index.md`). */
+  doc: string
+  category: string
+  description: string
+  /** Not part of the public surface — mirrors VueUse's `listFunctions` `_*` ignore. */
+  internal?: boolean
   lastUpdated?: number
 }
 
@@ -100,17 +122,82 @@ function collectFunctions(): MappedFunction[] {
       if (seen.has(key))
         continue
       seen.add(key)
-      functions.push({ name, file: `packages/${pkg}/${dir}/index.tsx`, pkg, category, lastUpdated })
+      functions.push({ name, file: `packages/${pkg}/${dir}/index.tsx`, pkg, dir, category, lastUpdated })
     }
   }
   return functions.sort((a, b) => a.name.localeCompare(b.name))
 }
 
 /**
+ * Collapse the export-level registry onto docs pages — one entry per
+ * `packages/<pkg>/<page>/index.md`, named after the page directory exactly
+ * like VueUse's directory-driven metadata (`useBreakpoints` covers
+ * `breakpointsTailwind` & co.). Consumed by `packages/skills/build.ts`, which
+ * mirrors VueUse's `packages/skills/build.ts` one function page per skill
+ * reference.
+ */
+function collectPages(functions: MappedFunction[]): MappedPage[] {
+  const byDir = new Map<string, MappedFunction[]>()
+  for (const fn of functions) {
+    const key = `${fn.pkg}/${fn.dir}`
+    const list = byDir.get(key)
+    if (list)
+      list.push(fn)
+    else
+      byDir.set(key, [fn])
+  }
+
+  const pages: MappedPage[] = []
+  for (const entries of byDir.values()) {
+    const { pkg, dir, category, lastUpdated } = entries[0]
+    const md = readFileSync(join(root, 'packages', pkg, dir, 'index.md'), 'utf-8')
+    pages.push({
+      name: dir,
+      pkg,
+      doc: `packages/${pkg}/${dir}/index.md`,
+      category,
+      description: extractDescription(md),
+      // `_`-prefixed directories are shared internals rather than a documented
+      // composable — VueUse's `listFunctions` skips them the same way.
+      internal: dir.startsWith('_') || undefined,
+      lastUpdated: lastUpdated ? Math.max(...entries.map(e => e.lastUpdated || 0)) : undefined,
+    })
+  }
+
+  return pages.sort((a, b) => a.name.localeCompare(b.name))
+}
+
+/**
+ * Intro sentence of a docs page, used as the skill-table description.
+ * Ports VueUse's `readMetadata()` (packages/metadata/scripts/update.ts):
+ * drop the frontmatter and `:::` container blocks, take the first paragraph
+ * after the `#` heading, then lower-case the leading character unless the
+ * description starts with an abbreviation.
+ */
+function extractDescription(md: string): string {
+  const content = md.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '')
+  const matched = (
+    content
+      // normalize newlines
+      .replace(/\r\n/g, '\n')
+      // remove ::: tip blocks
+      .replace(/(:{3,}(?=[^:\n]*\n))[^\n]*\n[\s\S]*?\1 *(?=\n)/g, '')
+      // remove headers
+      .match(/#(?=\s).*\n+(.+?)(?:, |\. |\n|\.\n)/) || []
+  )[1] || ''
+
+  const description = matched.trim()
+  if (!/^[A-Z][A-Z]/.test(description))
+    return description.charAt(0).toLowerCase() + description.slice(1)
+  return description
+}
+
+/**
  * Write `packages/metadata/src/functions.ts` — the structured function
  * registry (name/pkg/file/category/lastUpdated) consumed by the docs
  * markdown transformer, the PWA route list and the theme's FunctionsList
- * (category filter / search / sort). Mirrors VueUse's generated
+ * (category filter / search / sort), plus the page-level `pages` view the
+ * agent-skill generator consumes. Mirrors VueUse's generated
  * `packages/metadata/metadata.ts`.
  */
 async function generateFunctionsTS() {
@@ -131,13 +218,16 @@ async function generateFunctionsTS() {
     }
   })
 
+  const pages = collectPages(functions)
+
   // Category list in VueUse's canonical order: core categories first,
   // `@`-prefixed addon categories last (mirrors `categoryNames` in
   // vueuse/packages/metadata/metadata.ts).
   const categoryNames = [...new Set(functions.map(fn => fn.category))]
     .sort((a, b) => rankCategory(a) - rankCategory(b) || a.localeCompare(b))
 
-  const ts = `/**
+  const ts = `/* eslint-disable style/quotes -- prettier keeps double quotes around descriptions containing an apostrophe */
+/**
  * Function registry — auto-generated by \`npm run update\` (scripts/update.ts).
  * Do not edit by hand. Mirrors VueUse's generated
  * \`packages/metadata/metadata.ts\` (react-adapted).
@@ -145,12 +235,31 @@ async function generateFunctionsTS() {
 export interface FunctionInfo {
   name: string
   pkg: string
+  /** Page directory the export belongs to (\`packages/<pkg>/<dir>\`). */
+  dir: string
   file: string
   category: string
   lastUpdated?: number
 }
 
+/**
+ * Page-level registry: one entry per \`packages/<pkg>/<page>/index.md\`, named
+ * after the page directory like VueUse's directory-driven metadata. Consumed
+ * by \`packages/skills/build.ts\`.
+ */
+export interface FunctionPageInfo {
+  name: string
+  pkg: string
+  doc: string
+  category: string
+  description: string
+  internal?: boolean
+  lastUpdated?: number
+}
+
 export const functions: FunctionInfo[] = ${JSON.stringify(functions, null, 2)}
+
+export const pages: FunctionPageInfo[] = ${JSON.stringify(pages, null, 2)}
 
 export const categoryNames: string[] = ${JSON.stringify(categoryNames, null, 2)}
 
@@ -158,8 +267,8 @@ export const coreCategoryNames = categoryNames.filter(c => !c.startsWith('@'))
 
 export const addonCategoryNames = categoryNames.filter(c => c.startsWith('@'))
 `
-  writeFileSync(join(root, 'packages/metadata/src/functions.ts'), await format(ts, { parser: 'typescript', singleQuote: true, semi: false, trailingComma: 'all', printWidth: 120 }))
-  console.log(`[update] wrote packages/metadata/src/functions.ts (${functions.length} functions, ${categoryNames.length} categories)`)
+  writeFileSync(join(root, 'packages/metadata/src/functions.ts'), await format(ts, { parser: 'typescript', singleQuote: true, semi: false, trailingComma: 'all', printWidth: 120, arrowParens: 'avoid' }))
+  console.log(`[update] wrote packages/metadata/src/functions.ts (${functions.length} functions, ${pages.length} pages, ${categoryNames.length} categories)`)
 }
 
 // Category order mirrors VueUse's `packages/metadata/metadata.ts`

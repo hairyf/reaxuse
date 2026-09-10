@@ -228,6 +228,12 @@ export default withPwa(defineConfig({
   title: 'ReaxUse',
   description: 'Reactive utilities for React — an experimental 1:1 AI-mapped port of VueUse',
   lastUpdated: true,
+  // `packages/skills` is build tooling for the generated agent skill, not a
+  // docs package: its README/templates must not become docs pages, and the
+  // git-ignored `packages/skills/skills` output present in a dev tree would
+  // otherwise add ~250 reference pages (precached by the PWA, and their
+  // relative links would fail the dead-link check).
+  srcExclude: ['skills/**'],
   head: [
     ['link', { rel: 'icon', href: '/reaxuse.svg', type: 'image/svg+xml' }],
     ['meta', { property: 'og:description', content: 'Reactive utilities for React — an experimental 1:1 AI-mapped port of VueUse' }],

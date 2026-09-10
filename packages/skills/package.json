@@ -1,0 +1,38 @@
+{
+  "name": "@reaxuse/skills",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "Agent Skills for reaxuse",
+  "license": "MIT",
+  "homepage": "https://github.com/hairyf/reaxuse#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hairyf/reaxuse.git",
+    "directory": "packages/skills"
+  },
+  "bugs": {
+    "url": "https://github.com/hairyf/reaxuse/issues"
+  },
+  "keywords": [
+    "react",
+    "react-hooks",
+    "reaxuse",
+    "utils",
+    "skills"
+  ],
+  "files": [
+    "skills"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "update": "tsx build.ts"
+  },
+  "dependencies": {
+    "@reaxuse/metadata": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.13"
+  }
+}
