@@ -6,8 +6,8 @@ import { useWatch } from '../useWatch'
 
 export interface UseWatchDebouncedOptions extends DebounceFilterOptions {
   /**
-   * Debounce delay in milliseconds. Accepts a plain number, a ref-like
-   * `{ current }` or a getter — re-read on every source change.
+   * Debounce delay in milliseconds. Accepts a plain number or a ref-like
+   * `{ current }` — re-read on every source change.
    *
    * @default 0
    */
@@ -41,8 +41,9 @@ export interface UseWatchDebouncedOptions extends DebounceFilterOptions {
  *   `useDebounceFn`).
  * - The source is a plain value (or array of values) tracked across renders —
  *   deep-reactive object sources and `deep` / `flush` watch options don't apply.
- * - `rejectOnCancel` (inherited from `DebounceFilterOptions`) has no observable
- *   effect — watch callbacks return nothing, so there is no promise to reject.
+ * - `rejectOnCancel` (inherited from `DebounceFilterOptions`) is forwarded to
+ *   `useDebounceFn` but has no observable effect — watch callbacks return
+ *   nothing, so there is no promise to reject.
  *
  * @example
  * ```ts
@@ -53,7 +54,7 @@ export interface UseWatchDebouncedOptions extends DebounceFilterOptions {
 export function useWatchDebounced<T extends any[]>(source: readonly [...T], callback: UseWatchCallback<[...T]>, options?: UseWatchDebouncedOptions): void
 export function useWatchDebounced<T>(source: T, callback: UseWatchCallback<T>, options?: UseWatchDebouncedOptions): void
 export function useWatchDebounced(source: any, callback: UseWatchCallback, options: UseWatchDebouncedOptions = {}) {
-  const { debounce = 0, maxWait } = options
+  const { debounce = 0, maxWait, rejectOnCancel } = options
 
   // stable across renders — the latest `callback` is re-mirrored into
   // `useDebounceFn`'s refs on every render, and `debounce` / `maxWait` are
@@ -61,7 +62,7 @@ export function useWatchDebounced(source: any, callback: UseWatchCallback, optio
   const debounced = useDebounceFn(
     (value: any, oldValue: any) => callback(value, oldValue),
     debounce,
-    { maxWait },
+    { maxWait, rejectOnCancel },
   )
 
   useWatch(source, debounced, { immediate: options.immediate })

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 
 export interface UseWatchCallback<T = any> {
-  (value: T, oldValue: T): void
+  (value: T, oldValue: T | undefined): void
 }
 
 export interface UseWatchOptions {
@@ -13,7 +13,7 @@ export interface UseWatchOptions {
 }
 
 /**
- * React port of VueUse's `watch` (via hairylib `useWatch`).
+ * React port of VueUse's `watch`.
  *
  * Map from @vueuse/shared `watch`
  * Mapping: Vue's reactive dependency tracking becomes a `useEffect` whose
@@ -40,14 +40,10 @@ export function useWatch(source: any, callback: UseWatchCallback, options: UseWa
 
   useEffect(() => {
     const oldValue = oldValueRef.current
-    if (firstRender.current) {
-      firstRender.current = false
-      if (options.immediate)
-        callback(source, oldValue)
-    }
-    else {
+    const first = firstRender.current
+    firstRender.current = false
+    if (!first || options.immediate)
       callback(source, oldValue)
-    }
     oldValueRef.current = source
   }, deps)
 }

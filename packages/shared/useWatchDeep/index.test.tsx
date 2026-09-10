@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
-import { useWatchDeep } from '../useWatchDeep'
+import { deepClone, deepEqual, useWatchDeep } from '../useWatchDeep'
 
 interface NestedValue {
   foo: { bar: { deep: number } }
@@ -135,4 +135,96 @@ it('useWatchDeep supports array sources and only fires when an element deeply ch
   // a deep change inside an element fires with (value, oldValue)
   await screen.getByRole('button', { name: 'update-item' }).click()
   expect(calls).toEqual([{ value: [{ id: 2 }], oldValue: [{ id: 1 }] }])
+})
+
+describe('deepEqual', () => {
+  it('compares primitives with Object.is and null/type guards', () => {
+    expect(deepEqual(1, 1)).toBe(true)
+    expect(deepEqual(Number.NaN, Number.NaN)).toBe(true)
+    expect(deepEqual(1, '1')).toBe(false)
+    expect(deepEqual(null, undefined)).toBe(false)
+    expect(deepEqual({}, null)).toBe(false)
+  })
+
+  it('compares Dates and RegExps by content', () => {
+    expect(deepEqual(new Date(1700000000000), new Date(1700000000000))).toBe(true)
+    expect(deepEqual(new Date(1), new Date(2))).toBe(false)
+    expect(deepEqual(/ab/gi, /ab/gi)).toBe(true)
+    expect(deepEqual(/ab/gi, /ab/g)).toBe(false)
+    expect(deepEqual(/ab/, /ba/)).toBe(false)
+  })
+
+  it('compares arrays element-wise (deeply)', () => {
+    expect(deepEqual([{ a: 1 }], [{ a: 1 }])).toBe(true)
+    expect(deepEqual([{ a: 1 }], [{ a: 2 }])).toBe(false)
+    expect(deepEqual([1, 2], [1, 2, 3])).toBe(false)
+  })
+
+  it('compares Map values deeply and keys by reference', () => {
+    const key = { id: 1 }
+    expect(deepEqual(new Map([[key, { a: 1 }]]), new Map([[key, { a: 1 }]]))).toBe(true)
+    expect(deepEqual(new Map([[key, { a: 1 }]]), new Map([[key, { a: 2 }]]))).toBe(false)
+    // a different-but-deep-equal key is NOT matched (keys are reference-compared)
+    expect(deepEqual(new Map([[{ id: 1 }, 'x']]), new Map([[{ id: 1 }, 'x']]))).toBe(false)
+    expect(deepEqual(new Map([[key, 1]]), new Map())).toBe(false)
+  })
+
+  it('compares Set items deeply and unordered', () => {
+    expect(deepEqual(new Set([1, 2]), new Set([2, 1]))).toBe(true)
+    // previously false — Set items were reference-compared while deepClone
+    // clones them; now paired via deep item matching
+    expect(deepEqual(new Set([{ a: 1 }]), new Set([{ a: 1 }]))).toBe(true)
+    expect(deepEqual(new Set([{ a: 1 }]), new Set([{ a: 2 }]))).toBe(false)
+    expect(deepEqual(new Set([1]), new Set([1, 2]))).toBe(false)
+  })
+
+  it('compares class instances by constructor and keys', () => {
+    class Point {
+      constructor(public x: number) {}
+    }
+    expect(deepEqual(new Point(1), new Point(1))).toBe(true)
+    expect(deepEqual(new Point(1), new Point(2))).toBe(false)
+    expect(deepEqual(new Point(1), { x: 1 })).toBe(false)
+  })
+
+  it('compares functions by reference', () => {
+    const fn = () => {}
+    expect(deepEqual(fn, fn)).toBe(true)
+    expect(deepEqual(fn, () => {})).toBe(false)
+  })
+})
+
+describe('deepClone', () => {
+  it('clones structurally and keeps deepEqual round-trips', () => {
+    class Point {
+      constructor(public x: number) {}
+    }
+    const key = { id: 1 }
+    const original = {
+      date: new Date(1700000000000),
+      regexp: /ab/gi,
+      array: [{ a: 1 }],
+      map: new Map([[key, { a: 1 }]]),
+      set: new Set([{ a: 1 }, 2]),
+      point: new Point(3),
+      fn: () => {},
+    }
+    const cloned = deepClone(original)
+
+    expect(cloned).not.toBe(original)
+    expect(cloned.date).not.toBe(original.date)
+    expect(cloned.set).not.toBe(original.set)
+    expect(cloned.set.has(original.array[0])).toBe(false)
+    // class instances clone back into their class (prototype preserved)
+    expect(cloned.point).toBeInstanceOf(Point)
+    expect(deepEqual(cloned, original)).toBe(true)
+  })
+
+  it('passes primitives and functions through', () => {
+    const fn = () => {}
+    expect(deepClone(42)).toBe(42)
+    expect(deepClone('x')).toBe('x')
+    expect(deepClone(null)).toBe(null)
+    expect(deepClone(fn)).toBe(fn)
+  })
 })

@@ -32,6 +32,8 @@ export interface UseWatchArrayOptions<Immediate extends Readonly<boolean> = fals
  *   (`setList([...list, item])`) to trigger the watch.
  * - The upstream `onCleanup` callback parameter is not ported — `useWatch` has no
  *   watch-cleanup equivalent, use `useEffect` cleanup in the component instead.
+ * - The return value is `void` — upstream returns a stop `WatchHandle`; watching
+ *   ends when the component unmounts.
  *
  * @example
  * ```ts
@@ -47,7 +49,7 @@ export function useWatchArray<T, Immediate extends Readonly<boolean> = false>(
 ): void {
   useWatch([source], (watched, watchedOld) => {
     const newList = watched[0]
-    const prevList: T[] = watchedOld?.[0] ?? []
+    const prevList: T[] = [...(watchedOld?.[0] ?? [])]
     const oldListRemains = Array.from({ length: prevList.length })
     const added: T[] = []
     for (const obj of newList) {

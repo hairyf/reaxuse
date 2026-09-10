@@ -9,18 +9,25 @@ Bind a callback to a listener registration function returned by a reaxuse hook, 
 ## Usage
 
 ```tsx
-import { useFileDialog } from '@reaxuse/core'
-import { useListener } from '@reaxuse/shared'
+import { createEventHook, useListener } from '@reaxuse/shared'
 
-const { files, open, onChange, onCancel } = useFileDialog({ accept: 'image/*' })
+const resultEvent = createEventHook<Response>()
 
-useListener(onChange, (files) => {
-  console.log('selected:', files)
+useListener(resultEvent.on, (response) => {
+  console.log(response)
 })
 
-useListener(onCancel, () => {
-  console.log('cancelled')
-})
+// elsewhere — deliver an event:
+resultEvent.trigger(response)
 ```
 
-The callback is registered on mount and automatically unregistered on unmount, so listeners never leak and callbacks never fire after the component is gone.
+`createEventHook`'s `on` returns an `{ off }` object, so when the component
+unmounts the listener is automatically unregistered — listeners never leak
+and callbacks never fire after the component is gone. (An `on` that returns
+nothing provides no cleanup, so that guarantee cannot be made.)
+
+The callback is kept in a ref: changing `cb` across renders does not
+re-register the listener — the latest callback is used by the
+already-registered listener. Only when `on` itself changes (a new hook
+instance) does the effect re-run, unregistering the old listener and
+registering the new one.

@@ -39,6 +39,21 @@ describe('useListener', () => {
     expect(calls).toEqual(['hello'])
   })
 
+  it('forwards multiple callback arguments to the registered listener', async () => {
+    type MultiCb = (a: number, b: string) => void
+    const hook = createEventHook<MultiCb>()
+    const calls: Array<[number, string]> = []
+
+    await renderHook(() => useListener(hook.on, (a, b) => {
+      calls.push([a, b])
+    }))
+
+    await expect.poll(() => hook.size()).toBe(1)
+    hook.trigger(1, 'two')
+    hook.trigger(3, 'four')
+    expect(calls).toEqual([[1, 'two'], [3, 'four']])
+  })
+
   it('unregisters the callback on unmount', async () => {
     const hook = createEventHook<Cb>()
     const calls: string[] = []

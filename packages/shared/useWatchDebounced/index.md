@@ -23,10 +23,11 @@ useWatchDebounced(
 
 ### Options
 
-| Option     | Type                                   | Default | Description                                |
-| ---------- | -------------------------------------- | ------- | ------------------------------------------ |
-| `debounce` | `RefOrValue<number> \| (() => number)` | `0`     | Debounce delay in ms (can be reactive)     |
-| `maxWait`  | `RefOrValue<number> \| (() => number)` | —       | Maximum wait time before forced invocation |
+| Option      | Type                 | Default | Description                                                              |
+| ----------- | -------------------- | ------- | ------------------------------------------------------------------------ |
+| `debounce`  | `RefOrValue<number>` | `0`     | Debounce delay in ms (can be reactive)                                   |
+| `maxWait`   | `RefOrValue<number>` | —       | Maximum wait time before forced invocation                               |
+| `immediate` | `boolean`            | `false` | Fire the callback once on mount with the current value (still debounced) |
 
 Fire the callback once on mount with the current value (still debounced):
 
