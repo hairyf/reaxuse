@@ -440,6 +440,13 @@ export const functions: FunctionInfo[] = [
     lastUpdated: 1788942682000,
   },
   {
+    name: 'SSRWidthProvider',
+    file: 'packages/core/useSSRWidth/index.tsx',
+    pkg: 'core',
+    category: 'Browser',
+    lastUpdated: 1789017277000,
+  },
+  {
     name: 'syncState',
     file: 'packages/shared/syncState/index.tsx',
     pkg: 'shared',
@@ -641,6 +648,13 @@ export const functions: FunctionInfo[] = [
     pkg: 'integrations',
     category: '@Integrations',
     lastUpdated: 1788994827000,
+  },
+  {
+    name: 'useAuth',
+    file: 'packages/firebase/useAuth/index.tsx',
+    pkg: 'firebase',
+    category: '@Firebase',
+    lastUpdated: 1789017154000,
   },
   {
     name: 'useAverage',
@@ -1063,6 +1077,13 @@ export const functions: FunctionInfo[] = [
     lastUpdated: 1788942682000,
   },
   {
+    name: 'useHash',
+    file: 'packages/core/useHash/index.tsx',
+    pkg: 'core',
+    category: 'Browser',
+    lastUpdated: 1789017891000,
+  },
+  {
     name: 'useIDBKeyval',
     file: 'packages/integrations/useIDBKeyval/index.tsx',
     pkg: 'integrations',
@@ -1343,6 +1364,13 @@ export const functions: FunctionInfo[] = [
     lastUpdated: 1788958794000,
   },
   {
+    name: 'useObservable',
+    file: 'packages/rxjs/useObservable/index.tsx',
+    pkg: 'rxjs',
+    category: '@RxJS',
+    lastUpdated: 1789016958000,
+  },
+  {
     name: 'useOffsetPagination',
     file: 'packages/core/useOffsetPagination/index.tsx',
     pkg: 'core',
@@ -1595,6 +1623,13 @@ export const functions: FunctionInfo[] = [
     lastUpdated: 1788964849000,
   },
   {
+    name: 'useSSRWidth',
+    file: 'packages/core/useSSRWidth/index.tsx',
+    pkg: 'core',
+    category: 'Browser',
+    lastUpdated: 1789017277000,
+  },
+  {
     name: 'useStartTyping',
     file: 'packages/core/useStartTyping/index.tsx',
     pkg: 'core',
@@ -1698,6 +1733,13 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
     category: 'Browser',
     lastUpdated: 1788966564000,
+  },
+  {
+    name: 'useSubscription',
+    file: 'packages/rxjs/useSubscription/index.tsx',
+    pkg: 'rxjs',
+    category: '@RxJS',
+    lastUpdated: 1789017877000,
   },
   {
     name: 'useSum',

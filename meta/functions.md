@@ -66,6 +66,7 @@
 | `removeNode`                      | —                                             | `packages/integrations/useSortable/index.tsx`             | 🚧 ported (no upstream match) |
 | `resolveIpcRenderer`              | —                                             | `packages/electron/_resolve/index.tsx`                    | 🚧 ported (no upstream match) |
 | `resolveWebFrame`                 | —                                             | `packages/electron/_resolve/index.tsx`                    | 🚧 ported (no upstream match) |
+| `SSRWidthProvider`                | —                                             | `packages/core/useSSRWidth/index.tsx`                     | 🚧 ported (no upstream match) |
 | `syncState`                       | —                                             | `packages/shared/syncState/index.tsx`                     | 🚧 ported (no upstream match) |
 | `syncStates`                      | —                                             | `packages/shared/syncStates/index.tsx`                    | 🚧 ported (no upstream match) |
 | `throttleFilter`                  | —                                             | `packages/shared/useWatchWithFilter/index.tsx`            | 🚧 ported (no upstream match) |
@@ -96,6 +97,7 @@
 | `useAsyncQueue`                   | packages/core/useAsyncQueue                   | `packages/core/useAsyncQueue/index.tsx`                   | ✅ ported                     |
 | `useAsyncState`                   | packages/core/useAsyncState                   | `packages/core/useAsyncState/index.tsx`                   | ✅ ported                     |
 | `useAsyncValidator`               | packages/integrations/useAsyncValidator       | `packages/integrations/useAsyncValidator/index.tsx`       | ✅ ported                     |
+| `useAuth`                         | packages/firebase/useAuth                     | `packages/firebase/useAuth/index.tsx`                     | ✅ ported                     |
 | `useAverage`                      | packages/math/useAverage                      | `packages/math/useAverage/index.tsx`                      | ✅ ported                     |
 | `useAxios`                        | packages/integrations/useAxios                | `packages/integrations/useAxios/index.tsx`                | ✅ ported                     |
 | `useBase64`                       | packages/core/useBase64                       | `packages/core/useBase64/index.tsx`                       | ✅ ported                     |
@@ -156,6 +158,7 @@
 | `useFuse`                         | packages/integrations/useFuse                 | `packages/integrations/useFuse/index.tsx`                 | ✅ ported                     |
 | `useGamepad`                      | packages/core/useGamepad                      | `packages/core/useGamepad/index.tsx`                      | ✅ ported                     |
 | `useGeolocation`                  | packages/core/useGeolocation                  | `packages/core/useGeolocation/index.tsx`                  | ✅ ported                     |
+| `useHash`                         | —                                             | `packages/core/useHash/index.tsx`                         | 🚧 ported (no upstream match) |
 | `useIDBKeyval`                    | packages/integrations/useIDBKeyval            | `packages/integrations/useIDBKeyval/index.tsx`            | ✅ ported                     |
 | `useIdle`                         | packages/core/useIdle                         | `packages/core/useIdle/index.tsx`                         | ✅ ported                     |
 | `useImage`                        | packages/core/useImage                        | `packages/core/useImage/index.tsx`                        | ✅ ported                     |
@@ -196,6 +199,7 @@
 | `useNow`                          | packages/core/useNow                          | `packages/core/useNow/index.tsx`                          | ✅ ported                     |
 | `useNProgress`                    | packages/integrations/useNProgress            | `packages/integrations/useNProgress/index.tsx`            | ✅ ported                     |
 | `useObjectUrl`                    | packages/core/useObjectUrl                    | `packages/core/useObjectUrl/index.tsx`                    | ✅ ported                     |
+| `useObservable`                   | packages/rxjs/useObservable                   | `packages/rxjs/useObservable/index.tsx`                   | ✅ ported                     |
 | `useOffsetPagination`             | packages/core/useOffsetPagination             | `packages/core/useOffsetPagination/index.tsx`             | ✅ ported                     |
 | `useOnline`                       | packages/core/useOnline                       | `packages/core/useOnline/index.tsx`                       | ✅ ported                     |
 | `usePageLeave`                    | packages/core/usePageLeave                    | `packages/core/usePageLeave/index.tsx`                    | ✅ ported                     |
@@ -232,6 +236,7 @@
 | `useSorted`                       | packages/core/useSorted                       | `packages/core/useSorted/index.tsx`                       | ✅ ported                     |
 | `useSpeechRecognition`            | packages/core/useSpeechRecognition            | `packages/core/useSpeechRecognition/index.tsx`            | ✅ ported                     |
 | `useSpeechSynthesis`              | packages/core/useSpeechSynthesis              | `packages/core/useSpeechSynthesis/index.tsx`              | ✅ ported                     |
+| `useSSRWidth`                     | packages/core/useSSRWidth                     | `packages/core/useSSRWidth/index.tsx`                     | ✅ ported                     |
 | `useStartTyping`                  | —                                             | `packages/core/useStartTyping/index.tsx`                  | 🚧 ported (no upstream match) |
 | `useStateAutoReset`               | —                                             | `packages/shared/useStateAutoReset/index.tsx`             | 🚧 ported (no upstream match) |
 | `useStateDebounced`               | —                                             | `packages/shared/useStateDebounced/index.tsx`             | 🚧 ported (no upstream match) |
@@ -247,6 +252,7 @@
 | `useStorage`                      | packages/core/useStorage                      | `packages/core/useStorage/index.tsx`                      | ✅ ported                     |
 | `useStorageAsync`                 | packages/core/useStorageAsync                 | `packages/core/useStorageAsync/index.tsx`                 | ✅ ported                     |
 | `useStyleTag`                     | packages/core/useStyleTag                     | `packages/core/useStyleTag/index.tsx`                     | ✅ ported                     |
+| `useSubscription`                 | packages/rxjs/useSubscription                 | `packages/rxjs/useSubscription/index.tsx`                 | ✅ ported                     |
 | `useSum`                          | packages/math/useSum                          | `packages/math/useSum/index.tsx`                          | ✅ ported                     |
 | `useSupported`                    | packages/core/useSupported                    | `packages/core/useSupported/index.tsx`                    | ✅ ported                     |
 | `useSwipe`                        | packages/core/useSwipe                        | `packages/core/useSwipe/index.tsx`                        | ✅ ported                     |
