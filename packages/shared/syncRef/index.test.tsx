@@ -1,7 +1,13 @@
+import type { SyncRefOptions, SyncRefTransform } from '../syncRef'
 import { useState } from 'react'
 import { describe, expect, it } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'
 import { syncRef } from '../syncRef'
+
+// type-level helpers (upstream imports these from @type-challenges/utils,
+// which reaxuse does not depend on)
+type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2) ? true : false
+type Expect<T extends true> = T
 
 describe('syncRef', () => {
   it('should be defined', () => {
@@ -153,6 +159,40 @@ describe('syncRef', () => {
 
     expect(a.current).toBe('baz')
     expect(b.current).toBe('baz')
+  })
+
+  it('should type check the transform contract', () => {
+    /* eslint-disable ts/no-unused-expressions */
+    // upstream makes `transform` required when L and R are unrelated; the
+    // reaxuse port intentionally keeps it unconditionally `Partial` (a missing
+    // convertor falls back to identity) — assert that looser contract here
+    type L = number
+    type R = string
+
+    'test' as any as Expect<Equal<SyncRefTransform<L, R>, {
+      ltr: (left: L) => R
+      rtl: (right: R) => L
+    }>>
+
+    'test' as any as Expect<Equal<SyncRefOptions<L, R>['transform'], Partial<SyncRefTransform<L, R>> | undefined>>
+
+    // a fully-specified transform is assignable
+    const full: SyncRefOptions<L, R> = {
+      transform: {
+        ltr: left => String(left * 2),
+        rtl: right => right.length,
+      },
+    }
+    full satisfies SyncRefOptions<L, R>
+
+    // a Partial transform (one convertor missing) is assignable too
+    const partial: SyncRefOptions<L, R> = {
+      transform: {
+        rtl: right => right.length,
+      },
+    }
+    partial satisfies SyncRefOptions<L, R>
+    /* eslint-enable ts/no-unused-expressions */
   })
 })
 
