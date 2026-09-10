@@ -21,5 +21,6 @@ useEffect(() => {
   return () => window.removeEventListener('resize', throttledFn)
 }, [throttledFn])
 // note: returned fn is referentially stable so effects don't re-subscribe;
-// ms accepts a number, a React ref
+// ms accepts a number or a ref-like `{ current: number }` object, re-read on
+// every call
 ```
