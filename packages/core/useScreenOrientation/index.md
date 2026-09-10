@@ -20,7 +20,7 @@ const {
 } = useScreenOrientation()
 ```
 
-To lock the orientation, pass an [OrientationLockType](https://developer.mozilla.org/en-US/docs/Web/API/ScreenOrientation/type) to the `lockOrientation` function:
+To lock the orientation, you can pass an [OrientationLockType](https://developer.mozilla.org/en-US/docs/Web/API/ScreenOrientation/type) to the lockOrientation function:
 
 ```tsx
 lockOrientation('portrait-primary')
