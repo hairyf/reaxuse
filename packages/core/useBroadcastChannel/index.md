@@ -59,22 +59,3 @@ global `window`, so a channel can be probed against an iframe's or a test enviro
 | isClosed       | `boolean`                       | Whether the channel has been closed — `true` after `close()` or a native `close` event.                       |
 | onMessage      | `(fn) => { off }`               | Register a callback fired on every `message` event (`useListener` protocol).                                  |
 | onMessageError | `(fn) => { off }`               | Register a callback fired on every `messageerror` event (`useListener` protocol).                             |
-
-### onMessage / onMessageError
-
-The returned `onMessage` / `onMessageError` are stable registration functions following the
-`useListener` protocol — each accepts a callback and returns an `off` handle, so listeners never leak
-and never fire after the component unmounts:
-
-```tsx
-import { useBroadcastChannel } from '@reaxuse/core'
-import { useListener } from '@reaxuse/shared'
-
-const { data, onMessage } = useBroadcastChannel<string, string>({ name: 'my-channel' })
-
-useListener(onMessage, (event) => {
-  console.log('Message:', event.data)
-})
-```
-
-`data` is updated by the same native `message` listener, so you can simply render it directly.
