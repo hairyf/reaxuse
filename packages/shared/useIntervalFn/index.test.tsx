@@ -279,6 +279,33 @@ it('useIntervalFn does not start when immediate is false', async () => {
   await unmount()
 })
 
+it('useIntervalFn reads immediate once at mount', async () => {
+  const callback = vi.fn()
+  const { result, rerender, act, unmount } = await renderHook(
+    ({ immediate }: { immediate: boolean } = { immediate: true }) =>
+      useIntervalFn(callback, 50, { immediate }),
+    { initialProps: { immediate: true } },
+  )
+
+  expect(result.current.isActive).toBeTruthy()
+  await act(() => {
+    vi.advanceTimersByTime(60)
+  })
+  expect(callback).toHaveBeenCalledTimes(1)
+
+  // upstream reads `immediate` once at setup — a later `immediate: false`
+  // render must not stop the running timer
+  callback.mockClear()
+  await rerender({ immediate: false })
+  expect(result.current.isActive).toBeTruthy()
+  await act(() => {
+    vi.advanceTimersByTime(60)
+  })
+  expect(callback).toHaveBeenCalledTimes(1)
+
+  await unmount()
+})
+
 it('useIntervalFn fires the newest callback on every tick', async () => {
   const first = vi.fn()
   const newer = vi.fn()
