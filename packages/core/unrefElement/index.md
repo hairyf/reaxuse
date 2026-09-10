@@ -19,12 +19,6 @@ useEffect(() => {
 })
 ```
 
-A plain element works the same way:
-
-```tsx
-console.log(unrefElement(div.current)) // the <div> element
-```
-
 ## React divergences
 
 - **Callback refs are not supported.** VueUse accepts getters (`MaybeRefOrGetter`), but React's

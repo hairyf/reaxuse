@@ -26,7 +26,7 @@ setRemaining(10) // jump to 10 on the next render
 ```
 
 You can use a `ref` to change the initial countdown.
-`start()` and `reset()` also accept a new countdown value for the next countdown.
+`start()` and `resume()` also accept a new countdown value for the next countdown.
 
 ```tsx
 import { useCountdown } from '@reaxuse/core'
