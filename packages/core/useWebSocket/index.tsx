@@ -2,7 +2,7 @@ import { toValue } from '@reaxuse/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export type WebSocketStatus = 'OPEN' | 'CONNECTING' | 'CLOSED'
-export type WebSocketHeartbeatMessage = string | ArrayBuffer | Blob | (() => string | ArrayBuffer | Blob | Promise<string | ArrayBuffer | Blob>)
+export type WebSocketHeartbeatMessage = string | ArrayBuffer | Blob | (() => string | ArrayBuffer | Blob)
 
 const DEFAULT_PING_MESSAGE = 'ping'
 const DEFAULT_HEARTBEAT_INTERVAL = 1000
@@ -154,8 +154,8 @@ function resolveNestedOptions<T>(options: T | true): T {
 /**
  * Fallback heartbeat scheduler used when the `heartbeat.scheduler` option is
  * not provided — mirrors upstream's default `useIntervalFn(cb, 1000,
- * { immediate: false })`: the interval starts immediately and `pause`/`resume`
- * stop/restart it.
+ * { immediate: false })`: the interval stays inert until `resume()` is called
+ * (on `ws.onopen`), and `pause`/`resume` stop/restart it.
  */
 function defaultScheduler(fn: () => void): { pause: () => void, resume: () => void } {
   let timer: ReturnType<typeof setInterval> | undefined
@@ -173,7 +173,6 @@ function defaultScheduler(fn: () => void): { pause: () => void, resume: () => vo
     }
   }
 
-  start()
   return { pause: stop, resume: start }
 }
 
@@ -204,13 +203,16 @@ function defaultScheduler(fn: () => void): { pause: () => void, resume: () => vo
  *   (upstream: `RefOrValue`); when `autoConnect` is on, a URL change between
  *   renders reconnects, mirroring upstream's `watch(urlRef, open)` — the
  *   initial connection is still only opened once by `immediate`;
- * - `heartbeat.message` / `responseMessage` accept a plain value or a message
- *   factory function (upstream parity)
- *   resolved on every tick (upstream: `RefOrValue`); the default
- *   scheduler is a local `setInterval`-based `{ pause, resume }` pair instead
- *   of upstream's `useIntervalFn` default (which is a hook and cannot be
- *   created lazily), and a custom `scheduler` option returns the same
- *   `{ pause, resume }` controls.
+ * - `heartbeat.message` / `responseMessage` accept a plain value, a ref-like
+ *   `{ current }` object or a message factory function, resolved on every
+ *   tick via `toValue` (upstream: `RefOrValue`); the default scheduler is a
+ *   local `setInterval`-based `{ pause, resume }` pair instead of upstream's
+ *   `useIntervalFn` default (which is a hook and cannot be created lazily),
+ *   and — like upstream's `{ immediate: false }` default — it stays inert
+ *   until the socket opens (`ws.onopen` calls `resume`), so no pings (or the
+ *   pong-timeout force-close) fire while the socket is still `CONNECTING`;
+ *   a custom `scheduler` option returns the same `{ pause, resume }`
+ *   controls.
  *
  * @example
  * const { status, data, send, open, close, ws } = useWebSocket('ws://websocketurl')
@@ -359,7 +361,7 @@ export function useWebSocket<Data = any>(
           message = DEFAULT_PING_MESSAGE,
           responseMessage = message,
         } = resolveNestedOptions(optionsRef.current.heartbeat)
-        if (e.data === (typeof responseMessage === 'function' ? responseMessage() : responseMessage))
+        if (e.data === toValue(responseMessage))
           return
       }
 
@@ -391,7 +393,7 @@ export function useWebSocket<Data = any>(
     } = resolveNestedOptions(optionsRef.current.heartbeat)
 
     const { pause, resume } = (scheduler ?? defaultScheduler)(() => {
-      send(typeof message === 'function' ? (message() as string | ArrayBuffer | Blob) : message, false)
+      send(toValue(message), false)
       if (pongTimeoutWaitRef.current != null)
         return
       pongTimeoutWaitRef.current = setTimeout(() => {

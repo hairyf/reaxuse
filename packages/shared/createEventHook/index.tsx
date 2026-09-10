@@ -8,10 +8,10 @@
  *   dropped. Clean up manually with the `{ off }` object returned by `on`
  *   (e.g. in an effect cleanup), or bind the hook with `useListener(on, cb)`
  *   for automatic cleanup on unmount.
- * - `trigger` isolates listener errors: a synchronous throw inside one
- *   listener is reported through `console.error` and cannot prevent the
- *   remaining listeners from being invoked. Rejections from async listeners
- *   still surface on the promise returned by `trigger`, matching upstream.
+ * - `trigger` matches upstream error semantics: a synchronous throw inside
+ *   one listener propagates out of `trigger` and aborts the remaining
+ *   listeners (upstream has no per-listener guard); rejections from async
+ *   listeners still surface on the promise returned by `trigger`.
  *
  * The source code for this function was inspired by vue-apollo's `useEventHook` util
  * https://github.com/vuejs/vue-apollo/blob/v4/packages/vue-apollo-composable/src/util/useEventHook.ts
@@ -79,16 +79,7 @@ export function createEventHook<T = any>(): EventHookReturn<T> {
   }
 
   const trigger: EventHookTrigger<T> = (...args) => {
-    return Promise.all(Array.from(fns).map((fn) => {
-      try {
-        return fn(...args)
-      }
-      catch (error) {
-        // a listener's synchronous error must not break the other listeners
-        console.error(error)
-        return undefined
-      }
-    }))
+    return Promise.all(Array.from(fns).map(fn => fn(...args)))
   }
 
   return {

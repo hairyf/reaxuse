@@ -156,6 +156,78 @@ it('start() acquires a fresh stream after stop()', async () => {
   expect(result.current.enabled).toBe(true)
 })
 
+it('start() after stop() ignores a stale pending acquisition', async () => {
+  const first = createFakeStream()
+  const second = createFakeStream()
+  let resolveFirst!: (stream: MediaStream) => void
+  const getUserMedia = vi.fn<() => Promise<MediaStream>>()
+    .mockImplementationOnce(() => new Promise<MediaStream>((resolve) => { resolveFirst = resolve }))
+    .mockResolvedValueOnce(second.stream)
+  stubMediaDevices(getUserMedia)
+  const { result, act } = await renderHook(() => useUserMedia())
+
+  // the first acquisition stays pending across the stop
+  let pendingFirst!: Promise<MediaStream | undefined>
+  await act(async () => {
+    pendingFirst = result.current.start()
+  })
+  expect(getUserMedia).toHaveBeenCalledTimes(1)
+
+  await act(async () => {
+    result.current.stop()
+  })
+
+  // a fresh start() must acquire anew, not reuse the stale pending one
+  let acquired: MediaStream | undefined
+  await act(async () => {
+    acquired = await result.current.start()
+  })
+  expect(getUserMedia).toHaveBeenCalledTimes(2)
+  expect(acquired).toBe(second.stream)
+  expect(result.current.stream).toBe(second.stream)
+  expect(result.current.enabled).toBe(true)
+
+  // resolving the stale acquisition late must neither re-enable nor clobber
+  await act(async () => {
+    resolveFirst(first.stream)
+    await pendingFirst
+  })
+  expect(result.current.stream).toBe(second.stream)
+  expect(result.current.enabled).toBe(true)
+  expect(first.stops.every(stop => stop.mock.calls.length === 0)).toBe(true)
+})
+
+it('restart() ignores a stale pending acquisition', async () => {
+  const first = createFakeStream()
+  const second = createFakeStream()
+  let resolveFirst!: (stream: MediaStream) => void
+  const getUserMedia = vi.fn<() => Promise<MediaStream>>()
+    .mockImplementationOnce(() => new Promise<MediaStream>((resolve) => { resolveFirst = resolve }))
+    .mockResolvedValueOnce(second.stream)
+  stubMediaDevices(getUserMedia)
+  const { result, act } = await renderHook(() => useUserMedia())
+
+  await act(async () => {
+    void result.current.start()
+  })
+  expect(getUserMedia).toHaveBeenCalledTimes(1)
+
+  await act(async () => {
+    void result.current.restart()
+  })
+  expect(getUserMedia).toHaveBeenCalledTimes(2)
+  await act(async () => {})
+  expect(result.current.stream).toBe(second.stream)
+
+  // the stale acquisition resolving later must not clobber the restart
+  await act(async () => {
+    resolveFirst(first.stream)
+  })
+  expect(result.current.stream).toBe(second.stream)
+  expect(result.current.enabled).toBe(true)
+  expect(first.stops.every(stop => stop.mock.calls.length === 0)).toBe(true)
+})
+
 it('restart() recreates the stream without disabling it', async () => {
   const first = createFakeStream()
   const second = createFakeStream()

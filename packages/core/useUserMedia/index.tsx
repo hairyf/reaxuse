@@ -70,7 +70,8 @@ export interface UseUserMediaReturn {
  *   new option objects) recreates the stream while streaming when
  *   `autoSwitch` is on;
  * - concurrent `start()` calls share one pending acquisition (React effects
- *   can re-run; upstream's watcher fires once);
+ *   can re-run; upstream's watcher fires once), while `stop()`/`restart()`
+ *   drop it so a late resolve cannot re-enable a stream that was stopped;
  * - `tryOnScopeDispose(stop)` becomes an unmount cleanup.
  *
  * @example
@@ -134,26 +135,38 @@ export function useUserMedia(options: UseUserMediaOptions = {}): UseUserMediaRet
       video: getDeviceOptions('video'),
       audio: getDeviceOptions('audio'),
     }).then((mediaStream) => {
-      updateStream(mediaStream)
-      updateEnabled(true)
+      // Apply only while this acquisition is still the current one — a
+      // `stop()`/`restart()` in between clears the pending ref, so a late
+      // resolve must not re-enable a stream we intentionally stopped.
+      if (pendingRef.current === acquisition) {
+        updateStream(mediaStream)
+        updateEnabled(true)
+      }
       return mediaStream
     })
     pendingRef.current = acquisition
     const settle = () => {
-      pendingRef.current = undefined
+      if (pendingRef.current === acquisition)
+        pendingRef.current = undefined
     }
     acquisition.then(settle, settle)
     return acquisition
   }, [getDeviceOptions, resolveNavigator, updateEnabled, updateStream])
 
   const stop = useCallback((): void => {
+    // Drop any in-flight acquisition: a later `start()` must acquire fresh
+    // (upstream re-invokes `getUserMedia` while its stream is undefined) and
+    // a late resolve must not re-enable (guarded in `start`'s resolve).
+    pendingRef.current = undefined
     streamRef.current?.getTracks().forEach(track => track.stop())
     updateStream(undefined)
     updateEnabled(false)
   }, [updateEnabled, updateStream])
 
   const restart = useCallback((): Promise<MediaStream | undefined> => {
-    // Upstream restart stops the tracks without flipping `enabled`.
+    // Upstream restart stops the tracks without flipping `enabled`. Drop any
+    // in-flight acquisition so the re-acquisition starts fresh.
+    pendingRef.current = undefined
     streamRef.current?.getTracks().forEach(track => track.stop())
     updateStream(undefined)
     return start()

@@ -118,6 +118,15 @@ function paramsToRecord(params: URLSearchParams): Record<string, any> {
  *   the same URL / skips the push there);
  * - upstream's `nextTick` coalescing becomes React's automatic batching —
  *   several `setParams` calls in one tick produce a single history write;
+ * - mounting with params already on the URL applies them to state **without**
+ *   writing back — upstream's mount-time hydration mutates state and its
+ *   watcher pushes a duplicate history entry with `writeMode: 'push'` (the
+ *   URL is authoritative: the state was just read from it, so a write-back
+ *   would only duplicate the entry);
+ * - in React StrictMode dev the mount effect runs twice; when `initialValue`
+ *   serializes to the current URL (e.g. every value stripped as falsy) the
+ *   second run re-applies it and can emit a duplicate `push` entry — prefer
+ *   the default `replace` mode in dev or accept the dev-only duplicate;
  * - SSR-safe: no `window`/`location` access during render. The record
  *   hydrates from the URL in a mount effect; without a window it stays a
  *   shallow copy of `initialValue` (upstream returns `reactive(initialValue)`).

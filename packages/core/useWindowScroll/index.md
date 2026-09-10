@@ -24,7 +24,7 @@ Scroll with smooth behavior:
 const { setX, setY } = useWindowScroll({ behavior: 'smooth' })
 ```
 
-Detect the scroll edges within `offset` pixels (default `30`) and the last movement
+Detect the scroll edges within `offset` pixels (default `0`) and the last movement
 direction:
 
 ```tsx

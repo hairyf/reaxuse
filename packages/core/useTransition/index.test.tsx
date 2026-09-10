@@ -252,6 +252,82 @@ it('useTransition stops updating after unmount', async () => {
   expect(onFinished).not.toHaveBeenCalled()
 })
 
+it('useTransition fires onFinished when a transition is superseded mid-flight', async () => {
+  const onFinished = vi.fn()
+  const { result, rerender } = await renderHook(
+    ({ n }: { n: number } = { n: 0 }) => useTransition(n, { duration: 1000, onFinished }),
+    { initialProps: { n: 0 } },
+  )
+
+  await rerender({ n: 100 })
+  await expect
+    .poll(() => result.current, { interval: 10, timeout: 300 })
+    .toBeGreaterThan(0)
+
+  // a newer source change supersedes the running transition — upstream's
+  // aborted `transition` promise resolves and its watcher fires `onFinished`
+  await rerender({ n: 0 })
+  expect(onFinished).toHaveBeenCalledTimes(1)
+
+  // the follow-up transition completes normally and fires it again
+  await expect
+    .poll(() => result.current, { interval: 25, timeout: 2000 })
+    .toBe(0)
+  expect(onFinished).toHaveBeenCalledTimes(2)
+})
+
+it('useTransition aborts mid-flight via the abort option and fires onFinished', async () => {
+  const onFinished = vi.fn()
+  let abort = false
+  const { result, rerender } = await renderHook(
+    ({ n }: { n: number } = { n: 0 }) => useTransition(n, { duration: 2000, abort: () => abort, onFinished }),
+    { initialProps: { n: 0 } },
+  )
+
+  await rerender({ n: 100 })
+  await expect
+    .poll(() => result.current, { interval: 10, timeout: 300 })
+    .toBeGreaterThan(0)
+
+  abort = true
+  const mid = result.current
+
+  await sleep(100)
+  expect(onFinished).toHaveBeenCalledTimes(1)
+  // the abort stops the loop without snapping to the target
+  expect(result.current).toBe(mid)
+})
+
+it('useTransition drives the rAF loop on a custom window option', async () => {
+  const rafCbs: FrameRequestCallback[] = []
+  const cancelSpy = vi.fn()
+  const customWindow = {
+    requestAnimationFrame: (cb: FrameRequestCallback) => {
+      rafCbs.push(cb)
+      return rafCbs.length
+    },
+    cancelAnimationFrame: cancelSpy,
+    setTimeout: (fn: () => void, ms: number) => setTimeout(fn, ms),
+    clearTimeout,
+  } as unknown as Window
+
+  const { rerender, unmount } = await renderHook(
+    ({ n }: { n: number } = { n: 0 }) => useTransition(n, { duration: 1000, window: customWindow }),
+    { initialProps: { n: 0 } },
+  )
+
+  await rerender({ n: 100 })
+
+  // the first frame was requested on the custom window, and each frame
+  // re-arms the loop through it
+  expect(rafCbs.length).toBe(1)
+  rafCbs[0](0)
+  expect(rafCbs.length).toBe(2)
+
+  unmount()
+  expect(cancelSpy).toHaveBeenCalled()
+})
+
 it('useTransition does not transition on mount', async () => {
   const onStarted = vi.fn()
   const onFinished = vi.fn()

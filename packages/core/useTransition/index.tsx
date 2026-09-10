@@ -164,9 +164,9 @@ export function useTransition(source: readonly number[], options?: UseTransition
  * - the returned `ComputedRef` becomes a plain value (`number` for a scalar
  *   source, `number[]` for an array source) backed by `useState`; the calling
  *   component re-renders on every animation frame while a transition runs;
- * - the source is a plain number, a `number[]`, or a ref-like `{ current }`
- *   object (upstream's `RefOrValue<number>` / `RefOrValue<number[]>`
- *   overloads map to the same forms);
+ * - the source is a plain number or a `number[]` (upstream's
+ *   `RefOrValue<number>` / `RefOrValue<number[]>` overloads map to the same
+ *   forms);
  * - options are plain values read when a transition starts — upstream keeps
  *   `duration` / `easing` / `delay` / `disabled` reactive via `RefOrValue`,
  *   which has no React equivalent;
@@ -204,6 +204,15 @@ export function useTransition(
   const [values, setValues] = useState<number[]>(() => [...target])
   const currentRef = useRef(values)
   const generationRef = useRef(0)
+  // set in a dedicated unmount-only cleanup so a superseded transition can
+  // tell unmount apart from a newer source change
+  const unmountingRef = useRef(false)
+
+  useEffect(() => {
+    return () => {
+      unmountingRef.current = true
+    }
+  }, [])
 
   useEffect(() => {
     const opts = optionsRef.current
@@ -239,8 +248,11 @@ export function useTransition(
 
     let rafId = 0
     let timerId: number | undefined
+    let started = false
+    let finished = false
 
     const run = () => {
+      started = true
       opts.onStarted?.()
 
       const startedAt = Date.now()
@@ -251,6 +263,7 @@ export function useTransition(
           return
 
         if (opts.abort?.()) {
+          finished = true
           opts.onFinished?.()
           return
         }
@@ -266,6 +279,7 @@ export function useTransition(
           rafId = win.requestAnimationFrame(tick)
         }
         else {
+          finished = true
           const final = [...to]
           currentRef.current = final
           setValues(final)
@@ -288,6 +302,13 @@ export function useTransition(
 
     return () => {
       generationRef.current += 1
+      // upstream: when a transition is superseded, the aborted `transition`
+      // promise resolves and the watcher then calls `onFinished`
+      // (useTransition/index.ts:292-297) — fire it here too. A transition
+      // superseded during the `delay` never started, so it fires nothing
+      // (upstream returns early on `id !== currentId`).
+      if (started && !finished && !unmountingRef.current)
+        opts.onFinished?.()
       if (rafId)
         win.cancelAnimationFrame(rafId)
       if (timerId !== undefined)

@@ -22,6 +22,51 @@ describe('useUrlSearchParams', () => {
     expect(typeof result.current[1]).toBe('function')
   })
 
+  describe('writeMode push across all modes', () => {
+    const expectedUrls = {
+      'history': ['/?foo=first', '/?foo=first&bar=second'],
+      'hash': ['/#?foo=first', '/#?foo=first&bar=second'],
+      'hash-params': ['/#foo=first', '/#foo=first&bar=second'],
+    } as const
+    it.each(['history', 'hash', 'hash-params'] as const)(
+      'pushes a history entry per mutation and syncs back/forward without writing (%s mode)',
+      async (mode) => {
+        const pushStateSpy = vi.spyOn(window.history, 'pushState')
+
+        const { result, act } = await renderHook(() =>
+          useUrlSearchParams(mode, { writeMode: 'push' }),
+        )
+
+        await act(() => {
+          result.current[1]({ ...result.current[0], foo: 'first' })
+        })
+        await act(() => {
+          result.current[1]({ ...result.current[0], bar: 'second' })
+        })
+        expect(pushStateSpy).toHaveBeenCalledTimes(2)
+        expect(pushStateSpy).toHaveBeenNthCalledWith(1, window.history.state, document.title, expectedUrls[mode][0])
+        expect(pushStateSpy).toHaveBeenNthCalledWith(2, window.history.state, document.title, expectedUrls[mode][1])
+        expect(result.current[0]).toEqual({ foo: 'first', bar: 'second' })
+
+        // back: URL returns to the first entry — state mirrors, no history write
+        window.history.replaceState(null, '', expectedUrls[mode][0])
+        await act(() => {
+          window.dispatchEvent(new PopStateEvent('popstate'))
+        })
+        expect(result.current[0]).toEqual({ foo: 'first' })
+        expect(pushStateSpy).toHaveBeenCalledTimes(2)
+
+        // forward: URL returns to the second entry — state mirrors, no write
+        window.history.replaceState(null, '', expectedUrls[mode][1])
+        await act(() => {
+          window.dispatchEvent(new PopStateEvent('popstate'))
+        })
+        expect(result.current[0]).toEqual({ foo: 'first', bar: 'second' })
+        expect(pushStateSpy).toHaveBeenCalledTimes(2)
+      },
+    )
+  })
+
   describe('history mode', () => {
     it('reads the initial params from the current URL', async () => {
       window.history.replaceState(null, '', '/?foo=bar')
@@ -76,34 +121,6 @@ describe('useUrlSearchParams', () => {
       expect(replaceStateSpy).toHaveBeenCalledTimes(1)
       expect(replaceStateSpy).toHaveBeenCalledWith(window.history.state, document.title, '/?foo=bar')
       expect(pushStateSpy).not.toHaveBeenCalled()
-    })
-
-    it('pushes a history entry per mutation with writeMode push and syncs popstate without writing', async () => {
-      const pushStateSpy = vi.spyOn(window.history, 'pushState')
-
-      const { result, act } = await renderHook(() =>
-        useUrlSearchParams('history', { writeMode: 'push' }),
-      )
-
-      await act(() => {
-        result.current[1]({ ...result.current[0], foo: 'first' })
-      })
-      await act(() => {
-        result.current[1]({ ...result.current[0], bar: 'second' })
-      })
-      expect(pushStateSpy).toHaveBeenCalledTimes(2)
-      expect(pushStateSpy).toHaveBeenNthCalledWith(1, window.history.state, document.title, '/?foo=first')
-      expect(pushStateSpy).toHaveBeenNthCalledWith(2, window.history.state, document.title, '/?foo=first&bar=second')
-      expect(window.location.search).toBe('?foo=first&bar=second')
-
-      // external back-navigation: state mirrors the URL, no history write
-      window.history.replaceState(null, '', '/?foo=first')
-      await act(() => {
-        window.dispatchEvent(new PopStateEvent('popstate'))
-      })
-      expect(result.current[0].foo).toBe('first')
-      expect(result.current[0].bar).toBeUndefined()
-      expect(pushStateSpy).toHaveBeenCalledTimes(2)
     })
 
     it('syncs state on popstate for external navigation', async () => {
@@ -201,6 +218,40 @@ describe('useUrlSearchParams', () => {
       })
       expect(result.current[0]).toEqual({ foo: null, bar: false })
       expect(window.location.search).toBe('')
+    })
+
+    it('isolates removeFalsyValues: drops nullish and falsy values, keeps the rest', async () => {
+      const { result, act } = await renderHook(() =>
+        useUrlSearchParams<Record<string, any>>('history', {
+          removeNullishValues: false,
+          removeFalsyValues: true,
+          initialValue: { foo: 'bar' },
+        }),
+      )
+      await expect.poll(() => result.current[0].foo).toBe('bar')
+
+      await act(() => {
+        result.current[1]({ ...result.current[0], a: null, b: 0, c: '' })
+      })
+      expect(result.current[0]).toEqual({ foo: 'bar', a: null, b: 0, c: '' })
+      expect(window.location.search).toBe('?foo=bar')
+    })
+
+    it('isolates removeNullishValues: drops only nullish values, keeps 0 and empty strings', async () => {
+      const { result, act } = await renderHook(() =>
+        useUrlSearchParams<Record<string, any>>('history', {
+          removeNullishValues: true,
+          removeFalsyValues: false,
+          initialValue: { foo: 'bar' },
+        }),
+      )
+      await expect.poll(() => result.current[0].foo).toBe('bar')
+
+      await act(() => {
+        result.current[1]({ ...result.current[0], a: null, b: 0, c: '' })
+      })
+      expect(result.current[0]).toEqual({ foo: 'bar', a: null, b: 0, c: '' })
+      expect(window.location.search).toBe('?foo=bar&b=0&c=')
     })
 
     it('supports a custom stringify function', async () => {
@@ -319,6 +370,27 @@ describe('useUrlSearchParams', () => {
       const { result } = await renderHook(() => useUrlSearchParams('hash'))
 
       expect(result.current[0]).toEqual({})
+    })
+
+    it('writes into a bare hash (no route) and rewrites to /# on removal', async () => {
+      window.history.replaceState(null, '', '/#')
+      const replaceStateSpy = vi.spyOn(window.history, 'replaceState')
+
+      const { result, act } = await renderHook(() => useUrlSearchParams('hash'))
+
+      await act(() => {
+        result.current[1]({ ...result.current[0], foo: 'bar' })
+      })
+      expect(replaceStateSpy).toHaveBeenLastCalledWith(window.history.state, document.title, '/#?foo=bar')
+
+      await act(() => {
+        result.current[1]((prev) => {
+          const next = { ...prev }
+          delete next.foo
+          return next
+        })
+      })
+      expect(replaceStateSpy).toHaveBeenLastCalledWith(window.history.state, document.title, '/#')
     })
   })
 
