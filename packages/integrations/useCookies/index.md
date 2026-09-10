@@ -4,7 +4,7 @@ category: '@Integrations'
 
 # useCookies
 
-Wrapper for [`universal-cookie`](https://www.npmjs.com/package/universal-cookie)
+Wrapper for [`universal-cookie`](https://www.npmjs.com/package/universal-cookie).
 
 ## Install
 
@@ -78,12 +78,9 @@ Let you provide a `universal-cookie` instance (creates a new instance by default
 
 ## `createCookies([req])`
 
-Create a `universal-cookie` instance from a request (default is `window.document.cookie`) and returns a
-`useCookies` function bound to that instance.
+Create a `universal-cookie` instance using request (default is `window.document.cookie`) and returns `useCookies` function with provided universal-cookie instance
 
-- req (object | string): a request-like object with `headers.cookie` (Node's
-  [`http.IncomingMessage`](https://nodejs.org/api/http.html#http_class_http_incomingmessage) satisfies it),
-  or the cookie header string itself
+- req (object): Node's [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) request object
 
 ```ts
 import { createCookies } from '@reaxuse/integrations'

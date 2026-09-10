@@ -31,7 +31,6 @@ const { data, isFinished } = useAxios('/api/posts')
 | `isLoading`        | `boolean`                       | Request is in progress                                          |
 | `isAborted`        | `boolean`                       | Request was aborted                                             |
 | `abort` / `cancel` | `(message?: string) => void`    | Abort the current request                                       |
-| `isCanceled`       | `boolean`                       | Alias of `isAborted`                                            |
 | `execute`          | `(url?, config?) => Promise`    | Execute/re-execute the request (resolves with the return shell) |
 
 ### With Axios Instance
@@ -92,10 +91,7 @@ execute({ params: { key: 2 } })
 
 ### Awaiting Results
 
-The return value is thenable, so you can await it — `immediate` requests fire
-from a mount effect (upstream fires during setup), so from an async context
-(e.g. an event handler or a later effect) the shell is pending until the
-latest request settles:
+The return value is thenable, so you can await it:
 
 ```tsx
 import { useAxios } from '@reaxuse/integrations'
@@ -107,7 +103,7 @@ const snapshot = await execute()
 // data is now populated
 ```
 
-Or await the `execute` function on a url-less hook:
+Or await the `execute` function:
 
 ```tsx
 import { useAxios } from '@reaxuse/integrations'
@@ -116,17 +112,13 @@ const { execute } = useAxios()
 const result = await execute(url)
 ```
 
-A bare `execute()` — without awaiting the returned shell — never settles
-eagerly, so it cannot produce an unhandled rejection; failures surface only
-when the shell is awaited.
-
 ### Options
 
 ```tsx
 const { data } = useAxios('/api/posts', config, instance, {
   // Execute immediately (default: true if url provided)
   immediate: true,
-  // Use shallowRef for data (default: true) — accepted for parity, no-op here
+  // Use shallowRef for data (default: true)
   shallow: true,
   // Abort previous request on new execute (default: true)
   abortPrevious: true,
@@ -140,12 +132,3 @@ const { data } = useAxios('/api/posts', config, instance, {
   onFinish: () => console.log('Finished'),
 })
 ```
-
-## Testing strategy
-
-Upstream's `index.test.ts` hits `https://jsonplaceholder.typicode.com`; `useAxios.test.tsx` never
-touches the network. Every case is driven by a custom `AxiosAdapter`:
-an immediate adapter (resolves a fake response, records the request config), a failing adapter
-(rejects), and a deferred adapter that keeps requests pending until the test settles them — which is
-what makes the `isLoading`/`isFinished` transitions, `abort()`, `abortPrevious` and the
-late-response-after-abort guard deterministic.

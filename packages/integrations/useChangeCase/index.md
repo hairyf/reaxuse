@@ -4,7 +4,9 @@ category: '@Integrations'
 
 # useChangeCase
 
-Reactive wrapper for [`change-case`](https://github.com/blakeembrey/change-case)
+Reactive wrapper for [`change-case`](https://github.com/blakeembrey/change-case).
+
+Subsitutes `useCamelCase`, `usePascalCase`, `useSnakeCase`, `useSentenceCase`, `useCapitalize`, etc.
 
 ## Install
 
@@ -22,6 +24,21 @@ const [changeCase, setChangeCase] = useChangeCase('hello world', 'camelCase')
 changeCase // helloWorld
 setChangeCase('vue use')
 changeCase // vueUse
+// Supported methods
+// export {
+//   camelCase,
+//   capitalCase,
+//   constantCase,
+//   dotCase,
+//   kebabCase,
+//   noCase,
+//   pascalCase,
+//   pascalSnakeCase,
+//   pathCase,
+//   sentenceCase,
+//   snakeCase,
+//   trainCase,
+// } from 'change-case'
 ```
 
 ### Value source
@@ -52,23 +69,4 @@ const [changeCase] = useChangeCase('helloWorld', 'snakeCase', {
   delimiter: '-',
 })
 changeCase // hello-world
-```
-
-## Supported methods
-
-```ts
-export {
-  camelCase,
-  capitalCase,
-  constantCase,
-  dotCase,
-  kebabCase,
-  noCase,
-  pascalCase,
-  pascalSnakeCase,
-  pathCase,
-  sentenceCase,
-  snakeCase,
-  trainCase,
-} from 'change-case'
 ```

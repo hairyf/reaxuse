@@ -4,7 +4,7 @@ category: '@Math'
 
 # useMath
 
-Reactive `Math` methods
+Reactive `Math` methods.
 
 ## Usage
 
@@ -32,5 +32,3 @@ const power = useMath('pow', 2, 3) // 8
 const root = useMath('sqrt', 4) // 2
 const rounded = useMath('round', 2.5) // 3
 ```
-
-Re-render with new arguments — e.g. from `useState` — and the hook recomputes.

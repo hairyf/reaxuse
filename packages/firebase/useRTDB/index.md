@@ -4,7 +4,7 @@ category: '@Firebase'
 
 # useRTDB
 
-Reactive [Firebase Realtime Database](https://firebase.google.com/docs/database) binding
+Reactive [Firebase Realtime Database](https://firebase.google.com/docs/database) binding. Making it straightforward to **always keep your local data in sync** with remotes databases.
 
 ## Usage
 
@@ -28,10 +28,7 @@ const [todos, setTodos] = useRTDB<Record<string, Todo>>(ref(db, 'todos'))
 
 ## Return Value
 
-| Value     | Type                              | Description                                                                                                                    |
-| --------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `data`    | `T \| undefined`                  | The latest `snapshot.val()`, updated whenever the database value changes; `undefined` until the first snapshot arrives.        |
-| `setData` | `(value: T \| undefined) => void` | Updates `data` **locally only** — it never writes to the Realtime Database. Use the `firebase/database` write APIs to persist. |
+Returns a `T | undefined` value that is automatically updated when the database value changes.
 
 ## Reusing Database References
 
@@ -41,4 +38,15 @@ You can reuse the db reference by passing `autoDispose: false`:
 const [todos] = useRTDB(ref(db, 'todos'), { autoDispose: false })
 ```
 
-Be aware that `autoDispose: false` means the subscription **outlives the component**: upstream parity is preserved (the caller gets no `off` handle and must live with the leak), so this option is discouraged. For shared state, prefer a module-level singleton, React context, or [`createGlobalState`](/shared/createGlobalState/) to own the subscription outside a component.
+or use `createGlobalState` from the shared package
+
+```ts
+import { useRTDB } from '@reaxuse/firebase'
+// store.ts
+import { createGlobalState } from '@reaxuse/shared'
+import { ref } from 'firebase/database'
+
+export const useTodos = createGlobalState(
+  () => useRTDB(ref(db, 'todos')),
+)
+```

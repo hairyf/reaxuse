@@ -4,7 +4,13 @@ category: '@Integrations'
 
 # useSortable
 
-Wrapper for [`sortablejs`](https://github.com/SortableJS/Sortable)
+Wrapper for [`sortablejs`](https://github.com/SortableJS/Sortable).
+
+For more information on what options can be passed, see [`Sortable.options`](https://github.com/SortableJS/Sortable#options) in the `Sortable` documentation.
+
+::: warning
+Currently, `useSortable` only implements drag-and-drop sorting for a single list.
+:::
 
 ## Install
 
@@ -14,9 +20,11 @@ npm i sortablejs@^1
 
 ## Usage
 
+### Use template ref
+
 ```tsx
 import { useSortable } from '@reaxuse/integrations'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 function Component() {
   const [list, setList] = useState(['a', 'b', 'c'])
@@ -37,24 +45,21 @@ function Component() {
 }
 ```
 
-### Options
-
-Pass any [sortablejs option](https://github.com/SortableJS/Sortable#options) directly, plus the reaxuse
-extras `watchElement`, `document` and `onUpdate`:
+### Use specifies the selector to operate on
 
 ```tsx
 const { option } = useSortable(el, list, {
-  animation: 150,
   handle: '.handle',
-  onUpdate: newList => setList(newList),
+  // or option set
+  // animation
 })
 
-// read / write options on the live instance
-option('disabled') // false
-option('disabled', true)
+// You can use the option method to set and get the option of Sortable
+option('animation', 150)
+// option('animation') // 150
 ```
 
-### Selector string
+### Use a selector to get the root element
 
 ```tsx
 const { start, stop } = useSortable('#my-list', list, {
@@ -62,7 +67,7 @@ const { start, stop } = useSortable('#my-list', list, {
 })
 ```
 
-### Conditional rendering
+### Watch Element Changes
 
 With `watchElement: true` the instance is destroyed and re-created whenever the resolved element
 changes; with the default `watchElement: false` the instance follows the element that was resolved on
@@ -73,12 +78,47 @@ const el = useRef<HTMLDivElement>(null)
 const { start } = useSortable(el, list, { watchElement: true })
 ```
 
-### Helpers
+### Custom Update Handler
 
-```ts
-// pure: returns a NEW array, never mutates `list`
-const next = moveArrayElement(list, 0, 2)
-// DOM helpers used by the fixup above
-insertNodeAt(parentElement, element, index)
-removeNode(node)
+If you want to handle the `onUpdate` yourself, you can pass in `onUpdate` parameters, and we also exposed a function to move the item position.
+
+```tsx
+useSortable(el, list, {
+  onUpdate: (newList, event) => {
+    // do something
+    setList(newList)
+  },
+})
 ```
+
+### Return Values
+
+| Property | Description                                                      |
+| -------- | ---------------------------------------------------------------- |
+| `start`  | Initialize the Sortable instance (called automatically on mount) |
+| `stop`   | Destroy the Sortable instance                                    |
+| `option` | Get or set Sortable options at runtime                           |
+
+```tsx
+const { start, stop, option } = useSortable(el, list)
+
+// Stop sorting
+stop()
+
+// Start sorting again
+start()
+
+// Get/set options
+option('animation', 200) // set
+const animation = option('animation') // get
+```
+
+### Helper Functions
+
+The following helper functions are also exported:
+
+| Function                                   | Description                                                                 |
+| ------------------------------------------ | --------------------------------------------------------------------------- |
+| `moveArrayElement(list, from, to, event?)` | Move an element in an array from one index to another (returns a new array) |
+| `insertNodeAt(parent, element, index)`     | Insert a DOM node at a specific index                                       |
+| `removeNode(node)`                         | Remove a DOM node from its parent                                           |

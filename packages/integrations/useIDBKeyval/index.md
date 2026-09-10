@@ -4,9 +4,9 @@ category: '@Integrations'
 
 # useIDBKeyval
 
-Reactive [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) store
+Wrapper for [`idb-keyval`](https://www.npmjs.com/package/idb-keyval).
 
-## Install
+## Install idb-keyval as a peer dependency
 
 ```bash
 npm i idb-keyval@^6
@@ -40,18 +40,9 @@ console.log('IDB transaction finished!')
 await setStoredObject(null)
 ```
 
-`initialValue` is the hook's **read-only value source** and takes a plain `T` (upstream:
-`MaybeRefOrGetter<T>`). It is read **once at mount** (upstream's `toValue(initialValue)`); the hook owns
-writes, so later `initialValue` prop changes are ignored. Because it is a plain value, an object-valued
-`T` with a `value` key is stored as-is and a function-valued `T` is stored (not invoked).
-
 ## Cross-tab syncing
 
-Changes are synced across browser tabs through the
-[`BroadcastChannel` API](https://developer.mozilla.org/en-US/docs/Web/API/BroadcastChannel) on the
-channel `vueuse-idb-${JSON.stringify(key)}`. Enabled by default, disable with `listenToStorageChanges`.
-Incoming messages are applied through the serializer and never write back to the store; a `delete`
-message resets `data` to the initial value.
+Changes are automatically synced across browser tabs using the [`BroadcastChannel` API](https://developer.mozilla.org/en-US/docs/Web/API/BroadcastChannel). This is enabled by default and can be disabled via the `listenToStorageChanges` option.
 
 ```tsx
 // disable cross-tab syncing

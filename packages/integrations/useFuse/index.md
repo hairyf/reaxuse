@@ -4,7 +4,13 @@ category: '@Integrations'
 
 # useFuse
 
-Easily implement fuzzy search using a hook with [Fuse.js](https://github.com/krisk/fuse)
+Easily implement fuzzy search using a hook with [Fuse.js](https://github.com/krisk/fuse).
+
+From the Fuse.js website:
+
+> What is fuzzy searching?
+>
+> Generally speaking, fuzzy searching (more formally known as approximate string matching) is the technique of finding strings that are approximately equal to a given pattern (rather than exactly).
 
 ## Install Fuse.js as a peer dependency
 
