@@ -1,47 +1,83 @@
+---
+category: State
+---
+
 # useCounter
 
-> Basic counter with utility functions.
+A basic counter with `inc` / `dec` / `set` / `reset` and optional `min` / `max` bounds
 
-Port of VueUse's [`useCounter`](https://vueuse.org/core/useCounter/) to React.
-
-## Usage
+## Basic Usage
 
 ```tsx
 import { useCounter } from '@reaxuse/shared'
 
-function Example() {
-  const { count, inc, dec, set, reset } = useCounter({ min: 0 })
-  return (
-    <div>
-      <span>{count}</span>
-      <button onClick={inc}>+</button>
-      <button onClick={dec}>-</button>
-    </div>
-  )
-}
+const { count, inc, dec, set, reset } = useCounter()
 ```
 
-## Type
+## Usage with options
+
+```tsx
+import { useCounter } from '@reaxuse/shared'
+
+const { count, inc, dec, set, reset } = useCounter(1, { min: 0, max: 16 })
+```
+
+## Type Declarations
 
 ```ts
-interface UseCounterOptions {
+export interface UseCounterOptions {
   min?: number
   max?: number
 }
-
-function useCounter(initialValue = 0, options?: UseCounterOptions): {
+export interface UseCounterReturn {
+  /**
+   * The current value of the counter.
+   */
   count: number
+  /**
+   * Increment the counter.
+   *
+   * @param {number} [delta=1] The number to increment.
+   */
   inc: (delta?: number) => void
+  /**
+   * Decrement the counter.
+   *
+   * @param {number} [delta=1] The number to decrement.
+   */
   dec: (delta?: number) => void
+  /**
+   * Get the current value of the counter — the latest rendered value (React
+   * state updates are applied on the next render, so a read right after
+   * `inc` / `dec` / `set` still sees the previous value).
+   */
+  get: () => number
+  /**
+   * Set the counter to a new value (clamped to `[min, max]`).
+   *
+   * @param value The new value of the counter.
+   */
   set: (value: number) => void
-  reset: (value?: number) => void
+  /**
+   * Reset the counter to the initial value — or to `val` when passed, which
+   * also rebases the value future resets restore — and return the new value.
+   *
+   * @param val The value to reset to (defaults to the initial value).
+   */
+  reset: (val?: number) => number
 }
+/**
+ * React port of VueUse's `useCounter`.
+ *
+ * Map from @vueuse/shared `useCounter`
+ * Mapping: `ref(initialValue)` → `useState`, mutation functions become
+ * stable `useCallback`s; options are kept in refs so callbacks stay stable.
+ *
+ * @example
+ * const { count, inc, dec, set, reset } = useCounter(10, { min: 0, max: 100 })
+ */
+export declare function useCounter(
+  initialValue?: State<number>,
+  options?: UseCounterOptions,
+): UseCounterReturn
 ```
-
-- `min`/`max` clamp the count; options are kept in a ref so the handlers stay
-  referentially stable.
-
-## React Notes
-
-- The returned object is recreated each render; destructure the fields you use
-  to avoid unnecessary re-renders.

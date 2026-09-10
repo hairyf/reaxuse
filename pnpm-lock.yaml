@@ -299,6 +299,16 @@ importers:
         specifier: '>=18'
         version: 19.2.8
 
+  packages/skills:
+    dependencies:
+      '@reaxuse/metadata':
+        specifier: workspace:*
+        version: link:../metadata
+    devDependencies:
+      tsx:
+        specifier: ^4.23.13
+        version: 4.23.13
+
   playgrounds/next:
     dependencies:
       '@reaxuse/core':

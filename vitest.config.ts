@@ -57,7 +57,9 @@ export default defineConfig({
         test: {
           name: 'exports',
           environment: 'node',
-          include: ['test/*.{test,spec}.ts'],
+          // build-time tooling (the skills generator) is co-located with its
+          // tests, the same way the hooks are — see packages/skills
+          include: ['test/*.{test,spec}.ts', 'packages/skills/*.{test,spec}.ts'],
         },
       },
     ],

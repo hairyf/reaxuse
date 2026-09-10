@@ -1,0 +1,45 @@
+---
+category: Utilities
+---
+
+# useToString
+
+Convert a value to its string representation.
+
+`value` is a plain read-only value — pass the state value (or `ref.current`)
+directly. Unlike upstream, getters and refs are not unwrapped; the value is
+coerced as-is on every call.
+
+## Usage
+
+```tsx
+import { useToString } from '@reaxuse/shared'
+
+useToString(123.345) // '123.345'
+useToString('hi') // 'hi'
+useToString({ foo: 'hi' }) // '[object Object]'
+```
+
+## Type Declarations
+
+```ts
+/**
+ * React port of VueUse's `useToString`.
+ *
+ * Map from @vueuse/shared `useToString`
+ * Mapping: VueUse wraps the template-literal coercion in `computed(() => ...)`
+ * and accepts a `MaybeRefOrGetter`; React has no reactive value tracking, so
+ * this is a plain function returning the stringified value directly.
+ *
+ * The `value` param is a PLAIN read-only value — pass `ref.current` or the
+ * state value. Getter inputs are intentionally not supported (getters were
+ * removed repo-wide); unlike upstream, a getter passed here is coerced as-is
+ * (its source text), not invoked.
+ *
+ * @example
+ * useToString(123.345)       // '123.345'
+ * useToString('hi')          // 'hi'
+ * useToString({ foo: 'hi' }) // '[object Object]'
+ */
+export declare function useToString(value: unknown): string
+```

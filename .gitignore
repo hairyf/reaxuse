@@ -21,4 +21,4 @@ packages/.vitepress/cache/
 packages/.vitepress/dev-dist/
 packages/.vitepress/.temp/
 packages/.vitepress/*.timestamp-*.mjs
-skills
+types/

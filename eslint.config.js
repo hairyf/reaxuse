@@ -24,7 +24,11 @@ export default antfu(
       'PR-MERGE-WORKFLOW.md',
       'source/**',
       'playgrounds/**',
-      '**/skills/**',
+      // generated agent skill output (repo root + the package's staging copy).
+      // `packages/skills` itself stays linted, unlike VueUse's broader
+      // `**/skills/**` (their build script is unlinted upstream).
+      'skills/**',
+      'packages/skills/skills/**',
       '**/types',
       '**/cache',
       '**/dist',
