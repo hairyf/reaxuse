@@ -32,3 +32,5 @@ const [input, setInput, debounced] = useStateDebounced(
   300,
 )
 ```
+
+You can also pass an optional 3rd parameter including the `maxWait` option. See `useDebounceFn` for details.
