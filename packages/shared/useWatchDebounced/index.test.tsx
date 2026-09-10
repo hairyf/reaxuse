@@ -179,6 +179,14 @@ describe('useWatchDebounced', () => {
 })
 
 describe('useWatchDebounced (component)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   function UseWatchDebouncedDemo() {
     const [count, setCount] = useState(0)
     const [unrelated, setUnrelated] = useState(0)
@@ -222,6 +230,12 @@ describe('useWatchDebounced (component)', () => {
 
     await expect.element(screen.getByText('Count: 3')).toBeVisible()
     await expect.element(screen.getByText('Unrelated: 1')).toBeVisible()
+    // the 500ms debounce cannot elapse under fake timers — still pending
+    await expect.element(screen.getByText('Updates: 0')).toBeVisible()
+    await vi.advanceTimersByTimeAsync(500)
+    // the burst collapses into a single debounced call (mirrors upstream
+    // watchDebounced/index.test.ts:39-42, which always advances time before
+    // asserting)
     await expect.element(screen.getByText('Updates: 1')).toBeVisible()
   })
 })
