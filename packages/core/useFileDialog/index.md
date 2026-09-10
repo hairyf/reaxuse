@@ -32,15 +32,6 @@ useListener(onCancel, () => {
 })
 ```
 
-The returned `onChange` / `onCancel` are stable registration functions following the `useListener` protocol — each accepts a callback and returns an `off` handle, so listeners never leak and never fire after the component unmounts:
-
-```tsx
-const { onChange } = useFileDialog()
-
-const { off } = onChange(files => console.log(files))
-// later: off() unsubscribes
-```
-
 With buttons:
 
 ```tsx
