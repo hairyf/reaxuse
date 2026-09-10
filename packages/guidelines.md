@@ -51,8 +51,10 @@ export function useActiveElement(
 
   // skip when in Node.js environment (SSR)
   useEffect(() => {
-    if (!window)
-      return
+    if (window) {
+      // handle window events
+    }
+
     // ...
   }, [window])
 
@@ -73,7 +75,7 @@ VueUse uses the `controls` option allowing users to use functions with a single
 return for simple usages, while being able to have more controls and
 flexibility when needed. reaxuse mirrors this for the hooks that have it.
 
-#### When to provide a `controls` option
+### When to provide a `controls` option
 
 - The hook is more commonly used with a single value, e.g. `useNow`, `useInterval`
 

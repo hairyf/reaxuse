@@ -172,7 +172,9 @@ export default function App() {
           <p className="subtitle">Keep a lightweight list, copy tasks with a click.</p>
         </div>
         <button className="btn" onClick={toggleMode}>
-          {isDark ? 'Dark' : 'Light'} mode
+          {isDark ? 'Dark' : 'Light'}
+          {' '}
+          mode
         </button>
       </header>
 
@@ -192,16 +194,35 @@ export default function App() {
         />
         <button type="submit" disabled={!newTodo.trim()}>Add task</button>
         <div className="stats">
-          <span>Total: {totalCount}</span>
-          <span>Remaining: {remainingCount}</span>
-          {completedCount > 0 && <span>Done: {completedCount}</span>}
+          <span>
+            Total:
+            {totalCount}
+          </span>
+          <span>
+            Remaining:
+            {remainingCount}
+          </span>
+          {completedCount > 0 && (
+            <span>
+              Done:
+              {completedCount}
+            </span>
+          )}
         </div>
       </form>
 
       <section>
         <div className="list-head">
           <h2>Todo list</h2>
-          <span>{visibleTodos.length} / {totalCount} shown</span>
+          <span>
+            {visibleTodos.length}
+            {' '}
+            /
+            {' '}
+            {totalCount}
+            {' '}
+            shown
+          </span>
         </div>
         <div ref={listRef} className="todo-list">
           {visibleTodos.map(todo => (
@@ -230,8 +251,10 @@ export default function App() {
 
           {visibleTodos.length > 0 && (
             <div className="list-footer">
-              {isLoading ? 'Loading more...'
-                : visibleTodos.length < totalCount ? 'Scroll to load more'
+              {isLoading
+                ? 'Loading more...'
+                : visibleTodos.length < totalCount
+                  ? 'Scroll to load more'
                   : 'All caught up'}
             </div>
           )}

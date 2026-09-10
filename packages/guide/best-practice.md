@@ -1,6 +1,6 @@
 # Best Practice
 
-### Destructuring
+## Destructuring
 
 Most of the hooks in reaxuse return an **object or a tuple** that you can
 [destructure](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment)

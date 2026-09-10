@@ -24,12 +24,12 @@ npm i @reaxuse/core
 Packages mirror `@vueuse/*` 1:1 — install the package that matches the upstream
 one:
 
-| VueUse              | reaxuse                 |
-| ------------------- | ----------------------- |
-| `@vueuse/core`      | `@reaxuse/core`         |
-| `@vueuse/shared`    | `@reaxuse/shared`       |
+| VueUse                 | reaxuse                 |
+| ---------------------- | ----------------------- |
+| `@vueuse/core`         | `@reaxuse/core`         |
+| `@vueuse/shared`       | `@reaxuse/shared`       |
 | `@vueuse/integrations` | `@reaxuse/integrations` |
-| `@vueuse/math`      | `@reaxuse/math`         |
+| `@vueuse/math`         | `@reaxuse/math`         |
 
 > reaxuse requires React `>= 18`.
 
@@ -56,8 +56,16 @@ function App() {
 
   return (
     <div>
-      <p>pos: {x}, {y}</p>
-      <p>dark: {String(isDark)}</p>
+      <p>
+        pos:
+        {x}
+        ,
+        {y}
+      </p>
+      <p>
+        dark:
+        {String(isDark)}
+      </p>
       <button onClick={() => setStore(s => ({ ...s, color: 'green' }))}>
         green
       </button>
