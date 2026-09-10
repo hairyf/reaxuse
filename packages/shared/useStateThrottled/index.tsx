@@ -14,6 +14,9 @@ export type UseStateThrottledReturn<T = any> = [value: T, setValue: Dispatch<Set
  * or `{ value, onChange }` source. The returned tuple contains the current
  * value, its setter, and a throttled mirror.
  *
+ * A `delay <= 0` short-circuits like upstream (`if (delay <= 0) return value`):
+ * the throttled element is the input itself — no throttling, no timers.
+ *
  * @param value State source accepted by `useControllableState`.
  * @param delay Delay in milliseconds between commits (default: 200).
  * @param trailing Whether to commit the latest value after the window (default: true).
@@ -29,6 +32,8 @@ export function useStateThrottled<T = any>(
   const [throttled, setThrottled] = useState(input)
   const inputRef = useRef(input)
   inputRef.current = input
+  const delayRef = useRef(delay)
+  delayRef.current = delay
 
   const throttledFn = useThrottleFn(() => {
     setThrottled(inputRef.current)
@@ -40,8 +45,15 @@ export function useStateThrottled<T = any>(
       isFirstRunRef.current = false
       return
     }
-    void throttledFn()
+    // upstream short-circuits `delay <= 0` — no throttling at all, so the
+    // mirror never needs to be committed (the returned throttled element is
+    // the input itself, identity)
+    if (delayRef.current > 0)
+      void throttledFn()
   }, [input, throttledFn])
+
+  if (delay <= 0)
+    return [input, setInput, input]
 
   return [input, setInput, throttled]
 }

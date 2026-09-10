@@ -20,13 +20,14 @@ const [controlled, setControlled, controlledControl] = useStateWithControl([num,
 
 // just like a normal useState pair
 setNum(42)
-console.log(num) // 42
+// the rendered value updates on the next render, like any useState setter
+console.log(num) // 42 after the next render
 
 // set the value without triggering a re-render (upstream: without triggering
 // reactivity)
 control.set(30, false)
 console.log(control.peek()) // 30 — internal value updated, component not re-rendered
-console.log(num) // 42 (no re-render yet — the next triggering change flushes 30)
+console.log(num) // 42 (rendered value unchanged — the next triggering write recomputes from the internal 30)
 
 // get the value without tracking (nothing to track in React — alias for the
 // current value)
@@ -54,14 +55,16 @@ control.lay('bar') // an alias for `silentSet`
 
 ### `reset`
 
-`reset()` restores the value passed to the hook as the initial value.
+`reset()` restores the value passed to the hook as the initial value. It routes
+through the same change pipeline as `set`: an unchanged value is a no-op,
+`onBeforeChange` can dismiss the restore, and `onChanged` fires when accepted.
 
 ```tsx
 const [num, setNum, control] = useStateWithControl(0)
 
 setNum(10)
 control.reset()
-console.log(num) // 0
+console.log(num) // 0 after the next render
 ```
 
 ## Configurations
@@ -83,10 +86,10 @@ const [num, setNum] = useStateWithControl(0, {
 })
 
 setNum(current => current + 1)
-console.log(num) // 1
+console.log(num) // 1 after the next render
 
 setNum(current => current + 6)
-console.log(num) // 1 (change been dismissed)
+console.log(num) // 1 after the next render (change been dismissed)
 ```
 
 ### `onChanged()`

@@ -90,28 +90,6 @@ describe('useStateDebounced', () => {
     expect(result.current[2]).toBe('c')
   })
 
-  it('re-reads a ref ms on every write', async () => {
-    const delay = { current: 100 }
-    const { result, act } = await renderHook(() => useStateDebounced('', delay))
-
-    await act(() => result.current[1]('a'))
-    await act(async () => {
-      delay.current = 300
-      result.current[1]('b')
-    })
-
-    // 'a' was superseded with the old delay — its timer was cleared
-    await act(async () => {
-      vi.advanceTimersByTime(100)
-    })
-    expect(result.current[2]).toBe('')
-
-    await act(async () => {
-      vi.advanceTimersByTime(200)
-    })
-    expect(result.current[2]).toBe('b')
-  })
-
   it('re-reads a ref-like ms ({ current }) on every write', async () => {
     const delay = { current: 100 }
     const { result, act } = await renderHook(() => useStateDebounced('', delay))
@@ -122,19 +100,73 @@ describe('useStateDebounced', () => {
       result.current[1]('b')
     })
 
+    // 'a' was superseded with the old delay — its timer was cleared; 'b' uses
+    // the new 300ms delay (RefOrValue<number> accepts a plain number or a
+    // ref-like `{ current }` — getters are not supported)
     await act(async () => {
-      vi.advanceTimersByTime(200)
+      vi.advanceTimersByTime(100)
     })
     expect(result.current[2]).toBe('')
 
     await act(async () => {
-      vi.advanceTimersByTime(100)
+      vi.advanceTimersByTime(200)
     })
     expect(result.current[2]).toBe('b')
+  })
+
+  it('supports a controlled state tuple source', async () => {
+    let external = 0
+    const setExternal = vi.fn((next: number | ((prev: number) => number)) => {
+      external = typeof next === 'function' ? next(external) : next
+    })
+    const { result, rerender, act } = await renderHook(() => useStateDebounced([external, setExternal], 100))
+
+    // writes route to the tuple setter
+    await act(() => result.current[1](5))
+    expect(setExternal).toHaveBeenCalledWith(5)
+
+    // the parent applies the value; the debounced slot follows after the delay
+    await rerender()
+    expect(result.current[0]).toBe(5)
+    expect(result.current[2]).toBe(0)
+
+    await act(async () => {
+      vi.advanceTimersByTime(100)
+    })
+    expect(result.current[2]).toBe(5)
+  })
+
+  it('supports a controlled { value, onChange } source', async () => {
+    let external = 0
+    const onChange = vi.fn((next: number) => {
+      external = next
+    })
+    const { result, rerender, act } = await renderHook(() => useStateDebounced({ value: external, onChange }, 100))
+
+    // writes route to onChange
+    await act(() => result.current[1](7))
+    expect(onChange).toHaveBeenCalledWith(7)
+
+    await rerender()
+    expect(result.current[0]).toBe(7)
+    expect(result.current[2]).toBe(0)
+
+    await act(async () => {
+      vi.advanceTimersByTime(100)
+    })
+    expect(result.current[2]).toBe(7)
   })
 })
 
 describe('useStateDebounced (component)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   function UseStateDebouncedDemo() {
     const [input, setInput, debounced] = useStateDebounced('', 500)
 
@@ -164,7 +196,10 @@ describe('useStateDebounced (component)', () => {
     await type.click()
 
     await expect.element(screen.getByText('Input: aaa')).toBeVisible()
-    // the debounced display catches up after the last write settles
+
+    // the 500ms debounce is faked — fire it explicitly instead of waiting a
+    // real delay
+    await vi.advanceTimersByTimeAsync(500)
     await expect.element(screen.getByText('Debounced: aaa')).toBeVisible()
   })
 })

@@ -75,6 +75,10 @@ export function useIntervalFn(
   intervalRef.current = interval
   immediateCallbackRef.current = immediateCallback
 
+  // `immediate` is read once at mount — upstream reads it once at setup, so a
+  // later `immediate: false` render must not stop a running timer
+  const immediateRef = useRef(immediate)
+
   function clean() {
     if (timerRef.current) {
       clearInterval(timerRef.current)
@@ -107,13 +111,13 @@ export function useIntervalFn(
 
   // start on mount when `immediate`; clear a pending timer on unmount
   useEffect(() => {
-    if (immediate)
+    if (immediateRef.current)
       resume()
 
     return () => {
       clean()
     }
-  }, [immediate, resume])
+  }, [resume])
 
   // restart the timer when the interval changes while active
   // (upstream: a `watch` on the interval calls `resume()`)

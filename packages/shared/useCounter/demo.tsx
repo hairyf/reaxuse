@@ -12,7 +12,7 @@ export default function UseCounterDemo() {
       </p>
       <button onClick={() => inc()}>+</button>
       <button onClick={() => dec()}>−</button>
-      <button onClick={reset}>reset</button>
+      <button onClick={() => reset()}>reset</button>
     </div>
   )
 }

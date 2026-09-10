@@ -41,7 +41,7 @@ export default function UseStateDefaultDemo() {
         Clear
       </button>
       <p>
-        While the source is `undefined`, the value falls back to the default.
+        While the source is undefined, the value falls back to the default.
       </p>
     </div>
   )

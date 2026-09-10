@@ -116,8 +116,8 @@ describe('useStateThrottled', () => {
 
   it('supports a controlled State tuple and routes updates to its setter', async () => {
     let external = 'initial'
-    const setExternal = vi.fn((next: string) => {
-      external = next
+    const setExternal = vi.fn((next: string | ((prev: string) => string)) => {
+      external = typeof next === 'function' ? next(external) : next
     })
     const { result, rerender, act } = await renderHook(() => useStateThrottled([external, setExternal], 1000))
 

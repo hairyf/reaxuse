@@ -34,10 +34,14 @@ export type UseStateDebouncedReturn<T = any> = [
  * `value` is the source state, `setValue` its setter, and `debounced` lags
  * behind it by `ms`. Writes settle through a `useDebounceFn` updater, so a
  * burst of writes collapses into a single trailing update carrying the last
- * written value. `ms` (and `options.maxWait`) accept a plain number, a ref-like
- * `{ current }` or a getter (upstream: `RefOrValue<number>`) and are
- * re-read on every write; pending timers are cleared when the component
- * unmounts (upstream disposes with the effect scope).
+ * written value. `ms` (and `options.maxWait`) accept a plain number or a
+ * ref-like `{ current }` (upstream: `RefOrValue<number>`) and are re-read on
+ * every write; pending timers are cleared when the component unmounts
+ * (upstream disposes with the effect scope). Note: a write only schedules the
+ * debounce when the value actually changes — writing the same value is
+ * skipped by `useControllableState`'s `Object.is` guard, so the pending timer
+ * is not re-delayed (upstream's `watch` re-delays on every source write, even
+ * unchanged ones).
  *
  * @example
  * ```ts
