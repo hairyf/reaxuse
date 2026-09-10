@@ -53,20 +53,6 @@ control.silentSet('bar')
 control.lay('bar') // an alias for `silentSet`
 ```
 
-### `reset`
-
-`reset()` restores the value passed to the hook as the initial value. It routes
-through the same change pipeline as `set`: an unchanged value is a no-op,
-`onBeforeChange` can dismiss the restore, and `onChanged` fires when accepted.
-
-```tsx
-const [num, setNum, control] = useStateWithControl(0)
-
-setNum(10)
-control.reset()
-console.log(num) // 0 after the next render
-```
-
 ## Configurations
 
 ### `onBeforeChange()`
