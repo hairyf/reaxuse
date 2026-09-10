@@ -31,7 +31,7 @@ useEventListener('resize', (evt) => {
 
 ### Reactive Target
 
-You can pass a ref (e.g. from `useRef`) as the event target — `useEventListener` will unregister the previous event and register the new one when the resolved target changes:
+You can pass a ref as the event target, `useEventListener` will unregister the previous event and register the new one when the target changes:
 
 ```tsx
 import { useEventListener } from '@reaxuse/core'
@@ -66,7 +66,7 @@ useEventListener(buttons, 'click', (evt) => {
 
 ### Cleanup
 
-Returns a cleanup function to manually unregister the listeners:
+Returns a cleanup function to manually unregister the listener:
 
 ```tsx
 const cleanup = useEventListener(document, 'keydown', (e) => {
@@ -76,6 +76,4 @@ const cleanup = useEventListener(document, 'keydown', (e) => {
 cleanup() // This will unregister the listeners.
 ```
 
-Unlike VueUse — where calling the hook outside a component lifecycle (SSR) errors — reaxuse's
-`useEventListener` is SSR-safe: nothing touches `window` during render, the default `window` target
-only resolves when `window` is defined, and binding happens in the mount effect.
+`useEventListener` is SSR-safe: nothing touches `window` during render, and binding happens in the mount effect.
