@@ -48,11 +48,12 @@ export interface CreatePortalSlotOptions<Bindings extends Record<string, any>> {
    * has no runtime props declaration, so this is a list of prop keys instead —
    * only these are passed to the template as bindings and the rest are
    * dropped. When omitted, every prop except `children` is forwarded
-   * (upstream: all attributes are passed through).
+   * (upstream: all attributes are passed through). `children` is reserved by
+   * the components and excluded from the accepted keys.
    *
    * @default undefined (all props forwarded)
    */
-  props?: readonly (keyof Bindings)[]
+  props?: readonly (Exclude<keyof Bindings, 'children'>)[]
   /**
    * Name for the target (reuse) component, useful for devtools. Both
    * components get `${name}.define` / `${name}.reuse` display names, exactly
@@ -152,7 +153,7 @@ export function createPortalSlot<
     }
 
     const { children, ...bindings } = props
-    const forwarded = options.props == null
+    const forwarded: Record<string, any> = options.props == null
       ? camelizeKeys(bindings)
       : objectPick(bindings, [...options.props])
 
