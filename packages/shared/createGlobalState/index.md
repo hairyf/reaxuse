@@ -8,7 +8,7 @@ Keep state in the global scope, reusable across React components
 
 ## Usage
 
-The argument is the **initial state** — a plain value, or a function computing it (resolved exactly once, at `createGlobalState` call time, so it can compute lazily). The returned hook takes no arguments:
+### Without Persistence (Store in Memory)
 
 ```ts
 // store.ts
@@ -16,14 +16,6 @@ import { createGlobalState } from '@reaxuse/shared'
 
 export const useGlobalState = createGlobalState(() => ({ count: 0 }))
 ```
-
-A plain initial value works too:
-
-```ts
-export const useGlobalState = createGlobalState({ count: 0 })
-```
-
-Every component calling `useGlobalState()` gets the same value, and a write from one of them updates all of them:
 
 ```tsx
 // component.tsx
@@ -40,7 +32,7 @@ function Counter() {
 }
 ```
 
-A bigger example — derived values and actions live in the consumer, the initializer only creates the shared state:
+A bigger example:
 
 ```ts
 // store.ts
@@ -58,6 +50,9 @@ export function useCounterActions() {
 ```
 
 ```tsx
+// component.tsx
+import { useGlobalState } from './store'
+
 function Counter() {
   const [state] = useGlobalState()
   const { increment } = useCounterActions()
@@ -65,4 +60,18 @@ function Counter() {
 
   return <button onClick={increment}>{doubleCount}</button>
 }
+```
+
+### With Persistence
+
+Store in `localStorage` with `useStorage`:
+
+```ts
+// store.ts
+import { useStorage } from '@reaxuse/core'
+import { createGlobalState } from '@reaxuse/shared'
+
+export const useGlobalState = createGlobalState(
+  () => useStorage('reaxuse-local-storage', 'initialValue'),
+)
 ```
