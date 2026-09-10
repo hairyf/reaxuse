@@ -29,13 +29,13 @@ redo() // count forward again
 
 ### React adjustments
 
-This port carries the `adjustment` label — Vue reactivity does not translate 1:1, so the behavior
+This port carries the `adjustment` label — upstream reactivity does not translate 1:1, so the behavior
 is reworked for React hooks:
 
-- **Source as a `[state, setState]` pair** — upstream tracks a writable Vue `Ref` that the hook
+- **Source as a `[state, setState]` pair** — upstream tracks a writable `Ref` that the hook
   watches and can write synchronously. React state lives in the component, so the source is passed
   in as the controlled tuple `[state, setState]`; commits are driven by an effect on state changes
-  (upstream: `watchIgnorable`).
+  (upstream: `useWatchIgnorable`).
 - **Watcher becomes an effect** — upstream's `deep` and `flush` watch options don't apply: replace
   the state instead of mutating it, a mutated object does not re-render and stays invisible to the
   history. The `clone` option and custom `dump` / `parse` still support mutation-style sources

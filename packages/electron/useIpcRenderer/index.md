@@ -52,7 +52,7 @@ const ipc = useIpcRenderer(ipcRenderer)
 
 ## React Deviations from Upstream
 
-- **`on` no longer delegates to the `useIpcRendererOn` composable.** Upstream calls it inside the method; hooks cannot be called from callbacks. `on` registers the listener with `ipcRenderer.on` immediately and tracks the `{ channel, listener }` pair, and the hook's mount-effect cleanup removes every tracked listener on unmount — the same auto-cleanup guarantee upstream gets from its effect scope.
+- **`on` no longer delegates to the `useIpcRendererOn` hook.** Upstream calls it inside the method; hooks cannot be called from callbacks. `on` registers the listener with `ipcRenderer.on` immediately and tracks the `{ channel, listener }` pair, and the hook's mount-effect cleanup removes every tracked listener on unmount — the same auto-cleanup guarantee upstream gets from its effect scope.
 - **`invoke` returns `Promise<T>`** instead of a `ShallowRef<T | null>`: `ipcRenderer.invoke(channel, ...args)` is passed through as-is, including its rejections. Use `useIpcRendererInvoke` for declarative async state.
 - **`sendSync` returns the raw value `T`** instead of a `ShallowRef<T | null>`.
 - **Stabilise listeners you pass to `on`** (`useCallback`). The cleanup is identity-based, and a new listener identity registered on a later render is only removed by the next unmount, exactly like `ipcRenderer.on` itself.

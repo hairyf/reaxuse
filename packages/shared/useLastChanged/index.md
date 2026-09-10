@@ -14,7 +14,7 @@ import { useState } from 'react'
 
 const [a, setA] = useState(0)
 const lastChanged = useLastChanged(a)
-// note: lastChanged is a plain number (or null), not a ref (no `.value`)
+// note: lastChanged is a plain number (or null), not a ref
 
 setA(1)
 // the change is not recorded synchronously — `lastChanged` becomes the
@@ -32,4 +32,4 @@ const lastChanged = useLastChanged(input, { initialValue: Date.now() - 1000 * 60
 Upstream's watch options have no React equivalent here: the record lands in a
 post-commit effect, so `flush: 'sync'` is not reproducible (effects always run
 after commit), `immediate: true` is redundant with `initialValue`, and `deep`
-/ `once` are Vue watch concepts — only `initialValue` is supported.
+/ `once` are watch concepts with no React equivalent — only `initialValue` is supported.

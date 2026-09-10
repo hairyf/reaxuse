@@ -71,7 +71,7 @@ const tokyoTime = temporal.toTimezone('Asia/Tokyo')
 const londonTime = temporal.toTimezone('Europe/London')
 const utcTime = temporal.toTimezone('UTC')
 
-// Change timezone reactively (upstream: temporal.timezone.value = 'Europe/Berlin')
+// Change timezone reactively (upstream: assigning to `temporal.timezone`)
 temporal.setTimezone('Europe/Berlin')
 ```
 
@@ -85,7 +85,7 @@ const islamicDate = temporal.toCalendar('islamic-umalqura')
 const hebrewDate = temporal.toCalendar('hebrew')
 const chineseDate = temporal.toCalendar('chinese')
 
-// Change calendar reactively (upstream: temporal.calendar.value = 'islamic-umalqura')
+// Change calendar reactively (upstream: assigning to `temporal.calendar`)
 temporal.setCalendar('islamic-umalqura')
 ```
 

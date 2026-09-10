@@ -43,7 +43,7 @@ console.log(current) // 'billing-address'
 The return is a React tuple `[index, setIndex, controls]` — upstream returns an object whose `index` is a
 writable `Ref<number>` and whose other members are readonly refs/computeds. `index` is plain state,
 `setIndex` is the React setter, and `controls` exposes the remaining members as plain values and stable
-callbacks (no `.value`).
+callbacks.
 
 ### Steps as object
 

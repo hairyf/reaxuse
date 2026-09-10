@@ -40,7 +40,7 @@ useEffect(() => {
 ### Callback Function
 
 The callback will be called with `cb(value, oldValue)` — upstream's third
-`onInvalidate` argument (Vue's effect invalidation registration) is not ported.
+`onInvalidate` argument (upstream's effect invalidation registration) is not ported.
 
 ```tsx
 import { useWhenever } from '@reaxuse/shared'

@@ -76,7 +76,7 @@ useWatchWithFilter(input, () => console.log('changed!'), { immediate: true })
 ### Divergences from upstream
 
 - **React batching:** source changes made in the same tick collapse into a single
-  effect run, so the filter sees one trigger where Vue's watcher would fire per
+  effect run, so the filter sees one trigger where upstream's watcher would fire per
   mutation. For a trailing filter the collapsed call is identical (the latest
   `(value, oldValue)` pair); a leading-edge filter fires at most once per tick.
 - **`deep` is not ported:** React values are not deeply reactive — the source is
@@ -87,7 +87,7 @@ useWatchWithFilter(input, () => console.log('changed!'), { immediate: true })
 - **`once` is not ported:** upstream's `watch` `once` option stops the watcher
   after the first callback — house `useWatch` has no `once`, and the stop
   function returned by this hook covers the same need.
-- **`onTrack` / `onTrigger` are not ported:** Vue watch lifecycle callbacks
+- **`onTrack` / `onTrigger` are not ported:** upstream watch lifecycle callbacks
   (`WatchOnTrack` / `WatchOnTrigger`) have no React equivalent.
 - **Promise plumbing:** the house `EventFilter` contract returns `void`, so
   upstream's `rejectOnCancel` has no observable effect and filters carry no promise
