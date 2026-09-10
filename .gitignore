@@ -14,6 +14,8 @@ test-results/
 .idea/
 .issues/
 .vitest/
+.worktree-vite/
+vitest.worktree.config.ts
 packages/.vitepress/dist/
 packages/.vitepress/cache/
 packages/.vitepress/dev-dist/
