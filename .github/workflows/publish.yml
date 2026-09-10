@@ -50,6 +50,31 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Build packages
+        run: pnpm run build:packages
+
+      - name: Read version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Create tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/git/refs" \
+            -f ref="refs/tags/v$VERSION" \
+            -f sha="$SHA"
+          # Mirror it locally, changelogithub resolves the release from git tags
+          git tag "v$VERSION"
+
+      - name: Create GitHub Release
+        run: npx changelogithub --no-group
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Publish
         run: pnpm run publish:ci
         env:
