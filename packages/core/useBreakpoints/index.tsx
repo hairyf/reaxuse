@@ -2,6 +2,7 @@ import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
 import { increaseWithUnit, pxValue, toValue } from '@reaxuse/shared'
 import { useEffect, useRef } from 'react'
 import { useMediaQuery } from '../useMediaQuery'
+import { useSSRWidth } from '../useSSRWidth'
 
 /**
  * Breakpoints from Tailwind V2
@@ -211,9 +212,15 @@ export type UseBreakpointReturn<K extends string = string> = Record<K, boolean> 
  *   mount effects, so the server renders the `false`/empty default without
  *   touching `window` and the simulated values appear after hydration —
  *   same caveat as `useMediaQuery`;
- * - upstream's global SSR-width store (`useSSRWidth` / `provideSSRWidth`) is
- *   intentionally not ported: only the per-hook `ssrWidth` option exists, so
- *   every call that needs SSR rendering must pass it (see `index.md`).
+ * - `ssrWidth` comes from the per-hook `ssrWidth` option or, when that is
+ *   omitted, from the closest `SSRWidthProvider` above the caller (read
+ *   through `useSSRWidth()`, upstream's `provideSSRWidth`); the resolved
+ *   width is then forwarded to every `useMediaQuery` this hook composes. The
+ *   per-hook option takes precedence over the provided width, exactly like
+ *   upstream's `const { ssrWidth = useSSRWidth() } = options`. Without a
+ *   provider and without the option the hook keeps its plain client
+ *   behaviour and never throws, so no `undefined` reaches the returned
+ *   booleans.
  *
  * @example
  * const breakpoints = useBreakpoints(breakpointsTailwind)
@@ -238,7 +245,14 @@ export function useBreakpoints<K extends string>(
     return v
   }
 
-  const { window: windowOption, strategy = 'min-width', ssrWidth } = options
+  const { window: windowOption, strategy = 'min-width', ssrWidth: ssrWidthOption } = options
+
+  // The per-hook option wins over the globally provided width (upstream:
+  // `const { ssrWidth = useSSRWidth() } = options`); with neither, `ssrWidth`
+  // stays `undefined` and the hook falls back to its client-only behaviour.
+  const [providedWidth] = useSSRWidth()
+  const ssrWidth = ssrWidthOption ?? providedWidth
+
   const ssrSupport = typeof ssrWidth === 'number'
   const mountedRef = useRef(false)
 

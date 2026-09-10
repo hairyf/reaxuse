@@ -93,8 +93,17 @@ const breakpoints = useBreakpoints(breakpointsTailwind, {
 })
 ```
 
-Unlike VueUse, reaxuse does not provide a global SSR-width store (`useSSRWidth` / `provideSSRWidth`):
-`ssrWidth` is a per-hook option only, so pass it to every `useBreakpoints` call that needs it.
+Alternatively you can set this up globally for your app using [`SSRWidthProvider`](/core/useSSRWidth/): every
+`useBreakpoints` below the provider renders against the provided width, so a per-hook `ssrWidth` is only needed to
+override it.
+
+```tsx
+import { SSRWidthProvider } from '@reaxuse/core'
+
+<SSRWidthProvider width={768}>
+  <App />
+</SSRWidthProvider>
+```
 
 ## Presets
 

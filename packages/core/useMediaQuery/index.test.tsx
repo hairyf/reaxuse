@@ -1,7 +1,14 @@
+import type { ReactNode } from 'react'
 import { renderToString } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useMediaQuery } from '../useMediaQuery'
+import { SSRWidthProvider } from '../useSSRWidth'
+
+/** Wrapper handing every rendered hook a global SSR width of `768px`. */
+function providerWrapper({ children }: { children: ReactNode }) {
+  return <SSRWidthProvider width={768}>{children}</SSRWidthProvider>
+}
 
 type ChangeListener = (event: MediaQueryListEvent) => void
 
@@ -51,10 +58,9 @@ describe('useMediaQuery', () => {
     expect(result.current).toBe(false)
   })
 
-  // The upstream test suite also covers `provideSSRWidth` (a Vue
-  // provide/inject global SSR width store). React has no injection context, so
-  // `ssrWidth` is passed per-hook via the options object — that path is
-  // covered by the scenario below.
+  // `ssrWidth` can also come from the global store: `SSRWidthProvider` above
+  // the caller (upstream's `provideSSRWidth`). The provider-specific paths are
+  // covered by the scenarios below.
   it('should support ssr media queries', async () => {
     const { result, rerender } = await renderHook(
       (props: { query: string, ssrWidth: number }) =>
@@ -101,6 +107,113 @@ describe('useMediaQuery', () => {
     expect(matchMediaSpy).not.toHaveBeenCalled()
 
     matchMediaSpy.mockRestore()
+  })
+
+  it('should consume the global SSR width provided by SSRWidthProvider', async () => {
+    const { result } = await renderHook(
+      () => useMediaQuery('(min-width: 1024px)', { window: null as unknown as undefined }),
+      { wrapper: providerWrapper },
+    )
+    // no per-hook `ssrWidth`: the 768px global width resolves the query
+    expect(result.current).toBe(false)
+
+    const { result: matching } = await renderHook(
+      () => useMediaQuery('(min-width: 500px)', { window: null as unknown as undefined }),
+      { wrapper: providerWrapper },
+    )
+    expect(matching.current).toBe(true)
+  })
+
+  it('should let the per-hook ssrWidth option win over the provided width', async () => {
+    const { result } = await renderHook(
+      () => useMediaQuery('(min-width: 1024px)', {
+        window: null as unknown as undefined,
+        ssrWidth: 1024,
+      }),
+      { wrapper: providerWrapper },
+    )
+
+    // the option (1024) takes precedence over the provider (768)
+    expect(result.current).toBe(true)
+  })
+
+  it('should re-resolve when the provided width changes', async () => {
+    let width = 500
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <SSRWidthProvider width={width}>{children}</SSRWidthProvider>
+    )
+
+    const { result, rerender } = await renderHook(
+      () => useMediaQuery('(min-width: 768px)', { window: null as unknown as undefined }),
+      { wrapper },
+    )
+    expect(result.current).toBe(false)
+
+    width = 1024
+    await rerender()
+    expect(result.current).toBe(true)
+  })
+
+  it('should render the provided SSR width on the server', async () => {
+    const matchMediaSpy = vi.spyOn(window, 'matchMedia')
+
+    function SSRProvidedWidth() {
+      const isLarge = useMediaQuery('(min-width: 1024px)')
+      return <div>{`large:${isLarge}`}</div>
+    }
+
+    const html = await renderToString(
+      <SSRWidthProvider width={768}>
+        <SSRProvidedWidth />
+      </SSRWidthProvider>,
+    )
+
+    expect(html).toContain('large:false')
+    expect(matchMediaSpy).not.toHaveBeenCalled()
+
+    matchMediaSpy.mockRestore()
+  })
+
+  it('should keep the default behaviour and never throw without a provider', async () => {
+    const { result } = await renderHook(() =>
+      useMediaQuery('(min-width: 0px)', { window: null as unknown as undefined }))
+
+    // no provider, no `ssrWidth` option → the documented `false` default
+    expect(result.current).toBe(false)
+
+    const stub = stubMatchMedia(true)
+    try {
+      const { result: clientResult } = await renderHook(() => useMediaQuery('(min-width: 1024px)'))
+      expect(clientResult.current).toBe(true)
+      expect(stub.queries).toEqual(['(min-width: 1024px)'])
+    }
+    finally {
+      stub.restore()
+    }
+  })
+
+  it('should let the real matchMedia win over the provided width', async () => {
+    const stub = stubMatchMedia(false)
+    const renderValues: boolean[] = []
+
+    function useProbe() {
+      const matches = useMediaQuery('(min-width: 500px)')
+      renderValues.push(matches)
+      return matches
+    }
+
+    try {
+      const { result } = await renderHook(() => useProbe(), { wrapper: providerWrapper })
+
+      // first render uses the provided 768px width (768 >= 500 → true), then
+      // the mount effect syncs the authoritative `matchMedia` result
+      expect(renderValues[0]).toBe(true)
+      expect(result.current).toBe(false)
+      expect(stub.queries).toEqual(['(min-width: 500px)'])
+    }
+    finally {
+      stub.restore()
+    }
   })
 
   it('should render the ssrWidth match before matchMedia syncs, then let matchMedia win', async () => {
