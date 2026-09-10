@@ -74,6 +74,19 @@ useEffect(() => {
 }, [Ctrl_A_B])
 ```
 
+You can also use `useWhenever` function to make it shorter
+
+```tsx
+import { useMagicKeys } from '@reaxuse/core'
+import { useWhenever } from '@reaxuse/shared'
+
+const keys = useMagicKeys()
+
+useWhenever(keys.shift_space, () => {
+  console.log('Shift+Space have been pressed')
+})
+```
+
 ### Current Pressed keys
 
 A special property `current` is provided to representing all the keys been pressed currently.
@@ -84,6 +97,11 @@ import { useMagicKeys } from '@reaxuse/core'
 const { current } = useMagicKeys()
 
 console.log(current) // Set { 'control', 'a' }
+
+useWhenever(
+  current.has('a') && !current.has('b'),
+  () => console.log('A is pressed but not B'),
+)
 ```
 
 ### Key Aliasing
@@ -103,7 +121,7 @@ useEffect(() => {
 }, [shift_cool])
 ```
 
-By default, we have some preconfigured aliases for common practices (`ctrl` → `control`, `cmd` / `command` → `meta`, `option` → `alt`, `up` → `arrowup`, ...).
+By default, we have some [preconfigured alias for common practices](https://github.com/vueuse/vueuse/blob/main/packages/core/useMagicKeys/aliasMap.ts).
 
 ### Conditionally Disable
 
@@ -143,7 +161,7 @@ const { ctrl_s } = useMagicKeys({
 
 ### Reactive Mode
 
-Upstream can return a reactive object of plain booleans with `reactive: true`. React state is always "reactive", so the option is accepted for API compatibility but has no effect — values are plain booleans either way.
+React state is always "reactive" — the `reactive: true` option is accepted for API compatibility but has no effect, values are plain booleans either way.
 
 ```tsx
 import { useMagicKeys } from '@reaxuse/core'
