@@ -25,7 +25,3 @@ const { isFullscreen, enter, exit, toggle } = useFullscreen(el)
 
 // <video ref={el} controls />
 ```
-
-## Component Usage
-
-Not ported — upstream ships a `UseFullscreen` component (Vue, render-slot based); in React the hook is used directly.
