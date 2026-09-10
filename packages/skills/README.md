@@ -46,7 +46,7 @@ Install skills via [skills](https://github.com/vercel-labs/skills) you need to b
 
 `skills/reaxuse-functions` is generated, never hand-edited. It mirrors
 VueUse's [`packages/skills`](https://github.com/vueuse/vueuse/tree/main/packages/skills)
-one-to-one: for every page in the [`@reaxuse/metadata`](../metadata) registry,
+one-to-one: for every page in the `@reaxuse/metadata` registry (`packages/metadata`),
 `build.ts` writes `references/<name>.md` (the docs page plus its type
 declarations) and a categorised functions table into `SKILL.md`, then copies the
 result to the repo-root `skills/` directory that ships with this package.
