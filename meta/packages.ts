@@ -31,11 +31,6 @@ export const packages: PackageManifest[] = [
     description: 'Math functions for reaxuse — 1:1 React port of @vueuse/math',
   },
   {
-    name: 'router',
-    display: '@reaxuse/router',
-    description: 'Router bindings for reaxuse — React port of @vueuse/router',
-  },
-  {
     name: 'rxjs',
     display: '@reaxuse/rxjs',
     description: 'RxJS reactive functions for reaxuse — React port of @vueuse/rxjs',
