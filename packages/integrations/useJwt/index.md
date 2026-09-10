@@ -4,7 +4,7 @@ category: '@Integrations'
 
 # useJwt
 
-Wrapper for [`jwt-decode`](https://github.com/auth0/jwt-decode)
+Wrapper for [`jwt-decode`](https://github.com/auth0/jwt-decode).
 
 ## Install
 
@@ -30,33 +30,4 @@ const { header, payload } = useJwt(encodedJwt)
 ```tsx
 const [jwt, setJwt] = useState(encodedJwt)
 const { header, payload } = useJwt(jwt) // setJwt(next) re-decodes on the next render
-```
-
-Custom header/payload fields via the generic parameters:
-
-```tsx
-import type { JwtHeader, JwtPayload } from 'jwt-decode'
-import { useJwt } from '@reaxuse/integrations'
-
-interface CustomJwtHeader extends JwtHeader {
-  foo: string
-}
-
-interface CustomJwtPayload extends JwtPayload {
-  foo: string
-}
-
-const { header, payload } = useJwt<CustomJwtPayload, CustomJwtHeader>(encodedJwt)
-header.foo // 'bar'
-```
-
-Fallback value and error callback:
-
-```tsx
-import { useJwt } from '@reaxuse/integrations'
-
-const { header, payload } = useJwt(encodedJwt, {
-  fallbackValue: null,
-  onError: error => console.error(error),
-})
 ```

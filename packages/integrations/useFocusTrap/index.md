@@ -4,7 +4,9 @@ category: '@Integrations'
 
 # useFocusTrap
 
-Wrapper for [`focus-trap`](https://github.com/focus-trap/focus-trap)
+Reactive wrapper for [`focus-trap`](https://github.com/focus-trap/focus-trap).
+
+For more information on what options can be passed, see [`createOptions`](https://github.com/focus-trap/focus-trap#createoptions) in the `focus-trap` documentation.
 
 ## Install
 
@@ -68,8 +70,7 @@ const { hasFocus, activate, deactivate } = useFocusTrap(target, { immediate: tru
 
 **Conditional Rendering**
 
-The trap can't focus elements that do not exist in the DOM yet, so activate on the next tick when
-rendering conditionally:
+This function can't properly activate focus on elements with conditional rendering. This is because they do not exist in the DOM at the time of the focus activation. To solve this you need to activate on the next tick.
 
 ```tsx
 const [show, setShow] = useState(false)
