@@ -24,6 +24,8 @@ const { scriptTag, load, unload } = useScriptTag(
 
 The script will be automatically loaded when the component is mounted and removed when the component is unmounted.
 
+## Configuration
+
 Set `manual: true` to have manual control over the timing to load the script:
 
 ```tsx

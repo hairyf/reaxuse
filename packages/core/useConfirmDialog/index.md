@@ -12,7 +12,7 @@ Creates event hooks to support modals and confirmation dialog chains
 - `confirm()` - sets `isRevealed` to `false` and triggers `onConfirm` hook.
 - `cancel()` - sets `isRevealed` to `false` and triggers `onCancel` hook.
 
-## Usage
+## Basic Usage
 
 ### Using hooks
 

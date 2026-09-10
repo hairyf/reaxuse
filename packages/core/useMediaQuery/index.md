@@ -27,7 +27,7 @@ const matches = useMediaQuery(query) // re-binds when `query` changes
 const refMatches = useMediaQuery(queryRef.current) // resolve a React ref at the call site
 ```
 
-### Server Side Rendering
+#### Server Side Rendering and Nuxt
 
 If you are using `useMediaQuery` with SSR enabled, specify which screen size you would like to
 render on the server and before hydration to avoid a hydration mismatch:

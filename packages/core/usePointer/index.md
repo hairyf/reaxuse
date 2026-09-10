@@ -6,7 +6,7 @@ category: Sensors
 
 Reactive pointer state
 
-## Usage
+## Basic Usage
 
 ```tsx
 import { usePointer } from '@reaxuse/core'

@@ -6,7 +6,7 @@ category: State
 
 A basic counter with `inc` / `dec` / `set` / `reset` and optional `min` / `max` bounds
 
-## Usage
+## Basic Usage
 
 ```tsx
 import { useCounter } from '@reaxuse/shared'

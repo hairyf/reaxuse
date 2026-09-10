@@ -6,7 +6,7 @@ category: Sensors
 
 Reactive mouse position
 
-## Usage
+## Basic Usage
 
 ```tsx
 import { useMouse } from '@reaxuse/core'

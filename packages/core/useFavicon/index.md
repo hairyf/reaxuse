@@ -16,7 +16,7 @@ const [icon, setIcon] = useFavicon()
 setIcon('dark.png') // change current icon
 ```
 
-### Source Forms
+### Passing a source ref
 
 `newIcon` is a read-only value source and takes a plain `string | null | undefined` (upstream:
 `MaybeRef<string | null | undefined>`). Resolve a React ref at the call site; the returned setter
