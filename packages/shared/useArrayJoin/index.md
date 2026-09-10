@@ -4,19 +4,60 @@ category: Array
 
 # useArrayJoin
 
-`Array.join`
+Reactive `Array.join`
 
 ## Usage
+
+### Use with array of multiple refs
 
 ```tsx
 import { useArrayJoin } from '@reaxuse/shared'
 import { useState } from 'react'
 
-const [list, setList] = useState(['foo', 0, { prop: 'val' }])
+const [item1, setItem1] = useState('foo')
+const [item2, setItem2] = useState(0)
+const [item3, setItem3] = useState({ prop: 'val' })
+const list = [item1, item2, item3]
+const result = useArrayJoin(list)
+// result: foo,0,[object Object]
 
-const result = useArrayJoin(list, '--') // 'foo--0--[object Object]'
+setItem1('bar')
+// result: bar,0,[object Object] on the next render
+```
 
-setList([...list, 'bar']) // result === 'foo--0--[object Object]--bar' on the next render
+### Use with reactive array
+
+```tsx
+import { useArrayJoin } from '@reaxuse/shared'
+import { useState } from 'react'
+
+const [list, setList] = useState(['string', 0, { prop: 'val' }, false, [1], [[2]], null, undefined, []])
+const result = useArrayJoin(list)
+// result: string,0,[object Object],false,1,2,,,
+
+setList([...list, true])
+// result: string,0,[object Object],false,1,2,,,,true on the next render
+
+setList([null, 'string', undefined])
+// result: ,string, on the next render
+```
+
+### Use with reactive separator
+
+```tsx
+import { useArrayJoin } from '@reaxuse/shared'
+import { useState } from 'react'
+
+const [list, setList] = useState(['string', 0, { prop: 'val' }])
+const [separator, setSeparator] = useState('')
+const result = useArrayJoin(list, separator)
+// result: string,0,[object Object]
+
+setSeparator('')
+// result: string0[object Object] on the next render
+
+setSeparator('--')
+// result: string--0--[object Object] on the next render
 ```
 
 `list` holds plain values only: the elements are joined with

@@ -125,3 +125,7 @@ debouncedFn.flush()
 ```
 
 This is useful when you need to ensure the debounced function runs right away, for example, before navigating away from a page or submitting a form.
+
+## Recommended Reading
+
+- [**Debounce vs Throttle**: Definitive Visual Guide](https://kettanaito.com/blog/debounce-vs-throttle)

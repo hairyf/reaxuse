@@ -8,9 +8,9 @@ related:
 
 # useColorMode
 
-Reactive color mode (dark / light / customs) with auto data persistence
+Reactive color mode (dark / light / customs) with auto data persistence.
 
-## Usage
+## Basic Usage
 
 ```tsx
 import { useColorMode } from '@reaxuse/core'
@@ -61,16 +61,6 @@ const [store] = useStorage('vueuse-color-scheme', 'auto') // 'dark' | 'light' | 
 const isDark = usePreferredDark() // system preference
 ```
 
-## React divergences
+## Component Usage
 
-- The hook returns a `[mode, setMode]` tuple instead of upstream's
-  `Ref<T | BasicColorSchema> & { store, system, state }`. The `store` (raw persisted value),
-  `system` (system preference) and `state` (translated mode) members are not exposed — read the
-  storage key with `useStorage` and the system preference with `usePreferredDark`.
-- `storageRef` replaces the persistence layer: `useStorage` is still called internally (rules of
-  hooks) but backed by an inert in-memory storage with `writeDefaults: false` and
-  `listenToStorageChanges: false`, so no real localStorage is read or written and no
-  storage-event listener is registered. A `null` `storageRef.current` falls back to
-  `initialValue`, whereas upstream's raw `store.value` passthrough would expose `null`.
-- The DOM `class`/attribute update and the initial storage read run after mount (in an effect), so
-  SSR renders the translated `initialValue` and never touches `window`/`document`/storage.
+Not ported — upstream ships a `UseColorMode` component (Vue, render-slot based); in React the hook is used directly.

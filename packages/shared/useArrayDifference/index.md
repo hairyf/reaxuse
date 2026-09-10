@@ -12,17 +12,50 @@ You can pass the `symmetric` option to get the [Symmetric difference](https://en
 
 ## Usage
 
+### Use with reactive array
+
 ```tsx
 import { useArrayDifference } from '@reaxuse/shared'
+import { useState } from 'react'
 
-const list = [1, 2, 3, 4, 5]
-const otherList = [4, 5, 6]
+const [list1, setList1] = useState([0, 1, 2, 3, 4, 5])
+const [list2, setList2] = useState([4, 5, 6])
+const result = useArrayDifference(list1, list2)
+// result: [0, 1, 2, 3]
 
-const diff = useArrayDifference(list, otherList) // [1, 2, 3]
+setList2([0, 1, 2])
+// result: [3, 4, 5] on the next render
+```
 
-// diff by key
-useArrayDifference(people, otherPeople, 'id')
+### Use with reactive array and use function comparison
 
-// diff by compare fn, symmetric difference
-useArrayDifference(people, otherPeople, (a, b) => a.id === b.id, { symmetric: true })
+```tsx
+import { useArrayDifference } from '@reaxuse/shared'
+import { useState } from 'react'
+
+const [list1, setList1] = useState([{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }])
+const [list2, setList2] = useState([{ id: 4 }, { id: 5 }, { id: 6 }])
+
+const result = useArrayDifference(list1, list2, (value, othVal) => value.id === othVal.id)
+// result: [{ id: 1 }, { id: 2 }, { id: 3 }]
+```
+
+### Symmetric Difference
+
+This hook also supports [Symmetric difference](https://en.wikipedia.org/wiki/Symmetric_difference) by passing the `symmetric` option.
+
+```tsx {10}
+import { useArrayDifference } from '@reaxuse/shared'
+import { useState } from 'react'
+
+const [list1, setList1] = useState([{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }])
+const [list2, setList2] = useState([{ id: 4 }, { id: 5 }, { id: 6 }])
+
+const result = useArrayDifference(
+  list1,
+  list2,
+  (value, othVal) => value.id === othVal.id,
+  { symmetric: true }
+)
+// result: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 6 }]
 ```

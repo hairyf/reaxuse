@@ -33,4 +33,32 @@ const [input, setInput, debounced] = useStateDebounced(
 )
 ```
 
+An example with an object value.
+
+```tsx
+import { useStateDebounced } from '@reaxuse/shared'
+
+const [data, setData, debounced] = useStateDebounced({
+  name: 'foo',
+  age: 18,
+}, 1000)
+
+function update() {
+  setData({
+    ...data,
+    name: 'bar',
+  })
+}
+
+console.log(debounced) // { name: 'foo', age: 18 }
+update()
+await sleep(1100)
+
+console.log(debounced) // { name: 'bar', age: 18 }
+```
+
 You can also pass an optional 3rd parameter including the `maxWait` option. See `useDebounceFn` for details.
+
+## Recommended Reading
+
+- [**Debounce vs Throttle**: Definitive Visual Guide](https://kettanaito.com/blog/debounce-vs-throttle)

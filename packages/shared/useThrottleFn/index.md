@@ -24,3 +24,7 @@ useEffect(() => {
 // ms accepts a number or a ref-like `{ current: number }` object, re-read on
 // every call
 ```
+
+## Recommended Reading
+
+- [**Debounce vs Throttle**: Definitive Visual Guide](https://kettanaito.com/blog/debounce-vs-throttle)

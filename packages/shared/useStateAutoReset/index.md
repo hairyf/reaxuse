@@ -18,3 +18,6 @@ function handleMessage() {
   setMessage('message has set')
 }
 ```
+
+> [!NOTE]
+> You can reassign the entire object to trigger updates after making deep mutations to the inner value.

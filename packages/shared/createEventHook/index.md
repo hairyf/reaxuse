@@ -8,7 +8,7 @@ Utility for creating event hooks
 
 ## Usage
 
-Creating a function that uses `createEventHook`:
+Creating a function that uses `createEventHook`
 
 ```tsx
 import { createEventHook } from '@reaxuse/shared'
@@ -28,7 +28,7 @@ export function useMyFetch(url: string) {
 }
 ```
 
-Using it from a component, with automatic cleanup on unmount:
+Using a function that uses `createEventHook`
 
 ```tsx
 import { useListener } from '@reaxuse/shared'

@@ -29,31 +29,13 @@ console.log(history)
 undo() // count back to 0
 ```
 
-### React adjustments
+The source is the controlled `[state, setState]` tuple of an existing `useState`; use `setSource()` (value or updater form, a drop-in for `setState`) for updates that must be visible to a manual `commit()` in the same tick.
 
-This port carries the `adjustment` label — upstream reactivity does not translate 1:1, so the behavior
-is reworked for React hooks:
-
-- **Source as a `[state, setState]` pair** — upstream tracks a writable `Ref` that the hook can
-  read and write synchronously. React state lives in the component, so the source is passed in as
-  the controlled tuple `[state, setState]`; upstream's `setSource` option is superseded by the
-  tuple's setter.
-- **Same-tick commits** — React `setState` is asynchronous. Calling `commit()` right after your own
-  `setState` would snapshot the previous rendered value. For updates you want to commit in the same
-  tick, use `setSource()` (value or updater form, a drop-in for `setState`): it applies
-  the new value synchronously and forwards it to your state setter, so `commit()` always snapshots
-  the newest value. Commits after a plain `setState` from a previous render work as usual.
-- **Storage and reactivity** — history records live in refs; a version counter triggers re-renders
-  (upstream: reactive refs + derived values). Records are plain objects — upstream's `markRaw` has no
-  React equivalent to port, and timestamps use `Date.now()` (upstream: `timestamp()`).
-- **Mutable sources** — React state is normally replaced instead of mutated; the `clone` option and
-  custom `dump` / `parse` still support mutation-style sources, mirroring upstream.
+You can use `undo` to reset the state to the last history point.
 
 ### History of mutable objects
 
-If you are going to mutate the source, pass a custom clone function or use `clone: true` — a
-shortcut for a minimal clone function `x => JSON.parse(JSON.stringify(x))` used in both `dump` and
-`parse`.
+If you are going to mutate the source, you need to pass a custom clone function or use `clone` `true` as a param, that is a shortcut for a minimal clone function `x => JSON.parse(JSON.stringify(x))` that will be used in both `dump` and `parse`.
 
 ```tsx
 import { useStateManualHistory } from '@reaxuse/core'
@@ -71,17 +53,43 @@ target.foo += 1
 commit()
 ```
 
-A full featured clone function can be passed via `clone`, e.g.
-[structuredClone](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone):
+### Custom Clone Function
+
+To use a full featured or custom clone function, you can set up via the `clone` options.
+
+For example, using [structuredClone](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone):
 
 ```tsx
+import { useStateManualHistory } from '@reaxuse/core'
+
 const stateHistory = useStateManualHistory([target, setTarget], { clone: structuredClone })
 ```
 
-Instead of `clone`, custom `dump` / `parse` functions control serialization and parsing — useful to
-store stringified snapshots:
+Or by using [lodash's `cloneDeep`](https://lodash.com/docs/4.17.15#cloneDeep):
 
 ```tsx
+import { useStateManualHistory } from '@reaxuse/core'
+import { cloneDeep } from 'lodash-es'
+
+const stateHistory = useStateManualHistory([target, setTarget], { clone: cloneDeep })
+```
+
+Or a more lightweight [`klona`](https://github.com/lukeed/klona):
+
+```tsx
+import { useStateManualHistory } from '@reaxuse/core'
+import { klona } from 'klona'
+
+const stateHistory = useStateManualHistory([target, setTarget], { clone: klona })
+```
+
+### Custom Dump and Parse Function
+
+Instead of using the `clone` options, you can pass custom functions to control the serialization and parsing. In case you do not need history values to be objects, this can save an extra clone when undoing. It is also useful in case you want to have the snapshots already stringified to be saved to local storage for example.
+
+```tsx
+import { useStateManualHistory } from '@reaxuse/core'
+
 const stateHistory = useStateManualHistory([target, setTarget], {
   dump: JSON.stringify,
   parse: JSON.parse,
@@ -90,7 +98,7 @@ const stateHistory = useStateManualHistory([target, setTarget], {
 
 ### History Capacity
 
-All history is kept by default (unlimited). Set the maximal amount of history with `capacity`:
+We will keep all the history by default (unlimited) until you explicitly clear them up, you can set the maximal amount of history to be kept by `capacity` options.
 
 ```tsx
 const { history, commit, clear } = useStateManualHistory([target, setTarget], {

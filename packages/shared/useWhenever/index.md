@@ -51,6 +51,20 @@ useWhenever(height, (current, lastHeight) => {
 })
 ```
 
+### Computed
+
+Same as `watch`, you can pass a getter function to calculate on each change.
+
+```tsx
+import { useWhenever } from '@reaxuse/shared'
+import { useState } from 'react'
+
+const [counter, setCounter] = useState(0)
+
+// this
+useWhenever(counter === 7, () => console.log('counter is 7 now!'))
+```
+
 ### Options
 
 Fire the callback on mount if the value is already truthy.
