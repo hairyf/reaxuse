@@ -1,6 +1,3 @@
-// Relative (not `@reaxuse/shared`): until this PR is merged the package name
-// resolves through the worktree node_modules junction to the main repo's
-// still-empty shared isDefined module.
 import { useState } from 'react'
 import { isDefined } from '../isDefined'
 
