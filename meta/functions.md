@@ -154,11 +154,13 @@
 | `useFetch`                        | packages/core/useFetch                        | `packages/core/useFetch/index.tsx`                        | ✅ ported                     |
 | `useFileDialog`                   | packages/core/useFileDialog                   | `packages/core/useFileDialog/index.tsx`                   | ✅ ported                     |
 | `useFileSystemAccess`             | packages/core/useFileSystemAccess             | `packages/core/useFileSystemAccess/index.tsx`             | ✅ ported                     |
+| `useFirestore`                    | packages/firebase/useFirestore                | `packages/firebase/useFirestore/index.tsx`                | ✅ ported                     |
 | `useFloor`                        | packages/math/useFloor                        | `packages/math/useFloor/index.tsx`                        | ✅ ported                     |
 | `useFocus`                        | packages/core/useFocus                        | `packages/core/useFocus/index.tsx`                        | ✅ ported                     |
 | `useFocusTrap`                    | packages/integrations/useFocusTrap            | `packages/integrations/useFocusTrap/index.tsx`            | ✅ ported                     |
 | `useFocusWithin`                  | packages/core/useFocusWithin                  | `packages/core/useFocusWithin/index.tsx`                  | ✅ ported                     |
 | `useFps`                          | packages/core/useFps                          | `packages/core/useFps/index.tsx`                          | ✅ ported                     |
+| `useFrom`                         | —                                             | `packages/rxjs/useFrom/index.tsx`                         | 🚧 ported (no upstream match) |
 | `useFullscreen`                   | packages/core/useFullscreen                   | `packages/core/useFullscreen/index.tsx`                   | ✅ ported                     |
 | `useFuse`                         | packages/integrations/useFuse                 | `packages/integrations/useFuse/index.tsx`                 | ✅ ported                     |
 | `useGamepad`                      | packages/core/useGamepad                      | `packages/core/useGamepad/index.tsx`                      | ✅ ported                     |
@@ -209,6 +211,7 @@
 | `useOnline`                       | packages/core/useOnline                       | `packages/core/useOnline/index.tsx`                       | ✅ ported                     |
 | `usePageLeave`                    | packages/core/usePageLeave                    | `packages/core/usePageLeave/index.tsx`                    | ✅ ported                     |
 | `useParallax`                     | packages/core/useParallax                     | `packages/core/useParallax/index.tsx`                     | ✅ ported                     |
+| `useParams`                       | —                                             | `packages/core/useParams/index.tsx`                       | 🚧 ported (no upstream match) |
 | `useParentElement`                | packages/core/useParentElement                | `packages/core/useParentElement/index.tsx`                | ✅ ported                     |
 | `usePerformanceObserver`          | packages/core/usePerformanceObserver          | `packages/core/usePerformanceObserver/index.tsx`          | ✅ ported                     |
 | `usePermission`                   | packages/core/usePermission                   | `packages/core/usePermission/index.tsx`                   | ✅ ported                     |
@@ -225,6 +228,7 @@
 | `usePrevious`                     | packages/core/usePrevious                     | `packages/core/usePrevious/index.tsx`                     | ✅ ported                     |
 | `useProjection`                   | packages/math/useProjection                   | `packages/math/useProjection/index.tsx`                   | ✅ ported                     |
 | `useQRCode`                       | packages/integrations/useQRCode               | `packages/integrations/useQRCode/index.tsx`               | ✅ ported                     |
+| `useQuery`                        | —                                             | `packages/core/useQuery/index.tsx`                        | 🚧 ported (no upstream match) |
 | `useRafFn`                        | packages/core/useRafFn                        | `packages/core/useRafFn/index.tsx`                        | ✅ ported                     |
 | `useRefsList`                     | —                                             | `packages/core/useRefsList/index.tsx`                     | 🚧 ported (no upstream match) |
 | `useResizeObserver`               | packages/core/useResizeObserver               | `packages/core/useResizeObserver/index.tsx`               | ✅ ported                     |

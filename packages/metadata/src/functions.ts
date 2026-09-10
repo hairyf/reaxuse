@@ -1049,6 +1049,13 @@ export const functions: FunctionInfo[] = [
     lastUpdated: 1788973480000,
   },
   {
+    name: 'useFirestore',
+    file: 'packages/firebase/useFirestore/index.tsx',
+    pkg: 'firebase',
+    category: '@Firebase',
+    lastUpdated: 1789031800000,
+  },
+  {
     name: 'useFloor',
     file: 'packages/math/useFloor/index.tsx',
     pkg: 'math',
@@ -1082,6 +1089,13 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
     category: 'Sensors',
     lastUpdated: 1788971997000,
+  },
+  {
+    name: 'useFrom',
+    file: 'packages/rxjs/useFrom/index.tsx',
+    pkg: 'rxjs',
+    category: '@RxJS',
+    lastUpdated: 1789031655000,
   },
   {
     name: 'useFullscreen',
@@ -1434,6 +1448,13 @@ export const functions: FunctionInfo[] = [
     lastUpdated: 1788959813000,
   },
   {
+    name: 'useParams',
+    file: 'packages/core/useParams/index.tsx',
+    pkg: 'core',
+    category: 'Browser',
+    lastUpdated: 1789029591000,
+  },
+  {
     name: 'useParentElement',
     file: 'packages/core/useParentElement/index.tsx',
     pkg: 'core',
@@ -1544,6 +1565,13 @@ export const functions: FunctionInfo[] = [
     pkg: 'integrations',
     category: '@Integrations',
     lastUpdated: 1788956526000,
+  },
+  {
+    name: 'useQuery',
+    file: 'packages/core/useQuery/index.tsx',
+    pkg: 'core',
+    category: 'Browser',
+    lastUpdated: 1789027542000,
   },
   {
     name: 'useRafFn',
