@@ -4,7 +4,7 @@ category: Utilities
 
 # makeDestructurable
 
-Make isomorphic destructurable for object and array at the same time
+Make isomorphic destructurable for object and array at the same time. See [this blog](https://antfu.me/posts/destructuring-with-object-or-array/)
 
 ## Usage
 
