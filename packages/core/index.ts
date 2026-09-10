@@ -1,5 +1,5 @@
 // export * from './computedInject'
-// export * from './createReusableTemplate'
+export * from './createPortalSlot'
 // export * from './createTemplatePromise'
 // export * from './createUnrefFn'
 export * from './unrefElement'
