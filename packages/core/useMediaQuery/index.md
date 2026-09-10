@@ -42,3 +42,15 @@ useEffect(() => {
   console.log(isLarge) // false if screen is smaller than 1024px, true if larger than 1024px
 }, [isLarge])
 ```
+
+Alternatively you can set this up globally for your app using [`SSRWidthProvider`](/core/useSSRWidth/): every
+`useMediaQuery` below the provider renders against the provided width, so a per-hook `ssrWidth` is only needed to
+override it.
+
+```tsx
+import { SSRWidthProvider } from '@reaxuse/core'
+
+<SSRWidthProvider width={768}>
+  <App />
+</SSRWidthProvider>
+```

@@ -1,6 +1,7 @@
 import type { ConfigurableWindow } from '@reaxuse/shared'
 import { pxValue } from '@reaxuse/shared'
 import { useEffect, useState } from 'react'
+import { useSSRWidth } from '../useSSRWidth'
 
 /**
  * Resolve a media query against a simulated viewport width, mirroring the
@@ -50,7 +51,15 @@ function resolveSsrMatches(query: string, ssrWidth: number): boolean {
  *   and the first client render both carry the simulated match (upstream does
  *   the same in its setup-time `watchEffect`); once `matchMedia` is available
  *   the mount effect replaces it with the real result, matching upstream's
- *   `ssrSupport` exit on mount.
+ *   `ssrSupport` exit on mount;
+ * - `ssrWidth` comes from the per-hook `ssrWidth` option or, when that is
+ *   omitted, from the closest `SSRWidthProvider` above the caller (read
+ *   through `useSSRWidth()`, upstream's `provideSSRWidth`). The per-hook
+ *   option takes precedence over the provided width, exactly like upstream's
+ *   `const { ssrWidth = useSSRWidth() } = options`. Without a provider and
+ *   without the option the hook keeps its plain client behaviour — `false`
+ *   until `matchMedia` answers — and never throws, so `undefined` can never
+ *   reach the returned boolean.
  *
  * @example
  * const isLargeScreen = useMediaQuery('(min-width: 1024px)')
@@ -60,7 +69,13 @@ export function useMediaQuery(
   query: string,
   options: ConfigurableWindow & { ssrWidth?: number } = {},
 ): boolean {
-  const { window: windowOption, ssrWidth } = options
+  const { window: windowOption, ssrWidth: ssrWidthOption } = options
+
+  // The per-hook option wins over the globally provided width (upstream:
+  // `const { ssrWidth = useSSRWidth() } = options`); with neither, `ssrWidth`
+  // stays `undefined` and the hook falls back to its client-only behaviour.
+  const [providedWidth] = useSSRWidth()
+  const ssrWidth = ssrWidthOption ?? providedWidth
 
   // SSR and the first client render: resolve `ssrWidth` synchronously without
   // touching `window`, so server markup hydrates without a mismatch.

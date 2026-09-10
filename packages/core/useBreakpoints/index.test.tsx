@@ -1,6 +1,14 @@
+import type { ReactNode } from 'react'
+import { renderToString } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { breakpointsBootstrapV5, useBreakpoints } from '../useBreakpoints'
+import { SSRWidthProvider } from '../useSSRWidth'
+
+/** Wrapper handing every rendered hook a global SSR width of `768px`. */
+function providerWrapper({ children }: { children: ReactNode }) {
+  return <SSRWidthProvider width={768}>{children}</SSRWidthProvider>
+}
 
 type ChangeListener = (event: MediaQueryListEvent) => void
 
@@ -127,10 +135,71 @@ describe('useBreakpoints', () => {
     expect(breakpoints.sm).toBe(false)
   })
 
-  // The upstream test suite also covers `provideSSRWidth` (a Vue
-  // provide/inject global SSR width store). reaxuse intentionally ports only
-  // the per-hook `ssrWidth` option (see index.md "Server Side Rendering"), so
-  // that path is covered by the two scenarios above.
+  it('should consume the global SSR width provided by SSRWidthProvider', async () => {
+    const { result } = await renderHook(
+      () => useBreakpoints(breakpointsBootstrapV5, { window: null as unknown as undefined }),
+      { wrapper: providerWrapper },
+    )
+    const breakpoints = result.current
+
+    // no per-hook `ssrWidth`: the 768px global width drives every query
+    expect(breakpoints.current()).toStrictEqual(['xs', 'sm', 'md'])
+    expect(breakpoints.active()).toBe('md')
+    expect(breakpoints.sm).toBe(true)
+    expect(breakpoints.md).toBe(true)
+    expect(breakpoints.lg).toBe(false)
+    expect(breakpoints.isGreaterOrEqual('md')).toBe(true)
+    expect(breakpoints.isGreater('md')).toBe(false)
+    expect(breakpoints.isSmallerOrEqual('md')).toBe(true)
+    expect(breakpoints.between('md', 'lg')).toBe(true)
+  })
+
+  it('should let the per-hook ssrWidth option win over the provided width', async () => {
+    const { result } = await renderHook(
+      () => useBreakpoints(breakpointsBootstrapV5, {
+        window: null as unknown as undefined,
+        ssrWidth: 1200,
+      }),
+      { wrapper: providerWrapper },
+    )
+
+    // the option (1200) takes precedence over the provider (768)
+    expect(result.current.current()).toStrictEqual(['xs', 'sm', 'md', 'lg', 'xl'])
+    expect(result.current.active()).toBe('xl')
+    expect(result.current.xl).toBe(true)
+  })
+
+  it('should render the provided SSR width on the server', () => {
+    function SSRBreakpoints() {
+      const bps = useBreakpoints({ sm: 640, md: 768 }, { window: null as unknown as undefined })
+      return <div>{`active:${bps.active()} md:${bps.md}`}</div>
+    }
+
+    const html = renderToString(
+      <SSRWidthProvider width={700}>
+        <SSRBreakpoints />
+      </SSRWidthProvider>,
+    )
+
+    // 700 >= 640 → sm active, 700 < 768 → md false
+    expect(html).toContain('active:sm md:false')
+  })
+
+  it('should keep the default behaviour and never throw without a provider', async () => {
+    const { result } = await renderHook(() =>
+      useBreakpoints(breakpointsBootstrapV5, { window: null as unknown as undefined }))
+
+    // no provider, no `ssrWidth` option → the documented empty default
+    expect(result.current.current()).toStrictEqual([])
+    expect(result.current.active()).toBe('')
+    expect(result.current.md).toBe(false)
+    expect(result.current.isGreaterOrEqual('md')).toBe(false)
+    expect(result.current.isInBetween('sm', 'md')).toBe(false)
+  })
+
+  // `ssrWidth` can also come from the global store: `SSRWidthProvider` above
+  // the caller (upstream's `provideSSRWidth`). The provider-specific paths are
+  // covered by the scenarios above.
   it('should react to media query changes', async () => {
     const stub = stubMatchMedia(0)
     try {
