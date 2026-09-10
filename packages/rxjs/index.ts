@@ -5,9 +5,9 @@
  * keep it external to the bundle.
  */
 
-// export * from './from'
 export * from './toObserver'
 export * from './useExtractedObservable'
+export * from './useFrom'
 export * from './useObservable'
 export * from './useSubject'
 export * from './useSubscription'
