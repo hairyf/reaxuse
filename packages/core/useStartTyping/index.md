@@ -22,16 +22,6 @@ useStartTyping(() => {
 // <input ref={input} type="text" placeholder="Start typing to focus">
 ```
 
-The hook returns a cleanup function that removes the `keydown` listener —
-the listener is also removed automatically on unmount.
-
-```tsx
-const stop = useStartTyping(handleKey)
-
-// later
-stop()
-```
-
 ## Custom Valid Key
 
 ```ts
