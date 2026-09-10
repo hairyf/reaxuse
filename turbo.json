@@ -3,10 +3,31 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**"],
+      "inputs": [
+        "../../tsdown.config.ts",
+        "../../meta/packages.ts",
+        "tsdown.config.ts",
+        "package.json",
+        "index.ts",
+        "src/**",
+        "*/index.tsx",
+        "*/index.ts",
+        "!**/index.test.tsx",
+        "!**/demo.tsx"
+      ]
     },
     "typecheck": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "inputs": [
+        "../../tsconfig.json",
+        "tsconfig.json",
+        "package.json",
+        "index.ts",
+        "src/**",
+        "*/index.tsx",
+        "*/index.ts"
+      ]
     },
     "update": {
       "cache": false
