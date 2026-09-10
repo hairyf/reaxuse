@@ -11,11 +11,13 @@ A basic counter with `inc` / `dec` / `set` / `reset` and optional `min` / `max` 
 ```tsx
 import { useCounter } from '@reaxuse/shared'
 
-const { count, inc, dec, set, reset } = useCounter(0, { min: 0, max: 10 })
+const { count, inc, dec, set, reset } = useCounter()
+```
 
-inc() // +1
-inc(5) // +5
-dec() // -1
-set(3) // = 3 (clamped to [min, max])
-reset() // back to initialValue
+## Usage with options
+
+```tsx
+import { useCounter } from '@reaxuse/shared'
+
+const { count, inc, dec, set, reset } = useCounter(1, { min: 0, max: 16 })
 ```

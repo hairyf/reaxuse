@@ -8,13 +8,32 @@ Reactive `Array.some`
 
 ## Usage
 
+### Use with array of multiple refs
+
+```tsx
+import { useArraySome } from '@reaxuse/shared'
+import { useState } from 'react'
+
+const [item1, setItem1] = useState(0)
+const [item2, setItem2] = useState(2)
+const [item3, setItem3] = useState(4)
+const [item4, setItem4] = useState(6)
+const [item5, setItem5] = useState(8)
+const list = [item1, item2, item3, item4, item5]
+const result = useArraySome(list, i => i > 10) // false
+
+setItem1(11)
+// result: true on the next render
+```
+
+### Use with reactive array
+
 ```tsx
 import { useArraySome } from '@reaxuse/shared'
 import { useState } from 'react'
 
 const [list, setList] = useState([0, 2, 4, 6, 8])
-const result = useArraySome(list, i => i > 10)
-// result: false
+const result = useArraySome(list, i => i > 10) // false
 
 setList([...list, 11])
 // result: true on the next render
