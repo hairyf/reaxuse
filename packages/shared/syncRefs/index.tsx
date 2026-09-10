@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 
 export interface SyncRefsOptions {
   /**
@@ -58,16 +58,20 @@ const neverObserved = Symbol('reaxuse.syncRefs.neverObserved')
  * any work once the owning component unmounts.
  *
  * @example
- * const [source, setSource] = useState('hello')
- * const target = { current: 'target' }
+ * function Form() {
+ *   const [source, setSource] = useState('hello')
+ *   const target = { current: 'target' }
  *
- * const stop = syncRefs(source, target)
+ *   const stop = syncRefs(source, target)
  *
- * console.log(target.current) // hello
+ *   // during the first render `target.current` is still 'target' — the sync
+ *   // effect runs after the commit, so the source reaches the target only
+ *   // once the component has mounted (target.current === 'hello' afterwards).
+ *   // Calling `setSource('foo')` re-renders and the effect then copies 'foo'
+ *   // into target.current on the following commit.
  *
- * setSource('foo') // re-render → target.current === 'foo'
- *
- * stop()
+ *   stop()
+ * }
  */
 export function syncRefs<T>(
   source: T,
@@ -111,7 +115,11 @@ export function syncRefs<T>(
     })
   })
 
-  return () => {
+  // stable `stop` — memoized so its identity survives renders (the React
+  // analogue of upstream's stable watch handle)
+  const stop = useCallback(() => {
     stoppedRef.current = true
-  }
+  }, [])
+
+  return stop
 }
