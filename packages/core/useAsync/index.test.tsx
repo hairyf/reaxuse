@@ -1,7 +1,7 @@
 import { promiseTimeout } from '@reaxuse/shared'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
-import { computedAsync } from '../computedAsync'
+import { useAsync } from '../useAsync'
 
 interface Deferred<T> {
   promise: Promise<T>
@@ -19,30 +19,30 @@ function createDeferred<T>(): Deferred<T> {
   return { promise, resolve, reject }
 }
 
-describe('computedAsync', () => {
+describe('useAsync', () => {
   it('should be defined', () => {
-    expect(computedAsync).toBeDefined()
+    expect(useAsync).toBeDefined()
   })
 
   it('types: initialState is optional and widens the return to T | undefined when omitted', () => {
     const func = () => Promise.resolve('data')
     // Declared but never called — type-level assertions only, no hooks run.
-    const withoutInitial = () => computedAsync(func)
-    const withInitial = () => computedAsync(func, 'initial')
+    const withoutInitial = () => useAsync(func)
+    const withInitial = () => useAsync(func, 'initial')
     expectTypeOf(withoutInitial).returns.toEqualTypeOf<string | undefined>()
     expectTypeOf(withInitial).returns.toEqualTypeOf<string>()
   })
 
   it('returns the initial state (plain value) until the evaluation settles', async () => {
     const deferred = createDeferred<string>()
-    const { result } = await renderHook(() => computedAsync(() => deferred.promise, 'initial'))
+    const { result } = await renderHook(() => useAsync(() => deferred.promise, 'initial'))
     expect(result.current).toBe('initial')
   })
 
   it('supports a ref-like initial state', async () => {
     const initialState = { current: 'ref-initial' }
     const deferred = createDeferred<string>()
-    const { result } = await renderHook(() => computedAsync(() => deferred.promise, initialState))
+    const { result } = await renderHook(() => useAsync(() => deferred.promise, initialState))
     expect(result.current).toBe('ref-initial')
     deferred.resolve('resolved')
     await vi.waitFor(() => {
@@ -58,7 +58,7 @@ describe('computedAsync', () => {
       externalValue = typeof value === 'function' ? value(externalValue) : value
     })
     const state: readonly [string, typeof setExternalValue] = [externalValue, setExternalValue]
-    const { result } = await renderHook(() => computedAsync(() => deferred.promise, state))
+    const { result } = await renderHook(() => useAsync(() => deferred.promise, state))
     expect(result.current).toBe('controlled')
     deferred.resolve('resolved')
     await vi.waitFor(() => {
@@ -71,7 +71,7 @@ describe('computedAsync', () => {
   it('supports a controlled value/onChange state object', async () => {
     const deferred = createDeferred<string>()
     const onChange = vi.fn()
-    const { result } = await renderHook(() => computedAsync(() => deferred.promise, { value: 'initial', onChange }))
+    const { result } = await renderHook(() => useAsync(() => deferred.promise, { value: 'initial', onChange }))
     deferred.resolve('next')
     await vi.waitFor(() => {
       expect(onChange).toHaveBeenCalledWith('next')
@@ -81,7 +81,7 @@ describe('computedAsync', () => {
 
   it('resolves the async value', async () => {
     const deferred = createDeferred<string>()
-    const { result } = await renderHook(() => computedAsync(() => deferred.promise, 'initial'))
+    const { result } = await renderHook(() => useAsync(() => deferred.promise, 'initial'))
     deferred.resolve('resolved')
     await vi.waitFor(() => {
       expect(result.current).toBe('resolved')
@@ -89,14 +89,14 @@ describe('computedAsync', () => {
   })
 
   it('updates the state synchronously for non-Promise return values', async () => {
-    const { result } = await renderHook(() => computedAsync(() => 'sync-value', 'initial'))
+    const { result } = await renderHook(() => useAsync(() => 'sync-value', 'initial'))
     expect(result.current).toBe('sync-value')
   })
 
   it('re-evaluates when deps change', async () => {
     const evaluationCallback = vi.fn(async (term: string) => `lookup:${term}`)
     const { result, rerender } = await renderHook(
-      ({ term }: { term: string } = { term: 'a' }) => computedAsync(() => evaluationCallback(term), '', { deps: [term] }),
+      ({ term }: { term: string } = { term: 'a' }) => useAsync(() => evaluationCallback(term), '', { deps: [term] }),
       { initialProps: { term: 'a' } },
     )
     await vi.waitFor(() => {
@@ -121,7 +121,7 @@ describe('computedAsync', () => {
       return second.promise
     }
     const { result, rerender } = await renderHook(
-      ({ term }: { term: string } = { term: 'a' }) => computedAsync(() => pick(), 'initial', { deps: [term], onEvaluating }),
+      ({ term }: { term: string } = { term: 'a' }) => useAsync(() => pick(), 'initial', { deps: [term], onEvaluating }),
       { initialProps: { term: 'a' } },
     )
     expect(result.current).toBe('initial')
@@ -162,7 +162,7 @@ describe('computedAsync', () => {
       return third.promise
     }
     const { result, rerender } = await renderHook(
-      ({ term }: { term: string } = { term: 'a' }) => computedAsync((cancel) => {
+      ({ term }: { term: string } = { term: 'a' }) => useAsync((cancel) => {
         cancel(onCancel)
         return pick()
       }, 'initial', { deps: [term] }),
@@ -196,7 +196,7 @@ describe('computedAsync', () => {
   it('reports the onEvaluating true→false sequence', async () => {
     const onEvaluating = vi.fn()
     const deferred = createDeferred<string>()
-    const { result } = await renderHook(() => computedAsync(() => deferred.promise, '', { onEvaluating }))
+    const { result } = await renderHook(() => useAsync(() => deferred.promise, '', { onEvaluating }))
     expect(result.current).toBe('')
     await vi.waitFor(() => {
       expect(onEvaluating).toHaveBeenCalledTimes(1)
@@ -214,7 +214,7 @@ describe('computedAsync', () => {
   it('keeps the current state and calls onError on rejection', async () => {
     const onError = vi.fn()
     const error = new Error('lookup failed')
-    const { result } = await renderHook(() => computedAsync(
+    const { result } = await renderHook(() => useAsync(
       async () => {
         throw error
       },
@@ -233,7 +233,7 @@ describe('computedAsync', () => {
     globalThis.reportError = mockReportError
     try {
       const error = new Error('lookup failed')
-      const { result } = await renderHook(() => computedAsync(
+      const { result } = await renderHook(() => useAsync(
         async () => {
           throw error
         },
@@ -253,7 +253,7 @@ describe('computedAsync', () => {
     const evaluationCallback = vi.fn((term: string) => Promise.resolve(`lazy:${term}`))
     const onEvaluating = vi.fn()
     const { result, rerender } = await renderHook(
-      ({ term }: { term: string } = { term: 'a' }) => computedAsync(() => evaluationCallback(term), 'initial', { deps: [term], lazy: true, onEvaluating }),
+      ({ term }: { term: string } = { term: 'a' }) => useAsync(() => evaluationCallback(term), 'initial', { deps: [term], lazy: true, onEvaluating }),
       { initialProps: { term: 'a' } },
     )
     expect(evaluationCallback).not.toHaveBeenCalled()
@@ -277,7 +277,7 @@ describe('computedAsync', () => {
       return call === 1 ? first.promise : second.promise
     }
     const { result, rerender } = await renderHook(
-      ({ term }: { term: string } = { term: 'a' }) => computedAsync((cancel) => {
+      ({ term }: { term: string } = { term: 'a' }) => useAsync((cancel) => {
         cancel(onCancel)
         return pick()
       }, 'initial', { deps: [term], skipInitial: true }),
@@ -319,7 +319,7 @@ describe('computedAsync', () => {
       const onCancel = vi.fn()
       const onEvaluating = vi.fn()
       const deferred = createDeferred<string>()
-      const { result, unmount } = await renderHook(() => computedAsync((cancel) => {
+      const { result, unmount } = await renderHook(() => useAsync((cancel) => {
         cancel(onCancel)
         return deferred.promise
       }, 'initial', { onEvaluating }))

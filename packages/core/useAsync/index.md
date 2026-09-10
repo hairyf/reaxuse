@@ -2,21 +2,21 @@
 category: Reactivity
 ---
 
-# computedAsync
+# useAsync
 
 Computed for async functions
 
 ## Usage
 
 ```tsx
-import { computedAsync } from '@reaxuse/core'
+import { useAsync } from '@reaxuse/core'
 import { useState } from 'react'
 
 function PackageSearch() {
   const [term, setTerm] = useState('@reaxuse/core')
   const [evaluating, setEvaluating] = useState(false)
 
-  const downloads = computedAsync(
+  const downloads = useAsync(
     async (onCancel) => {
       const controller = new AbortController()
       // a newer evaluation (or unmount) aborts this one
@@ -48,13 +48,13 @@ function PackageSearch() {
 
 ```tsx
 const [value, setValue] = useState('—')
-const downloads = computedAsync(fetchDownloads, [value, setValue])
+const downloads = useAsync(fetchDownloads, [value, setValue])
 ```
 
 `initialState` is optional — omitting it starts at `undefined` and widens the return type to `T | undefined`, mirroring the upstream overloads.
 
 ```tsx
-const downloads = computedAsync(fetchDownloads) // string | undefined
+const downloads = useAsync(fetchDownloads) // string | undefined
 ```
 
 ## Options
@@ -80,4 +80,4 @@ const downloads = computedAsync(fetchDownloads) // string | undefined
 - **`flush` is not ported.** Upstream's `flush` option (`ConfigurableFlushSync`, default `'sync'`) controls Vue's `watchEffect` flush timing. Re-evaluation here is driven by `deps` inside a React effect (post-commit), which is the closest analogue of upstream's sync flush.
 - **`evaluating` ref → `onEvaluating` callback.** Upstream accepts a `Ref<boolean>` (or an `options.evaluating` ref); React uses the `onEvaluating(value)` callback instead.
 - **`shallow` is not ported.** React state is never deep-wrapped, so upstream's `shallow` option has no effect to configure.
-- **`asyncComputed` alias is not ported.** Upstream re-exports the deprecated `asyncComputed = computedAsync` alias; use `computedAsync` directly.
+- **`asyncComputed` alias is not ported.** Upstream re-exports the deprecated `asyncComputed = computedAsync` alias; use `useAsync` directly.
