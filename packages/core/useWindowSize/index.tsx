@@ -1,5 +1,5 @@
 import type { ConfigurableWindow } from '@reaxuse/shared'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export interface UseWindowSizeOptions extends ConfigurableWindow {
   initialWidth?: number
@@ -50,7 +50,15 @@ export interface UseWindowSizeReturn {
  *   `window`;
  * - upstream's `useMediaQuery('(orientation: portrait)')` watch becomes a
  *   `matchMedia` `change` listener, guarded for environments without
- *   `matchMedia`.
+ *   `matchMedia`;
+ * - the `resize` listener attaches to the resolved window target — the
+ *   `options.window` instance when given, otherwise the global window —
+ *   while upstream always listens on the global window and only *reads* the
+ *   custom window; listening where we read means a custom target (e.g. an
+ *   iframe) receives its own resize events;
+ * - like upstream, the options are captured once on the first render: a
+ *   mid-life change to `window` / `type` / `includeScrollbar` /
+ *   `listenOrientation` does not re-subscribe the listeners.
  *
  * @example
  * const { width, height } = useWindowSize()
@@ -66,10 +74,19 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): UseWindowSize
 
   const [size, setSize] = useState<UseWindowSizeReturn>({ width: initialWidth, height: initialHeight })
 
+  // upstream reads its options once at setup (`source/vueuse/.../index.ts:49-56`)
+  // and ignores later mutations — mirror that by capturing the
+  // defaults-resolved options on the first render; the listeners attach once
+  // and never re-subscribe on a mid-life option change
+  const capturedRef = useRef({ window: options.window, listenOrientation, includeScrollbar, type })
+  const captured = capturedRef.current
+
   useEffect(() => {
-    const win = options.window ?? (typeof window === 'undefined' ? undefined : window)
+    const win = captured.window ?? (typeof window === 'undefined' ? undefined : window)
     if (!win)
       return
+
+    const { type = 'inner', includeScrollbar = true, listenOrientation = true } = captured
 
     const update = () => {
       if (type === 'outer') {
@@ -108,7 +125,7 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): UseWindowSize
     return () => {
       listeners.forEach(remove => remove())
     }
-  }, [options.window, type, includeScrollbar, listenOrientation])
+  }, [])
 
   return size
 }

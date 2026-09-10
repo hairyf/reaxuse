@@ -1,4 +1,5 @@
 import type { UseWindowSizeReturn } from '../useWindowSize'
+import { renderToString } from 'react-dom/server'
 import { afterEach, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useWindowSize } from '../useWindowSize'
@@ -110,6 +111,49 @@ it('useWindowSize honors initialWidth/initialHeight before the mount effect', as
 
   expect(rendered[0]).toEqual({ width: 100, height: 200 })
   expect(result.current).toEqual({ width: window.innerWidth, height: window.innerHeight })
+})
+
+it('useWindowSize is SSR-safe: renders the initial defaults and attaches no listeners', () => {
+  // server rendering never runs the mount effect, so the hook must render the
+  // initial values without touching `window` — the behavior `index.md:15`
+  // documents for SSR and the `typeof window === 'undefined'` guard
+  // (`index.tsx:70-72`) protects. (The literal guard branch is unreachable in
+  // the browser test environment — the global `window` is always present —
+  // so the contract is exercised through a real server render.)
+  const addEventListenerSpy = vi.spyOn(window, 'addEventListener')
+
+  function ServerProbe() {
+    const size = useWindowSize({ initialWidth: 100, initialHeight: 200 })
+    return <span>{`${size.width}:${size.height}`}</span>
+  }
+
+  const html = renderToString(<ServerProbe />)
+
+  expect(html).toContain('100:200')
+  expect(addEventListenerSpy).not.toHaveBeenCalled()
+})
+
+it('useWindowSize does not re-subscribe on a mid-life options change (options captured once)', async () => {
+  const { fakeWindow, listeners } = createFakeWindow()
+  const { rerender } = await renderHook(
+    (props: { window: Window, listenOrientation: boolean } = { window: fakeWindow, listenOrientation: true }) => useWindowSize(props),
+    { initialProps: { window: fakeWindow, listenOrientation: true } },
+  )
+
+  const resizeListener = listeners['window:resize'][0]
+  const orientationListener = listeners['media:change'][0]
+  expect(resizeListener).toBeDefined()
+  expect(orientationListener).toBeDefined()
+
+  // upstream captures its options once at setup and ignores later mutations —
+  // a mid-life option change must keep the original listeners attached, not
+  // detach and re-attach fresh ones
+  await rerender({ window: fakeWindow, listenOrientation: false })
+
+  expect(listeners['window:resize']).toHaveLength(1)
+  expect(listeners['media:change']).toHaveLength(1)
+  expect(listeners['window:resize'][0]).toBe(resizeListener)
+  expect(listeners['media:change'][0]).toBe(orientationListener)
 })
 
 it('useWindowSize refreshes on window resize events', async () => {
