@@ -12,6 +12,10 @@ import { useHash } from '../useHash'
 function setUrlHash(hash: string) {
   const url = new URL(window.location.href)
   url.hash = hash
+  // WebKit rate limits `history.replaceState` (100 calls / 10 s), so skip the
+  // calls that would not change the URL.
+  if (url.href === window.location.href)
+    return
   window.history.replaceState(null, '', url.href)
 }
 
@@ -239,16 +243,28 @@ describe('useHash', () => {
 
       expect(result.current[0]).toBe('#first')
 
+      const entriesBefore = window.history.length
+
       await act(() => {
         result.current[1]('second')
       })
 
       expect(window.location.hash).toBe('#second')
+      // `mode: 'push'` adds a history entry.
+      expect(window.history.length).toBe(entriesBefore + 1)
 
       await act(async () => {
-        window.history.back()
-        // the traversal is asynchronous: `popstate` lands on a later task
-        await new Promise(resolve => setTimeout(resolve, 50))
+        // The back traversal itself is engine-dependent inside the test
+        // harness: under WebKit `history.back()` can traverse past this test's
+        // own entry into vitest's iframe URL (`?sessionId&iframeId`) once
+        // another history-touching file has run before it, so the restoration
+        // is driven through the real `hashchange` the browser fires for a hash
+        // navigation — from the hook's point of view the two are identical.
+        const changed = new Promise<void>((resolve) => {
+          window.addEventListener('hashchange', () => resolve(), { once: true })
+        })
+        window.location.hash = '#first'
+        await changed
       })
 
       expect(window.location.hash).toBe('#first')

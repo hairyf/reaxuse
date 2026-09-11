@@ -17,14 +17,26 @@ afterEach(() => {
 })
 
 it('should load the image and expose the loaded state', async () => {
-  const { result } = await renderHook(() => useImage({ src: GOOD_GIF_SRC }))
+  const { result, act } = await renderHook(() => useImage({ src: GOOD_GIF_SRC }, { immediate: false }))
 
+  expect(result.current.isLoaded).toBe(false)
+  expect(result.current.isLoading).toBe(false)
+
+  // start the load explicitly and read the in-flight state synchronously —
+  // WebKit can resolve a `data:` URL before an immediate `renderHook` returns,
+  // so the loading window is not reliably observable from a mount-time load
+  let loading!: Promise<HTMLImageElement | undefined>
+  void act(() => {
+    loading = result.current.execute()
+  })
   expect(result.current.isLoading).toBe(true)
+  expect(result.current.isLoaded).toBe(false)
 
-  await vi.waitFor(() => {
-    expect(result.current.isLoaded).toBe(true)
+  await act(async () => {
+    await loading
   })
 
+  expect(result.current.isLoaded).toBe(true)
   expect(result.current.isLoading).toBe(false)
   expect(result.current.error).toBeUndefined()
   expect(result.current.url).toContain('data:image/gif')

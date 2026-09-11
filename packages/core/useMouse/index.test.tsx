@@ -40,11 +40,13 @@ function createMouseEvent(type: string, init: MouseEventInit = {}) {
 }
 
 function createTouchEvent(type: string, x: number, y: number, target: EventTarget) {
-  return new TouchEvent(type, {
-    touches: [new Touch({ identifier: 0, target, pageX: x, pageY: y, clientX: x, clientY: y })],
-    bubbles: true,
-    cancelable: true,
-  })
+  const event = new TouchEvent(type, { bubbles: true, cancelable: true })
+  // WebKit's `Touch` constructor throws ("Illegal constructor") and the
+  // `TouchEventInit` `touches` sequence rejects plain objects in every engine,
+  // so the touch list is defined on the event instead of the init dict.
+  const touch = { identifier: 0, target, pageX: x, pageY: y, clientX: x, clientY: y } as unknown as Touch
+  Object.defineProperty(event, 'touches', { value: [touch], configurable: true })
+  return event
 }
 
 // restore the mocked scroll coordinates after each test

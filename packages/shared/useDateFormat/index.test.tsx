@@ -63,7 +63,8 @@ describe('useDateFormat', () => {
   })
 
   it('should work with HH:mm:ss:SSS', () => {
-    expect(useDateFormat(new Date('2022-01-01 15:05:05:999'), 'HH:mm:ss:SSS')).toBe('15:05:05:999')
+    // numeric construction: the `...:999` string form only parses in V8
+    expect(useDateFormat(new Date(2022, 0, 1, 15, 5, 5, 999), 'HH:mm:ss:SSS')).toBe('15:05:05:999')
   })
 
   it('should work with HH:mm:ss d', () => {

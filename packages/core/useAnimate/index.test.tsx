@@ -88,7 +88,10 @@ describe('useAnimate', () => {
   it('should be running', async () => {
     const el = appendParagraph()
     const { result } = await renderHook(() =>
-      useAnimate(el, { transform: 'rotate(360deg)' }, 100),
+      // long enough that the store's frame loop observes the running state —
+      // with a 100ms effect WebKit can deliver the first frame after the
+      // animation already finished, so the loop only ever sees `finished`
+      useAnimate(el, { transform: 'rotate(360deg)' }, 10000),
     )
 
     await vi.waitFor(() => {
@@ -154,7 +157,7 @@ describe('useAnimate', () => {
     const el = appendParagraph()
     const keyframes = { current: { transform: 'rotate(360deg)' } as PropertyIndexedKeyframes }
 
-    const { result, rerender, act } = await renderHook(
+    const { result, rerender } = await renderHook(
       (_props?: { force: number }) => useAnimate(el, keyframes, { duration: 100, immediate: false }),
       { initialProps: { force: 0 } },
     )
@@ -164,9 +167,11 @@ describe('useAnimate', () => {
 
     keyframes.current = { transform: 'rotate(180deg)' }
     await rerender({ force: 1 })
-    await act(() => {})
+    // await the swapped effect instead of flushing with an empty `act`
+    await vi.waitFor(() => {
+      expect(result.current.animate!.effect).not.toBe(effect)
+    })
 
-    expect(result.current.animate!.effect).not.toBe(effect)
     expect((result.current.animate!.effect as KeyframeEffect).getKeyframes()[0]!.transform).toBe('rotate(180deg)')
   })
 
@@ -223,48 +228,50 @@ describe('useAnimate', () => {
 
   it('should play, pause, reverse, finish and cancel through the controls', async () => {
     const el = appendParagraph()
-    const { result, act } = await renderHook(() => useAnimate(
+    const { result } = await renderHook(() => useAnimate(
       el,
       { transform: 'rotate(360deg)' },
-      { duration: 10000, immediate: false },
+      // The duration must outlast the whole test: WebKit anchors a paused-then-
+      // played animation's start time to when it was *created*, so `play()`
+      // counts the wall-clock time spent mounting (browser round-trips here are
+      // slow) as elapsed animation time and a short effect is already finished.
+      { duration: 60000, immediate: false },
     ))
 
     // immediate: false — created paused, not started
     expect(result.current.animate?.playState).toBe('paused')
 
-    await act(() => {
-      result.current.play()
-    })
+    // The controls run outside `act`: while the animation plays the store
+    // republishes every frame and an awaited act() never drains its queue under
+    // that continuous update source (WebKit starves it), so every transition is
+    // awaited through the state the hook publishes instead.
+    result.current.play()
     await vi.waitFor(() => {
       expect(result.current.playState).toBe('running')
     })
 
-    await act(() => {
-      result.current.pause()
-    })
+    result.current.pause()
     await vi.waitFor(() => {
       expect(result.current.playState).toBe('paused')
     })
 
-    await act(() => {
-      result.current.reverse()
-    })
+    // `reverse()` runs back towards 0, so it only stays 'running' for as long
+    // as the paused current time (a frame or two here, which the store mirror
+    // can miss entirely) — seek into the middle of the 60s effect first.
+    result.current.animate!.currentTime = 30000
+    result.current.reverse()
     await vi.waitFor(() => {
       expect(result.current.playState).toBe('running')
     })
 
-    await act(() => {
-      result.current.finish()
-    })
+    result.current.finish()
     await vi.waitFor(() => {
       expect(result.current.playState).toBe('finished')
     })
 
     // The store loop stops after `finish`, so the 'idle' state is asserted on
     // the live `Animation` object (upstream mirrors this too).
-    await act(() => {
-      result.current.cancel()
-    })
+    result.current.cancel()
     expect(result.current.animate?.playState).toBe('idle')
   })
 

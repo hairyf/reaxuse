@@ -1,32 +1,51 @@
+import { useState } from 'react'
 import { expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { TransitionPresets, useTransition } from '../useTransition'
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
+// WebKit's React `act` keeps draining the act queue for as long as the
+// rAF-driven transition enqueues frames, so an awaited `rerender(...)` runs the
+// whole animation inside that `act` there and the intermediate frames are never
+// observable (chromium returns between two frames). Tests that assert on a
+// mid-flight value therefore drive the source through component state and call
+// the setter outside `act` — vitest-browser-react only enables the act
+// environment while an `act` call is in flight — so the transition runs on
+// React's ordinary scheduling and `expect.poll` observes every frame in both
+// engines.
+async function renderTransition<S, R extends object>(
+  initial: S,
+  useTransitionOf: (source: S) => R,
+) {
+  return renderHook(() => {
+    const [source, setSource] = useState(initial)
+    return { setSource, ...useTransitionOf(source) }
+  })
+}
+
 it('useTransition tweens between numbers', async () => {
   const onStarted = vi.fn()
   const onFinished = vi.fn()
-  const { result, rerender } = await renderHook(
-    ({ n }: { n: number } = { n: 0 }) => useTransition(n, { duration: 500, onStarted, onFinished }),
-    { initialProps: { n: 0 } },
-  )
+  const { result } = await renderTransition(0, n => ({
+    value: useTransition(n, { duration: 500, onStarted, onFinished }),
+  }))
 
-  expect(result.current).toBe(0)
+  expect(result.current.value).toBe(0)
   expect(onStarted).not.toHaveBeenCalled()
 
-  await rerender({ n: 100 })
+  result.current.setSource(100)
 
   await expect
-    .poll(() => result.current, { interval: 10, timeout: 200 })
+    .poll(() => result.current.value, { interval: 10, timeout: 200 })
     .toBeGreaterThan(0)
 
   expect(onStarted).toHaveBeenCalledTimes(1)
   expect(onFinished).not.toHaveBeenCalled()
-  expect(result.current).toBeLessThan(100)
+  expect(result.current.value).toBeLessThan(100)
 
   await expect
-    .poll(() => result.current, { interval: 25, timeout: 2000 })
+    .poll(() => result.current.value, { interval: 25, timeout: 2000 })
     .toBe(100)
 
   expect(onStarted).toHaveBeenCalledTimes(1)
@@ -34,25 +53,24 @@ it('useTransition tweens between numbers', async () => {
 })
 
 it('useTransition tweens between arrays of numbers', async () => {
-  const { result, rerender } = await renderHook(
-    ({ v }: { v: number[] } = { v: [0] }) => useTransition(v, { duration: 500 }),
-    { initialProps: { v: [0, 0] } },
-  )
+  const { result } = await renderTransition<number[]>([0, 0], v => ({
+    value: useTransition(v, { duration: 500 }),
+  }))
 
-  expect(result.current).toEqual([0, 0])
+  expect(result.current.value).toEqual([0, 0])
 
-  await rerender({ v: [100, -50] })
+  result.current.setSource([100, -50])
 
   await expect
-    .poll(() => result.current[0], { interval: 10, timeout: 200 })
+    .poll(() => result.current.value[0], { interval: 10, timeout: 200 })
     .toBeGreaterThan(0)
 
-  expect(result.current[0]).toBeLessThan(100)
-  expect(result.current[1]).toBeLessThan(0)
-  expect(result.current[1]).toBeGreaterThan(-50)
+  expect(result.current.value[0]).toBeLessThan(100)
+  expect(result.current.value[1]).toBeLessThan(0)
+  expect(result.current.value[1]).toBeGreaterThan(-50)
 
   await expect
-    .poll(() => result.current, { interval: 25, timeout: 2000 })
+    .poll(() => result.current.value, { interval: 25, timeout: 2000 })
     .toEqual([100, -50])
 })
 
@@ -72,66 +90,63 @@ it('useTransition follows the current source on re-render', async () => {
 })
 
 it('useTransition supports cubic bezier curves', async () => {
-  const { result, rerender } = await renderHook(
-    ({ n }: { n: number } = { n: 0 }) => [
+  const { result } = await renderTransition(0, n => ({
+    values: [
       useTransition(n, { duration: 2000, easing: [0, 2, 0, 1] }),
       useTransition(n, { duration: 2000, easing: [1, 0, 1, -1] }),
     ],
-    { initialProps: { n: 0 } },
-  )
+  }))
 
-  await rerender({ n: 1 })
+  result.current.setSource(1)
 
   // easeOutBack overshoots above the target, easeInBack undershoots below it
   await expect
-    .poll(() => result.current[0] > 1 && result.current[1] < 0, { interval: 25, timeout: 1500 })
+    .poll(() => result.current.values[0] > 1 && result.current.values[1] < 0, { interval: 25, timeout: 1500 })
     .toBe(true)
 
-  await expect.poll(() => result.current[0], { interval: 50, timeout: 3000 }).toBe(1)
-  await expect.poll(() => result.current[1], { interval: 50, timeout: 1000 }).toBe(1)
+  await expect.poll(() => result.current.values[0], { interval: 50, timeout: 3000 }).toBe(1)
+  await expect.poll(() => result.current.values[1], { interval: 50, timeout: 1000 }).toBe(1)
 })
 
 it('useTransition supports custom easing functions', async () => {
   const easeInQuad = vi.fn((n: number) => n * n)
-  const { result, rerender } = await renderHook(
-    ({ n }: { n: number } = { n: 0 }) => useTransition(n, { duration: 300, easing: easeInQuad }),
-    { initialProps: { n: 0 } },
-  )
+  const { result } = await renderTransition(0, n => ({
+    value: useTransition(n, { duration: 300, easing: easeInQuad }),
+  }))
 
   expect(easeInQuad).not.toHaveBeenCalled()
 
-  await rerender({ n: 100 })
+  result.current.setSource(100)
 
   await expect
     .poll(() => easeInQuad, { interval: 10, timeout: 500 })
     .toHaveBeenCalled()
 
   await expect
-    .poll(() => result.current, { interval: 10, timeout: 200 })
+    .poll(() => result.current.value, { interval: 10, timeout: 200 })
     .toBeGreaterThan(0)
 
-  expect(result.current).toBeLessThan(100)
+  expect(result.current.value).toBeLessThan(100)
 
   await expect
-    .poll(() => result.current, { interval: 25, timeout: 2000 })
+    .poll(() => result.current.value, { interval: 25, timeout: 2000 })
     .toBe(100)
 })
 
 it('useTransition applies the easing function to the transition progress', async () => {
-  const { result, rerender } = await renderHook(
-    ({ n }: { n: number } = { n: 0 }) => useTransition(n, { duration: 2000, easing: () => 0.5 }),
-    { initialProps: { n: 0 } },
-  )
+  const { result } = await renderTransition(0, n => ({
+    value: useTransition(n, { duration: 2000, easing: () => 0.5 }),
+  }))
 
-  await rerender({ n: 100 })
+  result.current.setSource(100)
 
   // a constant easing of 0.5 lands exactly halfway on the first frame
   await expect
-    .poll(() => result.current, { interval: 10, timeout: 500 })
+    .poll(() => result.current.value, { interval: 10, timeout: 500 })
     .toBe(50)
 
   await expect
-    .poll(() => result.current, { interval: 50, timeout: 3000 })
+    .poll(() => result.current.value, { interval: 50, timeout: 3000 })
     .toBe(100)
 })
 
@@ -209,46 +224,46 @@ it('useTransition can be disabled for synchronous changes', async () => {
 })
 
 it('useTransition starts a new transition from the interrupted position', async () => {
-  const { result, rerender } = await renderHook(
-    ({ n }: { n: number } = { n: 0 }) => useTransition(n, { duration: 3000 }),
-    { initialProps: { n: 0 } },
-  )
+  const { result } = await renderTransition(0, n => ({
+    value: useTransition(n, { duration: 3000 }),
+  }))
 
-  await rerender({ n: 100 })
+  result.current.setSource(100)
 
   await expect
-    .poll(() => result.current, { interval: 25, timeout: 1800 })
+    .poll(() => result.current.value, { interval: 25, timeout: 1800 })
     .toBeGreaterThanOrEqual(40)
 
-  await rerender({ n: 0 })
+  result.current.setSource(0)
 
   await sleep(200)
 
   // still tweening down from the interrupted value, never reset to the target
-  expect(result.current).toBeGreaterThan(20)
-  expect(result.current).toBeLessThan(70)
+  expect(result.current.value).toBeGreaterThan(20)
+  expect(result.current.value).toBeLessThan(70)
 
   await expect
-    .poll(() => result.current, { interval: 100, timeout: 4000 })
+    .poll(() => result.current.value, { interval: 100, timeout: 4000 })
     .toBe(0)
 })
 
 it('useTransition stops updating after unmount', async () => {
   const onFinished = vi.fn()
-  const { result, rerender, unmount } = await renderHook(
-    ({ n }: { n: number } = { n: 0 }) => useTransition(n, { duration: 300, onFinished }),
-    { initialProps: { n: 0 } },
-  )
+  const { result, unmount } = await renderTransition(0, n => ({
+    value: useTransition(n, { duration: 1000, onFinished }),
+  }))
 
-  await rerender({ n: 100 })
+  result.current.setSource(100)
 
   await expect
-    .poll(() => result.current, { interval: 10, timeout: 150 })
+    .poll(() => result.current.value, { interval: 10, timeout: 300 })
     .toBeGreaterThan(0)
 
-  unmount()
+  await unmount()
 
-  await sleep(400)
+  // longer than the rest of the transition — an un-cancelled loop would have
+  // reached the target and fired `onFinished` by now
+  await sleep(1200)
   expect(onFinished).not.toHaveBeenCalled()
 })
 

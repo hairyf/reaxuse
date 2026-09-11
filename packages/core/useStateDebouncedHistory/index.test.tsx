@@ -32,10 +32,14 @@ function DebouncedHistoryDemo() {
 
 it('once the value has changed and some time has passed, ensure the snapshot is updated', async () => {
   // mirrors upstream `once the ref's value has changed and some time has
-  // passed, ensure the snapshot is updated` (debounce: 10)
+  // passed, ensure the snapshot is updated` (debounce: 10); the window is
+  // widened to 100 so the "not committed yet" assertion below can observe it
+  // in both engines — `await act(...)` alone costs tens of milliseconds in
+  // WebKit (chromium returns in about a millisecond), which would let a 10ms
+  // window close before the change reaches the test
   const { result, act } = await renderHook(() => {
     const [v, setV] = useState(0)
-    const { history, undo, redo, ...controls } = useStateDebouncedHistory([v, setV], { debounce: 10 })
+    const { history, undo, redo, ...controls } = useStateDebouncedHistory([v, setV], { debounce: 100 })
     return { history, undo, redo, controls, v, setV }
   })
 
@@ -221,9 +225,10 @@ it('useStateDebouncedHistory pause and resume', async () => {
   expect(result.current.history.length).toBe(1)
 
   await act(() => result.current.setV(2))
-  await wait(150)
 
-  expect(result.current.history.map(record => record.snapshot)).toEqual([2, 0])
+  // the debounced commit lands after the window — poll instead of sleeping, so
+  // a loaded WebKit run is not a failure
+  await expect.poll(() => result.current.history.map(record => record.snapshot)).toEqual([2, 0])
 
   await act(() => result.current.controls.pause())
   await act(() => result.current.setV(3))
@@ -250,9 +255,8 @@ it('useStateDebouncedHistory clear cancels the pending debounced commit', async 
   })
 
   await act(() => result.current.setV(1))
-  await wait(350)
 
-  expect(result.current.history.length).toBe(2)
+  await expect.poll(() => result.current.history.length).toBe(2)
   expect(dumps).toEqual([0, 1])
 
   await act(() => result.current.setV(2))

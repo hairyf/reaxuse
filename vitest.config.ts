@@ -6,6 +6,18 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   plugins: [react()],
   resolve: {
+    // Package exports point at dist (like upstream VueUse), so tests resolve the
+    // workspace packages from source — mirrors VueUse's vitest.config.ts aliases.
+    alias: {
+      '@reaxuse/core': resolve(import.meta.dirname, 'packages/core/index.ts'),
+      '@reaxuse/shared': resolve(import.meta.dirname, 'packages/shared/index.ts'),
+      '@reaxuse/math': resolve(import.meta.dirname, 'packages/math/index.ts'),
+      '@reaxuse/integrations': resolve(import.meta.dirname, 'packages/integrations/index.ts'),
+      '@reaxuse/electron': resolve(import.meta.dirname, 'packages/electron/index.ts'),
+      '@reaxuse/firebase': resolve(import.meta.dirname, 'packages/firebase/index.ts'),
+      '@reaxuse/rxjs': resolve(import.meta.dirname, 'packages/rxjs/index.ts'),
+      '@reaxuse/metadata': resolve(import.meta.dirname, 'packages/metadata/src/index.ts'),
+    },
     dedupe: ['react', 'react-dom'],
   },
   cacheDir: resolve(import.meta.dirname, 'node_modules/.vite'),
@@ -27,14 +39,25 @@ export default defineConfig({
     },
     projects: [
       {
-        // hook tests run in a real browser (chromium) via vitest-browser-react
+        // hook tests run in real browsers (chromium + webkit) via
+        // vitest-browser-react; firefox stays disabled for the same upstream
+        // flakiness reason (vitest-dev/vitest#7377)
         extends: true,
         test: {
-          name: 'unit',
+          name: 'browser',
+          // a fresh iframe per test file: the history/location tests mutate
+          // `window.location`, and WebKit rate limits `history.replaceState`
+          // per document (100 calls / 10 s), so files must not share one
+          isolate: true,
+          // WebKit under full-suite load needs a longer retry window for the
+          // auto-retrying `expect.element` / `expect.poll` assertions
+          expect: {
+            poll: { timeout: 5000 },
+          },
           // Browser tests share one Chromium instance. Running files in parallel
           // makes short debounce/throttle assertions race under CI load.
           fileParallelism: false,
-          setupFiles: ['vitest-browser-react'],
+          setupFiles: ['vitest-browser-react', resolve(import.meta.dirname, 'test/setup-browser-url.ts')],
           include: ['packages/**/*.{test,spec}.tsx'],
           browser: {
             enabled: true,
@@ -47,6 +70,8 @@ export default defineConfig({
             headless: true,
             instances: [
               { browser: 'chromium' },
+              { browser: 'webkit' },
+              // { browser: 'firefox' }, // flaky FF test: https://github.com/vitest-dev/vitest/issues/7377
             ],
           },
         },

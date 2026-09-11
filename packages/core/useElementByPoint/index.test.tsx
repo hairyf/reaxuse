@@ -130,12 +130,17 @@ describe('useElementByPoint', () => {
       elementFromPoint: () => null,
     } as unknown as Document
 
-    const { result, rerender } = await renderHook(
+    const { result, rerender, act } = await renderHook(
       (props: { multiple: boolean } = { multiple: false }) => useElementByPoint({ x: 0, y: 0, document: partialDocument, multiple: props.multiple }),
       { initialProps: { multiple: false } },
     )
 
     await vi.waitFor(() => expect(result.current.isSupported).toBe(true))
+
+    // While `multiple` is on, every scheduler tick publishes a fresh (empty)
+    // element stack, which keeps re-rendering and starves act() on WebKit —
+    // stop the loop first: the support probe is independent of the scheduler
+    await act(() => result.current.pause())
 
     await rerender({ multiple: true })
     await vi.waitFor(() => expect(result.current.isSupported).toBe(false))

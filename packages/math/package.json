@@ -4,11 +4,11 @@
   "version": "0.0.1",
   "description": "Math functions — React port of @vueuse/math (experimental, AI-mapped)",
   "license": "MIT",
+  "sideEffects": false,
   "exports": {
-    ".": {
-      "types": "./index.ts",
-      "default": "./index.ts"
-    }
+    ".": "./dist/index.js",
+    "./*": "./dist/*",
+    "./package.json": "./package.json"
   },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -16,12 +16,11 @@
   "jsdelivr": "./dist/index.iife.min.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "*/index.tsx",
-    "dist",
-    "index.ts"
+    "dist"
   ],
   "scripts": {
-    "build": "tsdown"
+    "build": "tsdown",
+    "prepack": "pnpm run build"
   },
   "peerDependencies": {
     "react": ">=18"

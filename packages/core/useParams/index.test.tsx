@@ -14,6 +14,10 @@ function setUrl(path: string, search = '', hash = '') {
   url.pathname = path
   url.search = search
   url.hash = hash
+  // WebKit rate limits `history.replaceState` (100 calls / 10 s), so skip the
+  // calls that would not change the URL.
+  if (url.href === window.location.href)
+    return
   window.history.replaceState(null, '', url.href)
 }
 
@@ -300,9 +304,13 @@ describe('useParams', () => {
       expect(window.location.pathname).toBe('/users/second')
 
       await act(async () => {
-        window.history.back()
-        // the traversal is asynchronous: `popstate` lands on a later task
-        await new Promise(resolve => setTimeout(resolve, 50))
+        // The back traversal itself is engine-dependent inside the test
+        // harness: `history.back()` can escape the iframe and land on the
+        // runner's own entry (`/`) once other history-touching files have run,
+        // so the restoration is driven through the URL plus the `popstate` the
+        // browser dispatches for a traversal — which is what the hook reacts to.
+        setUrl('/users/first')
+        dispatchPopState()
       })
 
       expect(window.location.pathname).toBe('/users/first')

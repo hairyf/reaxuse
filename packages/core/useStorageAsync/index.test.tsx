@@ -38,6 +38,33 @@ class AsyncStubStorage implements StorageLikeAsync {
   }
 }
 
+/**
+ * Storage whose reads stay pending until the test calls `release()`. A
+ * `setTimeout`-based delay can elapse inside `renderHook`'s `act` — which costs
+ * tens of milliseconds in WebKit but about one millisecond in chromium — and
+ * the "value starts as the default" assertions depend on that read still being
+ * in flight.
+ */
+function createGatedStorage(): { storage: StorageLikeAsync, release: () => void } {
+  let release!: () => void
+  const gate = new Promise<void>((resolve) => {
+    release = resolve
+  })
+  const storage: StorageLikeAsync = {
+    getItem: async (key) => {
+      await gate
+      return localStorage.getItem(key)
+    },
+    setItem: async (key, value) => {
+      localStorage.setItem(key, value)
+    },
+    removeItem: async (key) => {
+      localStorage.removeItem(key)
+    },
+  }
+  return { storage, release }
+}
+
 describe('useStorageAsync', () => {
   beforeEach(() => {
     localStorage.clear()
@@ -50,8 +77,10 @@ describe('useStorageAsync', () => {
   it('onReady', async () => {
     localStorage.setItem(KEY, 'CurrentValue')
 
+    const { storage, release } = createGatedStorage()
+
     let loaded: string | undefined
-    const { result } = await renderHook(() => useStorageAsync(KEY, '', new AsyncStubStorage(), {
+    const { result } = await renderHook(() => useStorageAsync(KEY, '', storage, {
       onReady(value) {
         loaded = value
       },
@@ -59,6 +88,9 @@ describe('useStorageAsync', () => {
 
     // the value starts as the default until the async storage is ready
     expect(result.current[0]).toBe('')
+    expect(loaded).toBeUndefined()
+
+    release()
 
     await vi.waitFor(() => {
       expect(loaded).toBe('CurrentValue')
@@ -69,10 +101,14 @@ describe('useStorageAsync', () => {
   it('onReadyByPromise', async () => {
     localStorage.setItem(KEY2, 'AnotherValue')
 
-    const { result } = await renderHook(() => useStorageAsync(KEY2, '', new AsyncStubStorage()))
+    const { storage, release } = createGatedStorage()
+
+    const { result } = await renderHook(() => useStorageAsync(KEY2, '', storage))
 
     // the value starts as the default until the async storage is ready
     expect(result.current[0]).toBe('')
+
+    release()
 
     // upstream's returned ref doubles as a Promise (`await useStorageAsync`);
     // in React the tuple cannot be awaited, so the equivalent is waiting for

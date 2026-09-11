@@ -17,5 +17,7 @@
 ## 3. 注意事项
 
 - 发布依赖 merge commit 携带版本号，**禁止 squash**。
+- 发布走 npm **Trusted Publishing（OIDC，无长期 token）**：首次发布前需在 npmjs.com 为每个 `@reaxuse/*` 包配置 Trusted Publisher（repository `hairyf/reaxuse`，workflow `publish.yml`），否则 `publish.yml` 会认证失败。
+- 构建发生在打包阶段（每个包的 `prepack` 脚本），发布前由 `update:full` 重新生成 metadata、类型声明与 agent skill。
 - 若 `release/*` PR 出现冲突，参照 [pr-merge.md](pr-merge.md) §4 处理。
 - 若当晚无新增/更改内容，直接跳过，不创建 `release/*` PR。

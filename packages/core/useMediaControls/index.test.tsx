@@ -545,7 +545,12 @@ describe('useMediaControls', () => {
 
   it('toggles picture-in-picture via request / exit', async () => {
     const requestPip = vi.fn().mockResolvedValue(undefined)
-    vi.spyOn(video, 'requestPictureInPicture').mockImplementation(requestPip)
+    // WebKit ships no `HTMLVideoElement.requestPictureInPicture` (verified:
+    // `'requestPictureInPicture' in HTMLVideoElement.prototype` is false), so
+    // install the standard method before asserting it is called — the fake
+    // document below reports the PiP API as available, which is what the hook
+    // reads to decide whether to use it.
+    Object.defineProperty(video, 'requestPictureInPicture', { configurable: true, writable: true, value: requestPip })
     const exitPip = vi.fn().mockResolvedValue(undefined)
     const fakeDoc = {
       pictureInPictureEnabled: true,

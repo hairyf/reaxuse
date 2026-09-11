@@ -29,20 +29,20 @@ npm run docs
 ### Testing
 
 ```bash
-npm run test:unit # to run unit tests
+pnpm test:unit # to run unit tests
 ```
 
 Hook tests run in a real browser via `vitest-browser-react`. You need to
-install the Playwright chromium binary once:
+install the Playwright browsers once:
 
 ```bash
-npx playwright install chromium
+npx playwright install --with-deps
 ```
 
 and then run
 
 ```bash
-npm run test
+pnpm test:browser
 ```
 
 ## Contributing

@@ -21,13 +21,21 @@ function dispatchKeyboardEvent(options: dispatchKeyboardEventOptions): void {
  * Assert useKeyModifier state
  */
 async function assertModifierState(key: KeyModifier, options: KeyboardEventInit) {
+  // Engines differ in which extra `KeyboardEventInit` modifier flags they model
+  // for synthetic events: WebKit honors `modifierAltGraph` / `modifierCapsLock`
+  // but ignores `modifierFn`, `modifierNumLock`, `modifierScrollLock` and
+  // `modifierSymbol` (Chromium models all four). Probe the platform first, so
+  // the state is asserted against what `getModifierState` actually reports —
+  // the hook's contract is to mirror that value.
+  const supported = new KeyboardEvent('keydown', { key, ...options }).getModifierState(key)
+
   const { result, act } = await renderHook(() => useKeyModifier(key))
   expect(result.current).toBeNull()
 
   await act(() => {
     dispatchKeyboardEvent({ key, ...options })
   })
-  expect(result.current).toBeTruthy()
+  expect(result.current).toBe(supported)
 
   await act(() => {
     dispatchKeyboardEvent({ key, type: 'keyup' })

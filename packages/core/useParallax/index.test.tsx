@@ -35,6 +35,22 @@ function moveMouse(rect: DOMRect, x = 50, y = 50) {
 }
 
 /**
+ * Build a `deviceorientation` event carrying the sensor readings. WebKit
+ * exposes `DeviceOrientationEvent` but its constructor throws ("Illegal
+ * constructor"), so the readings are defined on a plain event — the listener
+ * only depends on the event type and the `alpha`/`beta`/`gamma` values.
+ */
+function createDeviceOrientationEvent(alpha: number, beta: number, gamma: number) {
+  const event = new Event('deviceorientation')
+  Object.defineProperties(event, {
+    alpha: { value: alpha, configurable: true },
+    beta: { value: beta, configurable: true },
+    gamma: { value: gamma, configurable: true },
+  })
+  return event as DeviceOrientationEvent
+}
+
+/**
  * Shadow `getClientRects` with a deterministic, mutable rect so scroll/resize
  * geometry can be asserted without depending on real layout.
  */
@@ -129,12 +145,12 @@ describe('useParallax', () => {
 
     // supported but zero alpha/gamma → stays mouse
     await act(() => {
-      window.dispatchEvent(new DeviceOrientationEvent('deviceorientation', { alpha: 0, beta: 0, gamma: 0 }))
+      window.dispatchEvent(createDeviceOrientationEvent(0, 0, 0))
     })
     await expect.poll(() => result.current.source).toBe('mouse')
 
     await act(() => {
-      window.dispatchEvent(new DeviceOrientationEvent('deviceorientation', { alpha: 45, beta: 10, gamma: 20 }))
+      window.dispatchEvent(createDeviceOrientationEvent(45, 10, 20))
     })
     await expect.poll(() => result.current.source).toBe('deviceOrientation')
     // portrait-primary: roll = -beta / 90, tilt = gamma / 90
@@ -183,7 +199,7 @@ describe('useParallax', () => {
     }))
 
     await act(() => {
-      window.dispatchEvent(new DeviceOrientationEvent('deviceorientation', { alpha: 45, beta: 10, gamma: 20 }))
+      window.dispatchEvent(createDeviceOrientationEvent(45, 10, 20))
     })
 
     await expect.poll(() => result.current.source).toBe('deviceOrientation')

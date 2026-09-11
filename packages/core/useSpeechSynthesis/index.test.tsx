@@ -101,6 +101,9 @@ it('reports isSupported false and no-ops speak/stop without speechSynthesis', as
 })
 
 it('is SSR-safe: the server render emits the idle defaults and constructs no utterance', async () => {
+  // WebKit ships no `SpeechSynthesisUtterance` global at all, so install the
+  // fake first — the same double the other tests run against — and spy on it.
+  stubSpeechSynthesis()
   const utteranceSpy = vi.spyOn(window, 'SpeechSynthesisUtterance')
 
   function Probe() {
