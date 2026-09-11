@@ -2,7 +2,7 @@
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import * as metadata from '@reaxuse/metadata'
+import * as metadata from '@reause/metadata'
 import { getTypeDefinition } from '../../scripts/utils'
 import { rewriteFunctionLinks } from './rewrite-function-links'
 
@@ -16,13 +16,13 @@ interface FunctionReference {
 
 const r = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 
-const SKILL_DIR = r('./skills/reaxuse-functions')
-const SKILL_COPY_DIR = r('../../skills/reaxuse-functions')
+const SKILL_DIR = r('./skills/reause-functions')
+const SKILL_COPY_DIR = r('../../skills/reause-functions')
 const SKILL_REFERENCE_DIR = './references'
-const SKILLS_TEMPLATE_PATH = r('./templates/reaxuse-functions-skills.md')
-const REAXUSE_ROOT = r('../..')
+const SKILLS_TEMPLATE_PATH = r('./templates/reause-functions-skills.md')
+const reause_ROOT = r('../..')
 
-// Port of VueUse's `EXPLICIT_ONLY_FUNCTIONS` (`get` / `set` / `toRef`). reaxuse
+// Port of VueUse's `EXPLICIT_ONLY_FUNCTIONS` (`get` / `set` / `toRef`). reause
 // exports no such escape hatch — the low-level state readers/writers
 // (`toValue` / `writeState`) are documented as ordinary utilities on the
 // shared `utils` page — so no page is explicit-only today. The hook is kept so
@@ -74,9 +74,9 @@ async function prepareFunctionReferences(outDir: string, referenceDir = SKILL_RE
       const description = rewriteFunctionLinks(toTitleCase(fn.description?.replace(/\|/g, '\\|') ?? ''), `${referenceDir.replace(/^\.\//, '')}/`)
 
       // VueUse short-circuits to the package name for ecosystem functions
-      // (`fn.external`); reaxuse documents every function locally, so each
+      // (`fn.external`); reause documents every function locally, so each
       // page resolves to its own markdown file.
-      const docPath = path.join(REAXUSE_ROOT, fn.doc)
+      const docPath = path.join(reause_ROOT, fn.doc)
       if (existsSync(docPath)) {
         const outputPath = path.join(referenceDir, `${fn.name}.md`)
         const docContent = await genFunctionReference(fn.pkg, fn.name, docPath)
