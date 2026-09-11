@@ -40,7 +40,7 @@
     "typecheck": "tsc --noEmit",
     "update": "tsx scripts/update.ts",
     "update:full": "nr update && nr build:types && nr update:skills",
-    "update:skills": "turbo run update -F @reaxuse/skills",
+    "update:skills": "pnpm --filter @reaxuse/metadata run build && pnpm --filter @reaxuse/skills run update",
     "watch": "turbo watch build",
     "prepare": "simple-git-hooks"
   },
