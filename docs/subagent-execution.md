@@ -5,7 +5,7 @@
 
 ## 1. 环境准备
 
-- **仅限 Worktree 操作**：Worktree 根目录与主树同级（主树 `D:\projects\reause` → `D:\projects\reause-wt\<slug>`，分支 `fix/<feature-or-hook>`），严禁直接修改主树。
+- **仅限 Worktree 操作**：Worktree 根目录与主树同级（主树 `D:\reaxuse` → `D:\reaxuse-wt\<slug>`，分支 `fix/<feature-or-hook>`），严禁直接修改主树。
 - **依赖连接**：为主树中的每个 `node_modules`（根目录 + `packages/*` + `playgrounds/*`）在 Worktree 的同位置创建 junction（`cmd /c mklink /J`）；**严禁在 Worktree 内执行任何安装命令**。
 - **配置隔离**：生成 git-ignored 的 `vitest.worktree.config.ts`（独立 `cacheDir`，如 `.worktree-vite`）并据此运行测试；该文件严禁提交。
 - **上游只读**：上游 submodule 无需在 Worktree 内初始化，直接从主树 `source/vueuse/...` 只读引用。
@@ -44,7 +44,7 @@
 # 1. 验证流程
 npx vitest run --config vitest.worktree.config.ts packages/<pkg>/<hook>/index.test.tsx
 npx eslint packages/<pkg>/<hook>/
-npx tsc --noEmit                          # 允许基线 2 个既有 unocss 错误，零新增
+npx tsc --noEmit                          # 基线 0 错误（main 上实测无输出、exit 0），零新增
 
 # 2. 提交与推送
 git add <改动文件>
@@ -60,7 +60,16 @@ gh pr checks <PR> --repo hairyf/reause --watch
 
 ## 5. 环境避坑与铁律
 
-- **主树同步**：操作前同步主树 `git -C D:\reause fetch origin main; git -C D:\reause reset --hard origin/main`，防止 junction 失效引发类型误报。
+- **主树同步**：操作前同步主树（`D:\reaxuse`），防止 junction 失效引发类型误报：
+
+  ```powershell
+  git -C D:\reaxuse fetch origin main
+  git -C D:\reaxuse checkout main
+  git -C D:\reaxuse reset --hard origin/main
+  ```
+
+  必须先 `checkout main`：`bumpp --pr` 与 worktree 流程会把主树停在 `release/*` / `fix/*` 分支上，此时直接 `reset --hard origin/main` 改写的是**当前分支**而非 `main`。
+
 - **Worktree 安全清理**：删除 worktree 前必须先执行 `cmd /c rmdir <wt>\node_modules` 移除软链接，防止 `git worktree remove` 误删主树文件。
 - **PowerShell 路径规范**：.NET 文件 API 必须使用绝对路径。
 - **构建与测试限制**：

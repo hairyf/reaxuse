@@ -12,7 +12,7 @@ implementation, test, docs, demo, and API-parity review.
 Mapping | `<fnName>` | <short description>
 ```
 
-The package is carried by the `@reause/<pkg>` label, not the title.
+The package is carried by the `@reaxuse/<pkg>` label, not the title.
 
 Examples:
 
@@ -29,11 +29,21 @@ Every mapping issue carries exactly two labels, plus optional extras:
 
 | Label                         | Rule                                                  |
 | ----------------------------- | ----------------------------------------------------- |
-| `@reause/<pkg>`               | upstream package of the function (always)             |
+| `@reaxuse/<pkg>`              | upstream package of the function (always)             |
 | `size:<XS\|S\|M\|L\|XL\|XXL>` | from upstream `index.ts` LOC — see [Size](#size-rule) |
 | `good first issue`            | optional — add for `size:S` or below                  |
 
-No new labels are required; `@reause/*` and `size:*` already exist in the repo.
+No new labels are required; `@reaxuse/*` and `size:*` already exist in the repo.
+
+> **The label prefix is the legacy `@reaxuse/*`, not the package scope `@reause/*`.**
+> The package scope is `@reause/*` but the labels predate the rename and were never
+> updated, so a `@reause/<pkg>` label does not exist — `gh issue create` then fails
+> with `could not add label: '@reause/core' not found` (exit 1). Confirm the current
+> names first and use exactly what the command prints:
+
+```bash
+gh label list --repo hairyf/reause --limit 40
+```
 
 ## Body
 
@@ -158,10 +168,16 @@ Issues are created with the GitHub CLI against `hairyf/reause`:
 
 ```bash
 gh issue create \
+  --repo hairyf/reause \
   --title 'Mapping | `useNow` | Reactive current Date instance' \
-  --label "@reause/core,size:S" \
+  --label "@reaxuse/core,size:S" \
   --body-file <rendered-body.md>
 ```
+
+`--label` must match the names the repository actually carries — confirm them with
+`gh label list --repo hairyf/reause --limit 40` first (`@reaxuse/core`, not
+`@reause/core`); a missing label aborts the command with
+`could not add label: '@reause/core' not found`.
 
 The mapping files are resolved from the `source/vueuse` submodule; LOC/size/labels are
 computed per function and this template is rendered per function when creating issues

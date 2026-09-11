@@ -32,7 +32,15 @@
 - **冲突解析策略**：
   - core 包：对两侧 export 行取并集（union）并按 ASCII 排序。
   - shared 包：以 main 为准，仅取消当前分支对应 Hook 的注释。
-  - 其他包：调用 `.agents/update-branch-any.ps1 -Worktree <wt> -Branch <branch>`。
+  - 其他包：仓库内不存在 `.agents/update-branch-any.ps1`，改为在 Worktree 内用普通 git 解冲突：
+
+    ```powershell
+    git -C D:\reaxuse-wt\<slug> fetch origin main
+    git -C D:\reaxuse-wt\<slug> merge origin/main
+    # 按上面 core / shared 两条规则手工修复冲突的 barrel 后：
+    git -C D:\reaxuse-wt\<slug> add <冲突文件>
+    git -C D:\reaxuse-wt\<slug> commit -m "chore: merge origin/main into <branch>"
+    ```
 
 ## 5. 合并后收尾（元数据更新）
 
@@ -42,6 +50,8 @@
 git fetch origin main && git checkout main && git reset --hard origin/main
 npm run update                  # 重新生成元数据文件
 git add meta/functions.md packages/functions.md packages/metadata/src/functions.ts
+# packages/functions.md 是 `<FunctionsList />` 桩文件，正常刷新不改写它，
+# 因此本步骤的 diff 通常只有 2 个文件（实测 useWebMCP 合并后为 `2 files changed, 18 insertions(+)`），属正常
 git commit -m "chore: update metadata for merged hooks" && git push origin main
 
 npx tsc --noEmit                # 检查同名导出冲突 (TS2308)
