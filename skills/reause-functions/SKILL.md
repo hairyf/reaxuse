@@ -140,6 +140,7 @@ exported from the package (`@reause/core`, `@reause/shared`, …) named by its
 | [`useUrlSearchParams`](references/useUrlSearchParams.md) | Reactive [URLSearchParams](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) | AUTO |
 | [`useVibrate`](references/useVibrate.md) | Reactive [Vibration API](https://developer.mozilla.org/en-US/docs/Web/API/Vibration_API) | AUTO |
 | [`useWakeLock`](references/useWakeLock.md) | Reactive [Screen Wake Lock API](https://developer.mozilla.org/en-US/docs/Web/API/Screen_Wake_Lock_API) | AUTO |
+| [`useWebMCP`](references/useWebMCP.md) | Register a [WebMCP](https://github.com/webmachinelearning/webmcp) tool and tie its lifecycle to the current component | AUTO |
 | [`useWebNotification`](references/useWebNotification.md) | Reactive [Notification](https://developer.mozilla.org/en-US/docs/Web/API/notification) | AUTO |
 | [`useWebSocket`](references/useWebSocket.md) | Reactive [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/WebSocket) client | AUTO |
 | [`useWebWorker`](references/useWebWorker.md) | Simple [Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) registration and communication | AUTO |
