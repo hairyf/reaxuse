@@ -22,4 +22,4 @@ packages/.vitepress/dev-dist/
 packages/.vitepress/.temp/
 packages/.vitepress/*.timestamp-*.mjs
 types/
-skills/
+.agents/skills/
