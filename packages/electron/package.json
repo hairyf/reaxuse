@@ -1,7 +1,7 @@
 {
   "name": "@reaxuse/electron",
   "type": "module",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Electron renderer process modules — React port of @vueuse/electron",
   "license": "MIT",
   "sideEffects": false,
