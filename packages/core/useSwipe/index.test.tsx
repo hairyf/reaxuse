@@ -16,21 +16,25 @@ function createTarget() {
   return el
 }
 
+// WebKit cannot construct a `Touch` (`new Touch()` throws "Illegal
+// constructor") and also rejects `touches` inside the `TouchEventInit` dict
+// (`new TouchEvent(type, { touches })` throws "Type error"), so the touch
+// points are plain objects attached as an own `touches` property of a real
+// `TouchEvent` built with the init form both engines accept.
 function makeTouch(x: number, y: number, target: EventTarget) {
-  return new Touch({
-    identifier: 0,
-    target,
-    clientX: x,
-    clientY: y,
-  })
+  return { identifier: 0, target, clientX: x, clientY: y } as unknown as Touch
 }
 
 function makeTouchEvent(type: string, x: number, y: number, target: EventTarget) {
-  return new TouchEvent(type, {
-    touches: [makeTouch(x, y, target)],
-    bubbles: true,
-    cancelable: true,
+  return makeMultiTouchEvent(type, [[x, y]], target)
+}
+
+function makeMultiTouchEvent(type: string, coords: SwipeCoords, target: EventTarget) {
+  const event = new TouchEvent(type, { bubbles: true, cancelable: true })
+  Object.defineProperty(event, 'touches', {
+    value: coords.map(([x, y]) => makeTouch(x, y, target)),
   })
+  return event
 }
 
 // first entry is touchstart, last is touchend, everything in between is touchmove
@@ -166,16 +170,8 @@ describe('useSwipe', () => {
     const { act } = await renderHook(() => useSwipe(el, { threshold: THRESHOLD, onSwipeStart, onSwipe }))
 
     await act(() => {
-      el.dispatchEvent(new TouchEvent('touchstart', {
-        touches: [makeTouch(0, 0, el), makeTouch(10, 10, el)],
-        bubbles: true,
-        cancelable: true,
-      }))
-      el.dispatchEvent(new TouchEvent('touchmove', {
-        touches: [makeTouch(0, THRESHOLD, el), makeTouch(0, 0, el)],
-        bubbles: true,
-        cancelable: true,
-      }))
+      el.dispatchEvent(makeMultiTouchEvent('touchstart', [[0, 0], [10, 10]], el))
+      el.dispatchEvent(makeMultiTouchEvent('touchmove', [[0, THRESHOLD], [0, 0]], el))
     })
 
     expect(onSwipeStart).not.toHaveBeenCalled()

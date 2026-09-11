@@ -3,7 +3,16 @@ import { renderHook } from 'vitest-browser-react'
 import { usePointer } from '../usePointer'
 
 function createPointerEvent(type: string, init: PointerEventInit = {}) {
-  return new PointerEvent(type, { bubbles: true, pointerType: 'mouse', ...init })
+  const event = new PointerEvent(type, { bubbles: true, pointerType: 'mouse', ...init })
+  // WebKit derives `tiltX`/`tiltY` from its own internal pointer state and
+  // ignores them in `PointerEventInit`, so the requested values are pinned onto
+  // the event (the hook only reads these properties).
+  for (const key of ['tiltX', 'tiltY'] as const) {
+    const value = init[key]
+    if (value !== undefined && event[key] !== value)
+      Object.defineProperty(event, key, { value, configurable: true })
+  }
+  return event
 }
 
 /**

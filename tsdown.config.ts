@@ -10,6 +10,16 @@ export const externals = [
 ]
 
 /**
+ * tsdown's `attw` (Are The Types Wrong) check on the packed tarball, mirroring
+ * VueUse's `attwConfig` (`profile: 'esm-only'` — reaxuse ships ESM only).
+ */
+export const attwConfig: UserConfig['attw'] = {
+  level: 'error',
+  profile: 'esm-only',
+  ignoreRules: ['cjs-resolves-to-esm'],
+}
+
+/**
  * Shared tsdown config factory, mirroring VueUse's `tsdown.config.ts`
  * (`source/vueuse/tsdown.config.ts`).
  *
@@ -117,14 +127,9 @@ export function createTsDownConfig(
     entry,
     format,
     copy,
-    // VueUse enables tsdown's `attw` (Are The Types Wrong) check here
-    // (`profile: 'esm-only'`, `ignoreRules: ['cjs-resolves-to-esm']`), which
-    // validates the packed tarball against the package.json `exports` map.
-    // reaxuse's `exports` intentionally point at source (`./index.ts`) so the
-    // dev/test flow needs no build step — attw would flag every entrypoint
-    // (`Internal resolution error ... /@reaxuse/core/index.ts` — the barrel's
-    // extensionless `./useXxx` imports cannot be resolved inside a tarball).
-    // Once the packages ship dist-based exports, re-enable the check.
+    // Validates the packed tarball against the package.json `exports` map; the
+    // packages ship dist-based exports, so the check mirrors VueUse's.
+    attw: attwConfig,
   })
 
   return configs

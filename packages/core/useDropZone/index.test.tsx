@@ -119,7 +119,16 @@ describe('useDropZone', () => {
     await act(() => {
       el.dispatchEvent(dragEvent('dragenter', dt))
     })
-    expect(result.current.isOverDropZone).toBe(false)
+
+    // Upstream (and this port) skip the "invalid drag" early return on
+    // Safari/WebKit (`isSafari()` in the hook) because WebKit cannot inspect
+    // `DataTransferItem` types during a drag, so the zone stays highlighted
+    // there; the drop itself is still rejected below. Playwright's WebKit
+    // reports itself as Safari (`... AppleWebKit ... Safari/...`, no `chrome`
+    // global), so the expectation is engine-conditional.
+    const skipsTypeCheckDuringDrag = /^(?:(?!chrome|android).)*safari/i.test(navigator.userAgent)
+      && !('chrome' in window)
+    expect(result.current.isOverDropZone).toBe(skipsTypeCheckDuringDrag)
 
     await act(() => {
       el.dispatchEvent(dragEvent('drop', dt))

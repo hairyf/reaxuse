@@ -102,10 +102,26 @@ describe('useAsyncQueue', () => {
 
   it('should cancel the tasks', async () => {
     const controller = new AbortController()
-    const { result } = await renderHook(() => useAsyncQueue([p1], {
+    // A task that cannot settle on its own, so the abort is guaranteed to land
+    // while it is in flight: with a 10ms timer the (slow, WebKit) render
+    // round-trip can let the task resolve before `abort()` is issued.
+    let started = false
+    let resolveTask!: (value: number) => void
+    const pendingTask = () => new Promise<number>((resolve) => {
+      started = true
+      resolveTask = resolve
+    })
+
+    const { result, act } = await renderHook(() => useAsyncQueue([pendingTask], {
       signal: controller.signal,
     }))
+
+    await vi.waitFor(() => {
+      expect(started).toBe(true)
+    })
+
     controller.abort()
+
     await vi.waitFor(() => {
       expect(result.current.activeIndex).toBe(0)
       expect(result.current.result).toHaveLength(1)
@@ -116,6 +132,11 @@ describe('useAsyncQueue', () => {
         }
       `)
     })
+
+    // a late resolution must not overwrite the aborted entry
+    resolveTask(1000)
+    await act(() => {})
+    expect(result.current.result[0]).toMatchObject({ state: 'aborted' })
   })
 
   it('should abort the tasks when AbortSignal.abort is triggered', async () => {

@@ -118,20 +118,22 @@ describe('useCssSupports', () => {
     await expect.element(conditionResult).toBeVisible()
     await expect.element(propValueResult).toBeVisible()
 
-    expect(conditionResult.query()!.textContent!.trim()).toBe('true')
-    expect(propValueResult.query()!.textContent!.trim()).toBe('true')
+    // `expect.element` retries, unlike a bare `query()` read — the re-render
+    // after a click can land later than the assertion under load
+    await expect.element(conditionResult).toHaveTextContent('true')
+    await expect.element(propValueResult).toHaveTextContent('true')
 
     await screen.getByTestId('setInvalidCondition').click()
-    expect(conditionResult.query()!.textContent!.trim()).toBe('false')
+    await expect.element(conditionResult).toHaveTextContent('false')
 
     await screen.getByTestId('setInvalidValue').click()
-    expect(propValueResult.query()!.textContent!.trim()).toBe('false')
+    await expect.element(propValueResult).toHaveTextContent('false')
 
     await screen.getByTestId('setValidValue').click()
-    expect(propValueResult.query()!.textContent!.trim()).toBe('true')
+    await expect.element(propValueResult).toHaveTextContent('true')
 
     await screen.getByTestId('setInvalidProp').click()
-    expect(propValueResult.query()!.textContent!.trim()).toBe('false')
+    await expect.element(propValueResult).toHaveTextContent('false')
   })
 
   it('should not treat conditionText as prop when options is set and value is undefined', async () => {

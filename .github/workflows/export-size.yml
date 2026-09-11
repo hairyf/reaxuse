@@ -1,0 +1,34 @@
+name: Export Size
+
+# Mirror of VueUse's `.github/workflows/export-size_yml` — upstream stores that
+# file without a `.yml` extension, which GitHub Actions ignores; this one is a
+# real workflow file.
+on:
+  pull_request:
+    branches:
+      - main
+      - next
+
+jobs:
+  size:
+    runs-on: ubuntu-latest
+    env:
+      CI_JOB_NUMBER: 1
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          submodules: recursive
+      - name: Install pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      # rollup (used by export-size) cannot resolve React's CJS-only
+      # `react/jsx-runtime` named export (`'jsx' is not exported by
+      # .../jsx-runtime.js`), which every dist bundle imports, and the action's
+      # published bundle ignores its own `bundler: esbuild` input — so the
+      # report stays non-blocking until the action/rollup handles the interop.
+      - uses: antfu/export-size-action@main
+        continue-on-error: true
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          comment_token: ${{ secrets.COMMENT_TOKEN }}
+          bundler: esbuild
+          paths: packages/core,packages/shared,packages/integrations,packages/firebase,packages/rxjs

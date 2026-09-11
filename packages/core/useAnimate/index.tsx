@@ -63,6 +63,22 @@ export type UseAnimateKeyframes = RefOrValue<Keyframe[] | PropertyIndexedKeyfram
 type AnimateStore = Pick<Animation, 'startTime' | 'currentTime' | 'timeline' | 'playbackRate' | 'pending' | 'playState' | 'replaceState'>
 
 /**
+ * Field-by-field equality of two animation stores. Upstream writes the
+ * platform attributes one by one into a `shallowReactive` store, which only
+ * triggers when a value actually changes — the React port must compare before
+ * publishing, otherwise every frame re-renders (see the frame loop).
+ */
+function isSameStore(a: AnimateStore, b: AnimateStore): boolean {
+  return a.startTime === b.startTime
+    && a.currentTime === b.currentTime
+    && a.timeline === b.timeline
+    && a.playbackRate === b.playbackRate
+    && a.pending === b.pending
+    && a.playState === b.playState
+    && a.replaceState === b.replaceState
+}
+
+/**
  * Return of `useAnimate`. Mirrors the upstream `UseAnimateReturn` member by
  * member; the upstream Vue refs become plain values:
  * - `isSupported` is `boolean` state (upstream: `ComputedRef<boolean>`);
@@ -248,7 +264,7 @@ export function useAnimate(
     const animation = animateRef.current
     if (!animation)
       return
-    setStore({
+    const next: AnimateStore = {
       startTime: animation.startTime,
       currentTime: animation.currentTime,
       timeline: animation.timeline,
@@ -256,7 +272,11 @@ export function useAnimate(
       pending: animation.pending,
       playState: animation.playState,
       replaceState: animation.replaceState,
-    })
+    }
+    // Upstream's `shallowReactive` store only triggers on a changed value;
+    // republishing an equal store object on every frame would re-render per
+    // frame, which starves `act()` (WebKit) and is pure churn elsewhere.
+    setStore(prev => isSameStore(prev, next) ? prev : next)
   }, { immediate: false })
 
   const syncResume = useCallback(() => {

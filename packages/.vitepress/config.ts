@@ -243,6 +243,21 @@ export default withPwa(defineConfig({
   // .tsx with the automatic JSX runtime. React demos are mounted client-side
   // by the theme's DemoContainer component.
   vite: {
+    // Package exports point at dist (like upstream VueUse), so the docs and the
+    // co-located demos resolve the workspace packages from source — mirrors
+    // VueUse's packages/.vitepress/vite.config.ts aliases.
+    resolve: {
+      alias: {
+        '@reaxuse/shared': resolve(__dirname, '../shared/index.ts'),
+        '@reaxuse/core': resolve(__dirname, '../core/index.ts'),
+        '@reaxuse/math': resolve(__dirname, '../math/index.ts'),
+        '@reaxuse/integrations': resolve(__dirname, '../integrations/index.ts'),
+        '@reaxuse/electron': resolve(__dirname, '../electron/index.ts'),
+        '@reaxuse/firebase': resolve(__dirname, '../firebase/index.ts'),
+        '@reaxuse/rxjs': resolve(__dirname, '../rxjs/index.ts'),
+        '@reaxuse/metadata': resolve(__dirname, '../metadata/src/index.ts'),
+      },
+    },
     // Cast: vitepress bundles its own vite copy, so its PluginOption type
     // differs structurally from the root vite types our plugins import.
     plugins: [

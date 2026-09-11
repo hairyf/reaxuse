@@ -40,15 +40,17 @@ VueUse's npm packages live in `packages/*`; reaxuse mirrors the same layout with
 
 **Source layout** (uniform adaptation, documented once here):
 
-| VueUse                                                     | reaxuse                                                                                                                                       |
-| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `packages/<pkg>/<fn>/index.ts`                             | `packages/<pkg>/src/<fn>.ts`                                                                                                                  |
-| `packages/<pkg>/<fn>/index.browser.test.ts`                | `packages/<pkg>/src/<fn>.test.tsx` (vitest-browser-react)                                                                                     |
-| `packages/<pkg>/index.ts`                                  | `packages/<pkg>/src/index.ts` (re-exported via `exports`)                                                                                     |
-| `main`/`module`/`types` → `./dist/index.js` (package.json) | same — legacy entry fields point at the tsdown build output (mirrors upstream so JS-only resolvers work); `exports` stays on `./src/index.ts` |
+| VueUse                                                     | reaxuse                                                                                                                                                                              |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `packages/<pkg>/<fn>/index.ts`                             | `packages/<pkg>/src/<fn>.ts`                                                                                                                                                         |
+| `packages/<pkg>/<fn>/index.browser.test.ts`                | `packages/<pkg>/src/<fn>.test.tsx` (vitest-browser-react)                                                                                                                            |
+| `packages/<pkg>/index.ts`                                  | `packages/<pkg>/index.ts` barrel (`@reaxuse/metadata` keeps its generated files under `src/`)                                                                                        |
+| `main`/`module`/`types` → `./dist/index.js` (package.json) | same — `exports`, `main`, `module`, `types`, `unpkg` and `jsdelivr` all point at the tsdown output, and every package rebuilds it at pack time through `"prepack": "pnpm run build"` |
 
 Each reaxuse package declares `react >= 18` as a peer dependency and bundles with tsdown
-(`"build": "tsdown"` + per-package `tsdown.config.ts`).
+(`"build": "tsdown"` + per-package `tsdown.config.ts`). Tests, typechecks and the docs resolve
+the workspace packages from **source** (`tsconfig.json` `paths` + the vitest/vitepress aliases,
+mirroring upstream), so development needs no build step.
 
 ## 2. Function docs + demos — co-located per function
 
@@ -122,19 +124,19 @@ mapped files; `markdownTransform` links backticked function names from the
 
 All of VueUse's CI surface is mirrored in [`../.github`](https://github.com/hairyf/reaxuse/tree/main/.github).
 
-| VueUse file                                  | purpose                                                                                                                                                                                                                                                      | reaxuse |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
-| `.github/workflows/ci.yml`                   | lint + typecheck, test matrix (Node `22.x`, `lts/*`) with Playwright chromium, build — on `push`/`pull_request` to `main`, plus `merge_group`                                                                                                                | ✅      |
-| `.github/workflows/publish.yml`              | publish npm on merge of `release/*` PRs (release cut via `bumpp --pr`)                                                                                                                                                                                       | ✅      |
-| `.github/workflows/autofix.yml`              | auto-fix bot (autofix.ci) for PRs                                                                                                                                                                                                                            | ✅      |
-| `.github/workflows/export-size.yml`          | export-size CI report via `antfu/export-size-action` — **removed (⏳)**: the action's JS-only resolver fails on the base (main) branch while entry fields point at `./src/index.ts`; re-enable once a compatible resolver or merged-state check is available | ⏳      |
-| `.github/ISSUE_TEMPLATE/bug_report.yml`      | bug report form                                                                                                                                                                                                                                              | ✅      |
-| `.github/ISSUE_TEMPLATE/feature_request.yml` | feature request form                                                                                                                                                                                                                                         | ✅      |
-| `.github/ISSUE_TEMPLATE/config.yml`          | issue template routing                                                                                                                                                                                                                                       | ✅      |
-| `.github/PULL_REQUEST_TEMPLATE.md`           | PR template                                                                                                                                                                                                                                                  | ✅      |
-| `.github/FUNDING.yml`                        | sponsor buttons                                                                                                                                                                                                                                              | ✅      |
-| `.github/stale.yml`                          | stale issue/PR bot                                                                                                                                                                                                                                           | ✅      |
-| `.github/agentscan.yml`                      | GitHub agent scan config                                                                                                                                                                                                                                     | ✅      |
+| VueUse file                                  | purpose                                                                                                                                                                                                                                                                                                                                       | reaxuse |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `.github/workflows/ci.yml`                   | lint, test matrix (Node `22.x`, `lts/*`) with Playwright chromium + webkit and codecov, `pkg-pr-new` release preview, playground smoke test — on `push`/`pull_request` to `main`/`next`, plus `merge_group`                                                                                                                                   | ✅      |
+| `.github/workflows/publish.yml`              | publish npm on merge of `release/*` PRs — npm **trusted publishing (OIDC)**, no token; runs `update:full` before `publish:ci`, and each package builds itself at pack time via `prepack` (release cut via `bumpp --pr`)                                                                                                                       | ✅      |
+| `.github/workflows/autofix.yml`              | auto-fix bot (autofix.ci) for PRs                                                                                                                                                                                                                                                                                                             | ✅      |
+| `.github/workflows/export-size.yml`          | export-size CI report via `antfu/export-size-action` — enabled now that the packages ship dist-based `exports`; the report itself is **pending (⏳)**: export-size's rollup bundler cannot resolve React's CJS-only `react/jsx-runtime` named export and the action ignores its `bundler: esbuild` input, so the step is non-blocking for now | ⏳      |
+| `.github/ISSUE_TEMPLATE/bug_report.yml`      | bug report form                                                                                                                                                                                                                                                                                                                               | ✅      |
+| `.github/ISSUE_TEMPLATE/feature_request.yml` | feature request form                                                                                                                                                                                                                                                                                                                          | ✅      |
+| `.github/ISSUE_TEMPLATE/config.yml`          | issue template routing                                                                                                                                                                                                                                                                                                                        | ✅      |
+| `.github/PULL_REQUEST_TEMPLATE.md`           | PR template                                                                                                                                                                                                                                                                                                                                   | ✅      |
+| `.github/FUNDING.yml`                        | sponsor buttons                                                                                                                                                                                                                                                                                                                               | ✅      |
+| `.github/stale.yml`                          | stale issue/PR bot                                                                                                                                                                                                                                                                                                                            | ✅      |
+| `.github/agentscan.yml`                      | GitHub agent scan config                                                                                                                                                                                                                                                                                                                      | ✅      |
 
 ## 6. Scripts — `scripts/`
 
@@ -153,7 +155,8 @@ VueUse's repo automation scripts (run with `tsx`) are all mirrored and working.
 Root `package.json` scripts mirror VueUse's (`up`, `backport`, `build`, `build:packages`,
 `build:redirects`, `clean`, `dev`/`docs`, `docs:build`, `docs:build:vitepress`, `docs:serve`,
 `lint`, `lint:fix`, `publish:ci`, `release`, `release:prepare`, `size`, `test`, `test:cov`,
-`test:exports`, `test:unit`, `test:all`, `typecheck`, `update`, `watch`, `prepare`; React
+`test:exports`, `test:browser`, `test:chromium`, `test:webkit`, `test:other-browser`, `test:unit`,
+`test:all`, `typecheck`, `update`, `update:full`, `update:skills`, `watch`, `prepare`; React
 adaptations: `tsc` in place of `vue-tsc`); the docs commands run VitePress with **`packages`**
 as the docs root. reaxuse-specific one-off scripts (`add-mapfrom`, `contract-check`,
 `create-mapping-issues`, `driver-core`, `unify-demo-layout`, `update-branch`) were removed in
@@ -161,18 +164,20 @@ the VueUse alignment.
 
 ## 7. Tests — vitest + vitest-browser-react
 
-VueUse's vitest projects (`unit`, `server`, `exports`, `browser`) are mirrored; browser tests use
-**vitest-browser-react** (not React Testing Library), running in a real chromium via the Playwright
-provider.
+VueUse's vitest layout is mirrored: the `browser` project drives **vitest-browser-react** in real
+browsers (chromium + webkit; firefox stays disabled upstream for flakiness) and the `exports`
+project runs in plain node. VueUse's jsdom `unit` and `server` projects have no reaxuse
+counterpart — every hook test needs a real DOM, so `test:unit` is an alias of the chromium
+browser project.
 
-| VueUse                                            | reaxuse                                                                            | status |
-| ------------------------------------------------- | ---------------------------------------------------------------------------------- | ------ |
-| `test/exports.test.ts`                            | same — asserts public exports of every package                                     | ✅     |
-| `test/package-json-export.test.ts`                | same — asserts `package.json` export maps                                          | ✅     |
-| `test/*.snapshot.*` (generated API snapshots)     | — generated alongside the external-lib wrapper packages (`axios`/`firebase`/…)     | ⏳     |
-| per-function browser tests                        | `packages/*/src/*.test.tsx` via `vitest-browser-react`                             | ✅     |
-| vitest projects (`unit` browser / `exports` node) | [`vitest.config.ts`](https://github.com/hairyf/reaxuse/blob/main/vitest.config.ts) | ✅     |
-| coverage (`test:cov`)                             | `test:coverage` script                                                             | ✅     |
+| VueUse                                                      | reaxuse                                                                                                                                   | status |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| `test/exports.test.ts`                                      | same — asserts public exports of every package                                                                                            | ✅     |
+| `test/package-json-export.test.ts`                          | same — asserts `package.json` export maps                                                                                                 | ✅     |
+| `test/*.snapshot.*` (generated API snapshots)               | — generated alongside the external-lib wrapper packages (`axios`/`firebase`/…)                                                            | ⏳     |
+| per-function browser tests                                  | `packages/*/src/*.test.tsx` via `vitest-browser-react`                                                                                    | ✅     |
+| vitest projects (`browser` / `unit` / `server` / `exports`) | `browser` (chromium + webkit) / `exports` (node) — see [`vitest.config.ts`](https://github.com/hairyf/reaxuse/blob/main/vitest.config.ts) | ✅     |
+| coverage (`test:cov`)                                       | `test:cov` (`--project="browser (chromium)" --project=exports`)                                                                           | ✅     |
 
 ## 8. Playgrounds — `playgrounds/`
 
@@ -240,4 +245,4 @@ Explicitly out of scope for now (per project owner), documented here so the map 
 
 1. **Large-scale AI mapping** of all ~200 `@vueuse/core` functions — hook mapping continues incrementally.
 2. **`router` / `rxjs` / `electron` / `nuxt` / `firebase` (and `components` / `skills`) sub-packages** — will be created when their mapping begins.
-3. **Publishing to npm (`@reaxuse/*`)** — the `publish.yml` workflow and `publish:ci` script exist and are ready, but no releases are cut yet.
+3. **Publishing to npm (`@reaxuse/*`)** — the `publish.yml` workflow and `publish:ci` script exist and are ready, but no releases are cut yet. `publish.yml` authenticates through npm **trusted publishing**, so every published package needs a Trusted Publisher entry (repo `hairyf/reaxuse`, workflow `publish.yml`) on npmjs.com before the first OIDC release.

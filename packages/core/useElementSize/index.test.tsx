@@ -54,13 +54,20 @@ describe('useElementSize', () => {
   it('should keep the plain offsetWidth prefill when window is null', async () => {
     // `window: null` disables the computed-style prefill (mirrors upstream's
     // `box === 'content-box' && window` gate) — content-box falls back to the
-    // raw offsetWidth/offsetHeight without subtracting padding and border
-    const { result } = await renderHook(() =>
-      useElementSize(el, { width: 0, height: 0 }, { window: null as unknown as undefined, box: 'content-box' }),
-    )
+    // raw offsetWidth/offsetHeight without subtracting padding and border.
+    // That prefill is only observable before the ResizeObserver re-reports the
+    // content box (which is also 170x70) and WebKit delivers that within the
+    // same `renderHook` round-trip, so record the sizes as they render.
+    const sizes: Array<{ width: number, height: number }> = []
+    await renderHook(() => {
+      const size = useElementSize(el, { width: 0, height: 0 }, { window: null as unknown as undefined, box: 'content-box' })
+      sizes.push({ width: size.width, height: size.height })
+      return size
+    })
 
-    expect(result.current.width).toBe(200)
-    expect(result.current.height).toBe(100)
+    // sizes[0] is the initial state, sizes[1] the mount-time prefill
+    expect(sizes[0]).toEqual({ width: 0, height: 0 })
+    expect(sizes[1]).toEqual({ width: 200, height: 100 })
   })
 
   it('updates width/height when the element is resized', async () => {

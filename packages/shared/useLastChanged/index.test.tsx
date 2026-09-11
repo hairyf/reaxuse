@@ -131,13 +131,14 @@ describe('useLastChanged (component)', () => {
     // a change records the timestamp of the change
     await screen.getByRole('button', { name: 'Change value' }).click()
     await expect.element(screen.getByText(/Last changed: \d+/)).toBeVisible()
+    // the timestamp read is synchronous, so wait for the change to render
+    await expect.poll(() => readTimestamp(screen)).toBeGreaterThan(0)
     const first = readTimestamp(screen)
-    expect(first).toBeGreaterThan(0)
 
     // another change records a newer timestamp
     await screen.getByRole('button', { name: 'Change value' }).click()
+    await expect.poll(() => readTimestamp(screen)).toBeGreaterThan(first)
     const second = readTimestamp(screen)
-    expect(second).toBeGreaterThanOrEqual(first)
 
     // an unchanged value keeps the timestamp
     await screen.getByRole('button', { name: 'Set same value' }).click()

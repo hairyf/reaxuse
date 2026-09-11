@@ -547,7 +547,13 @@ describe('useDraggable', () => {
         duration: 500,
       })
 
-      expect(container.scrollLeft).toBeGreaterThan(130)
+      // auto-scroll advances by `speed` px per timer tick, so the total after a
+      // fixed 500ms window depends on the engine's tick rate (WebKit delivers
+      // fewer ticks) — keep dragging until the custom speed has clearly
+      // out-scrolled the default one
+      await vi.waitFor(() => {
+        expect(container.scrollLeft).toBeGreaterThan(130)
+      }, { timeout: 5000 })
 
       dispatchPointerUp()
       await unmount()

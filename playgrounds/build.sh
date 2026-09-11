@@ -6,12 +6,12 @@ cd "$(dirname "$0")"
 # Vite playground (primary)
 cd ./vite
 rm -rf node_modules
-npm install
-npm run build
+pnpm install
+pnpm run build
 
 # Next.js playground (needs the workspace packages built first:
-# npm run build:packages at the repo root).
+# pnpm run build:packages at the repo root).
 # cd ../next
 # rm -rf node_modules
-# npm install
-# npm run build
+# pnpm install
+# pnpm run build

@@ -710,34 +710,37 @@ describe('useFetch', () => {
     const onFetchErrorSpy = vi.fn()
     const onFetchResponseSpy = vi.fn()
     const onFetchFinallySpy = vi.fn()
-    const { result } = await renderHook(() => useFetch(baseUrl))
+    // subscribe before the request runs: an immediate request fires from a
+    // mount effect and WebKit can resolve it before the test subscribes
+    const { result } = await renderHook(() => useFetch(baseUrl, { immediate: false }))
 
     result.current.onFetchResponse(onFetchResponseSpy)
     result.current.onFetchError(onFetchErrorSpy)
     result.current.onFetchFinally(onFetchFinallySpy)
 
-    await vi.waitFor(() => {
-      expect(onFetchErrorSpy).not.toHaveBeenCalled()
-      expect(onFetchResponseSpy).toHaveBeenCalled()
-      expect(onFetchFinallySpy).toHaveBeenCalled()
-    })
+    await result.current.execute()
+
+    expect(onFetchErrorSpy).not.toHaveBeenCalled()
+    expect(onFetchResponseSpy).toHaveBeenCalled()
+    expect(onFetchFinallySpy).toHaveBeenCalled()
   })
 
   it('should emit onFetchError event', async () => {
     const onFetchErrorSpy = vi.fn()
     const onFetchResponseSpy = vi.fn()
     const onFetchFinallySpy = vi.fn()
-    const { result } = await renderHook(() => useFetch(`${baseUrl}?status=400`))
+    // subscribe before the request runs (see the response-event test above)
+    const { result } = await renderHook(() => useFetch(`${baseUrl}?status=400`, { immediate: false }))
 
     result.current.onFetchError(onFetchErrorSpy)
     result.current.onFetchResponse(onFetchResponseSpy)
     result.current.onFetchFinally(onFetchFinallySpy)
 
-    await vi.waitFor(() => {
-      expect(onFetchErrorSpy).toHaveBeenCalled()
-      expect(onFetchResponseSpy).not.toHaveBeenCalled()
-      expect(onFetchFinallySpy).toHaveBeenCalled()
-    })
+    await result.current.execute()
+
+    expect(onFetchErrorSpy).toHaveBeenCalled()
+    expect(onFetchResponseSpy).not.toHaveBeenCalled()
+    expect(onFetchFinallySpy).toHaveBeenCalled()
   })
 
   it('setting the request method w/ get and return type w/ json', async () => {
@@ -843,11 +846,18 @@ describe('useFetch', () => {
 
     result.current.onFetchResponse(onFetchResponseSpy)
 
-    await rerender({ url: `${baseUrl}?t=1` })
-    await nextTick()
-    await rerender({ url: `${baseUrl}?t=2` })
-    await nextTick()
-    await rerender({ url: `${baseUrl}?t=3` })
+    // keep each superseded request in flight (mock `?delay=`) and let the last
+    // one resolve well after them, so a request that was not really aborted
+    // would have emitted its response before the assertion below
+    await rerender({ url: `${baseUrl}?t=1&delay=100` })
+    await vi.waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledTimes(1)
+    })
+    await rerender({ url: `${baseUrl}?t=2&delay=100` })
+    await vi.waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledTimes(2)
+    })
+    await rerender({ url: `${baseUrl}?t=3&delay=300` })
 
     await vi.waitFor(() => {
       expect(onFetchResponseSpy).toBeCalledTimes(1)
