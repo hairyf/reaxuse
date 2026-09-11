@@ -1,7 +1,7 @@
 {
   "name": "@reaxuse/shared",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Shared utilities — 1:1 React port of @vueuse/shared (experimental, AI-mapped)",
   "license": "MIT",
   "sideEffects": false,

@@ -1,7 +1,7 @@
 {
   "name": "@reaxuse/math",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Math functions — React port of @vueuse/math (experimental, AI-mapped)",
   "license": "MIT",
   "sideEffects": false,
