@@ -10,7 +10,7 @@ Reactive numeric projection from one domain to another.
 ## Usage
 
 ```tsx
-import { createProjection } from '@reaxuse/math'
+import { createProjection } from '@reause/math'
 import { useState } from 'react'
 
 const useProjector = createProjection([0, 10], [0, 100])

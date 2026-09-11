@@ -1,4 +1,4 @@
-import { useSpeechRecognition } from '@reaxuse/core'
+import { useSpeechRecognition } from '@reause/core'
 import { useEffect, useState } from 'react'
 
 // Ported from source/vueuse/packages/core/useSpeechRecognition/demo.vue —

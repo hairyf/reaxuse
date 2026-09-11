@@ -12,7 +12,7 @@ Watch your own state value; the returned controls carry extra `pause()` and
 `resume()` functions to control the callback.
 
 ```tsx
-import { useWatchPausable } from '@reaxuse/shared'
+import { useWatchPausable } from '@reause/shared'
 import { useState } from 'react'
 
 const [value, setValue] = useState('foo')
@@ -35,7 +35,7 @@ setValue('hello') // logs: Changed to hello!
 Start paused and fire once on mount with `initialState` / `immediate`:
 
 ```tsx
-import { useWatchPausable } from '@reaxuse/shared'
+import { useWatchPausable } from '@reause/shared'
 import { useState } from 'react'
 
 const [value, setValue] = useState('foo')

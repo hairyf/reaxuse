@@ -1,4 +1,4 @@
-import { useWebSocket } from '@reaxuse/core'
+import { useWebSocket } from '@reause/core'
 import { useState } from 'react'
 
 export default function UseWebSocketDemo() {

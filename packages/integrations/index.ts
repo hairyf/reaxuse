@@ -1,5 +1,5 @@
 /**
- * @reaxuse/integrations — React port of @vueuse/integrations
+ * @reause/integrations — React port of @vueuse/integrations
  */
 
 export * from './useAsyncValidator'

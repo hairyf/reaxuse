@@ -17,19 +17,19 @@ importers:
       '@arethetypeswrong/core':
         specifier: ^0.18.5
         version: 0.18.5
-      '@reaxuse/core':
+      '@reause/core':
         specifier: workspace:*
         version: link:packages/core
-      '@reaxuse/integrations':
+      '@reause/integrations':
         specifier: workspace:*
         version: link:packages/integrations
-      '@reaxuse/math':
+      '@reause/math':
         specifier: workspace:*
         version: link:packages/math
-      '@reaxuse/metadata':
+      '@reause/metadata':
         specifier: workspace:*
         version: link:packages/metadata
-      '@reaxuse/shared':
+      '@reause/shared':
         specifier: workspace:*
         version: link:packages/shared
       '@types/node':
@@ -200,7 +200,7 @@ importers:
 
   packages/core:
     dependencies:
-      '@reaxuse/shared':
+      '@reause/shared':
         specifier: workspace:*
         version: link:../shared
       react:
@@ -209,7 +209,7 @@ importers:
 
   packages/electron:
     dependencies:
-      '@reaxuse/shared':
+      '@reause/shared':
         specifier: workspace:*
         version: link:../shared
       electron:
@@ -230,7 +230,7 @@ importers:
 
   packages/integrations:
     dependencies:
-      '@reaxuse/shared':
+      '@reause/shared':
         specifier: workspace:*
         version: link:../shared
       async-validator:
@@ -275,7 +275,7 @@ importers:
 
   packages/math:
     dependencies:
-      '@reaxuse/shared':
+      '@reause/shared':
         specifier: workspace:*
         version: link:../shared
       react:
@@ -286,7 +286,7 @@ importers:
 
   packages/rxjs:
     dependencies:
-      '@reaxuse/shared':
+      '@reause/shared':
         specifier: workspace:*
         version: link:../shared
       react:
@@ -304,7 +304,7 @@ importers:
 
   packages/skills:
     dependencies:
-      '@reaxuse/metadata':
+      '@reause/metadata':
         specifier: workspace:*
         version: link:../metadata
     devDependencies:
@@ -314,10 +314,10 @@ importers:
 
   playgrounds/next:
     dependencies:
-      '@reaxuse/core':
+      '@reause/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@reaxuse/shared':
+      '@reause/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       next:
@@ -345,10 +345,10 @@ importers:
 
   playgrounds/vite:
     dependencies:
-      '@reaxuse/core':
+      '@reause/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@reaxuse/shared':
+      '@reause/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       react:

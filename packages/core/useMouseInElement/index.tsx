@@ -1,6 +1,6 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
 import type { UseMouseCoordType, UseMouseEventExtractor, UseMouseOptions, UseMouseSourceType } from '../useMouse'
-import { toValue } from '@reaxuse/shared'
+import { toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useMouse } from '../useMouse'
 

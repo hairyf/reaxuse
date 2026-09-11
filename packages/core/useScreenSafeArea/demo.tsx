@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { useScreenSafeArea } from '@reaxuse/core'
+import { useScreenSafeArea } from '@reause/core'
 
 const gridStyle: CSSProperties = {
   display: 'inline-grid',

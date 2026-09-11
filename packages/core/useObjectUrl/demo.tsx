@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react'
-import { useObjectUrl } from '@reaxuse/core'
+import { useObjectUrl } from '@reause/core'
 import { useState } from 'react'
 
 export default function UseObjectUrlDemo() {

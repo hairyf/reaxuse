@@ -1,4 +1,4 @@
-import type { ConfigurableWindow } from '@reaxuse/shared'
+import type { ConfigurableWindow } from '@reause/shared'
 import { useEffect, useState } from 'react'
 
 export interface UseNavigatorLanguageOptions extends ConfigurableWindow {

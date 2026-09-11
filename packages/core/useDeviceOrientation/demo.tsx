@@ -1,4 +1,4 @@
-import { useDeviceOrientation } from '@reaxuse/core'
+import { useDeviceOrientation } from '@reause/core'
 
 export default function UseDeviceOrientationDemo() {
   const { isAbsolute, alpha, beta, gamma } = useDeviceOrientation()

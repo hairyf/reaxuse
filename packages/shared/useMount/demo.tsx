@@ -1,4 +1,4 @@
-import { useMount } from '@reaxuse/shared'
+import { useMount } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseMountDemo() {

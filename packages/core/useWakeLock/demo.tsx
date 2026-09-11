@@ -1,4 +1,4 @@
-import { useWakeLock } from '@reaxuse/core'
+import { useWakeLock } from '@reause/core'
 
 export default function UseWakeLockDemo() {
   const { isSupported, isActive, request, release } = useWakeLock()

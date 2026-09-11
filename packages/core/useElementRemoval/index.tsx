@@ -1,5 +1,5 @@
-import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
-import { toValue } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reause/shared'
+import { toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef } from 'react'
 
 /**
@@ -12,7 +12,7 @@ export interface UseElementRemovalOptions extends ConfigurableWindow {
    * Custom `document` or open `ShadowRoot` to observe removals in, e.g. working
    * with iframes or in testing environments (upstream:
    * `ConfigurableDocumentOrShadowRoot`). Inlined here — `ConfigurableDocument`
-   * is not ported to `@reaxuse/shared`, so `document?` mirrors the option
+   * is not ported to `@reause/shared`, so `document?` mirrors the option
    * `useActiveElement` exposes.
    *
    * @default the resolved `window`'s `document` on the client

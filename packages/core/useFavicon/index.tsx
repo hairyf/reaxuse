@@ -11,7 +11,7 @@ export interface UseFaviconOptions {
   /**
    * Specify a custom `document` instance, e.g. working with iframes or in
    * testing environments. Inlined here — `ConfigurableDocument` is not ported
-   * to `@reaxuse/shared`, so `document?` mirrors the option `useTitle` exposes
+   * to `@reause/shared`, so `document?` mirrors the option `useTitle` exposes
    * (defaults to the global `document` when not provided).
    */
   document?: Document | null

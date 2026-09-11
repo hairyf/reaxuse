@@ -1,4 +1,4 @@
-import { useClickOutside } from '@reaxuse/core'
+import { useClickOutside } from '@reause/core'
 import { useRef, useState } from 'react'
 
 export default function UseClickOutsideDemo() {

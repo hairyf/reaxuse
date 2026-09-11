@@ -9,7 +9,7 @@
 
 ## 2. 状态监控
 
-通过 `gh pr list --repo hairyf/reaxuse --state open --json number,title,headRefName,mergeable,mergeStateStatus` 查看状态：
+通过 `gh pr list --repo hairyf/reause --state open --json number,title,headRefName,mergeable,mergeStateStatus` 查看状态：
 
 - `CLEAN` / `UNSTABLE`：允许直接合并。
 - `CONFLICTING` / `DIRTY`：按 §4 进行冲突解析。
@@ -21,14 +21,14 @@
   - VueUse 来源：检查 `ref*` → `useState*` 映射，JSDoc 包含 `Map from @vueuse/...`。
   - react-use 来源：检查是否保持原 API 命名，JSDoc 包含 `Mirrored from react-use/...`。
 - **返回值结构**：VueUse 转换类检查强制 tuple/对象规则；react-use 类核对上游 API 签名（对照 [AGENTS.md](../AGENTS.md) 绑定标准）。
-- **共享引用**：通用工具函数必须统一从 `@reaxuse/shared` 导入，严禁本地副本。
+- **共享引用**：通用工具函数必须统一从 `@reause/shared` 导入，严禁本地副本。
 - **SSR 安全**：渲染阶段禁止直接访问 `window`/`document` 等 DOM API。
 - **占位符**：仅取消本 Hook 对应行的 `// export *` 注释。
 - **协议合规**：对照 [subagent-execution.md](subagent-execution.md) §3 核心协议逐项核验。
 
 ## 4. 合并与冲突处理
 
-- **合并命令**：执行 `gh pr merge <N> --repo hairyf/reaxuse --merge --delete-branch=false`（使用 merge commit，禁止 squash）。
+- **合并命令**：执行 `gh pr merge <N> --repo hairyf/reause --merge --delete-branch=false`（使用 merge commit，禁止 squash）。
 - **冲突解析策略**：
   - core 包：对两侧 export 行取并集（union）并按 ASCII 排序。
   - shared 包：以 main 为准，仅取消当前分支对应 Hook 的注释。

@@ -15,7 +15,7 @@ npm i rxjs
 ## Usage
 
 ```tsx
-import { useSubscription } from '@reaxuse/rxjs'
+import { useSubscription } from '@reause/rxjs'
 import { useState } from 'react'
 import { interval } from 'rxjs'
 

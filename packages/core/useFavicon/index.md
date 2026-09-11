@@ -9,7 +9,7 @@ Reactive favicon
 ## Usage
 
 ```tsx
-import { useFavicon } from '@reaxuse/core'
+import { useFavicon } from '@reause/core'
 
 const [icon, setIcon] = useFavicon()
 

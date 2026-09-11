@@ -1,4 +1,4 @@
-import { useDevicesList } from '@reaxuse/core'
+import { useDevicesList } from '@reause/core'
 
 export default function UseDevicesListDemo() {
   const {

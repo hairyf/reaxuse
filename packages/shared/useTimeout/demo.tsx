@@ -1,4 +1,4 @@
-import { useTimeout } from '@reaxuse/shared'
+import { useTimeout } from '@reause/shared'
 
 export default function UseTimeoutDemo() {
   const { ready, start } = useTimeout(1000, { controls: true })

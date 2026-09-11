@@ -1,4 +1,4 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
 import type { Dispatch, SetStateAction } from 'react'
 import type { UseCountdownOptions, UseCountdownReturn } from '../useCountdown'
 import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest'

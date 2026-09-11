@@ -1,4 +1,4 @@
-import { useWhenever } from '@reaxuse/shared'
+import { useWhenever } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseWheneverDemo() {

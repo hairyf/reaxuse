@@ -1,4 +1,4 @@
-import { useTimestamp, useWebWorkerFn } from '@reaxuse/core'
+import { useTimestamp, useWebWorkerFn } from '@reause/core'
 import { useState } from 'react'
 
 function heavyTask() {

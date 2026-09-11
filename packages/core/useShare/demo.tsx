@@ -1,10 +1,10 @@
-import { useShare } from '@reaxuse/core'
+import { useShare } from '@reause/core'
 import { useState } from 'react'
 
 export default function UseShareDemo() {
   const [text, setText] = useState('Collection of essential React Composition Utilities!')
   const { share, isSupported } = useShare({
-    title: 'reaxuse',
+    title: 'reause',
     text,
     url: typeof location === 'undefined' ? '' : location.href,
   })

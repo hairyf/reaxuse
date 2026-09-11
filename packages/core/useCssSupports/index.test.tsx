@@ -203,10 +203,10 @@ describe('useCssSupports', () => {
     expect(supports).toHaveBeenCalledWith('display', 'flex')
   })
 
-  // reaxuse-specific, NON-UPSTREAM semantics: upstream only defaults an
+  // reause-specific, NON-UPSTREAM semantics: upstream only defaults an
   // `undefined` window to `defaultWindow`, so `{ window: null }` reaches
   // `window?.CSS.supports(...)` and yields `undefined` (not `ssrValue`).
-  // reaxuse treats any falsy custom window as "no window" and stays at
+  // reause treats any falsy custom window as "no window" and stays at
   // `ssrValue`; the divergence is documented in index.tsx and index.md.
   it('should stay at ssrValue when no window is available', async () => {
     const { result } = await renderHook(() =>

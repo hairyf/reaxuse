@@ -4,12 +4,12 @@ category: Utilities
 
 # Shared Utils
 
-Framework-agnostic helper functions ported 1:1 from VueUse's internal [`@vueuse/shared`](https://vueuse.org/shared/) utils group (`is.ts` / `general.ts`) — plain TypeScript with no React state, re-exported from the `@reaxuse/shared` package entry.
+Framework-agnostic helper functions ported 1:1 from VueUse's internal [`@vueuse/shared`](https://vueuse.org/shared/) utils group (`is.ts` / `general.ts`) — plain TypeScript with no React state, re-exported from the `@reause/shared` package entry.
 
 ## Usage
 
 ```ts
-import { clamp, isClient, promiseTimeout, toArray } from '@reaxuse/shared'
+import { clamp, isClient, promiseTimeout, toArray } from '@reause/shared'
 
 const limited = clamp(15, 0, 10) // 10
 

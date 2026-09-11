@@ -1,4 +1,4 @@
-import type { ConfigurableWindow, EventFilter } from '@reaxuse/shared'
+import type { ConfigurableWindow, EventFilter } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface UseDeviceMotionOptions extends ConfigurableWindow {

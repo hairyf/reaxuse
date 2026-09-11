@@ -1,4 +1,4 @@
-import { useWindowSize } from '@reaxuse/core'
+import { useWindowSize } from '@reause/core'
 
 export default function UseWindowSizeDemo() {
   const { width, height } = useWindowSize()

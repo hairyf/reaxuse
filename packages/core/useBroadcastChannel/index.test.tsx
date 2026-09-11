@@ -1,4 +1,4 @@
-import { useListener } from '@reaxuse/shared'
+import { useListener } from '@reause/shared'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useBroadcastChannel } from '../useBroadcastChannel'

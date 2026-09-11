@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'reaxuse playground',
+  title: 'reause playground',
   description: 'A React port of VueUse — continuously AI-mapped from the upstream implementation',
 }
 

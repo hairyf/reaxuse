@@ -1,4 +1,4 @@
-import { useRound } from '@reaxuse/math'
+import { useRound } from '@reause/math'
 import { useState } from 'react'
 
 const PRESET_VALUES = [20.49, -20.51, 0.5, -0.5, 7, 3.1415]

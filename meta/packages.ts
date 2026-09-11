@@ -1,12 +1,12 @@
 export interface PackageManifest {
   /** short name, e.g. `core` */
   name: string
-  /** npm name, e.g. `@reaxuse/core` */
+  /** npm name, e.g. `@reause/core` */
   display: string
   description: string
   /** whether this is an addon package (integrations/rxjs/firebase/electron/math) */
   addon?: boolean
-  /** additional externals not to bundle (besides react / @reaxuse/*) */
+  /** additional externals not to bundle (besides react / @reause/*) */
   external?: string[]
   /** iife global name mapping for bundled externals, e.g. `{ axios: 'axios' }` */
   globals?: Record<string, string>
@@ -35,18 +35,18 @@ export interface PackageManifest {
 export const packages: PackageManifest[] = [
   {
     name: 'shared',
-    display: '@reaxuse/shared',
-    description: 'Shared utilities for reaxuse — 1:1 React port of @vueuse/shared',
+    display: '@reause/shared',
+    description: 'Shared utilities for reause — 1:1 React port of @vueuse/shared',
   },
   {
     name: 'core',
-    display: '@reaxuse/core',
+    display: '@reause/core',
     description: 'Core React hooks — 1:1 React port of @vueuse/core',
   },
   {
     name: 'integrations',
-    display: '@reaxuse/integrations',
-    description: 'Integration wrappers for reaxuse — 1:1 React port of @vueuse/integrations',
+    display: '@reause/integrations',
+    description: 'Integration wrappers for reause — 1:1 React port of @vueuse/integrations',
     addon: true,
     submodules: true,
     external: [
@@ -81,14 +81,14 @@ export const packages: PackageManifest[] = [
   },
   {
     name: 'math',
-    display: '@reaxuse/math',
-    description: 'Math functions for reaxuse — 1:1 React port of @vueuse/math',
+    display: '@reause/math',
+    description: 'Math functions for reause — 1:1 React port of @vueuse/math',
     addon: true,
   },
   {
     name: 'rxjs',
-    display: '@reaxuse/rxjs',
-    description: 'RxJS reactive functions for reaxuse — React port of @vueuse/rxjs',
+    display: '@reause/rxjs',
+    description: 'RxJS reactive functions for reause — React port of @vueuse/rxjs',
     addon: true,
     external: [
       'rxjs',
@@ -101,7 +101,7 @@ export const packages: PackageManifest[] = [
   },
   {
     name: 'firebase',
-    display: '@reaxuse/firebase',
+    display: '@reause/firebase',
     description: 'Realtime bindings for Firebase — React port of @vueuse/firebase',
     addon: true,
     submodules: true,
@@ -118,7 +118,7 @@ export const packages: PackageManifest[] = [
   },
   {
     name: 'electron',
-    display: '@reaxuse/electron',
+    display: '@reause/electron',
     description: 'Electron renderer process modules — React port of @vueuse/electron',
     addon: true,
     external: [
@@ -128,8 +128,8 @@ export const packages: PackageManifest[] = [
   },
   {
     name: 'metadata',
-    display: '@reaxuse/metadata',
-    description: 'Metadata for reaxuse functions — 1:1 React port of @vueuse/metadata',
+    display: '@reause/metadata',
+    description: 'Metadata for reause functions — 1:1 React port of @vueuse/metadata',
     manualImport: true,
     iife: false,
     utils: true,

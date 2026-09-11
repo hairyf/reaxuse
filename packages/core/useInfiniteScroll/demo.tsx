@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { useInfiniteScroll } from '@reaxuse/core'
+import { useInfiniteScroll } from '@reause/core'
 import { useRef, useState } from 'react'
 
 const containerStyle: CSSProperties = {

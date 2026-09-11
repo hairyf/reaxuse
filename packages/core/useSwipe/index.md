@@ -9,7 +9,7 @@ Reactive swipe detection based on [`TouchEvents`](https://developer.mozilla.org/
 ## Usage
 
 ```tsx
-import { useSwipe } from '@reaxuse/core'
+import { useSwipe } from '@reause/core'
 import { useRef } from 'react'
 
 function Demo() {

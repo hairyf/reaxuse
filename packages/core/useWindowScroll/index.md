@@ -9,7 +9,7 @@ Reactive window scroll
 ## Usage
 
 ```tsx
-import { useWindowScroll } from '@reaxuse/core'
+import { useWindowScroll } from '@reause/core'
 
 const { x, y, isScrolling, arrivedState, directions, setX, setY } = useWindowScroll()
 

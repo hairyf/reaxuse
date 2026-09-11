@@ -7,5 +7,5 @@ import { version } from '../package.json'
 export const currentVersion = `v${version}`
 
 export const versions = [
-  { version: currentVersion, link: `https://github.com/hairyf/reaxuse/releases/tag/${currentVersion}` },
+  { version: currentVersion, link: `https://github.com/hairyf/reause/releases/tag/${currentVersion}` },
 ]

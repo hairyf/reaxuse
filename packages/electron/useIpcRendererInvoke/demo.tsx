@@ -1,4 +1,4 @@
-// Relative (not `@reaxuse/electron`): until this PR is merged the package name
+// Relative (not `@reause/electron`): until this PR is merged the package name
 // resolves through the worktree node_modules junction to the main repo's
 // still-empty electron package.
 import type { IpcRenderer } from 'electron'

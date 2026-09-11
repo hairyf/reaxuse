@@ -1,4 +1,4 @@
-import { useFileSystemAccess } from '@reaxuse/core'
+import { useFileSystemAccess } from '@reause/core'
 import { useState } from 'react'
 
 type DataType = 'Text' | 'ArrayBuffer' | 'Blob'

@@ -1,4 +1,4 @@
-import { usePrevious } from '@reaxuse/core'
+import { usePrevious } from '@reause/core'
 import { useState } from 'react'
 
 export default function UsePreviousDemo() {

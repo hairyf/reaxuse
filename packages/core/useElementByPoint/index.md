@@ -9,7 +9,7 @@ Reactive element by point
 ## Usage
 
 ```tsx
-import { useElementByPoint, useMouse } from '@reaxuse/core'
+import { useElementByPoint, useMouse } from '@reause/core'
 
 const { x, y } = useMouse({ type: 'client' })
 const { element } = useElementByPoint({ x, y })

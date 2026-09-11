@@ -1,4 +1,4 @@
-import { useCeil } from '@reaxuse/math'
+import { useCeil } from '@reause/math'
 import { useState } from 'react'
 
 const PRESET_VALUES = [0.95, -7.004, 7.004, 2.3, -0.2]

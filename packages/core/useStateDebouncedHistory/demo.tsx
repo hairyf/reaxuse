@@ -1,4 +1,4 @@
-import { useStateDebouncedHistory } from '@reaxuse/core'
+import { useStateDebouncedHistory } from '@reause/core'
 import { useState } from 'react'
 
 function format(ts: number) {

@@ -1,4 +1,4 @@
-import { useTimeAgoIntl } from '@reaxuse/core'
+import { useTimeAgoIntl } from '@reause/core'
 import { useState } from 'react'
 
 export default function UseTimeAgoIntlDemo() {

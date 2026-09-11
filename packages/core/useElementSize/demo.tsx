@@ -1,4 +1,4 @@
-import { useElementSize } from '@reaxuse/core'
+import { useElementSize } from '@reause/core'
 import { useRef } from 'react'
 
 export default function UseElementSizeDemo() {

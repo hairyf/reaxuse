@@ -9,7 +9,7 @@ Reactive [DeviceOrientationEvent](https://developer.mozilla.org/en-US/docs/Web/A
 ## Usage
 
 ```tsx
-import { useDeviceOrientation } from '@reaxuse/core'
+import { useDeviceOrientation } from '@reause/core'
 
 const { isAbsolute, alpha, beta, gamma } = useDeviceOrientation()
 ```

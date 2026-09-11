@@ -9,7 +9,7 @@ Reactive base64 transforming. Supports plain text, buffer, files, canvas, object
 ## Usage
 
 ```tsx
-import { useBase64 } from '@reaxuse/core'
+import { useBase64 } from '@reause/core'
 
 const [text, setText] = useState('')
 
@@ -70,7 +70,7 @@ const { base64 } = useBase64(data, {
 ## React Divergences
 
 - `base64` and `promise` are plain state values (upstream returns `shallowRef`s) read directly off the hook result. `promise` is `undefined` until the first `execute()` run, and `base64` is `''` until the first transformation settles.
-- **Re-transform trigger.** Upstream watches a reactive source with `watch(target, execute, { immediate: true })` and calls `execute()` exactly once during setup for a plain value. reaxuse resolves the source with `toValue` during render and re-runs the transformation in an effect keyed on the resolved value, so:
+- **Re-transform trigger.** Upstream watches a reactive source with `watch(target, execute, { immediate: true })` and calls `execute()` exactly once during setup for a plain value. reause resolves the source with `toValue` during render and re-runs the transformation in an effect keyed on the resolved value, so:
   - a ref-like `{ current }` source re-transforms only after a re-render that carries a new `current` — mutating `current` alone does not trigger a transformation;
   - an in-flight earlier transform can still overwrite a newer `base64` (the same race exists upstream).
 - **SSR.** `execute` is a no-op that resolves `undefined` outside a browser, and the automatic first transform runs only in a mount effect, so nothing touches the DOM during render.

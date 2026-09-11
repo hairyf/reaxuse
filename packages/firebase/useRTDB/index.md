@@ -9,7 +9,7 @@ Reactive [Firebase Realtime Database](https://firebase.google.com/docs/database)
 ## Usage
 
 ```tsx
-import { useRTDB } from '@reaxuse/firebase'
+import { useRTDB } from '@reause/firebase'
 import { initializeApp } from 'firebase/app'
 import { getDatabase, ref } from 'firebase/database'
 
@@ -41,9 +41,9 @@ const [todos] = useRTDB(ref(db, 'todos'), { autoDispose: false })
 or use `createGlobalState` from the shared package
 
 ```ts
-import { useRTDB } from '@reaxuse/firebase'
+import { useRTDB } from '@reause/firebase'
 // store.ts
-import { createGlobalState } from '@reaxuse/shared'
+import { createGlobalState } from '@reause/shared'
 import { ref } from 'firebase/database'
 
 export const useTodos = createGlobalState(

@@ -1,4 +1,4 @@
-import { useNavigatorLanguage } from '@reaxuse/core'
+import { useNavigatorLanguage } from '@reause/core'
 
 export default function UseNavigatorLanguageDemo() {
   const { isSupported, language } = useNavigatorLanguage()

@@ -1,4 +1,4 @@
-import { promiseTimeout } from '@reaxuse/shared'
+import { promiseTimeout } from '@reause/shared'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useAsync } from '../useAsync'

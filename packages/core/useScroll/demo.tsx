@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { useScroll } from '@reaxuse/core'
+import { useScroll } from '@reause/core'
 import { useEffect, useRef, useState } from 'react'
 
 function BooleanDisplay({ value }: { value: boolean }) {

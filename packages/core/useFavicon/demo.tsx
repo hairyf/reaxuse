@@ -1,4 +1,4 @@
-import { useFavicon } from '@reaxuse/core'
+import { useFavicon } from '@reause/core'
 
 export default function UseFaviconDemo() {
   const [, setIcon] = useFavicon('favicon-32x32.png', {

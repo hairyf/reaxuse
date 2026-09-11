@@ -1,4 +1,4 @@
-import { useBattery } from '@reaxuse/core'
+import { useBattery } from '@reause/core'
 
 export default function UseBatteryDemo() {
   const battery = useBattery()

@@ -1,4 +1,4 @@
-import { useTrunc } from '@reaxuse/math'
+import { useTrunc } from '@reause/math'
 import { useState } from 'react'
 
 const PRESET_VALUES = [0.95, -0.2, 7.004, -2.34]

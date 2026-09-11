@@ -1,5 +1,5 @@
-import type { RefOrValue } from '@reaxuse/shared'
-import { toValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
+import { toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -115,7 +115,7 @@ export function useDropZone(
   const [files, setFiles] = useState<File[] | null>(null)
 
   // Stable subscribe functions — one per event, backed by Sets in refs so the
-  // subscription identities never change across renders (a reaxuse extension
+  // subscription identities never change across renders (a reause extension
   // on top of upstream's per-option callbacks).
   const dropFns = useRef(new Set<UseDropZoneCallback>())
   const dragEnterFns = useRef(new Set<UseDropZoneCallback>())

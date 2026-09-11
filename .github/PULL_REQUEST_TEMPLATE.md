@@ -1,5 +1,5 @@
 <!--
-  Thanks for contributing to reaxuse!
+  Thanks for contributing to reause!
   Please fill in the template below and delete any non-applicable sections.
 -->
 

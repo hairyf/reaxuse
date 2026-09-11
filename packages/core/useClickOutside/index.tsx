@@ -1,5 +1,5 @@
-import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
-import { isIOS, noop, toValue } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reause/shared'
+import { isIOS, noop, toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef } from 'react'
 import { useEventListener } from '../useEventListener'
 

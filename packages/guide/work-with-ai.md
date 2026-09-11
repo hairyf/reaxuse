@@ -3,33 +3,33 @@
 ## Agent Skills
 
 > [!IMPORTANT]
-> 🧪 Experimental: reaxuse Skills are currently experimental and under active development, feedback is welcome.
+> 🧪 Experimental: reause Skills are currently experimental and under active development, feedback is welcome.
 
-The [reaxuse Skills](https://github.com/hairyf/reaxuse/tree/main/skills) are AI Agent Skills maintained by the reaxuse project, mirroring
+The [reause Skills](https://github.com/hairyf/reause/tree/main/skills) are AI Agent Skills maintained by the reause project, mirroring
 [VueUse's `vueuse-functions` skill](https://github.com/vueuse/vueuse/tree/main/skills).
 
 After installing the skill, when you use an AI Agent to assist with developing
 React applications, it can automatically leverage the rich feature set provided
-by reaxuse.
+by reause.
 
-This allows the agent to accurately use reaxuse hooks **without requiring an
+This allows the agent to accurately use reause hooks **without requiring an
 internet connection or additional permissions**.
 
 ### Installation
 
-The `reaxuse-functions` skill ships in this repository under
-[`skills/reaxuse-functions/`](https://github.com/hairyf/reaxuse/tree/main/skills/reaxuse-functions) — a `SKILL.md` plus
+The `reause-functions` skill ships in this repository under
+[`skills/reause-functions/`](https://github.com/hairyf/reause/tree/main/skills/reause-functions) — a `SKILL.md` plus
 one reference document per hook. Point your AI agent at that folder (or copy it
 into your agent's skills directory) so it can load the hook references
 locally:
 
 ```bash
 # most agent CLIs accept a local path or a repo path
-npx skills add hairyf/reaxuse
+npx skills add hairyf/reause
 ```
 
-> If you are working in a clone of the reaxuse repository, the skill is already
-> available at `skills/reaxuse-functions/` — just tell your agent where to find it.
+> If you are working in a clone of the reause repository, the skill is already
+> available at `skills/reause-functions/` — just tell your agent where to find it.
 
 ### Usage
 
@@ -56,7 +56,7 @@ import {
   useInfiniteScroll,
   useLocalStorage,
   useTitle,
-} from '@reaxuse/core'
+} from '@reause/core'
 import { useRef, useState } from 'react'
 
 interface Todo {
@@ -267,12 +267,12 @@ export default function App() {
 
 </details>
 
-#### Asking the AI Agent How to Use reaxuse
+#### Asking the AI Agent How to Use reause
 
 Example prompt:
 
 ```
-which reaxuse function can i use for local storage?
+which reause function can i use for local storage?
 ```
 
 <details>
@@ -283,7 +283,7 @@ Use `useStorage` (it defaults to `localStorage`), or the convenience wrapper `us
 Example:
 
 ```tsx
-import { useLocalStorage, useStorage } from '@reaxuse/core'
+import { useLocalStorage, useStorage } from '@reause/core'
 
 const [state, setState] = useStorage('my-key', { hello: 'hi' }) // localStorage by default
 const [theme, setTheme] = useLocalStorage('theme', 'light')

@@ -6,12 +6,12 @@ import { globSync } from 'tinyglobby'
 export const externals = [
   'react',
   'react-dom',
-  /@reaxuse\/.*/,
+  /@reause\/.*/,
 ]
 
 /**
  * tsdown's `attw` (Are The Types Wrong) check on the packed tarball, mirroring
- * VueUse's `attwConfig` (`profile: 'esm-only'` — reaxuse ships ESM only).
+ * VueUse's `attwConfig` (`profile: 'esm-only'` — reause ships ESM only).
  */
 export const attwConfig: UserConfig['attw'] = {
   level: 'error',
@@ -26,12 +26,12 @@ export const attwConfig: UserConfig['attw'] = {
  * Differences from upstream:
  * - hooks live at `<hook>/index.tsx` (not `<hook>/index.ts`), so submodule
  *   entries glob `.tsx` files;
- * - the IIFE global is `Reaxuse` and `react`/`react-dom` are mapped to the
+ * - the IIFE global is `reause` and `react`/`react-dom` are mapped to the
  *   `React`/`ReactDOM` globals;
  * - `react/jsx-runtime` is bundled into IIFE builds: React ships no UMD
  *   global for it (its implementation is self-contained, so inlining is safe),
  *   while the ESM build keeps it external;
- * - no `component` entries — reaxuse has no renderless-component concept.
+ * - no `component` entries — reause has no renderless-component concept.
  */
 export function createTsDownConfig(
   pkg: PackageManifest,
@@ -43,12 +43,12 @@ export function createTsDownConfig(
   if (build === false)
     return []
 
-  const iifeName = 'Reaxuse'
+  const iifeName = 'reause'
   const iifeGlobals = {
     'react': 'React',
     'react-dom': 'ReactDOM',
-    '@reaxuse/shared': 'Reaxuse',
-    '@reaxuse/core': 'Reaxuse',
+    '@reause/shared': 'reause',
+    '@reause/core': 'reause',
     ...(globals || {}),
   }
 

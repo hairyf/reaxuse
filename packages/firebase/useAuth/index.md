@@ -10,7 +10,7 @@ can easily react to changes in the users' authentication status.
 ## Usage
 
 ```tsx
-import { useAuth } from '@reaxuse/firebase'
+import { useAuth } from '@reause/firebase'
 import { initializeApp } from 'firebase/app'
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 

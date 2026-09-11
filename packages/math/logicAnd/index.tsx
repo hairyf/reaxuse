@@ -3,7 +3,7 @@
  *
  * Map from @vueuse/math `logicAnd`
  * (`source/vueuse/packages/math/logicAnd/`). Upstream wraps the evaluation in
- * `computed(() => ...)` and returns a `ComputedRef<boolean>`; the reaxuse
+ * `computed(() => ...)` and returns a `ComputedRef<boolean>`; the reause
  * version is a pure function that evaluates every plain argument and returns a
  * plain `boolean` on each call — there is no reactivity, so re-renders (or
  * effects) drive re-evaluation (SSR-safe).

@@ -12,7 +12,7 @@ Similar to `useWatch`, but the callback also fires once on mount with the
 current value.
 
 ```tsx
-import { useWatchImmediate } from '@reaxuse/shared'
+import { useWatchImmediate } from '@reause/shared'
 import { useState } from 'react'
 
 const [obj, setObj] = useState('vue-use')

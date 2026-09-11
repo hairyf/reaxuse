@@ -15,7 +15,7 @@ npm i drauu@^1
 ## Usage
 
 ```tsx
-import { useDrauu } from '@reaxuse/integrations'
+import { useDrauu } from '@reause/integrations'
 import { useRef } from 'react'
 
 const target = useRef<SVGSVGElement>(null)

@@ -54,7 +54,7 @@ export interface SyncStateOptions<L, R, D extends SyncStateDirection = 'both'> {
 
 // sentinel marking "no value observed yet" on a side — the first effect run
 // performs the initial sync, mirroring upstream's default `immediate: true`
-const neverObserved = Symbol('reaxuse.syncState.neverObserved')
+const neverObserved = Symbol('reause.syncState.neverObserved')
 
 // write path of a `State` source: ref-like `.current` writes are synchronous,
 // tuple / `{ value, onChange }` writes land asynchronously through the setter
@@ -108,7 +108,7 @@ function classifyWritable(source: unknown): 'sync' | 'async' | 'readonly' {
  * post-commit, an external mutation is only adopted on the render that
  * follows it — the mutation itself never schedules a render, so a bare
  * `.current` write outside of React is not observed (see the maintainer
- * notes on reaxuse #40 / #41). The returned `stop` function tears the
+ * notes on reause #40 / #41). The returned `stop` function tears the
  * synchronization down; the effect also stops doing any work once the owning
  * component unmounts.
  *

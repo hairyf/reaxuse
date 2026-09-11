@@ -9,7 +9,7 @@ Throttle execution of a function
 ## Usage
 
 ```tsx
-import { useThrottleFn } from '@reaxuse/shared'
+import { useThrottleFn } from '@reause/shared'
 import { useEffect } from 'react'
 
 const throttledFn = useThrottleFn(() => {

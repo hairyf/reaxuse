@@ -1,4 +1,4 @@
-import { useMath } from '@reaxuse/math'
+import { useMath } from '@reause/math'
 import { useState } from 'react'
 
 export default function UseMathDemo() {

@@ -9,7 +9,7 @@ Watches an array value and reports which items were added and removed since the 
 ## Usage
 
 ```tsx
-import { useWatchArray } from '@reaxuse/shared'
+import { useWatchArray } from '@reause/shared'
 
 useWatchArray(list, (newList, oldList, added, removed) => {
   console.log(`added: ${added}`, `removed: ${removed}`)

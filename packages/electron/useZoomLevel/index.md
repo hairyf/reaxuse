@@ -9,7 +9,7 @@ Reactive [WebFrame](https://www.electronjs.org/docs/api/web-frame#webframe) zoom
 ## Usage
 
 ```tsx
-import { useZoomLevel } from '@reaxuse/electron'
+import { useZoomLevel } from '@reause/electron'
 
 // enable nodeIntegration if you don't provide webFrame explicitly
 // see: https://www.electronjs.org/docs/api/webview-tag#nodeintegration
@@ -22,7 +22,7 @@ setLevel(2) // change current zoom level
 Set initial zoom level immediately
 
 ```tsx
-import { useZoomLevel } from '@reaxuse/electron'
+import { useZoomLevel } from '@reause/electron'
 
 const [level] = useZoomLevel(2)
 ```
@@ -30,7 +30,7 @@ const [level] = useZoomLevel(2)
 Pass a state value and the level will be updated when the source value changes
 
 ```tsx
-import { useZoomLevel } from '@reaxuse/electron'
+import { useZoomLevel } from '@reause/electron'
 import { useState } from 'react'
 
 const [level, setLevel] = useState(1)

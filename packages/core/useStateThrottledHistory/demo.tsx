@@ -1,4 +1,4 @@
-import { useStateThrottledHistory } from '@reaxuse/core'
+import { useStateThrottledHistory } from '@reause/core'
 import { useState } from 'react'
 
 function format(ts: number) {

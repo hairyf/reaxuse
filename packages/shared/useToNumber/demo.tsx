@@ -1,4 +1,4 @@
-import { useToNumber } from '@reaxuse/shared'
+import { useToNumber } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseToNumberDemo() {

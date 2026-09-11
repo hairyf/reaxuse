@@ -1,4 +1,4 @@
-import { useStartTyping } from '@reaxuse/core'
+import { useStartTyping } from '@reause/core'
 import { useRef } from 'react'
 
 export default function UseStartTypingDemo() {

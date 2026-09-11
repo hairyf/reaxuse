@@ -1,4 +1,4 @@
-import { useArrayIncludes } from '@reaxuse/shared'
+import { useArrayIncludes } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseArrayIncludesDemo() {

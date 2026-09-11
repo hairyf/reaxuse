@@ -5,7 +5,7 @@ import { render, renderHook } from 'vitest-browser-react'
 import { syncState } from '../syncState'
 
 // type-level helpers (upstream imports these from @type-challenges/utils,
-// which reaxuse does not depend on)
+// which reause does not depend on)
 type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2) ? true : false
 type Expect<T extends true> = T
 
@@ -253,7 +253,7 @@ describe('syncState', () => {
   it('should type check the transform contract', () => {
     /* eslint-disable ts/no-unused-expressions */
     // upstream makes `transform` required when L and R are unrelated; the
-    // reaxuse port intentionally keeps it unconditionally `Partial` (a missing
+    // reause port intentionally keeps it unconditionally `Partial` (a missing
     // convertor falls back to identity) — assert that looser contract here
     type L = number
     type R = string

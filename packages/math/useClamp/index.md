@@ -9,7 +9,7 @@ Reactively clamp a value between two other values.
 ## Usage
 
 ```tsx
-import { useClamp } from '@reaxuse/math'
+import { useClamp } from '@reause/math'
 import { useState } from 'react'
 
 const [min, setMin] = useState(0)
@@ -25,7 +25,7 @@ setValue(-5) // value is 0
 `value` seeds the hook's internal state; the returned setter clamps on write:
 
 ```tsx
-import { useClamp } from '@reaxuse/math'
+import { useClamp } from '@reause/math'
 
 const [clamped, setClamped] = useClamp(0, 0, 10)
 
@@ -40,7 +40,7 @@ setClamped(-5) // clamped is 0
 the current value:
 
 ```tsx
-import { useClamp } from '@reaxuse/math'
+import { useClamp } from '@reause/math'
 import { useState } from 'react'
 
 const [max, setMax] = useState(10)

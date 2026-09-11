@@ -1,4 +1,4 @@
-import { syncStates } from '@reaxuse/shared'
+import { syncStates } from '@reause/shared'
 import { useState } from 'react'
 
 export default function SyncStatesDemo() {

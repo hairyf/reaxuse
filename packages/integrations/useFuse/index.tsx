@@ -1,6 +1,6 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
 import type { FuseResult, IFuseOptions } from 'fuse.js'
-import { toValue } from '@reaxuse/shared'
+import { toValue } from '@reause/shared'
 import Fuse from 'fuse.js'
 import { useMemo } from 'react'
 

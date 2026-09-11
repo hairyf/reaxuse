@@ -1,4 +1,4 @@
-import type { ConfigurableWindow } from '@reaxuse/shared'
+import type { ConfigurableWindow } from '@reause/shared'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 const WRITABLE_PROPERTIES = [

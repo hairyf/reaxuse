@@ -1,15 +1,15 @@
-import * as core from '@reaxuse/core'
-import * as integrations from '@reaxuse/integrations'
-import * as math from '@reaxuse/math'
-import * as metadata from '@reaxuse/metadata'
-import * as shared from '@reaxuse/shared'
+import * as core from '@reause/core'
+import * as integrations from '@reause/integrations'
+import * as math from '@reause/math'
+import * as metadata from '@reause/metadata'
+import * as shared from '@reause/shared'
 import { describe, expect, it } from 'vitest'
 
-describe('@reaxuse/core exports', () => {
+describe('@reause/core exports', () => {
   it('exposes the ported hooks', () => {
     expect(core.useNow).toBeTypeOf('function')
   })
-  it('re-exports @reaxuse/shared (mirrors `export * from \'@vueuse/shared\'`)', () => {
+  it('re-exports @reause/shared (mirrors `export * from \'@vueuse/shared\'`)', () => {
     expect(core.noop).toBeTypeOf('function')
     expect(core.useToggle).toBeTypeOf('function')
     expect(core.useCounter).toBeTypeOf('function')
@@ -17,7 +17,7 @@ describe('@reaxuse/core exports', () => {
   })
 })
 
-describe('@reaxuse/shared exports', () => {
+describe('@reause/shared exports', () => {
   it('exposes shared utilities', () => {
     expect(shared.noop).toBeTypeOf('function')
     expect(shared.isClient).toBeTypeOf('boolean')
@@ -29,13 +29,13 @@ describe('@reaxuse/shared exports', () => {
 })
 
 describe('skeleton packages are importable', () => {
-  it('@reaxuse/math', () => {
+  it('@reause/math', () => {
     expect(math).toBeDefined()
   })
-  it('@reaxuse/integrations', () => {
+  it('@reause/integrations', () => {
     expect(integrations).toBeDefined()
   })
-  it('@reaxuse/metadata', () => {
+  it('@reause/metadata', () => {
     expect(metadata).toBeDefined()
   })
 })

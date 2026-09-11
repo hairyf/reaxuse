@@ -1,4 +1,4 @@
-import { logicAnd } from '@reaxuse/math'
+import { logicAnd } from '@reause/math'
 import { useState } from 'react'
 
 export default function LogicAndDemo() {

@@ -1,6 +1,6 @@
 import type { NProgress, NProgressOptions } from 'nprogress'
 import type { Dispatch, SetStateAction } from 'react'
-import { isClient } from '@reaxuse/shared'
+import { isClient } from '@reause/shared'
 import nprogress from 'nprogress'
 import { useCallback, useEffect, useRef, useState } from 'react'
 

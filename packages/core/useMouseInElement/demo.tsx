@@ -1,4 +1,4 @@
-import { useMouseInElement } from '@reaxuse/core'
+import { useMouseInElement } from '@reause/core'
 import { useRef } from 'react'
 
 export default function UseMouseInElementDemo() {

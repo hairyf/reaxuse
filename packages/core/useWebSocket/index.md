@@ -9,7 +9,7 @@ Reactive [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/
 ## Usage
 
 ```tsx
-import { useWebSocket } from '@reaxuse/core'
+import { useWebSocket } from '@reause/core'
 
 const { status, data, send, open, close, ws } = useWebSocket('ws://websocketurl')
 ```
@@ -67,7 +67,7 @@ This will call `close()` automatically when the `beforeunload` event is triggere
 Reconnect on errors automatically (disabled by default).
 
 ```tsx
-import { useWebSocket } from '@reaxuse/core'
+import { useWebSocket } from '@reause/core'
 
 const { status, data, close } = useWebSocket('ws://websocketurl', {
   autoReconnect: true,
@@ -77,7 +77,7 @@ const { status, data, close } = useWebSocket('ws://websocketurl', {
 Or with more controls over its behavior:
 
 ```tsx
-import { useWebSocket } from '@reaxuse/core'
+import { useWebSocket } from '@reause/core'
 
 const { status, data, close } = useWebSocket('ws://websocketurl', {
   autoReconnect: {
@@ -93,7 +93,7 @@ const { status, data, close } = useWebSocket('ws://websocketurl', {
 You can also pass a function to `delay` to calculate the delay based on the number of retries. This is useful for implementing exponential backoff:
 
 ```tsx
-import { useWebSocket } from '@reaxuse/core'
+import { useWebSocket } from '@reause/core'
 
 const { status, data, close } = useWebSocket('ws://websocketurl', {
   autoReconnect: {
@@ -111,7 +111,7 @@ Explicitly calling `close()` won't trigger the auto reconnection.
 It's common practice to send a small message (heartbeat) for every given time passed to keep the connection active. In this function we provide a convenient helper to do it:
 
 ```tsx
-import { useWebSocket } from '@reaxuse/core'
+import { useWebSocket } from '@reause/core'
 
 const { status, data, close } = useWebSocket('ws://websocketurl', {
   heartbeat: true,
@@ -121,7 +121,7 @@ const { status, data, close } = useWebSocket('ws://websocketurl', {
 Or with more controls:
 
 ```tsx
-import { useWebSocket } from '@reaxuse/core'
+import { useWebSocket } from '@reause/core'
 
 const { status, data, close } = useWebSocket('ws://websocketurl', {
   heartbeat: {
@@ -144,7 +144,7 @@ const { status, data, close } = useWebSocket('ws://websocketurl', {
 List of one or more subprotocols to use, in this case SOAP and WAMP.
 
 ```tsx
-import { useWebSocket } from '@reaxuse/core'
+import { useWebSocket } from '@reause/core'
 
 const { status, data, send, open, close } = useWebSocket('ws://websocketurl', {
   protocols: ['soap'], // ['soap', 'wamp']

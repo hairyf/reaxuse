@@ -11,7 +11,7 @@ Utility for creating event hooks
 Creating a function that uses `createEventHook`
 
 ```tsx
-import { createEventHook } from '@reaxuse/shared'
+import { createEventHook } from '@reause/shared'
 
 export function useMyFetch(url: string) {
   const fetchResult = createEventHook<Response>()
@@ -31,7 +31,7 @@ export function useMyFetch(url: string) {
 Using a function that uses `createEventHook`
 
 ```tsx
-import { useListener } from '@reaxuse/shared'
+import { useListener } from '@reause/shared'
 import { useMyFetch } from './my-fetch-function'
 
 function MyApp() {

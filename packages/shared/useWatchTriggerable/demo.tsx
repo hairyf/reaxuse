@@ -1,4 +1,4 @@
-import { useWatchTriggerable } from '@reaxuse/shared'
+import { useWatchTriggerable } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseWatchTriggerableDemo() {

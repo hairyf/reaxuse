@@ -9,7 +9,7 @@ Detects changes to a target element's visibility
 ## Usage
 
 ```tsx
-import { useIntersectionObserver } from '@reaxuse/core'
+import { useIntersectionObserver } from '@reause/core'
 import { useRef, useState } from 'react'
 
 const target = useRef<HTMLDivElement | null>(null)

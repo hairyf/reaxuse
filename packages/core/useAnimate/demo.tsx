@@ -1,4 +1,4 @@
-import { useAnimate } from '@reaxuse/core'
+import { useAnimate } from '@reause/core'
 import { useRef } from 'react'
 
 export default function UseAnimateDemo() {
@@ -44,7 +44,7 @@ export default function UseAnimateDemo() {
     <div>
       <div className="flex items-center justify-center w-full h-60">
         <p ref={el} className="text-5xl font-800">
-          reaxuse useAnimate
+          reause useAnimate
         </p>
       </div>
       <div>

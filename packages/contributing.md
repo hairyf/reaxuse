@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for being interested in contributing to this project! reaxuse is an
+Thanks for being interested in contributing to this project! reause is an
 experimental **1:1 React port of [VueUse](https://vueuse.org)**: the upstream
 repo is pinned as a git submodule at `source/vueuse` and is the single source
 of truth for every mapping.
@@ -12,8 +12,8 @@ of truth for every mapping.
 Clone this repo to your local machine and install the dependencies.
 
 ```bash
-git clone --recurse-submodules https://github.com/hairyf/reaxuse.git
-cd reaxuse
+git clone --recurse-submodules https://github.com/hairyf/reause.git
+cd reause
 npm install
 ```
 
@@ -55,10 +55,10 @@ Feel free to enhance the existing functions. Please try not to introduce breakin
 
 There are some notes for adding new functions (ported from VueUse):
 
-- Before you start working, it's better to open a [mapping issue](https://github.com/hairyf/reaxuse/blob/main/docs/mapping-issue-template.md) to discuss first.
+- Before you start working, it's better to open a [mapping issue](https://github.com/hairyf/reause/blob/main/docs/mapping-issue-template.md) to discuss first.
 - The implementation should be placed under `packages/<pkg>/<fn>` as a folder and exposed in the package barrel `packages/<pkg>/index.ts`.
 - In the `core` package, try not to introduce 3rd-party dependencies as this package is aimed to be as lightweight as possible.
-- If you'd like to introduce 3rd-party dependencies, please contribute to `@reaxuse/integrations` or create a new add-on.
+- If you'd like to introduce 3rd-party dependencies, please contribute to `@reause/integrations` or create a new add-on.
 - When writing documentation for your function, mirror the upstream `index.md` structure (React differences only in JSDoc).
 
 > Please note you don't need to update the packages' `index.ts` by hand — the
@@ -123,7 +123,7 @@ Read more about the [guidelines](/guidelines).
 
 ## Mapping a VueUse function
 
-Follow the [mapping issue template](https://github.com/hairyf/reaxuse/blob/main/docs/mapping-issue-template.md) workflow:
+Follow the [mapping issue template](https://github.com/hairyf/reause/blob/main/docs/mapping-issue-template.md) workflow:
 
 1. Locate the upstream implementation under `source/vueuse/packages/<pkg>/<fn>`.
 2. Create `packages/<pkg>/<fn>/index.tsx` with the React port:

@@ -9,7 +9,7 @@ Create parallax effect easily. It uses `useDeviceOrientation` and fallback to `u
 ## Usage
 
 ```tsx
-import { useParallax } from '@reaxuse/core'
+import { useParallax } from '@reause/core'
 import { useRef } from 'react'
 
 const container = useRef<HTMLDivElement>(null)

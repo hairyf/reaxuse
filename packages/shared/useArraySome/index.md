@@ -11,7 +11,7 @@ Reactive `Array.some`
 ### Use with array of multiple refs
 
 ```tsx
-import { useArraySome } from '@reaxuse/shared'
+import { useArraySome } from '@reause/shared'
 import { useState } from 'react'
 
 const [item1, setItem1] = useState(0)
@@ -29,7 +29,7 @@ setItem1(11)
 ### Use with reactive array
 
 ```tsx
-import { useArraySome } from '@reaxuse/shared'
+import { useArraySome } from '@reause/shared'
 import { useState } from 'react'
 
 const [list, setList] = useState([0, 2, 4, 6, 8])

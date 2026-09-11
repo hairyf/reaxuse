@@ -1,6 +1,6 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
 import type { WebFrame } from 'electron'
-import { isRefLike, toValue } from '@reaxuse/shared'
+import { isRefLike, toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { resolveWebFrame } from '../_resolve'
 

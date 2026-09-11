@@ -1,4 +1,4 @@
-import { useStepper } from '@reaxuse/core'
+import { useStepper } from '@reause/core'
 import { useState } from 'react'
 
 const STEPS = ['user-information', 'billing-address', 'terms', 'payment']

@@ -1,4 +1,4 @@
-import { useArraySome } from '@reaxuse/shared'
+import { useArraySome } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseArraySomeDemo() {

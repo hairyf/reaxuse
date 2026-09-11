@@ -1,4 +1,4 @@
-import { useCycleList } from '@reaxuse/core'
+import { useCycleList } from '@reause/core'
 
 // a plain read-only list (upstream's demo passes a `shallowRef`; resolve a
 // React ref at the call site instead)

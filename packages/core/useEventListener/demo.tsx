@@ -1,4 +1,4 @@
-import { useEventListener } from '@reaxuse/core'
+import { useEventListener } from '@reause/core'
 import { useRef, useState } from 'react'
 
 export default function UseEventListenerDemo() {

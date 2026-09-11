@@ -1,15 +1,15 @@
-# Architecture Mapping — VueUse → reaxuse
+# Architecture Mapping — VueUse → reause
 
-A 1:1 mapping of the [VueUse](https://github.com/vueuse/vueuse) monorepo architecture to reaxuse.
-The official VueUse repository is referenced as a git submodule at [`source/vueuse`](https://github.com/hairyf/reaxuse/tree/main/source/vueuse)
+A 1:1 mapping of the [VueUse](https://github.com/vueuse/vueuse) monorepo architecture to reause.
+The official VueUse repository is referenced as a git submodule at [`source/vueuse`](https://github.com/hairyf/reause/tree/main/source/vueuse)
 and serves as the single source of truth for every mapping decision.
 
-**Path consistency rule:** every VueUse file/folder has a reaxuse counterpart at
+**Path consistency rule:** every VueUse file/folder has a reause counterpart at
 the **same relative path** (`packages/.vitepress/`, `packages/<pkg>/<fn>/`, `meta/`,
 `scripts/`, `playgrounds/`, `skills/`, …), including the per-function folders:
 `packages/<pkg>/<fn>/index.tsx` + `index.md` + `demo.tsx` + `index.test.tsx`
 (the `.tsx`/`.ts`/React file kinds are the only systematic deviation).
-`@reaxuse/metadata` is the single exception — its generated modules stay in
+`@reause/metadata` is the single exception — its generated modules stay in
 `packages/metadata/src/`.
 
 **Status legend**
@@ -18,35 +18,35 @@ the **same relative path** (`packages/.vitepress/`, `packages/<pkg>/<fn>/`, `met
 | ---- | ------------------------------------------- |
 | ✅   | mirrored / implemented                      |
 | ⏳   | TODO — not implemented yet                  |
-| —    | not applicable to reaxuse (VueUse-specific) |
+| —    | not applicable to reause (VueUse-specific) |
 
 ## 1. Packages — `packages/`
 
-VueUse's npm packages live in `packages/*`; reaxuse mirrors the same layout with React-flavored APIs.
+VueUse's npm packages live in `packages/*`; reause mirrors the same layout with React-flavored APIs.
 
-| VueUse package         | reaxuse package                                                                              | status  |
+| VueUse package         | reause package                                                                              | status  |
 | ---------------------- | -------------------------------------------------------------------------------------------- | ------- |
-| `@vueuse/shared`       | [`@reaxuse/shared`](https://github.com/hairyf/reaxuse/tree/main/packages/shared)             | ✅      |
-| `@vueuse/core`         | [`@reaxuse/core`](https://github.com/hairyf/reaxuse/tree/main/packages/core)                 | ✅      |
-| `@vueuse/integrations` | [`@reaxuse/integrations`](https://github.com/hairyf/reaxuse/tree/main/packages/integrations) | ✅      |
-| `@vueuse/math`         | [`@reaxuse/math`](https://github.com/hairyf/reaxuse/tree/main/packages/math)                 | ✅      |
-| `@vueuse/metadata`     | [`@reaxuse/metadata`](https://github.com/hairyf/reaxuse/tree/main/packages/metadata)         | ✅      |
-| `@vueuse/rxjs`         | [`@reaxuse/rxjs`](https://github.com/hairyf/reaxuse/tree/main/packages/rxjs)                 | ✅      |
-| `@vueuse/electron`     | [`@reaxuse/electron`](https://github.com/hairyf/reaxuse/tree/main/packages/electron)         | ✅      |
-| `@vueuse/firebase`     | [`@reaxuse/firebase`](https://github.com/hairyf/reaxuse/tree/main/packages/firebase)         | ✅      |
-| `@vueuse/skills`       | [`@reaxuse/skills`](https://github.com/hairyf/reaxuse/tree/main/packages/skills)             | ✅      |
+| `@vueuse/shared`       | [`@reause/shared`](https://github.com/hairyf/reause/tree/main/packages/shared)             | ✅      |
+| `@vueuse/core`         | [`@reause/core`](https://github.com/hairyf/reause/tree/main/packages/core)                 | ✅      |
+| `@vueuse/integrations` | [`@reause/integrations`](https://github.com/hairyf/reause/tree/main/packages/integrations) | ✅      |
+| `@vueuse/math`         | [`@reause/math`](https://github.com/hairyf/reause/tree/main/packages/math)                 | ✅      |
+| `@vueuse/metadata`     | [`@reause/metadata`](https://github.com/hairyf/reause/tree/main/packages/metadata)         | ✅      |
+| `@vueuse/rxjs`         | [`@reause/rxjs`](https://github.com/hairyf/reause/tree/main/packages/rxjs)                 | ✅      |
+| `@vueuse/electron`     | [`@reause/electron`](https://github.com/hairyf/reause/tree/main/packages/electron)         | ✅      |
+| `@vueuse/firebase`     | [`@reause/firebase`](https://github.com/hairyf/reause/tree/main/packages/firebase)         | ✅      |
+| `@vueuse/skills`       | [`@reause/skills`](https://github.com/hairyf/reause/tree/main/packages/skills)             | ✅      |
 | `@vueuse/components`   | —                                                                                            | ⏳ TODO |
 
 **Source layout** (uniform adaptation, documented once here):
 
-| VueUse                                                     | reaxuse                                                                                                                                                                              |
+| VueUse                                                     | reause                                                                                                                                                                              |
 | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `packages/<pkg>/<fn>/index.ts`                             | `packages/<pkg>/<fn>/index.tsx`                                                                                                                                                      |
 | `packages/<pkg>/<fn>/index.browser.test.ts`                | `packages/<pkg>/<fn>/index.test.tsx` (vitest-browser-react)                                                                                                                          |
-| `packages/<pkg>/index.ts`                                  | `packages/<pkg>/index.ts` barrel (`@reaxuse/metadata` keeps its generated files under `src/`)                                                                                        |
+| `packages/<pkg>/index.ts`                                  | `packages/<pkg>/index.ts` barrel (`@reause/metadata` keeps its generated files under `src/`)                                                                                        |
 | `main`/`module`/`types` → `./dist/index.js` (package.json) | same — `exports`, `main`, `module`, `types`, `unpkg` and `jsdelivr` all point at the tsdown output, and every package rebuilds it at pack time through `"prepack": "pnpm run build"` |
 
-Each reaxuse package declares `react >= 18` as a peer dependency and bundles with tsdown
+Each reause package declares `react >= 18` as a peer dependency and bundles with tsdown
 (`"build": "tsdown"` + per-package `tsdown.config.ts`). Tests, typechecks and the docs resolve
 the workspace packages from **source** (`tsconfig.json` `paths` + the vitest/vitepress aliases,
 mirroring upstream), so development needs no build step.
@@ -55,75 +55,75 @@ mirroring upstream), so development needs no build step.
 
 Mirrors upstream `packages/<pkg>/<fn>/{index.md,demo.vue}` exactly:
 
-| VueUse                                             | reaxuse                                                                                                                   | status |
+| VueUse                                             | reause                                                                                                                   | status |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------ |
-| `packages/core/useNow/index.md` + `demo.vue`       | `packages/core/useNow/index.md` + [`demo.tsx`](https://github.com/hairyf/reaxuse/blob/main/packages/core/useNow/demo.tsx) | ✅     |
+| `packages/core/useNow/index.md` + `demo.vue`       | `packages/core/useNow/index.md` + [`demo.tsx`](https://github.com/hairyf/reause/blob/main/packages/core/useNow/demo.tsx) | ✅     |
 | `packages/shared/useToggle/index.md` + `demo.vue`  | `packages/shared/useToggle/index.md` + `demo.tsx`                                                                         | ✅     |
 | `packages/shared/useCounter/index.md` + `demo.vue` | `packages/shared/useCounter/index.md` + `demo.tsx`                                                                        | ✅     |
 
 ## 3. Docs site — `packages/.vitepress/`
 
 The VitePress docs root is **`packages/`** (same as VueUse), with the site config inside
-[`packages/.vitepress/`](https://github.com/hairyf/reaxuse/tree/main/packages/.vitepress).
+[`packages/.vitepress/`](https://github.com/hairyf/reause/tree/main/packages/.vitepress).
 
-| VueUse                                           | reaxuse                                                                                                                                                                                           | status |
+| VueUse                                           | reause                                                                                                                                                                                           | status |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| `packages/.vitepress/config.ts`                  | [`packages/.vitepress/config.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/.vitepress/config.ts)                                                                                      | ✅     |
-| `packages/.vitepress/shims.d.ts`                 | [`packages/.vitepress/shims.d.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/.vitepress/shims.d.ts)                                                                                    | ✅     |
-| `packages/.vitepress/sw.ts` (workbox SW)         | [`packages/.vitepress/sw.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/.vitepress/sw.ts)                                                                                              | ✅     |
+| `packages/.vitepress/config.ts`                  | [`packages/.vitepress/config.ts`](https://github.com/hairyf/reause/blob/main/packages/.vitepress/config.ts)                                                                                      | ✅     |
+| `packages/.vitepress/shims.d.ts`                 | [`packages/.vitepress/shims.d.ts`](https://github.com/hairyf/reause/blob/main/packages/.vitepress/shims.d.ts)                                                                                    | ✅     |
+| `packages/.vitepress/sw.ts` (workbox SW)         | [`packages/.vitepress/sw.ts`](https://github.com/hairyf/reause/blob/main/packages/.vitepress/sw.ts)                                                                                              | ✅     |
 | `packages/.vitepress/transformHead.ts` (og meta) | inline `transformHead` in config.ts                                                                                                                                                               | ✅     |
 | `packages/.vitepress/twoslash.ts`                | — Vue/SFC-specific (no twoslash in React docs)                                                                                                                                                    | —      |
 | `packages/.vitepress/vite.config.ts`             | PWA plugin wired in `config.ts` `vite.plugins`                                                                                                                                                    | ✅     |
-| `packages/index.md` (home)                       | [`packages/index.md`](https://github.com/hairyf/reaxuse/blob/main/packages/index.md)                                                                                                              | ✅     |
-| `packages/functions.md`                          | [`packages/functions.md`](https://github.com/hairyf/reaxuse/blob/main/packages/functions.md) (auto-generated)                                                                                     | ✅     |
-| `packages/guide/`                                | [`packages/guide/`](https://github.com/hairyf/reaxuse/tree/main/packages/guide)                                                                                                                   | ✅     |
-| `packages/public/` (static assets)               | [`packages/public/`](https://github.com/hairyf/reaxuse/tree/main/packages/public)                                                                                                                 | ✅     |
-| `guidelines.md` / `export-size.md`               | [`packages/guidelines.md`](https://github.com/hairyf/reaxuse/blob/main/packages/guidelines.md) + [`packages/export-size.md`](https://github.com/hairyf/reaxuse/blob/main/packages/export-size.md) | ✅     |
+| `packages/index.md` (home)                       | [`packages/index.md`](https://github.com/hairyf/reause/blob/main/packages/index.md)                                                                                                              | ✅     |
+| `packages/functions.md`                          | [`packages/functions.md`](https://github.com/hairyf/reause/blob/main/packages/functions.md) (auto-generated)                                                                                     | ✅     |
+| `packages/guide/`                                | [`packages/guide/`](https://github.com/hairyf/reause/tree/main/packages/guide)                                                                                                                   | ✅     |
+| `packages/public/` (static assets)               | [`packages/public/`](https://github.com/hairyf/reause/tree/main/packages/public)                                                                                                                 | ✅     |
+| `guidelines.md` / `export-size.md`               | [`packages/guidelines.md`](https://github.com/hairyf/reause/blob/main/packages/guidelines.md) + [`packages/export-size.md`](https://github.com/hairyf/reause/blob/main/packages/export-size.md) | ✅     |
 
 ### `packages/.vitepress/plugins/`
 
 All four VitePress plugins are mirrored with identical virtual-module contracts:
 
-| VueUse plugin                                       | reaxuse                                                                                                                                                                                           | status |
+| VueUse plugin                                       | reause                                                                                                                                                                                           | status |
 | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| `plugins/changelog.ts` (`/virtual-changelog`)       | [`packages/.vitepress/plugins/changelog.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/.vitepress/plugins/changelog.ts)                                                                | ✅     |
-| `plugins/contributors.ts` (`/virtual-contributors`) | [`packages/.vitepress/plugins/contributors.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/.vitepress/plugins/contributors.ts)                                                          | ✅     |
-| `plugins/pwa-virtual.ts` (`virtual:pwa`)            | [`packages/.vitepress/plugins/pwa-virtual.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/.vitepress/plugins/pwa-virtual.ts)                                                            | ✅     |
-| `plugins/markdownTransform.ts`                      | [`packages/.vitepress/plugins/markdownTransform.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/.vitepress/plugins/markdownTransform.ts) (linkify only; Vue/twoslash injection omitted) | ✅     |
+| `plugins/changelog.ts` (`/virtual-changelog`)       | [`packages/.vitepress/plugins/changelog.ts`](https://github.com/hairyf/reause/blob/main/packages/.vitepress/plugins/changelog.ts)                                                                | ✅     |
+| `plugins/contributors.ts` (`/virtual-contributors`) | [`packages/.vitepress/plugins/contributors.ts`](https://github.com/hairyf/reause/blob/main/packages/.vitepress/plugins/contributors.ts)                                                          | ✅     |
+| `plugins/pwa-virtual.ts` (`virtual:pwa`)            | [`packages/.vitepress/plugins/pwa-virtual.ts`](https://github.com/hairyf/reause/blob/main/packages/.vitepress/plugins/pwa-virtual.ts)                                                            | ✅     |
+| `plugins/markdownTransform.ts`                      | [`packages/.vitepress/plugins/markdownTransform.ts`](https://github.com/hairyf/reause/blob/main/packages/.vitepress/plugins/markdownTransform.ts) (linkify only; Vue/twoslash injection omitted) | ✅     |
 
 Data sources mirror upstream: changelog/contributors derive from `git log` of the
 mapped files; `markdownTransform` links backticked function names from the
-`@reaxuse/metadata` function registry; `pwa-virtual` feeds the route list to `sw.ts`.
+`@reause/metadata` function registry; `pwa-virtual` feeds the route list to `sw.ts`.
 
 ### `packages/.vitepress/theme/`
 
-| VueUse                                                     | reaxuse                                                                                                                                  | status |
+| VueUse                                                     | reause                                                                                                                                  | status |
 | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| `theme/index.ts` (extends DefaultTheme)                    | [`theme/index.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/.vitepress/theme/index.ts)                                       | ✅     |
-| `theme/styles/{main,vars,overrides,utils,demo}.css`        | same five files in [`theme/styles/`](https://github.com/hairyf/reaxuse/tree/main/packages/.vitepress/theme/styles)                       | ✅     |
+| `theme/index.ts` (extends DefaultTheme)                    | [`theme/index.ts`](https://github.com/hairyf/reause/blob/main/packages/.vitepress/theme/index.ts)                                       | ✅     |
+| `theme/styles/{main,vars,overrides,utils,demo}.css`        | same five files in [`theme/styles/`](https://github.com/hairyf/reause/tree/main/packages/.vitepress/theme/styles)                       | ✅     |
 | `theme/components/DemoContainer.vue`                       | same — mounts React demos via `createRoot`                                                                                               | ✅     |
-| `theme/components/Note.vue`                                | [`theme/components/Note.vue`](https://github.com/hairyf/reaxuse/blob/main/packages/.vitepress/theme/components/Note.vue)                 | ✅     |
-| `theme/components/Contributors.vue`                        | [`theme/components/Contributors.vue`](https://github.com/hairyf/reaxuse/blob/main/packages/.vitepress/theme/components/Contributors.vue) | ✅     |
-| `theme/components/ReloadPrompt.vue`                        | [`theme/components/ReloadPrompt.vue`](https://github.com/hairyf/reaxuse/blob/main/packages/.vitepress/theme/components/ReloadPrompt.vue) | ✅     |
+| `theme/components/Note.vue`                                | [`theme/components/Note.vue`](https://github.com/hairyf/reause/blob/main/packages/.vitepress/theme/components/Note.vue)                 | ✅     |
+| `theme/components/Contributors.vue`                        | [`theme/components/Contributors.vue`](https://github.com/hairyf/reause/blob/main/packages/.vitepress/theme/components/Contributors.vue) | ✅     |
+| `theme/components/ReloadPrompt.vue`                        | [`theme/components/ReloadPrompt.vue`](https://github.com/hairyf/reause/blob/main/packages/.vitepress/theme/components/ReloadPrompt.vue) | ✅     |
 | `theme/redirects.ts` (fn-name short links)                 | — handled by VitePress `_redirects` (scripts/redirects.ts)                                                                               | —      |
-| `theme/components/FunctionBadge.vue` + `FunctionsList.vue` | [`theme/components/`](https://github.com/hairyf/reaxuse/tree/main/packages/.vitepress/theme/components)                                  | ✅     |
+| `theme/components/FunctionBadge.vue` + `FunctionsList.vue` | [`theme/components/`](https://github.com/hairyf/reause/tree/main/packages/.vitepress/theme/components)                                  | ✅     |
 | `theme/composables/{dark,versions}.ts`                     | — default theme handles dark mode; version shown via `meta/versions.ts`                                                                  | —      |
 
 ## 4. Meta — `meta/`
 
-| VueUse                                                  | purpose                              | reaxuse                                                                                                                                | status |
+| VueUse                                                  | purpose                              | reause                                                                                                                                | status |
 | ------------------------------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- | ------ |
-| `meta/packages.ts`                                      | package definitions                  | [`meta/packages.ts`](https://github.com/hairyf/reaxuse/blob/main/meta/packages.ts), re-exported by `@reaxuse/metadata`                 | ✅     |
-| `meta/versions.ts`                                      | version info                         | [`meta/versions.ts`](https://github.com/hairyf/reaxuse/blob/main/meta/versions.ts)                                                     | ✅     |
+| `meta/packages.ts`                                      | package definitions                  | [`meta/packages.ts`](https://github.com/hairyf/reause/blob/main/meta/packages.ts), re-exported by `@reause/metadata`                 | ✅     |
+| `meta/versions.ts`                                      | version info                         | [`meta/versions.ts`](https://github.com/hairyf/reause/blob/main/meta/versions.ts)                                                     | ✅     |
 | `meta/ecosystem-functions.ts`                           | ecosystem registry                   | — Vue-specific                                                                                                                         | —      |
-| —                                                       | mapping status table (reaxuse extra) | [`meta/functions.md`](https://github.com/hairyf/reaxuse/blob/main/meta/functions.md), auto-generated                                   | ✅     |
-| `packages/metadata/metadata.ts` (generated fn registry) | function registry                    | [`packages/metadata/src/functions.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/metadata/src/functions.ts), auto-generated | ✅     |
+| —                                                       | mapping status table (reause extra) | [`meta/functions.md`](https://github.com/hairyf/reause/blob/main/meta/functions.md), auto-generated                                   | ✅     |
+| `packages/metadata/metadata.ts` (generated fn registry) | function registry                    | [`packages/metadata/src/functions.ts`](https://github.com/hairyf/reause/blob/main/packages/metadata/src/functions.ts), auto-generated | ✅     |
 
 ## 5. CI — `.github/`
 
-All of VueUse's CI surface is mirrored in [`../.github`](https://github.com/hairyf/reaxuse/tree/main/.github).
+All of VueUse's CI surface is mirrored in [`../.github`](https://github.com/hairyf/reause/tree/main/.github).
 
-| VueUse file                                  | purpose                                                                                                                                                                                                                 | reaxuse |
+| VueUse file                                  | purpose                                                                                                                                                                                                                 | reause |
 | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
 | `.github/workflows/ci.yml`                   | lint, test matrix (Node `22.x`, `lts/*`) with Playwright chromium + webkit and codecov, `pkg-pr-new` release preview, playground smoke test — on `push`/`pull_request` to `main`/`next`, plus `merge_group`             | ✅      |
 | `.github/workflows/publish.yml`              | publish npm on merge of `release/*` PRs — npm **trusted publishing (OIDC)**, no token; runs `update:full` before `publish:ci`, and each package builds itself at pack time via `prepack` (release cut via `bumpp --pr`) | ✅      |
@@ -141,11 +141,11 @@ All of VueUse's CI surface is mirrored in [`../.github`](https://github.com/hair
 
 VueUse's repo automation scripts (run with `tsx`) are all mirrored and working.
 
-| VueUse script                                | reaxuse                                                                                               | status |
+| VueUse script                                | reause                                                                                               | status |
 | -------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------ |
 | `scripts/clean.ts`                           | same — removes git-ignored build artifacts (`git clean -Xdn`)                                         | ✅     |
 | `scripts/update.ts`                          | same — regenerates `meta/functions.md`, `packages/functions.md`, `packages/metadata/src/functions.ts` | ✅     |
-| `scripts/publish.ts`                         | same — publishes `@reaxuse/*` to npm (`publish:ci`)                                                   | ✅     |
+| `scripts/publish.ts`                         | same — publishes `@reause/*` to npm (`publish:ci`)                                                   | ✅     |
 | `scripts/export-size.ts`                     | same — gzip size report of built bundles (`size`)                                                     | ✅     |
 | `scripts/backport.ts`                        | same — cherry-pick commits to older branches                                                          | ✅     |
 | `scripts/redirects.ts`                       | same — Netlify `_redirects` for docs                                                                  | ✅     |
@@ -157,7 +157,7 @@ Root `package.json` scripts mirror VueUse's (`up`, `backport`, `build`, `build:p
 `test:exports`, `test:browser`, `test:chromium`, `test:webkit`, `test:other-browser`, `test:unit`,
 `test:all`, `typecheck`, `update`, `update:full`, `update:skills`, `watch`, `prepare`; React
 adaptations: `tsc` in place of `vue-tsc`); the docs commands run VitePress with **`packages`**
-as the docs root. reaxuse-specific one-off scripts (`add-mapfrom`, `contract-check`,
+as the docs root. reause-specific one-off scripts (`add-mapfrom`, `contract-check`,
 `create-mapping-issues`, `driver-core`, `unify-demo-layout`, `update-branch`) were removed in
 the VueUse alignment.
 
@@ -165,42 +165,42 @@ the VueUse alignment.
 
 VueUse's vitest layout is mirrored: the `browser` project drives **vitest-browser-react** in real
 browsers (chromium + webkit; firefox stays disabled upstream for flakiness) and the `exports`
-project runs in plain node. VueUse's jsdom `unit` and `server` projects have no reaxuse
+project runs in plain node. VueUse's jsdom `unit` and `server` projects have no reause
 counterpart — every hook test needs a real DOM, so `test:unit` is an alias of the chromium
 browser project.
 
-| VueUse                                                      | reaxuse                                                                                                                                   | status |
+| VueUse                                                      | reause                                                                                                                                   | status |
 | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------ |
 | `test/exports.test.ts`                                      | same — asserts public exports of every package                                                                                            | ✅     |
 | `test/package-json-export.test.ts`                          | same — asserts `package.json` export maps                                                                                                 | ✅     |
 | per-function browser tests                                  | `packages/<pkg>/<fn>/index.test.tsx` via `vitest-browser-react`                                                                           | ✅     |
-| vitest projects (`browser` / `unit` / `server` / `exports`) | `browser` (chromium + webkit) / `exports` (node) — see [`vitest.config.ts`](https://github.com/hairyf/reaxuse/blob/main/vitest.config.ts) | ✅     |
+| vitest projects (`browser` / `unit` / `server` / `exports`) | `browser` (chromium + webkit) / `exports` (node) — see [`vitest.config.ts`](https://github.com/hairyf/reause/blob/main/vitest.config.ts) | ✅     |
 | coverage (`test:cov`)                                       | `test:cov` (`--project="browser (chromium)" --project=exports`)                                                                           | ✅     |
 
 ## 8. Playgrounds — `playgrounds/`
 
-| VueUse                                    | reaxuse                                                                                                                                           |
+| VueUse                                    | reause                                                                                                                                           |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `playgrounds/vite` (Vite demo playground) | ✅ [`playgrounds/vite`](https://github.com/hairyf/reaxuse/tree/main/playgrounds/vite) (React + Vite)                                              |
-| `playgrounds/nuxt`                        | ✅ [`playgrounds/next`](https://github.com/hairyf/reaxuse/tree/main/playgrounds/next) (React + Next.js — the React analog of the Nuxt playground) |
-| `playgrounds/build.sh`                    | ✅ [`playgrounds/build.sh`](https://github.com/hairyf/reaxuse/blob/main/playgrounds/build.sh) (npm-based)                                         |
+| `playgrounds/vite` (Vite demo playground) | ✅ [`playgrounds/vite`](https://github.com/hairyf/reause/tree/main/playgrounds/vite) (React + Vite)                                              |
+| `playgrounds/nuxt`                        | ✅ [`playgrounds/next`](https://github.com/hairyf/reause/tree/main/playgrounds/next) (React + Next.js — the React analog of the Nuxt playground) |
+| `playgrounds/build.sh`                    | ✅ [`playgrounds/build.sh`](https://github.com/hairyf/reause/blob/main/playgrounds/build.sh) (npm-based)                                         |
 
 ## 9. Patches — `patches/`
 
-| VueUse                                                                               | reaxuse                                          |
+| VueUse                                                                               | reause                                          |
 | ------------------------------------------------------------------------------------ | ------------------------------------------------ |
 | `patches/google-font-installer@1.2.0.patch` (pnpm patch for the docs font installer) | — not needed (npm workspaces, no font installer) |
 
 ## 10. Skills — `skills/`
 
-| VueUse                                                    | reaxuse                                                                                                                                                                                                                 | status                      |
+| VueUse                                                    | reause                                                                                                                                                                                                                 | status                      |
 | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
-| `skills/vueuse-functions/SKILL.md` + `references/<fn>.md` | [`skills/reaxuse-functions/SKILL.md`](https://github.com/hairyf/reaxuse/blob/main/skills/reaxuse-functions/SKILL.md) + [`references/`](https://github.com/hairyf/reaxuse/tree/main/skills/reaxuse-functions/references) | ✅ (hand-maintained subset) |
-| `packages/skills/build.ts` (auto-generates the skill)     | [`packages/skills/build.ts`](https://github.com/hairyf/reaxuse/blob/main/packages/skills/build.ts)                                                                                                                      | ✅                          |
+| `skills/vueuse-functions/SKILL.md` + `references/<fn>.md` | [`skills/reause-functions/SKILL.md`](https://github.com/hairyf/reause/blob/main/skills/reause-functions/SKILL.md) + [`references/`](https://github.com/hairyf/reause/tree/main/skills/reause-functions/references) | ✅ (hand-maintained subset) |
+| `packages/skills/build.ts` (auto-generates the skill)     | [`packages/skills/build.ts`](https://github.com/hairyf/reause/blob/main/packages/skills/build.ts)                                                                                                                      | ✅                          |
 
 ## 11. Root tooling & config files
 
-| VueUse                                                    | purpose                                                                                                         | reaxuse                                                                                                                       |
+| VueUse                                                    | purpose                                                                                                         | reause                                                                                                                       |
 | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | `package.json` + `pnpm-workspace.yaml` + `pnpm-lock.yaml` | monorepo (pnpm)                                                                                                 | `package.json` + `package-lock.json` (npm workspaces — [decision](#mapping-decisions)) ✅                                     |
 | `tsconfig.json`                                           | TS config                                                                                                       | ✅                                                                                                                            |
@@ -212,13 +212,13 @@ browser project.
 | `netlify.toml`                                            | docs site deploy                                                                                                | ✅                                                                                                                            |
 | `.editorconfig`                                           | editor style                                                                                                    | ✅                                                                                                                            |
 | `.gitignore` / `.gitattributes`                           | git hygiene                                                                                                     | ✅                                                                                                                            |
-| `.vscode/`                                                | editor workspace settings                                                                                       | ✅ [`extensions.json`](https://github.com/hairyf/reaxuse/blob/main/.vscode/extensions.json) + `settings.json` + `launch.json` |
+| `.vscode/`                                                | editor workspace settings                                                                                       | ✅ [`extensions.json`](https://github.com/hairyf/reause/blob/main/.vscode/extensions.json) + `settings.json` + `launch.json` |
 | `simple-git-hooks` + `lint-staged` (in `package.json`)    | git hooks — `prepare: simple-git-hooks`, `pre-commit: npx lint-staged` → `eslint --cache --fix` on staged files | ✅                                                                                                                            |
 | `unocss.config.ts`                                        | docs styling                                                                                                    | — default VitePress theme instead ([decision](#mapping-decisions))                                                            |
 
 ## 12. Community & legal
 
-| VueUse               | reaxuse      |
+| VueUse               | reause      |
 | -------------------- | ------------ |
 | `README.md`          | ✅ (English) |
 | `LICENSE` (MIT)      | ✅ (MIT)     |
@@ -228,7 +228,7 @@ browser project.
 ## Mapping decisions
 
 - **Runtime API mapping (conceptual):** Vue's `ref()`/`reactive()` → React `useState()`; `watch()`/`watchEffect()` → `useEffect()`; `computed()` → `useMemo()`/`useCallback()`; composable teardown → effect cleanup on unmount.
-- **Single source of truth:** `source/vueuse` submodule pins the upstream reference; every ported function is checked against it (placement too — `useToggle`/`useCounter` live in `@reaxuse/shared` because upstream has them in `@vueuse/shared`).
+- **Single source of truth:** `source/vueuse` submodule pins the upstream reference; every ported function is checked against it (placement too — `useToggle`/`useCounter` live in `@reause/shared` because upstream has them in `@vueuse/shared`).
 - **Docs metadata driven:** function lists/registry are generated by `npm run update` (mirroring VueUse's pipeline): `meta/functions.md` (mapping table), `packages/functions.md` (docs page), `packages/metadata/src/functions.ts` (registry).
 - **Test framework:** vitest-browser-react (browser mode) instead of React Testing Library — real-browser hook tests, mirroring VueUse's vitest browser project.
 - **Docs + React:** VitePress (Vue-based) with React demos mounted client-side via a `DemoContainer` Vue component; docs styling uses the default theme (no unocss).
@@ -240,7 +240,7 @@ browser project.
 
 Everything on the map above is implemented except `@vueuse/components`; the generated registries are the source of truth.
 
-1. **Large-scale AI mapping** of all `@vueuse/core` functions — complete: [`meta/functions.md`](https://github.com/hairyf/reaxuse/blob/main/meta/functions.md) lists every mapped export (202 names checked against an upstream path, 107 reaxuse-only exports such as `breakpointsTailwind` or the `useState*History` family).
-2. **`rxjs` / `electron` / `firebase` / `skills` sub-packages** — created and mapped: [`packages/rxjs`](https://github.com/hairyf/reaxuse/tree/main/packages/rxjs), [`packages/electron`](https://github.com/hairyf/reaxuse/tree/main/packages/electron), [`packages/firebase`](https://github.com/hairyf/reaxuse/tree/main/packages/firebase), [`packages/skills`](https://github.com/hairyf/reaxuse/tree/main/packages/skills).
-3. **Publishing to npm (`@reaxuse/*`)** — the `publish.yml` workflow and `publish:ci` script publish through npm **trusted publishing** (OIDC, no token); `v0.1.0` and `v0.1.2` are released (`@reaxuse/core@0.1.2` on npm). Every published package needs a Trusted Publisher entry (repo `hairyf/reaxuse`, workflow `publish.yml`) on npmjs.com.
+1. **Large-scale AI mapping** of all `@vueuse/core` functions — complete: [`meta/functions.md`](https://github.com/hairyf/reause/blob/main/meta/functions.md) lists every mapped export (202 names checked against an upstream path, 107 reause-only exports such as `breakpointsTailwind` or the `useState*History` family).
+2. **`rxjs` / `electron` / `firebase` / `skills` sub-packages** — created and mapped: [`packages/rxjs`](https://github.com/hairyf/reause/tree/main/packages/rxjs), [`packages/electron`](https://github.com/hairyf/reause/tree/main/packages/electron), [`packages/firebase`](https://github.com/hairyf/reause/tree/main/packages/firebase), [`packages/skills`](https://github.com/hairyf/reause/tree/main/packages/skills).
+3. **Publishing to npm (`@reause/*`)** — the `publish.yml` workflow and `publish:ci` script publish through npm **trusted publishing** (OIDC, no token); `v0.1.0` and `v0.1.2` are released (`@reause/core@0.1.2` on npm). Every published package needs a Trusted Publisher entry (repo `hairyf/reause`, workflow `publish.yml`) on npmjs.com.
 4. **`components` package** — ⏳ TODO: the renderless component surface of `@vueuse/components` is not mapped yet ([Components](/guide/components)).

@@ -1,6 +1,6 @@
-import type { State } from '@reaxuse/shared'
+import type { State } from '@reause/shared'
 import type { Dispatch, SetStateAction } from 'react'
-import { useControllableState } from '@reaxuse/shared'
+import { useControllableState } from '@reause/shared'
 import { useCallback, useRef, useState } from 'react'
 
 export interface UseRefHistoryRecord<T> {

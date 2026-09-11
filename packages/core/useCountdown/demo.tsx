@@ -1,4 +1,4 @@
-import { useCountdown } from '@reaxuse/core'
+import { useCountdown } from '@reause/core'
 import { useRef, useState } from 'react'
 
 const rocketStyles = `

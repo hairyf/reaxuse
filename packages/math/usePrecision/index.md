@@ -9,7 +9,7 @@ Reactively set the precision of a number
 ## Usage
 
 ```tsx
-import { usePrecision } from '@reaxuse/math'
+import { usePrecision } from '@reause/math'
 
 const result = usePrecision(3.1415, 2) // 3.14
 

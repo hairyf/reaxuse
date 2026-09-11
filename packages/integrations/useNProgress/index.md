@@ -15,7 +15,7 @@ npm i nprogress@^0
 ## Usage
 
 ```tsx
-import { useNProgress } from '@reaxuse/integrations'
+import { useNProgress } from '@reause/integrations'
 
 const { isLoading, setIsLoading } = useNProgress()
 
@@ -29,7 +29,7 @@ function toggle() {
 You can pass a percentage to indicate where the bar should start from.
 
 ```tsx
-import { useNProgress } from '@reaxuse/integrations'
+import { useNProgress } from '@reause/integrations'
 
 const { progress, setProgress } = useNProgress(0.5)
 
@@ -47,7 +47,7 @@ Just edit [nprogress.css](https://github.com/rstacruz/nprogress/blob/master/npro
 You can [configure](https://github.com/rstacruz/nprogress#configuration) it by passing an object as a second parameter.
 
 ```tsx
-import { useNProgress } from '@reaxuse/integrations'
+import { useNProgress } from '@reause/integrations'
 
 useNProgress(null, {
   minimum: 0.1,

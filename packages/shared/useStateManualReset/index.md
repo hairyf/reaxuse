@@ -9,7 +9,7 @@ A state with manual reset functionality.
 ## Usage
 
 ```tsx
-import { useStateManualReset } from '@reaxuse/shared'
+import { useStateManualReset } from '@reause/shared'
 
 const [message, setMessage, resetMessage] = useStateManualReset('default message')
 

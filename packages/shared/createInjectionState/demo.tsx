@@ -1,7 +1,7 @@
 import { useState } from 'react'
-// Relative import (not `@reaxuse/shared`): until this PR is merged the package
+// Relative import (not `@reause/shared`): until this PR is merged the package
 // name resolves through the worktree node_modules junction to the main repo's
-// copy of @reaxuse/shared, which does not contain createInjectionState yet.
+// copy of @reause/shared, which does not contain createInjectionState yet.
 import { createInjectionState } from '../createInjectionState'
 
 const [CounterStoreProvider, useCounterStore] = createInjectionState(

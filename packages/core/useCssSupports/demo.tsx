@@ -1,4 +1,4 @@
-import { useCssSupports } from '@reaxuse/core'
+import { useCssSupports } from '@reause/core'
 import { useState } from 'react'
 
 export default function UseCssSupportsDemo() {

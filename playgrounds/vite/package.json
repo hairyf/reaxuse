@@ -1,17 +1,17 @@
 {
-  "name": "@reaxuse/playground-vite",
+  "name": "@reause/playground-vite",
   "version": "0.1.2",
   "private": true,
   "type": "module",
-  "description": "Vite playground for reaxuse",
+  "description": "Vite playground for reause",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@reaxuse/core": "workspace:*",
-    "@reaxuse/shared": "workspace:*",
+    "@reause/core": "workspace:*",
+    "@reause/shared": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

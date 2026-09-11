@@ -1,4 +1,4 @@
-import { useWatchDebounced } from '@reaxuse/shared'
+import { useWatchDebounced } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseWatchDebouncedDemo() {

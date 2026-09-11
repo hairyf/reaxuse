@@ -173,8 +173,8 @@ const hyphenateRE = /\B([A-Z])/g
 export const hyphenate = cacheStringFunction((str: string) => str.replace(hyphenateRE, '-$1').toLowerCase())
 
 // ---------------------------------------------------------------------------
-// reaxuse 引用链核心工具 (single source of truth — other packages import
-// these from @reaxuse/shared, never re-implement; see MONITORING-HANDOFF §2C)
+// reause 引用链核心工具 (single source of truth — other packages import
+// these from @reause/shared, never re-implement; see MONITORING-HANDOFF §2C)
 // ---------------------------------------------------------------------------
 
 /** A plain value or a React ref. Zero-argument getter values are not supported. */

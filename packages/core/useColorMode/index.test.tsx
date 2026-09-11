@@ -168,7 +168,7 @@ describe('useColorMode', () => {
     // no storage-event listener subscribed
     const eventTypes = addEventListener.mock.calls.map(([type]) => type)
     expect(eventTypes).not.toContain('storage')
-    expect(eventTypes).not.toContain('reaxuse-storage')
+    expect(eventTypes).not.toContain('reause-storage')
     expect(result.current[0]).toBe('dark')
 
     await act(() => {

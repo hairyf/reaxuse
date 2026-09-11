@@ -1,4 +1,4 @@
-import { useAsyncQueue } from '@reaxuse/core'
+import { useAsyncQueue } from '@reause/core'
 
 function p1() {
   return new Promise((resolve) => {

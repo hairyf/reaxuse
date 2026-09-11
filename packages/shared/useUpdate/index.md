@@ -9,7 +9,7 @@ A force-update hook — React port of react-use's [`useUpdate`](https://streamic
 ## Usage
 
 ```tsx
-import { useUpdate } from '@reaxuse/shared'
+import { useUpdate } from '@reause/shared'
 
 const update = useUpdate()
 

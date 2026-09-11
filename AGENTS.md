@@ -1,4 +1,4 @@
-# reaxuse 开发规范
+# reause 开发规范
 
 > 自动化流水线 SOP（子代理执行 / 上游监控 / Issues 监控 / PR 合并 / Nightly Release / 编排）见 [docs/orchestration.md](docs/orchestration.md)。
 
@@ -14,7 +14,7 @@
 ### 1.2 VueUse 侧命名转换细节
 
 - **命名映射**：`ref*` → `useState*`；`on*` → `use*`；`use*RefHistory` → `useState*History`。
-- **上游兼容**：JSDoc、Target、Map from 等位置保留上游原名；reaxuse 内部实现、路径、标题统一步骤改用新名。
+- **上游兼容**：JSDoc、Target、Map from 等位置保留上游原名；reause 内部实现、路径、标题统一步骤改用新名。
 - **返回值风格**：
   - `useState*History` 系列：返回**对象结构**（如 `const { history, undo, redo } = useStateHistory([state, setState])`）。
   - 其他 VueUse 转换 Hook：统一采用 **React 数组解构**（如 `const [val, setVal, control] = useStateWithControl(0)`）。
@@ -34,6 +34,6 @@
   - **完全保持上游设计**：如上游返回元组/对象/函数，直接保持一致，不做强制改写。
 - **文档镜像**：
   - VueUse 源：镜像上游 `index.md` 结构，替换关键词（`ref` → `controllable state`）。
-  - react-use\其他源：参考上游 README/文档改写为 reaxuse 标准 markdown。
+  - react-use\其他源：参考上游 README/文档改写为 reause 标准 markdown。
   - React 特有差异仅在 JSDoc 中写明，严禁自造章节。
 - **质量底线**：CI 必须 100% 绿（允许 flaky 测试重跑一次）。

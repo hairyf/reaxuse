@@ -1,6 +1,6 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
 import type { Dispatch, RefObject, SetStateAction } from 'react'
-import { deepEqual, isRefLike, toValue } from '@reaxuse/shared'
+import { deepEqual, isRefLike, toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**

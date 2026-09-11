@@ -15,7 +15,7 @@ npm i rxjs
 ## Usage
 
 ```tsx
-import { useSubject } from '@reaxuse/rxjs'
+import { useSubject } from '@reause/rxjs'
 import { Subject } from 'rxjs'
 
 const subject = new Subject<string>()
@@ -39,7 +39,7 @@ export function Component() {
 When using a `BehaviorSubject`, the state is initialized with the subject's current value and the type does not include `undefined`:
 
 ```tsx
-import { useSubject } from '@reaxuse/rxjs'
+import { useSubject } from '@reause/rxjs'
 import { BehaviorSubject } from 'rxjs'
 
 const subject = new BehaviorSubject('initial')
@@ -53,7 +53,7 @@ console.log(value) // 'initial'
 If you want to add custom error handling to a `Subject` that might error, you can supply an optional `onError` configuration. Without this, RxJS will treat any error in the supplied subject as an "unhandled error" and it will be thrown in a new call stack and reported to `window.onerror` (or `process.on('error')` if you happen to be in Node).
 
 ```tsx
-import { useSubject } from '@reaxuse/rxjs'
+import { useSubject } from '@reause/rxjs'
 import { Subject } from 'rxjs'
 
 const subject = new Subject()

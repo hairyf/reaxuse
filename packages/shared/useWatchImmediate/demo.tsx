@@ -1,4 +1,4 @@
-import { useWatchImmediate } from '@reaxuse/shared'
+import { useWatchImmediate } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseWatchImmediateDemo() {

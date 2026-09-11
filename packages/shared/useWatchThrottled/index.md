@@ -12,7 +12,7 @@ Similar to `useWatch`, but offering extra options `throttle`, `trailing`, and
 `leading` which will be applied to the callback function.
 
 ```tsx
-import { useWatchThrottled } from '@reaxuse/shared'
+import { useWatchThrottled } from '@reause/shared'
 
 useWatchThrottled(
   input,
@@ -35,7 +35,7 @@ useWatchThrottled(
 Control when the callback is invoked:
 
 ```tsx
-import { useWatchThrottled } from '@reaxuse/shared'
+import { useWatchThrottled } from '@reause/shared'
 
 // Only invoke at the start of each throttle period
 useWatchThrottled(source, callback, {
@@ -55,7 +55,7 @@ useWatchThrottled(source, callback, {
 Fire the callback once on mount with the current value (still throttled):
 
 ```tsx
-import { useWatchThrottled } from '@reaxuse/shared'
+import { useWatchThrottled } from '@reause/shared'
 
 useWatchThrottled(input, () => console.log('changed!'), { immediate: true })
 ```

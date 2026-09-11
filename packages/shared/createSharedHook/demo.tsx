@@ -1,4 +1,4 @@
-import { createSharedHook } from '@reaxuse/shared'
+import { createSharedHook } from '@reause/shared'
 import { useState } from 'react'
 
 // a shared composable: the first consumer to render (the "creator") runs the

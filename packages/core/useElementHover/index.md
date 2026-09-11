@@ -9,7 +9,7 @@ Reactive element's hover state
 ## Usage
 
 ```tsx
-import { useElementHover } from '@reaxuse/core'
+import { useElementHover } from '@reause/core'
 import { useRef } from 'react'
 
 const myHoverableElement = useRef<HTMLButtonElement>(null)
@@ -25,7 +25,7 @@ const isHovered = useElementHover(myHoverableElement)
 You can also provide hover options:
 
 ```tsx
-import { useElementHover } from '@reaxuse/core'
+import { useElementHover } from '@reause/core'
 import { useRef } from 'react'
 
 const el = useRef<HTMLButtonElement>(null)

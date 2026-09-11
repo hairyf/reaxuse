@@ -1,4 +1,4 @@
-import { useLiveAnnouncer } from '@reaxuse/core'
+import { useLiveAnnouncer } from '@reause/core'
 import { useState } from 'react'
 
 export default function UseLiveAnnouncerDemo() {

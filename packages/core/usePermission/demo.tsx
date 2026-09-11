@@ -1,4 +1,4 @@
-import { usePermission } from '@reaxuse/core'
+import { usePermission } from '@reause/core'
 
 const PERMISSION_NAMES = [
   'accelerometer',

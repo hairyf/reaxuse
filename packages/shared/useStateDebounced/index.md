@@ -9,7 +9,7 @@ A controllable state which will be debounced.
 ## Usage
 
 ```tsx
-import { useStateDebounced } from '@reaxuse/shared'
+import { useStateDebounced } from '@reause/shared'
 
 const [input, setInput, debounced] = useStateDebounced('foo', 1000)
 
@@ -36,7 +36,7 @@ const [input, setInput, debounced] = useStateDebounced(
 An example with an object value.
 
 ```tsx
-import { useStateDebounced } from '@reaxuse/shared'
+import { useStateDebounced } from '@reause/shared'
 
 const [data, setData, debounced] = useStateDebounced({
   name: 'foo',

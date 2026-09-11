@@ -1,4 +1,4 @@
-import { useUrlSearchParams } from '@reaxuse/core'
+import { useUrlSearchParams } from '@reause/core'
 import { useEffect } from 'react'
 
 export default function UseUrlSearchParamsDemo() {

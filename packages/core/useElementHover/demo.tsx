@@ -1,4 +1,4 @@
-import { useElementHover } from '@reaxuse/core'
+import { useElementHover } from '@reause/core'
 import { useRef } from 'react'
 
 export default function UseElementHoverDemo() {

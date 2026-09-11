@@ -1,6 +1,6 @@
 import type { WebFrame } from 'electron'
 import { useMemo } from 'react'
-// Relative import (not `@reaxuse/electron`): this worktree's node_modules is junctioned to the main checkout, so the package alias would resolve to the main tree's src.
+// Relative import (not `@reause/electron`): this worktree's node_modules is junctioned to the main checkout, so the package alias would resolve to the main tree's src.
 import { useZoomLevel } from '../useZoomLevel'
 
 export default function UseZoomLevelDemo() {

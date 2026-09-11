@@ -9,7 +9,7 @@ Reactive mouse position related to an element
 ## Usage
 
 ```tsx
-import { useMouseInElement } from '@reaxuse/core'
+import { useMouseInElement } from '@reause/core'
 import { useRef } from 'react'
 
 const target = useRef<HTMLDivElement>(null)

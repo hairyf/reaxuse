@@ -8,7 +8,7 @@ import { toArgsFlat } from '../utils'
  * the given numbers — the React analog of reactive `Math.min`.
  *
  * Adjustment for React: upstream wraps the computation in `computed(() => ...)`
- * and returns a `ComputedRef<number>`; the reaxuse version is a pure derived
+ * and returns a `ComputedRef<number>`; the reause version is a pure derived
  * hook — the plain numbers (variadic arguments or a single `readonly number[]`)
  * are read at render time and the minimum is returned directly, with no effects
  * and no `.value` wrapper (SSR-safe).

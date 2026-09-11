@@ -9,7 +9,7 @@ Reactive scroll position and state.
 ## Usage
 
 ```tsx
-import { useScroll } from '@reaxuse/core'
+import { useScroll } from '@reause/core'
 import { useRef } from 'react'
 
 const el = useRef<HTMLDivElement>(null)

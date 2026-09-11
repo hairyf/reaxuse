@@ -17,7 +17,7 @@ npm i universal-cookie@^8
 ### Common usage
 
 ```tsx
-import { useCookies } from '@reaxuse/integrations'
+import { useCookies } from '@reause/integrations'
 
 function Component() {
   const cookies = useCookies(['locale'])
@@ -45,7 +45,7 @@ function Component() {
 Access and modify cookies using React hooks.
 
 ```tsx
-import { useCookies } from '@reaxuse/integrations'
+import { useCookies } from '@reause/integrations'
 
 const {
   get,
@@ -83,7 +83,7 @@ Create a `universal-cookie` instance using request (default is `window.document.
 - req (object): Node's [http.IncomingMessage](https://nodejs.org/api/http.html#http_class_http_incomingmessage) request object
 
 ```ts
-import { createCookies } from '@reaxuse/integrations'
+import { createCookies } from '@reause/integrations'
 
 const useSsrCookies = createCookies({ headers: { cookie: 'locale=en-US' } })
 const { get } = useSsrCookies(['locale'])

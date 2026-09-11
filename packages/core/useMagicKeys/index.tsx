@@ -1,5 +1,5 @@
-import type { RefOrValue } from '@reaxuse/shared'
-import { noop, toValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
+import { noop, toValue } from '@reause/shared'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 /**
@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
  *
  * Map from @vueuse/core `aliasMap.ts`
  * (`source/vueuse/packages/core/useMagicKeys/aliasMap.ts`). Upstream ships it
- * as a separate file; reaxuse keeps hooks single-file, so it is inlined here.
+ * as a separate file; reause keeps hooks single-file, so it is inlined here.
  */
 export const DefaultMagicKeysAliasMap: Readonly<Record<string, string>> = {
   ctrl: 'control',

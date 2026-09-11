@@ -9,7 +9,7 @@ Use [ipcRenderer.on](https://www.electronjs.org/docs/api/ipc-renderer#ipcrendere
 ## Usage
 
 ```tsx
-import { useIpcRendererOn } from '@reaxuse/electron'
+import { useIpcRendererOn } from '@reause/electron'
 
 // enable nodeIntegration if you don't provide ipcRenderer explicitly
 // see: https://www.electronjs.org/docs/api/webview-tag#nodeintegration

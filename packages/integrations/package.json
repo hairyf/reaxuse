@@ -1,5 +1,5 @@
 {
-  "name": "@reaxuse/integrations",
+  "name": "@reause/integrations",
   "type": "module",
   "version": "0.1.2",
   "description": "Integrations with third-party services — React port of @vueuse/integrations (experimental, AI-mapped)",
@@ -64,6 +64,6 @@
     "universal-cookie": { "optional": true }
   },
   "dependencies": {
-    "@reaxuse/shared": "workspace:*"
+    "@reause/shared": "workspace:*"
   }
 }

@@ -1,4 +1,4 @@
-import { useQRCode } from '@reaxuse/integrations'
+import { useQRCode } from '@reause/integrations'
 import { useMemo, useState } from 'react'
 
 export default function UseQRCodeDemo() {

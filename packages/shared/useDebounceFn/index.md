@@ -12,7 +12,7 @@ Debounce execution of a function.
 ## Usage
 
 ```tsx
-import { useDebounceFn } from '@reaxuse/shared'
+import { useDebounceFn } from '@reause/shared'
 
 const debouncedFn = useDebounceFn(() => {
   // do something
@@ -22,7 +22,7 @@ const debouncedFn = useDebounceFn(() => {
 You can also pass a 3rd parameter to this, with a maximum wait time, similar to [lodash debounce](https://lodash.com/docs/4.17.15#debounce)
 
 ```tsx
-import { useDebounceFn } from '@reaxuse/shared'
+import { useDebounceFn } from '@reause/shared'
 
 // If no invocation after 5000ms due to repeated input,
 // the function will be called anyway.
@@ -34,7 +34,7 @@ const debouncedFn = useDebounceFn(() => {
 Optionally, you can get the return value of the function using promise operations.
 
 ```tsx
-import { useDebounceFn } from '@reaxuse/shared'
+import { useDebounceFn } from '@reause/shared'
 
 const debouncedFn = useDebounceFn(() => 'response', 1000)
 
@@ -52,7 +52,7 @@ async function doRequest() {
 Since unhandled rejection error is quite annoying when developer doesn't need the return value, the promise will **NOT** be rejected if the function is canceled **by default**. You need to specify the option `rejectOnCancel: true` to capture the rejection.
 
 ```tsx
-import { useDebounceFn } from '@reaxuse/shared'
+import { useDebounceFn } from '@reause/shared'
 
 const debouncedFn = useDebounceFn(() => 'response', 1000, { rejectOnCancel: true })
 
@@ -73,7 +73,7 @@ setTimeout(debouncedFn, 500)
 You can cancel any pending execution by calling the `cancel` method.
 
 ```tsx
-import { useDebounceFn } from '@reaxuse/shared'
+import { useDebounceFn } from '@reause/shared'
 
 const debouncedFn = useDebounceFn(() => {
   // do something
@@ -92,7 +92,7 @@ This is useful when you need to prevent the debounced function from executing, f
 You can check if there's a pending execution using the `isPending` getter.
 
 ```tsx
-import { useDebounceFn } from '@reaxuse/shared'
+import { useDebounceFn } from '@reause/shared'
 
 const debouncedFn = useDebounceFn(() => {
   // do something
@@ -112,7 +112,7 @@ This is useful for showing loading indicators or disabling UI elements while wai
 You can immediately execute the pending invocation using the `flush` method.
 
 ```tsx
-import { useDebounceFn } from '@reaxuse/shared'
+import { useDebounceFn } from '@reause/shared'
 
 const debouncedFn = useDebounceFn(() => {
   // do something

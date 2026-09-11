@@ -9,7 +9,7 @@ Call function on every `requestAnimationFrame`. With controls of pausing and res
 ## Usage
 
 ```tsx
-import { useRafFn } from '@reaxuse/core'
+import { useRafFn } from '@reause/core'
 import { useState } from 'react'
 
 const [count, setCount] = useState(0)

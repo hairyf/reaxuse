@@ -1,4 +1,4 @@
-import { useControllableState } from '@reaxuse/shared'
+import { useControllableState } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseControllableStateDemo() {

@@ -1,4 +1,4 @@
-import { useWebWorker } from '@reaxuse/core'
+import { useWebWorker } from '@reause/core'
 import { useState } from 'react'
 
 // self-contained worker source (an in-worker counter that returns n + 1),

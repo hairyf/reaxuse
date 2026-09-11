@@ -1,5 +1,5 @@
-import type { ConfigurableWindow, EventFilter, RefOrValue } from '@reaxuse/shared'
-import { toValue } from '@reaxuse/shared'
+import type { ConfigurableWindow, EventFilter, RefOrValue } from '@reause/shared'
+import { toValue } from '@reause/shared'
 import { useEffect, useRef, useState } from 'react'
 
 export type UseMouseCoordType = 'page' | 'client' | 'screen' | 'movement'

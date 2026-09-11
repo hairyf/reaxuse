@@ -1,5 +1,5 @@
 /**
- * @reaxuse/firebase — React port of @vueuse/firebase
+ * @reause/firebase — React port of @vueuse/firebase
  *
  * Realtime bindings for Firebase. `firebase` stays an optional peer
  * dependency — keep it external to the bundle.

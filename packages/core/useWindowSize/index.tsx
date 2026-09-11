@@ -1,4 +1,4 @@
-import type { ConfigurableWindow } from '@reaxuse/shared'
+import type { ConfigurableWindow } from '@reause/shared'
 import { useEffect, useRef, useState } from 'react'
 
 export interface UseWindowSizeOptions extends ConfigurableWindow {

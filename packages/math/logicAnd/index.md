@@ -10,7 +10,7 @@ related: logicNot, logicOr
 ## Usage
 
 ```tsx
-import { logicAnd } from '@reaxuse/math'
+import { logicAnd } from '@reause/math'
 
 const both = logicAnd(true, false) // false
 const all = logicAnd(true, false, 1) // false

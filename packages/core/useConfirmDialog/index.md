@@ -19,8 +19,8 @@ Creates event hooks to support modals and confirmation dialog chains
 The returned `onReveal` / `onConfirm` / `onCancel` are stable registration functions following the `useListener` protocol — each accepts a callback and returns an `off` handle, so listeners never leak and never fire after the component unmounts:
 
 ```tsx
-import { useConfirmDialog } from '@reaxuse/core'
-import { useListener } from '@reaxuse/shared'
+import { useConfirmDialog } from '@reause/core'
+import { useListener } from '@reause/shared'
 
 const { isRevealed, reveal, confirm, cancel, onReveal, onConfirm, onCancel }
   = useConfirmDialog()
@@ -59,7 +59,7 @@ function Component() {
 If you prefer working with promises:
 
 ```tsx
-import { useConfirmDialog } from '@reaxuse/core'
+import { useConfirmDialog } from '@reause/core'
 
 const {
   isRevealed,
@@ -78,7 +78,7 @@ async function openDialog() {
 `useConfirmDialog` accepts an optional React ref source (`RefObject<boolean>`, e.g. the result of `useRef`) that the controls keep in sync — mirroring upstream's optional `shallowRef` parameter. When omitted, the revealed state is internal:
 
 ```tsx
-import { useConfirmDialog } from '@reaxuse/core'
+import { useConfirmDialog } from '@reause/core'
 import { useRef } from 'react'
 
 const show = useRef(false)

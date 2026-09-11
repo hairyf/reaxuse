@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { useCounter, useToggle } from '@reaxuse/shared'
-import { useNow } from '@reaxuse/core'
+import { useCounter, useToggle } from '@reause/shared'
+import { useNow } from '@reause/core'
 
 function App() {
   const [value, toggle] = useToggle()
@@ -10,7 +10,7 @@ function App() {
 
   return (
     <main style={{ fontFamily: 'system-ui, sans-serif', padding: '2rem' }}>
-      <h1>reaxuse playground</h1>
+      <h1>reause playground</h1>
 
       <section>
         <h2>useToggle</h2>

@@ -1,4 +1,4 @@
-import { useColorMode } from '@reaxuse/core'
+import { useColorMode } from '@reause/core'
 
 type ColorMode = 'dark' | 'light' | 'cafe' | 'contrast' | 'auto'
 

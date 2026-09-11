@@ -1,5 +1,5 @@
-import type { RefOrValue } from '@reaxuse/shared'
-import { isObject, toValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
+import { isObject, toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -59,7 +59,7 @@ export interface UseMediaControlsOptions {
   /**
    * Specify a custom `document` instance, e.g. working with iframes or in
    * testing environments. Inlined here — `ConfigurableDocument` is not ported
-   * to @reaxuse/shared.
+   * to @reause/shared.
    *
    * @default typeof document !== 'undefined' ? document : undefined
    */
@@ -176,7 +176,7 @@ type EventHookOn<T = any> = (fn: (param: T) => void) => () => void
 
 /**
  * Minimal event emitter — inlined from @vueuse/shared `createEventHook`
- * (not yet ported to @reaxuse/shared, so kept local with attribution).
+ * (not yet ported to @reause/shared, so kept local with attribution).
  */
 function createEventHook<T = any>() {
   const fns: Array<(param: T) => void> = []
@@ -343,7 +343,7 @@ function updateNumberState(set: (value: number) => void, ref: { current: number 
  *    `rate: 1`, `currentTime: 0`, ...) stay until the events fill them in.
  * 6. The `onSourceError` / `onPlaybackError` event hooks (upstream
  *    `createEventHook`) are inlined — the shared `createEventHook` is not yet
- *    ported to @reaxuse/shared. Upstream's `play()` failure path also rethrows
+ *    ported to @reause/shared. Upstream's `play()` failure path also rethrows
  *    so Vue's global error handler observes it; React has no equivalent global
  *    handler for unhandled promise rejections, so here the failure is only
  *    routed to `onPlaybackError`.

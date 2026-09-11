@@ -1,4 +1,4 @@
-import { useArrayFind } from '@reaxuse/shared'
+import { useArrayFind } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseArrayFindDemo() {

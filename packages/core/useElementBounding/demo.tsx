@@ -1,4 +1,4 @@
-import { useElementBounding } from '@reaxuse/core'
+import { useElementBounding } from '@reause/core'
 import { useRef } from 'react'
 
 export default function UseElementBoundingDemo() {

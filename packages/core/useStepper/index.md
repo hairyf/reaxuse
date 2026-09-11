@@ -11,7 +11,7 @@ Provides helpers for building a multi-step wizard interface.
 ### Steps as array
 
 ```tsx
-import { useStepper } from '@reaxuse/core'
+import { useStepper } from '@reause/core'
 
 const [index, setIndex, {
   steps,

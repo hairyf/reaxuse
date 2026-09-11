@@ -11,7 +11,7 @@ Reactive `Array.map`
 ### Use with array of multiple refs
 
 ```tsx
-import { useArrayMap } from '@reaxuse/shared'
+import { useArrayMap } from '@reause/shared'
 import { useState } from 'react'
 
 const [item1, setItem1] = useState(0)
@@ -30,7 +30,7 @@ setItem1(1)
 ### Use with reactive array
 
 ```tsx
-import { useArrayMap } from '@reaxuse/shared'
+import { useArrayMap } from '@reause/shared'
 import { useState } from 'react'
 
 const [list, setList] = useState([0, 1, 2, 3, 4])

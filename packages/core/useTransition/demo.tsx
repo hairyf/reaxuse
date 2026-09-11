@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { TransitionPresets, useTransition } from '@reaxuse/core'
+import { TransitionPresets, useTransition } from '@reause/core'
 import { useState } from 'react'
 
 // Custom easing functions can control the progress of a transition

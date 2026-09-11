@@ -1,22 +1,22 @@
 {
-  "name": "@reaxuse/skills",
+  "name": "@reause/skills",
   "type": "module",
   "version": "0.1.2",
-  "description": "Agent Skills for reaxuse",
+  "description": "Agent Skills for reause",
   "license": "MIT",
-  "homepage": "https://github.com/hairyf/reaxuse#readme",
+  "homepage": "https://github.com/hairyf/reause#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hairyf/reaxuse.git",
+    "url": "git+https://github.com/hairyf/reause.git",
     "directory": "packages/skills"
   },
   "bugs": {
-    "url": "https://github.com/hairyf/reaxuse/issues"
+    "url": "https://github.com/hairyf/reause/issues"
   },
   "keywords": [
     "react",
     "react-hooks",
-    "reaxuse",
+    "reause",
     "utils",
     "skills"
   ],
@@ -30,7 +30,7 @@
     "update": "tsx build.ts"
   },
   "dependencies": {
-    "@reaxuse/metadata": "workspace:*"
+    "@reause/metadata": "workspace:*"
   },
   "devDependencies": {
     "tsx": "^4.23.13"

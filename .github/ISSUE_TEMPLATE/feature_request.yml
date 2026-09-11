@@ -1,11 +1,11 @@
 name: Feature Request
-description: Suggest a new hook or improvement for reaxuse
+description: Suggest a new hook or improvement for reause
 labels: [enhancement]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for your interest in improving reaxuse!
+        Thanks for your interest in improving reause!
   - type: textarea
     id: problem
     attributes:

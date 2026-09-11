@@ -4,8 +4,8 @@ import { describe, expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useTemporalNow } from '../useTemporalNow'
 
-// Test scheduler mirroring @reaxuse/shared's `useIntervalFn` — package sources
-// (including test files) must not import `@reaxuse/*`, so the scheduler that
+// Test scheduler mirroring @reause/shared's `useIntervalFn` — package sources
+// (including test files) must not import `@reause/*`, so the scheduler that
 // upstream tests express as `cb => useIntervalFn(cb, 100)` is inlined here.
 function useTestIntervalFn(cb: () => void, interval: number, immediate = true): UseTemporalNowControls {
   const [isActive, setIsActive] = useState(immediate)

@@ -1,6 +1,6 @@
-import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reause/shared'
 import type { Dispatch, SetStateAction } from 'react'
-import { toValue } from '@reaxuse/shared'
+import { toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface UseFocusOptions extends ConfigurableWindow {
@@ -56,7 +56,7 @@ export type UseFocusReturn = readonly [
  *
  * React divergences:
  * - upstream returns `{ focused: WritableComputedRef<boolean> }`, so consumers
- *   read and write `focused.value`; reaxuse returns the React tuple
+ *   read and write `focused.value`; reause returns the React tuple
  *   `[isFocused, setFocused]` (array destructuring, no `.value`) — read the
  *   state from element 0 and focus / blur the target with element 1
  *   (`Dispatch<SetStateAction<boolean>>`, so the functional updater

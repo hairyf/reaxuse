@@ -1,4 +1,4 @@
-import { useRefsList } from '@reaxuse/core'
+import { useRefsList } from '@reause/core'
 import { useEffect, useState } from 'react'
 
 export default function UseRefsListDemo() {

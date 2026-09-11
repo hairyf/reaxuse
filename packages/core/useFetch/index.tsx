@@ -1,6 +1,6 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
 import type { Dispatch, SetStateAction } from 'react'
-import { isClient, isRefLike, toValue, useTimeoutFn } from '@reaxuse/shared'
+import { isClient, isRefLike, toValue, useTimeoutFn } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface UseFetchReturn<T> {
@@ -261,7 +261,7 @@ type EventHookOn<T = any> = (fn: (param: T) => void) => () => void
 
 /**
  * Minimal event emitter — inlined from @vueuse/shared `createEventHook`
- * (not yet ported to @reaxuse/shared, so kept local with attribution).
+ * (not yet ported to @reause/shared, so kept local with attribution).
  */
 function createEventHook<T = any>() {
   const fns: Array<(param: T) => void> = []
@@ -459,8 +459,8 @@ export function createFetch(config: CreateFetchOptions = {}) {
  *   `createFetch` factory (with `chain`/`overwrite` combination) all mirror
  *   upstream 1:1;
  * - the inline `createEventHook` is the only shared utility pulled in locally
- *   (upstream imports it from `@vueuse/shared`; `@reaxuse/shared` does not
- *   port it yet), all other shared utilities come from `@reaxuse/shared`.
+ *   (upstream imports it from `@vueuse/shared`; `@reause/shared` does not
+ *   port it yet), all other shared utilities come from `@reause/shared`.
  *
  * @example
  * const { data, error, isFetching } = useFetch('https://my-api.com')

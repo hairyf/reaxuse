@@ -9,7 +9,7 @@ Make elements draggable.
 ## Usage
 
 ```tsx
-import { useDraggable } from '@reaxuse/core'
+import { useDraggable } from '@reause/core'
 import { useRef } from 'react'
 
 const el = useRef<HTMLDivElement>(null)
@@ -95,7 +95,7 @@ useDraggable(el, {
 Set `preventDefault: true` to override the default drag-and-drop behavior of certain elements in the browser (e.g., images).
 
 ```ts
-import { useDraggable } from '@reaxuse/core'
+import { useDraggable } from '@reause/core'
 
 const { x, y, style } = useDraggable(el, {
   preventDefault: true,

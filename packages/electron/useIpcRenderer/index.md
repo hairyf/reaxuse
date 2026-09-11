@@ -9,7 +9,7 @@ Provides [ipcRenderer](https://www.electronjs.org/docs/api/ipc-renderer) and all
 ## Usage
 
 ```tsx
-import { useIpcRenderer } from '@reaxuse/electron'
+import { useIpcRenderer } from '@reause/electron'
 
 // enable nodeIntegration if you don't provide ipcRenderer explicitly
 // see: https://www.electronjs.org/docs/api/webview-tag#nodeintegration
@@ -44,7 +44,7 @@ ipcRenderer.on('custom-event', (event, ...args) => {
 If `nodeIntegration` is disabled, you can pass the `ipcRenderer` instance explicitly:
 
 ```tsx
-import { useIpcRenderer } from '@reaxuse/electron'
+import { useIpcRenderer } from '@reause/electron'
 import { ipcRenderer } from 'electron'
 
 const ipc = useIpcRenderer(ipcRenderer)

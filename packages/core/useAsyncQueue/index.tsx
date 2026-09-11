@@ -1,4 +1,4 @@
-import { noop } from '@reaxuse/shared'
+import { noop } from '@reause/shared'
 import { useEffect, useRef, useState } from 'react'
 
 export type UseAsyncQueueTask<T> = (...args: any[]) => T | Promise<T>

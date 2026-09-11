@@ -1,6 +1,6 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
 import type Sortable from 'sortablejs'
-import { isRefLike, toValue } from '@reaxuse/shared'
+import { isRefLike, toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef } from 'react'
 import SortableJs from 'sortablejs'
 
@@ -17,7 +17,7 @@ type SortableTarget = MaybeElementRef
  * Resolve a target to a DOM element, or `null` when it cannot be resolved.
  * Upstream resolves elements with `unrefElement` (`@vueuse/core`); the React
  * port composes the same unwrapping from `toValue` / `isRefLike`
- * (`@reaxuse/shared`) — one pass unwraps a ref-like object, a second one
+ * (`@reause/shared`) — one pass unwraps a ref-like object, a second one
  * covers a ref-like object holding another ref-like
  * (`{ current: { current: element } }`).
  */
@@ -108,7 +108,7 @@ export interface UseSortableOptions<T = unknown> extends Omit<Sortable.Options, 
  * Adjustment for React: the list is **immutable**. Upstream's
  * `moveArrayElement` mutates the caller's array in place (deferring the splice
  * through `nextTick` when the list is a ref), which cannot work in React —
- * an in-place mutation does not re-render. The reaxuse
+ * an in-place mutation does not re-render. The reause
  * `moveArrayElement(list, from, to, e)` is pure: it returns a NEW reordered
  * array (and still performs upstream's DOM fixup when an event is given), and
  * the hook forwards that array to `options.onUpdate`.

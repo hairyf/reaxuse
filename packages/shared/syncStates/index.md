@@ -10,7 +10,7 @@ Keep target state(s) in sync with a source value
 ## Usage
 
 ```tsx
-import { syncStates } from '@reaxuse/shared'
+import { syncStates } from '@reause/shared'
 import { useState } from 'react'
 
 function Form() {
@@ -36,7 +36,7 @@ function Form() {
 You can also pass an array of writable `State<T>` sources to sync.
 
 ```tsx
-import { syncStates } from '@reaxuse/shared'
+import { syncStates } from '@reause/shared'
 import { useState } from 'react'
 
 function Form() {

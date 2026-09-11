@@ -9,7 +9,7 @@ Reactive sorted array
 ## Usage
 
 ```tsx
-import { useSorted } from '@reaxuse/core'
+import { useSorted } from '@reause/core'
 
 // general sort — the default comparator is numeric: (a, b) => a - b
 const sorted = useSorted([10, 3, 5, 7, 2, 1, 8, 6, 9, 4])

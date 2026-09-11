@@ -9,7 +9,7 @@ Reactive element's overflow state
 ## Usage
 
 ```tsx
-import { useElementOverflow } from '@reaxuse/core'
+import { useElementOverflow } from '@reause/core'
 import { useRef } from 'react'
 
 const el = useRef<HTMLDivElement | null>(null)

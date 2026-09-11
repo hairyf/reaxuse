@@ -9,7 +9,7 @@ Listen for a long press on an element. Returns a stop function.
 ## Usage
 
 ```tsx
-import { useLongPress } from '@reaxuse/core'
+import { useLongPress } from '@reause/core'
 import { useRef, useState } from 'react'
 
 const htmlRefHook = useRef<HTMLButtonElement | null>(null)
@@ -55,7 +55,7 @@ return (
 By default, the handler fires after 500ms. You can customize this with the `delay` option. It can be a number or a function that receives the `PointerEvent`.
 
 ```tsx
-import { useLongPress } from '@reaxuse/core'
+import { useLongPress } from '@reause/core'
 
 // Fixed delay
 useLongPress(target, handler, { delay: 1000 })
@@ -71,7 +71,7 @@ useLongPress(target, handler, {
 The long press will be canceled if the pointer moves more than the threshold (default: 10 pixels). Set to `false` to disable movement detection.
 
 ```tsx
-import { useLongPress } from '@reaxuse/core'
+import { useLongPress } from '@reause/core'
 
 // Custom threshold
 useLongPress(target, handler, { distanceThreshold: 20 })
@@ -85,7 +85,7 @@ useLongPress(target, handler, { distanceThreshold: false })
 You can provide an `onMouseUp` callback to be notified when the pointer is released.
 
 ```tsx
-import { useLongPress } from '@reaxuse/core'
+import { useLongPress } from '@reause/core'
 
 useLongPress(target, handler, {
   onMouseUp(duration, distance, isLongPress, pointerEvent) {

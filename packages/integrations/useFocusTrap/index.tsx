@@ -1,9 +1,9 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
 // focus-trap ships an ambient `declare module` d.ts; named type imports from
 // it break the tsdown d.ts bundling step (MISSING_EXPORT), so use the
 // namespace form — resolves to the same types and emits clean d.ts.
 import type * as FocusTrap from 'focus-trap'
-import { isRefLike, toArray, toValue } from '@reaxuse/shared'
+import { isRefLike, toArray, toValue } from '@reause/shared'
 import { createFocusTrap } from 'focus-trap'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -98,7 +98,7 @@ type FocusTrapTarget = RefOrValue<string> | MaybeElementRef
  * Resolve one target item to a focus-trap container: a selector string, a DOM
  * element, or `null` when it cannot be resolved. Upstream resolves elements
  * with `unrefElement` (`@vueuse/core`); the React port composes the same
- * unwrapping from `toValue` / `isRefLike` (`@reaxuse/shared`) — one pass
+ * unwrapping from `toValue` / `isRefLike` (`@reause/shared`) — one pass
  * unwraps a ref-like object, a second one covers a ref-like object holding
  * another ref-like (`{ current: { current: element } }`).
  */

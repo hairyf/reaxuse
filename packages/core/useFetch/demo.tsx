@@ -1,4 +1,4 @@
-import { useFetch } from '@reaxuse/core'
+import { useFetch } from '@reause/core'
 import { useRef, useState } from 'react'
 
 export default function UseFetchDemo() {

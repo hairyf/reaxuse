@@ -1,4 +1,4 @@
-import { useFloor } from '@reaxuse/math'
+import { useFloor } from '@reause/math'
 import { useState } from 'react'
 
 export default function UseFloorDemo() {

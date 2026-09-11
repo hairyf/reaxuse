@@ -9,7 +9,7 @@ Tracks the visibility of an element within the viewport.
 ## Usage
 
 ```tsx
-import { useElementVisibility } from '@reaxuse/core'
+import { useElementVisibility } from '@reause/core'
 import { useRef } from 'react'
 
 const target = useRef<HTMLDivElement | null>(null)

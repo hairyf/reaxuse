@@ -1,4 +1,4 @@
-import { usePreferredDark } from '@reaxuse/core'
+import { usePreferredDark } from '@reause/core'
 
 export default function UsePreferredDarkDemo() {
   const prefersDark = usePreferredDark()

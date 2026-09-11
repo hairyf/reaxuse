@@ -1,4 +1,4 @@
-import { useIDBKeyval } from '@reaxuse/integrations'
+import { useIDBKeyval } from '@reause/integrations'
 
 interface DemoObject {
   name: string
@@ -8,7 +8,7 @@ interface DemoObject {
 }
 
 export default function UseIDBKeyvalDemo() {
-  const KEY = 'reaxuse-use-idb-keyval'
+  const KEY = 'reause-use-idb-keyval'
 
   const [stateObject, setStateObject, { isFinished: objectFinished }] = useIDBKeyval<DemoObject>(
     `${KEY}-object`,

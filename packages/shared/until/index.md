@@ -11,7 +11,7 @@ Promised one-time watch for changes
 ### Wait for some async data to be ready
 
 ```tsx
-import { until } from '@reaxuse/shared'
+import { until } from '@reause/shared'
 
 const isReady = { value: false }
 // ... somewhere later: isReady.value = true
@@ -21,7 +21,7 @@ const ready = await until(() => isReady.value).toBe(true)
 ### Wait for custom conditions
 
 ```tsx
-import { until } from '@reaxuse/shared'
+import { until } from '@reause/shared'
 
 const count = { value: 0 }
 
@@ -34,7 +34,7 @@ count.value = 8 // the next poll resolves
 ### Timeout
 
 ```tsx
-import { until } from '@reaxuse/shared'
+import { until } from '@reause/shared'
 // ---cut---
 // will resolve once the source reads `true` or after 1000ms
 await until(() => isReady.value).toBe(true, { timeout: 1000 })
@@ -52,7 +52,7 @@ catch (e) {
 ### More Examples
 
 ```tsx
-import { until } from '@reaxuse/shared'
+import { until } from '@reause/shared'
 // ---cut---
 await until(() => isReady.value).toBe(true)
 await until(() => isReady.value).toBe(true, { timeout: 1000 })

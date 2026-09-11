@@ -9,7 +9,7 @@ Reactive [bounding box](https://developer.mozilla.org/en-US/docs/Web/API/Element
 ## Usage
 
 ```tsx
-import { useElementBounding } from '@reaxuse/core'
+import { useElementBounding } from '@reause/core'
 import { useRef } from 'react'
 
 const el = useRef<HTMLDivElement | null>(null)
@@ -19,7 +19,7 @@ const { x, y, top, right, bottom, left, width, height } = useElementBounding(el)
 The bounding box updates as the element is resized, scrolled or restyled:
 
 ```tsx
-import { useElementBounding } from '@reaxuse/core'
+import { useElementBounding } from '@reause/core'
 import { useRef } from 'react'
 
 const el = useRef<HTMLTextAreaElement | null>(null)

@@ -44,7 +44,7 @@ function isBehaviorSubject<H>(subject: Subject<H>): subject is BehaviorSubject<H
  * React divergences:
  * - upstream returns a `Ref<H>` / `Ref<H | undefined>` that the caller mutates
  *   directly; the React port returns a `useState`-like writable
- *   `[value, setValue]` tuple (hairyf/reaxuse#218).
+ *   `[value, setValue]` tuple (hairyf/reause#218).
  * - `setValue` calls `subject.next(...)` — it does **not** set React state
  *   directly. Upstream keeps two writable places (`value.value` and the
  *   subject, bridged by `watch`); here the subject is the single source of
@@ -53,8 +53,8 @@ function isBehaviorSubject<H>(subject: Subject<H>): subject is BehaviorSubject<H
  *   subscription. Unlike upstream's `watch` — which skips an unchanged
  *   primitive — the write is forwarded unconditionally, so `setValue(current)`
  *   still calls `subject.next(current)` and other subscribers see it
- *   (hairyf/reaxuse#218).
- * - the setter accepts a functional update (`useState` parity, hairyf/reaxuse#174);
+ *   (hairyf/reause#218).
+ * - the setter accepts a functional update (`useState` parity, hairyf/reause#174);
  *   it is resolved against the latest value seen by the hook, so two functional
  *   updates in the same tick compose instead of both reading the same stale
  *   value.

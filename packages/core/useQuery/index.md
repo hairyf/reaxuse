@@ -9,7 +9,7 @@ Shorthand for a reactive query parameter in `window.location.search`. Updates th
 ## Usage
 
 ```tsx
-import { useQuery } from '@reaxuse/core'
+import { useQuery } from '@reause/core'
 
 const [search, setSearch] = useQuery('search')
 
@@ -26,7 +26,7 @@ setSearch('foobar') // history.replaceState({ query: { search: 'foobar' } })
 By default, changes use `history.replaceState()`. Set `mode: 'push'` to use `history.pushState()` instead.
 
 ```tsx
-import { useQuery } from '@reaxuse/core'
+import { useQuery } from '@reause/core'
 // ---cut---
 const [search, setSearch] = useQuery('search', '', { mode: 'push' })
 ```
@@ -36,7 +36,7 @@ const [search, setSearch] = useQuery('search', '', { mode: 'push' })
 You can provide separate `get` and `set` transforms for reading and writing values.
 
 ```tsx
-import { useQuery } from '@reaxuse/core'
+import { useQuery } from '@reause/core'
 // ---cut---
 const [filters, setFilters] = useQuery('filters', [], {
   transform: {
@@ -54,7 +54,7 @@ const [filters, setFilters] = useQuery('filters', [], {
 When the value equals the default value, the query parameter is removed from the URL.
 
 ```tsx
-import { useQuery } from '@reaxuse/core'
+import { useQuery } from '@reause/core'
 // ---cut---
 const [page, setPage] = useQuery('page', '1')
 

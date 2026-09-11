@@ -27,7 +27,7 @@ export interface FunctionRef {
   file?: string
 }
 
-const REPO = 'https://github.com/hairyf/reaxuse'
+const REPO = 'https://github.com/hairyf/reause'
 const VUEUSE_REPO = 'https://github.com/vueuse/vueuse'
 
 /** Map a docs-page id (`.../packages/<pkg>/<Fn>/index.md`) to its parts. */
@@ -42,7 +42,7 @@ function collapsible(code: string): string {
 
 /**
  * Build the `## Source` link row for a function page:
- * reaxuse source file · co-located demo · upstream VueUse module.
+ * reause source file · co-located demo · upstream VueUse module.
  */
 function sourceLinks(pkg: string, dir: string): string {
   // hooks live co-located with their docs: packages/<pkg>/<dir>/index.tsx
@@ -71,7 +71,7 @@ export function MarkdownTransform(functions: FunctionRef[]): Plugin {
   }))
 
   return {
-    name: 'reaxuse-markdown-transform',
+    name: 'reause-markdown-transform',
     enforce: 'pre',
     transform(code, id) {
       if (!id.endsWith('.md'))

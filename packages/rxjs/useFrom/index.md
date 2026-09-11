@@ -15,7 +15,7 @@ npm i rxjs
 ## Usage
 
 ```tsx
-import { useFrom, useObservable } from '@reaxuse/rxjs'
+import { useFrom, useObservable } from '@reause/rxjs'
 import { useState } from 'react'
 
 export function Counter() {
@@ -44,7 +44,7 @@ The returned `Observable` has a stable identity across renders, so downstream su
 Passing an rxjs `ObservableInput` — an `Observable`, `Subject`, `BehaviorSubject`, `Promise`, iterable, etc. — forwards it to rxjs `from()` unchanged (upstream parity):
 
 ```tsx
-import { useFrom } from '@reaxuse/rxjs'
+import { useFrom } from '@reause/rxjs'
 import { fromEvent } from 'rxjs'
 
 const clicks$ = useFrom(fromEvent(document, 'click'))
@@ -55,7 +55,7 @@ const clicks$ = useFrom(fromEvent(document, 'click'))
 Any other value is wrapped in a `BehaviorSubject` seeded with the current render value: subscribing immediately receives the current value, and the `Observable` re-emits whenever the value changes across renders.
 
 ```tsx
-import { useFrom, useSubscription } from '@reaxuse/rxjs'
+import { useFrom, useSubscription } from '@reause/rxjs'
 import { useState } from 'react'
 
 const [count, setCount] = useState(0)

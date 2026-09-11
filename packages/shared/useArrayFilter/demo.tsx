@@ -1,4 +1,4 @@
-import { useArrayFilter } from '@reaxuse/shared'
+import { useArrayFilter } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseArrayFilterDemo() {

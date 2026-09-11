@@ -1,4 +1,4 @@
-import { useThrottleFn } from '@reaxuse/shared'
+import { useThrottleFn } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseThrottleFnDemo() {

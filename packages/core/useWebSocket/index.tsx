@@ -1,4 +1,4 @@
-import { toValue } from '@reaxuse/shared'
+import { toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export type WebSocketStatus = 'OPEN' | 'CONNECTING' | 'CLOSED'

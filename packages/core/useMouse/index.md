@@ -9,7 +9,7 @@ Reactive mouse position
 ## Basic Usage
 
 ```tsx
-import { useMouse } from '@reaxuse/core'
+import { useMouse } from '@reause/core'
 
 const { x, y, sourceType } = useMouse()
 ```
@@ -26,8 +26,8 @@ const { x, y } = useMouse({ touch: false })
 It's also possible to provide a custom extractor function to get the position from the event.
 
 ```tsx
-import type { UseMouseEventExtractor } from '@reaxuse/core'
-import { useMouse } from '@reaxuse/core'
+import type { UseMouseEventExtractor } from '@reause/core'
+import { useMouse } from '@reause/core'
 import { useRef } from 'react'
 
 const parentRef = useRef<HTMLDivElement>(null)

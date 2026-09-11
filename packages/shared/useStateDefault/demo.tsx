@@ -1,4 +1,4 @@
-import { useStateDefault } from '@reaxuse/shared'
+import { useStateDefault } from '@reause/shared'
 import { useState } from 'react'
 
 // externally-controlled ref-like source — `value` reflects its current value,

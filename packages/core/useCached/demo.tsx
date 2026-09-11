@@ -1,4 +1,4 @@
-import { useCached } from '@reaxuse/core'
+import { useCached } from '@reause/core'
 import { useState } from 'react'
 
 interface Value {

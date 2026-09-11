@@ -38,7 +38,7 @@ function accurateMultiply(value: number, power: number): number {
  * of a number.
  *
  * Adjustment for React: upstream wraps the computation in `computed(() => ...)`
- * and returns a `ComputedRef<number>`; the reaxuse version is a pure derived
+ * and returns a `ComputedRef<number>`; the reause version is a pure derived
  * hook — the plain `value`, `digits` and `options` are read at render time and
  * the precision-adjusted number is memoized and returned directly, with no
  * effects and no `.value` wrapper (SSR-safe).

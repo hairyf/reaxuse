@@ -9,7 +9,7 @@ Reactive [`prefers-color-scheme`](https://developer.mozilla.org/en-US/docs/Web/C
 ## Usage
 
 ```tsx
-import { usePreferredColorScheme } from '@reaxuse/core'
+import { usePreferredColorScheme } from '@reause/core'
 
 const colorScheme = usePreferredColorScheme() // 'dark' | 'light' | 'no-preference'
 ```

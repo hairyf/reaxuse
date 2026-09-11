@@ -1,4 +1,4 @@
-import { useTimeoutPoll } from '@reaxuse/core'
+import { useTimeoutPoll } from '@reause/core'
 import { useState } from 'react'
 
 export default function UseTimeoutPollDemo() {

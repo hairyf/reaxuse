@@ -1,7 +1,7 @@
-# Mapping Issue Template — VueUse → reaxuse
+# Mapping Issue Template — VueUse → reause
 
 One issue per upstream function. The single source of truth is the
-[`source/vueuse`](https://github.com/hairyf/reaxuse/tree/main/source/vueuse) submodule (upstream VueUse, pinned commit).
+[`source/vueuse`](https://github.com/hairyf/reause/tree/main/source/vueuse) submodule (upstream VueUse, pinned commit).
 
 Each issue tracks the 1:1 React port of one VueUse function:
 implementation, test, docs, demo, and API-parity review.
@@ -12,7 +12,7 @@ implementation, test, docs, demo, and API-parity review.
 Mapping | `<fnName>` | <short description>
 ```
 
-The package is carried by the `@reaxuse/<pkg>` label, not the title.
+The package is carried by the `@reause/<pkg>` label, not the title.
 
 Examples:
 
@@ -20,7 +20,7 @@ Examples:
 - `Mapping | \`useToggle\` | A boolean switcher with utility functions`
 
 > The label/package name always follows the **upstream** package of the function.
-> If the reaxuse implementation lives in a different package, that deviation is
+> If the reause implementation lives in a different package, that deviation is
 > flagged in the body (see [ported hooks](#ported-hooks)).
 
 ## Labels
@@ -29,11 +29,11 @@ Every mapping issue carries exactly two labels, plus optional extras:
 
 | Label                         | Rule                                                  |
 | ----------------------------- | ----------------------------------------------------- |
-| `@reaxuse/<pkg>`              | upstream package of the function (always)             |
+| `@reause/<pkg>`              | upstream package of the function (always)             |
 | `size:<XS\|S\|M\|L\|XL\|XXL>` | from upstream `index.ts` LOC — see [Size](#size-rule) |
 | `good first issue`            | optional — add for `size:S` or below                  |
 
-No new labels are required; `@reaxuse/*` and `size:*` already exist in the repo.
+No new labels are required; `@reause/*` and `size:*` already exist in the repo.
 
 ## Body
 
@@ -41,7 +41,7 @@ No new labels are required; `@reaxuse/*` and `size:*` already exist in the repo.
 ## Target
 
 - **VueUse**: `useNow` — package `@vueuse/core` — [docs](https://vueuse.org/core/useNow/) — source `source/vueuse/packages/core/useNow`
-- **reaxuse**: `packages/core/src/useNow.ts`, exported from `@reaxuse/core`
+- **reause**: `packages/core/src/useNow.ts`, exported from `@reause/core`
 - **Status**: ☐ todo · ☐ in progress · ☐ done
 
 ## Upstream API
@@ -62,7 +62,7 @@ Map from (`source/vueuse/packages/core/useNow/`):
 - `index.browser.test.ts` — upstream tests to mirror
 - `component.ts` / `directive.ts` / `demo.vue` — only when present
 
-Map to (reaxuse):
+Map to (reause):
 
 - `packages/core/src/useNow.ts` — implementation
 - `packages/core/src/useNow.test.tsx` — mirrored tests (vitest-browser-react)
@@ -72,7 +72,7 @@ Map to (reaxuse):
 
 <!-- COMPLETED DYNAMICALLY during mapping (not generated): the full
      side-by-side implementation. The VueUse side below is prefilled from
-     upstream docs; the reaxuse side must be written by the mapper — it
+     upstream docs; the reause side must be written by the mapper — it
      generally mirrors the VueUse shape 1:1, but React differences
      (state/effect/refs, SSR, options handling) are expected and should be
      reflected here. -->
@@ -81,20 +81,20 @@ Map to (reaxuse):
 // vueuse — @vueuse/core
 const now = useNow()
 
-// reaxuse — @reaxuse/core
+// reause — @reause/core
 const now = useNow()
 ```
 ````
 
 > **This section is completed dynamically during mapping** — it is not
 > auto-generated. The VueUse side is prefilled from upstream docs; the
-> reaxuse side is written by the mapper (it generally matches the VueUse
+> reause side is written by the mapper (it generally matches the VueUse
 > shape, with React differences documented inline).
 
 General conventions to apply (from [`packages/guide/architecture.md`](../packages/guide/architecture.md) § Mapping decisions):
 
 ```tsx
-// vueuse                    // reaxuse (expected)
+// vueuse                    // reause (expected)
 // watch()         →  useWatch()          // or useEffect when no reactive deps
 // computed()      →  useMemo()
 // ref()           →  useState()
@@ -108,7 +108,7 @@ General conventions to apply (from [`packages/guide/architecture.md`](../package
 
 - deviations from upstream API, SSR / browser-only concerns
 - external dependencies (e.g. axios, firebase, drauu) and how to keep them optional
-- package-placement deviations (upstream pkg → different reaxuse pkg)
+- package-placement deviations (upstream pkg → different reause pkg)
 
 ## Acceptance criteria
 
@@ -133,7 +133,7 @@ honestly instead of pre-marking done. Example:
   demo — but only supports `useNow(interval)`. Upstream also has the `controls`
   mode and returns a `Date`; those are open checklist items.
 - `useToggle` / `useCounter` upstream live in `@vueuse/shared` and are
-  implemented in `@reaxuse/shared` — package placement matches upstream.
+  implemented in `@reause/shared` — package placement matches upstream.
 
 ## Size rule
 
@@ -154,12 +154,12 @@ no per-function docs) → **one** issue covering the whole group, `size:XXL`.
 
 ## Creation
 
-Issues are created with the GitHub CLI against `hairyf/reaxuse`:
+Issues are created with the GitHub CLI against `hairyf/reause`:
 
 ```bash
 gh issue create \
   --title 'Mapping | `useNow` | Reactive current Date instance' \
-  --label "@reaxuse/core,size:S" \
+  --label "@reause/core,size:S" \
   --body-file <rendered-body.md>
 ```
 

@@ -9,7 +9,7 @@ Sugar function to convert a ref-like object (`{ current }`) or a setter function
 ## Usage
 
 ```tsx
-import { toObserver } from '@reaxuse/rxjs'
+import { toObserver } from '@reause/rxjs'
 import { useRef, useState } from 'react'
 import { interval } from 'rxjs'
 import { take } from 'rxjs/operators'

@@ -9,7 +9,7 @@ Runs a callback when the component unmounts — React port of react-use's [`useU
 ## Usage
 
 ```tsx
-import { useUnmount } from '@reaxuse/shared'
+import { useUnmount } from '@reause/shared'
 
 useUnmount(() => cleanup())
 ```

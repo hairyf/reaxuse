@@ -10,7 +10,7 @@ Reactive [`mediaDevices.getDisplayMedia`](https://developer.mozilla.org/en-US/do
 ## Usage
 
 ```tsx
-import { useDisplayMedia } from '@reaxuse/core'
+import { useDisplayMedia } from '@reause/core'
 
 const { stream, start } = useDisplayMedia()
 start()

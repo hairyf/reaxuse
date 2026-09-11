@@ -9,7 +9,7 @@ Reactive [`prefers-contrast`](https://developer.mozilla.org/en-US/docs/Web/CSS/@
 ## Usage
 
 ```tsx
-import { usePreferredContrast } from '@reaxuse/core'
+import { usePreferredContrast } from '@reause/core'
 
 const contrast = usePreferredContrast() // 'more' | 'less' | 'custom' | 'no-preference'
 ```

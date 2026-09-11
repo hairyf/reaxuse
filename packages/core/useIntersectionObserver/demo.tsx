@@ -1,4 +1,4 @@
-import { useIntersectionObserver } from '@reaxuse/core'
+import { useIntersectionObserver } from '@reause/core'
 import { useRef, useState } from 'react'
 
 export default function UseIntersectionObserverDemo() {

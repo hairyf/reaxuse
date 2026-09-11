@@ -11,7 +11,7 @@ Reactive media controls for both `audio` and `video` elements
 ### Basic Usage
 
 ```tsx
-import { useMediaControls } from '@reaxuse/core'
+import { useMediaControls } from '@reause/core'
 import { useEffect, useRef } from 'react'
 
 const video = useRef<HTMLVideoElement>(null)
@@ -51,7 +51,7 @@ Using these you can manage the currently selected track. `selectedTrack` will
 be `-1` if there is no selected track.
 
 ```tsx
-import { useMediaControls } from '@reaxuse/core'
+import { useMediaControls } from '@reause/core'
 import { useRef } from 'react'
 
 const video = useRef<HTMLVideoElement>(null)

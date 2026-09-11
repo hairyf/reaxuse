@@ -1,4 +1,4 @@
-import { usePreferredReducedMotion } from '@reaxuse/core'
+import { usePreferredReducedMotion } from '@reause/core'
 
 export default function UsePreferredReducedMotionDemo() {
   const motion = usePreferredReducedMotion()

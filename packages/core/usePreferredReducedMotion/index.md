@@ -9,7 +9,7 @@ Reactive [`prefers-reduced-motion`](https://developer.mozilla.org/en-US/docs/Web
 ## Usage
 
 ```tsx
-import { usePreferredReducedMotion } from '@reaxuse/core'
+import { usePreferredReducedMotion } from '@reause/core'
 
 const motion = usePreferredReducedMotion() // 'reduce' | 'no-preference'
 ```

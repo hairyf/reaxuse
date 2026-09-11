@@ -1,4 +1,4 @@
-import { useVibrate } from '@reaxuse/core'
+import { useVibrate } from '@reause/core'
 
 export default function UseVibrateDemo() {
   const { isSupported, vibrate, stop } = useVibrate({ pattern: [300, 100, 300] })

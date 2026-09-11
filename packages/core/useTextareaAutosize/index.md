@@ -14,7 +14,7 @@ Automatically update the height of a textarea depending on the content.
 ### Simple example
 
 ```tsx
-import { useTextareaAutosize } from '@reaxuse/core'
+import { useTextareaAutosize } from '@reause/core'
 
 const { input, setInput, textarea } = useTextareaAutosize()
 // <textarea ref={textarea} value={input} onChange={e => setInput(e.target.value)} />
@@ -42,7 +42,7 @@ textarea::-webkit-scrollbar {
 If you need support for the rows attribute on a textarea element, then you should set the `styleProp` option to `minHeight`.
 
 ```tsx
-import { useTextareaAutosize } from '@reaxuse/core'
+import { useTextareaAutosize } from '@reause/core'
 
 const { input, setInput, textarea } = useTextareaAutosize({ styleProp: 'minHeight' })
 // <textarea ref={textarea} value={input} onChange={e => setInput(e.target.value)} rows={3} />
@@ -53,7 +53,7 @@ const { input, setInput, textarea } = useTextareaAutosize({ styleProp: 'minHeigh
 Use the `maxHeight` option to cap the textarea height in pixels while keeping autosize behavior.
 
 ```tsx
-import { useTextareaAutosize } from '@reaxuse/core'
+import { useTextareaAutosize } from '@reause/core'
 
 const { input, setInput, textarea } = useTextareaAutosize({
   maxHeight: 180,

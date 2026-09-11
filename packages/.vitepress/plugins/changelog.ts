@@ -15,7 +15,7 @@ export interface CommitInfo {
 
 export function ChangeLog(data: CommitInfo[]): Plugin {
   return {
-    name: 'reaxuse-changelog',
+    name: 'reause-changelog',
     resolveId(id) {
       if (id === '/virtual-changelog')
         return '\0virtual-changelog'

@@ -1,4 +1,4 @@
-import { useAsync } from '@reaxuse/core'
+import { useAsync } from '@reause/core'
 import { useState } from 'react'
 
 const LOOKUP_DELAY = 500

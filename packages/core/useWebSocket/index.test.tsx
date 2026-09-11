@@ -28,7 +28,7 @@ afterEach(() => {
 
 /**
  * Plain `{ pause, resume }` interval scheduler mirroring upstream's
- * `useIntervalFn` test schedulers (reaxuse's `useIntervalFn` is a React hook,
+ * `useIntervalFn` test schedulers (reause's `useIntervalFn` is a React hook,
  * so it cannot be created lazily inside a scheduler callback).
  */
 function intervalScheduler(interval: number) {

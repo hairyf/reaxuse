@@ -1,6 +1,6 @@
-import type { ConfigurableWindow } from '@reaxuse/shared'
+import type { ConfigurableWindow } from '@reause/shared'
 import type { ElementTarget } from '../useResizeObserver'
-import { toValue } from '@reaxuse/shared'
+import { toValue } from '@reause/shared'
 import { useEffect, useRef, useState } from 'react'
 
 export interface UseFocusWithinReturn {

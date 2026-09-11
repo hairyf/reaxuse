@@ -1,4 +1,4 @@
-import { until, useCounter } from '@reaxuse/shared'
+import { until, useCounter } from '@reause/shared'
 import { useEffect, useRef, useState } from 'react'
 
 export default function UntilDemo() {

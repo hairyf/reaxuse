@@ -1,4 +1,4 @@
-import type { ConfigurableWindow } from '@reaxuse/shared'
+import type { ConfigurableWindow } from '@reause/shared'
 import { useMediaQuery } from '../useMediaQuery'
 
 export type ReducedTransparencyType = 'reduce' | 'no-preference'

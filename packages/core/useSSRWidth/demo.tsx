@@ -1,4 +1,4 @@
-import { SSRWidthProvider, useSSRWidth } from '@reaxuse/core'
+import { SSRWidthProvider, useSSRWidth } from '@reause/core'
 import { useState } from 'react'
 
 function WidthReader() {

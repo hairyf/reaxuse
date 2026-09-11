@@ -9,7 +9,7 @@ Reactive [Battery Status API](https://developer.mozilla.org/en-US/docs/Web/API/B
 ## Usage
 
 ```tsx
-import { useBattery } from '@reaxuse/core'
+import { useBattery } from '@reause/core'
 
 const { isSupported, charging, chargingTime, dischargingTime, level } = useBattery()
 ```

@@ -43,7 +43,7 @@ export type UseObservableReturn<H, I = undefined> = [
  *
  * React divergences:
  * - upstream returns a `Readonly<Ref<H | I>>`; the React port returns a
- *   useState-like `[value, setValue]` writable tuple (hairyf/reaxuse#174), so
+ *   useState-like `[value, setValue]` writable tuple (hairyf/reause#174), so
  *   the state can also be set from React code — a later emission overwrites it
  *   again. Setting a new value re-renders.
  * - upstream's `tryOnScopeDispose` becomes the effect cleanup: the subscription

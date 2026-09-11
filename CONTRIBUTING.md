@@ -1,14 +1,14 @@
-# Contributing to reaxuse
+# Contributing to reause
 
-Thanks for taking the time to contribute! reaxuse is an experimental 1:1 React port of
+Thanks for taking the time to contribute! reause is an experimental 1:1 React port of
 [VueUse](https://github.com/vueuse/vueuse); the upstream repo is pinned as a git submodule at
 `source/vueuse` and is the single source of truth for every mapping.
 
 ## Development setup
 
 ```bash
-git clone --recurse-submodules https://github.com/hairyf/reaxuse.git
-cd reaxuse
+git clone --recurse-submodules https://github.com/hairyf/reause.git
+cd reause
 npm install
 ```
 

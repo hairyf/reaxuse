@@ -11,7 +11,7 @@ Reactive Storage with async support.
 The basic usage refers to [`useStorage`](/core/useStorage/).
 
 ```tsx
-import { useStorageAsync } from '@reaxuse/core'
+import { useStorageAsync } from '@reause/core'
 
 const [accessToken, setAccessToken] = useStorageAsync('access.token', '', SomeAsyncStorage)
 
@@ -26,7 +26,7 @@ from an async storage, so you may get the default initial value instead of the
 real stored value at the very beginning.
 
 ```tsx
-import { useStorageAsync } from '@reaxuse/core'
+import { useStorageAsync } from '@reause/core'
 
 const [accessToken, setAccessToken] = useStorageAsync('access.token', '', SomeAsyncStorage)
 

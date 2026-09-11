@@ -9,7 +9,7 @@ Reactive `document.activeElement`
 ## Usage
 
 ```tsx
-import { useActiveElement } from '@reaxuse/core'
+import { useActiveElement } from '@reause/core'
 
 const activeElement = useActiveElement()
 
@@ -33,7 +33,7 @@ useEffect(() => {
 By default, `useActiveElement` will traverse into shadow DOM to find the deeply active element. Set `deep: false` to disable this behavior.
 
 ```tsx
-import { useActiveElement } from '@reaxuse/core'
+import { useActiveElement } from '@reause/core'
 
 // Only get the shadow host, not the element inside shadow DOM
 const activeElement = useActiveElement({ deep: false })
@@ -44,7 +44,7 @@ const activeElement = useActiveElement({ deep: false })
 Set `triggerOnRemoval: true` to update the active element when the currently active element is removed from the DOM. This uses a `MutationObserver` under the hood.
 
 ```tsx
-import { useActiveElement } from '@reaxuse/core'
+import { useActiveElement } from '@reause/core'
 
 const activeElement = useActiveElement({ triggerOnRemoval: true })
 ```
@@ -54,7 +54,7 @@ const activeElement = useActiveElement({ triggerOnRemoval: true })
 Read `activeElement` from a different root than the global `document` — an open shadow root, an iframe's document, or a test environment. `document` wins when both are given; otherwise it falls back to the resolved `window`'s `document`. The `blur` / `focus` / `pointerdown` listeners are always bound to the resolved `window`.
 
 ```tsx
-import { useActiveElement } from '@reaxuse/core'
+import { useActiveElement } from '@reause/core'
 
 // Read from an open shadow root instead of document
 const activeElement = useActiveElement({ document: shadowRoot })

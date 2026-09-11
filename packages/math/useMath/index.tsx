@@ -9,7 +9,7 @@ export type UseMathReturn<K extends keyof Math> = ReturnType<PlainMathMethod<Mat
 
 /**
  * Arguments of a plain function — a local copy of VueUse shared's
- * `ArgumentsType` (reaxuse has no shared equivalent).
+ * `ArgumentsType` (reause has no shared equivalent).
  */
 type ArgumentsType<T> = T extends (...args: infer U) => any ? U : never
 
@@ -17,7 +17,7 @@ type ArgumentsType<T> = T extends (...args: infer U) => any ? U : never
  * A `Math` method whose arguments stay plain values — deliberately NOT VueUse's
  * `Reactified<T, Computed>` (which wraps every argument in `MaybeRefOrGetter`
  * and resolves getters via `toValue`). Getters as data sources are rejected
- * repo-wide (rule 1, issue #462); the reaxuse hook reads the plain arguments at
+ * repo-wide (rule 1, issue #462); the reause hook reads the plain arguments at
  * render time and returns the computed `number` directly.
  */
 type PlainMathMethod<T> = T extends (...args: infer A) => infer R
@@ -34,7 +34,7 @@ type PlainMathMethod<T> = T extends (...args: infer A) => infer R
  * and no effects (SSR-safe).
  *
  * Adjustment for React: upstream wraps the computation in `computed(() => ...)`
- * via `reactify` and returns a `ComputedRef<number>`; the reaxuse version is a
+ * via `reactify` and returns a `ComputedRef<number>`; the reause version is a
  * pure derived hook — `key` and every argument are read at render time and
  * `Math[key]` is invoked immediately, so the returned number always reflects
  * the latest values.

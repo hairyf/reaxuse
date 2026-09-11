@@ -72,7 +72,7 @@ export function useDark(options: UseDarkOptions = {}): UseDarkReturn {
   } = options
 
   // `toggleDark` needs the raw system preference to decide when the flipped
-  // value should be persisted as `auto`; the reaxuse `useColorMode` return
+  // value should be persisted as `auto`; the reause `useColorMode` return
   // does not expose it (upstream reads it from `mode.system.value`), so it is
   // resolved here.
   const preferredDark = usePreferredDark({ window: options.window })

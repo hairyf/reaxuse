@@ -1,4 +1,4 @@
-import { useEventSource } from '@reaxuse/core'
+import { useEventSource } from '@reause/core'
 
 export default function UseEventSourceDemo() {
   const { status, data, event, lastEventId, open, close } = useEventSource(

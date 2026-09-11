@@ -1,8 +1,8 @@
 'use client'
 
 import { useCallback } from 'react'
-import { useCounter, useToggle } from '@reaxuse/shared'
-import { useNow } from '@reaxuse/core'
+import { useCounter, useToggle } from '@reause/shared'
+import { useNow } from '@reause/core'
 
 export default function Page() {
   const [value, toggle] = useToggle()
@@ -18,7 +18,7 @@ export default function Page() {
 
   return (
     <main className="page">
-      <h1>reaxuse · Next.js playground</h1>
+      <h1>reause · Next.js playground</h1>
       <p className="sub">
         Live demos of the ported hooks — same examples as the VitePress docs.
       </p>

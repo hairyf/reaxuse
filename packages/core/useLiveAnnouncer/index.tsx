@@ -1,5 +1,5 @@
-import type { ConfigurableWindow } from '@reaxuse/shared'
-import { isClient } from '@reaxuse/shared'
+import type { ConfigurableWindow } from '@reause/shared'
+import { isClient } from '@reause/shared'
 import { useCallback, useEffect, useRef } from 'react'
 
 let announcerMap: Map<string, number> | undefined

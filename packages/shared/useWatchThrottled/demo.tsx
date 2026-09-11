@@ -1,4 +1,4 @@
-import { useWatchThrottled } from '@reaxuse/shared'
+import { useWatchThrottled } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseWatchThrottledDemo() {

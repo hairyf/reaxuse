@@ -9,7 +9,7 @@ Reactive [SpeechRecognition](https://developer.mozilla.org/en-US/docs/Web/API/Sp
 ## Usage
 
 ```tsx
-import { useSpeechRecognition } from '@reaxuse/core'
+import { useSpeechRecognition } from '@reause/core'
 
 const {
   isSupported,

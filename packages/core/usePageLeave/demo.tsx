@@ -1,4 +1,4 @@
-import { usePageLeave } from '@reaxuse/core'
+import { usePageLeave } from '@reause/core'
 
 export default function UsePageLeaveDemo() {
   const isLeft = usePageLeave()

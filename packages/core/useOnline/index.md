@@ -9,7 +9,7 @@ Reactive online state
 ## Usage
 
 ```tsx
-import { useOnline } from '@reaxuse/core'
+import { useOnline } from '@reause/core'
 
 const online = useOnline() // boolean
 ```

@@ -11,7 +11,7 @@ Used to set a global viewport width which will be used when rendering SSR compon
 Provide the width above the tree while rendering on the server, so the server markup and the first client render already agree on it
 
 ```tsx
-import { SSRWidthProvider } from '@reaxuse/core'
+import { SSRWidthProvider } from '@reause/core'
 import { renderToString } from 'react-dom/server'
 
 const html = renderToString(
@@ -24,7 +24,7 @@ const html = renderToString(
 Or in the root component
 
 ```tsx
-import { SSRWidthProvider } from '@reaxuse/core'
+import { SSRWidthProvider } from '@reause/core'
 
 function App() {
   return (
@@ -38,7 +38,7 @@ function App() {
 To retrieve the provided value if you need it in a subcomponent
 
 ```tsx
-import { useSSRWidth } from '@reaxuse/core'
+import { useSSRWidth } from '@reause/core'
 
 function MyComponent() {
   const [width, setWidth] = useSSRWidth()

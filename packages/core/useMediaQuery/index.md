@@ -9,7 +9,7 @@ Reactive [Media Query](https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Qu
 ## Usage
 
 ```tsx
-import { useMediaQuery } from '@reaxuse/core'
+import { useMediaQuery } from '@reause/core'
 
 const isLargeScreen = useMediaQuery('(min-width: 1024px)')
 const isPreferredDark = useMediaQuery('(prefers-color-scheme: dark)')
@@ -48,7 +48,7 @@ Alternatively you can set this up globally for your app using [`SSRWidthProvider
 override it.
 
 ```tsx
-import { SSRWidthProvider } from '@reaxuse/core'
+import { SSRWidthProvider } from '@reause/core'
 
 <SSRWidthProvider width={768}>
   <App />

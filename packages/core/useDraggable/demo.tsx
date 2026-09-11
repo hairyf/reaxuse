@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { useDraggable } from '@reaxuse/core'
+import { useDraggable } from '@reause/core'
 import { useRef, useState } from 'react'
 
 /**

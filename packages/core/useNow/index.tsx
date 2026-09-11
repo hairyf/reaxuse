@@ -16,7 +16,7 @@ export interface UseNowOptions<Controls extends boolean> {
    * Called during render, so it must follow the Rules of Hooks — pass it
    * consistently across renders, e.g.
    * `scheduler: cb => useIntervalFn(cb, 500)` with `useIntervalFn` from
-   * `@reaxuse/shared`.
+   * `@reause/shared`.
    *
    * @default useRafFn
    */

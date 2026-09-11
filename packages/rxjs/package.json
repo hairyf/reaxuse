@@ -1,8 +1,8 @@
 {
-  "name": "@reaxuse/rxjs",
+  "name": "@reause/rxjs",
   "type": "module",
   "version": "0.1.2",
-  "description": "RxJS reactive functions for reaxuse — React port of @vueuse/rxjs",
+  "description": "RxJS reactive functions for reause — React port of @vueuse/rxjs",
   "license": "MIT",
   "sideEffects": false,
   "exports": {
@@ -27,6 +27,6 @@
     "rxjs": ">=6.0.0"
   },
   "dependencies": {
-    "@reaxuse/shared": "workspace:*"
+    "@reause/shared": "workspace:*"
   }
 }

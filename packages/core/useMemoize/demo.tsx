@@ -1,4 +1,4 @@
-import { useMemoize } from '@reaxuse/core'
+import { useMemoize } from '@reause/core'
 import { useState } from 'react'
 
 interface User {

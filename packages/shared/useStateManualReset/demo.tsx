@@ -1,4 +1,4 @@
-import { useStateManualReset } from '@reaxuse/shared'
+import { useStateManualReset } from '@reause/shared'
 
 export default function UseStateManualResetDemo() {
   const [message, setMessage, resetMessage] = useStateManualReset('Default message')

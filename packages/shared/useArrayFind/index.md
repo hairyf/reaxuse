@@ -9,7 +9,7 @@ Reactive `Array.find`.
 ## Usage
 
 ```tsx
-import { useArrayFind } from '@reaxuse/shared'
+import { useArrayFind } from '@reause/shared'
 
 const list = [1, -1, 2]
 const positive = useArrayFind(list, val => val > 0) // 1
@@ -18,7 +18,7 @@ const positive = useArrayFind(list, val => val > 0) // 1
 ### Use with reactive array
 
 ```tsx
-import { useArrayFind } from '@reaxuse/shared'
+import { useArrayFind } from '@reause/shared'
 import { useState } from 'react'
 
 const [list, setList] = useState([-1, -2])

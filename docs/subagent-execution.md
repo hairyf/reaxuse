@@ -5,7 +5,7 @@
 
 ## 1. 环境准备
 
-- **仅限 Worktree 操作**：Worktree 根目录与主树同级（主树 `D:\projects\reaxuse` → `D:\projects\reaxuse-wt\<slug>`，分支 `fix/<feature-or-hook>`），严禁直接修改主树。
+- **仅限 Worktree 操作**：Worktree 根目录与主树同级（主树 `D:\projects\reause` → `D:\projects\reause-wt\<slug>`，分支 `fix/<feature-or-hook>`），严禁直接修改主树。
 - **依赖连接**：为主树中的每个 `node_modules`（根目录 + `packages/*` + `playgrounds/*`）在 Worktree 的同位置创建 junction（`cmd /c mklink /J`）；**严禁在 Worktree 内执行任何安装命令**。
 - **配置隔离**：生成 git-ignored 的 `vitest.worktree.config.ts`（独立 `cacheDir`，如 `.worktree-vite`）并据此运行测试；该文件严禁提交。
 - **上游只读**：上游 submodule 无需在 Worktree 内初始化，直接从主树 `source/vueuse/...` 只读引用。
@@ -28,9 +28,9 @@
 
 ### 3.2 引用链协议
 
-- 工具函数与类型唯一实现于 `@reaxuse/shared`，其他包必须统一引用。
+- 工具函数与类型唯一实现于 `@reause/shared`，其他包必须统一引用。
 - **例外处理**：当 barrel `export *` 触发 TS2308 同名类型冲突且无法直接导入时，允许本地声明并登记记录。
-- `integrations` 包禁止从 `@reaxuse/core` 导入代码，须使用本地 `MaybeElement` / `resolveElement`。
+- `integrations` 包禁止从 `@reause/core` 导入代码，须使用本地 `MaybeElement` / `resolveElement`。
 - **React 19 规范**：需要可写 ref 容器时使用 `{ current: T }` 类型，禁止使用 `as MutableRefObject<T>`。
 
 ### 3.3 useListener 协议
@@ -52,15 +52,15 @@ git commit -m "feat(<pkg>): implement <hook>"
 git push -u origin fix/<feature-or-hook>
 
 # 3. 创建 PR
-gh pr create --repo hairyf/reaxuse --base main --head fix/<feature-or-hook> --title "feat(<pkg>): implement <hook>" --body-file <temp.md>
-gh pr checks <PR> --repo hairyf/reaxuse --watch
+gh pr create --repo hairyf/reause --base main --head fix/<feature-or-hook> --title "feat(<pkg>): implement <hook>" --body-file <temp.md>
+gh pr checks <PR> --repo hairyf/reause --watch
 ```
 
 > **注意**：一个 Hook/功能变更对应一个 PR，被 review 指出问题时需重新指派原子代理在原分支追加提交，严禁主动执行 merge 或 close 操作。
 
 ## 5. 环境避坑与铁律
 
-- **主树同步**：操作前同步主树 `git -C D:\reaxuse fetch origin main; git -C D:\reaxuse reset --hard origin/main`，防止 junction 失效引发类型误报。
+- **主树同步**：操作前同步主树 `git -C D:\reause fetch origin main; git -C D:\reause reset --hard origin/main`，防止 junction 失效引发类型误报。
 - **Worktree 安全清理**：删除 worktree 前必须先执行 `cmd /c rmdir <wt>\node_modules` 移除软链接，防止 `git worktree remove` 误删主树文件。
 - **PowerShell 路径规范**：.NET 文件 API 必须使用绝对路径。
 - **构建与测试限制**：

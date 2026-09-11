@@ -1,4 +1,4 @@
-import { logicNot } from '@reaxuse/math'
+import { logicNot } from '@reause/math'
 import { useState } from 'react'
 
 export default function LogicNotDemo() {

@@ -1,5 +1,5 @@
-import type { ConfigurableWindow } from '@reaxuse/shared'
-import { pxValue } from '@reaxuse/shared'
+import type { ConfigurableWindow } from '@reause/shared'
+import { pxValue } from '@reause/shared'
 import { useEffect, useState } from 'react'
 import { useSSRWidth } from '../useSSRWidth'
 

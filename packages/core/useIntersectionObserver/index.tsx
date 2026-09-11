@@ -1,6 +1,6 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
 import type { ElementTarget, ElementTargetOrArray } from '../useResizeObserver'
-import { toArray, toValue } from '@reaxuse/shared'
+import { toArray, toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { unrefElement } from '../unrefElement'
 

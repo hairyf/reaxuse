@@ -9,7 +9,7 @@ Reactive [`enumerateDevices`](https://developer.mozilla.org/en-US/docs/Web/API/M
 ## Usage
 
 ```tsx
-import { useDevicesList } from '@reaxuse/core'
+import { useDevicesList } from '@reause/core'
 
 const {
   devices,
@@ -24,7 +24,7 @@ const {
 To request permissions, use the `ensurePermissions` method.
 
 ```tsx
-import { useDevicesList } from '@reaxuse/core'
+import { useDevicesList } from '@reause/core'
 
 const {
   ensurePermissions,

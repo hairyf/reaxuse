@@ -21,7 +21,7 @@ like this:
 Then we could use `useScreenSafeArea` in the component as shown below:
 
 ```tsx
-import { useScreenSafeArea } from '@reaxuse/core'
+import { useScreenSafeArea } from '@reause/core'
 
 const {
   top,

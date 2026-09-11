@@ -9,7 +9,7 @@ Reactive [ipcRenderer.invoke API](https://www.electronjs.org/docs/api/ipc-render
 ## Usage
 
 ```tsx
-import { useIpcRendererInvoke } from '@reaxuse/electron'
+import { useIpcRendererInvoke } from '@reause/electron'
 
 // enable nodeIntegration if you don't provide ipcRenderer explicitly
 // see: https://www.electronjs.org/docs/api/webview-tag#nodeintegration

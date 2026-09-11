@@ -9,7 +9,7 @@ Reactive window focus state
 ## Usage
 
 ```tsx
-import { useWindowFocus } from '@reaxuse/core'
+import { useWindowFocus } from '@reause/core'
 
 const focused = useWindowFocus() // boolean
 ```

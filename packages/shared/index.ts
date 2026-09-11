@@ -1,6 +1,6 @@
 /**
- * @reaxuse/shared — React port of @vueuse/shared
- * Shared utilities shared across all reaxuse packages.
+ * @reause/shared — React port of @vueuse/shared
+ * Shared utilities shared across all reause packages.
  *
  * Mapping note: @vueuse/shared exposes pure utilities + composables that
  * don't depend on the renderer. In the React world those become either

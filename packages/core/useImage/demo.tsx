@@ -1,4 +1,4 @@
-import { useImage } from '@reaxuse/core'
+import { useImage } from '@reause/core'
 import { useState } from 'react'
 
 const colors = ['fff', '000', '5f0caa']

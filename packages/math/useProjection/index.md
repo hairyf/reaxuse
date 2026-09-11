@@ -9,7 +9,7 @@ Reactive numeric projection from one domain to another
 ## Usage
 
 ```tsx
-import { useProjection } from '@reaxuse/math'
+import { useProjection } from '@reause/math'
 import { useState } from 'react'
 
 const [input, setInput] = useState(0)
@@ -23,7 +23,7 @@ setInput(10) // projected === 100 on the next render
 Re-render with new values — e.g. from `useState` — and the hook recomputes:
 
 ```tsx
-import { useProjection } from '@reaxuse/math'
+import { useProjection } from '@reause/math'
 import { useState } from 'react'
 
 const [from, setFrom] = useState<readonly [number, number]>([0, 10])

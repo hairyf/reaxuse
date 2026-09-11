@@ -36,7 +36,7 @@ export interface StorageEventLike {
  * `StorageLike` (a real `StorageEvent` cannot be constructed with a
  * non-built-in storage area, mirroring upstream).
  */
-export const customStorageEventName = 'reaxuse-storage'
+export const customStorageEventName = 'reause-storage'
 
 /**
  * Serializer registry selected automatically from the type of the default

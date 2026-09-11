@@ -1,4 +1,4 @@
-import { usePrecision } from '@reaxuse/math'
+import { usePrecision } from '@reause/math'
 import { useState } from 'react'
 
 const MATH_METHODS = ['round', 'floor', 'ceil'] as const

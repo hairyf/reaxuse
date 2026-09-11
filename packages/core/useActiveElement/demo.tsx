@@ -1,4 +1,4 @@
-import { useActiveElement } from '@reaxuse/core'
+import { useActiveElement } from '@reause/core'
 
 export default function UseActiveElementDemo() {
   const activeElement = useActiveElement()

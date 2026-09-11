@@ -1,5 +1,5 @@
-import { useConfirmDialog } from '@reaxuse/core'
-import { useListener } from '@reaxuse/shared'
+import { useConfirmDialog } from '@reause/core'
+import { useListener } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseConfirmDialogDemo() {

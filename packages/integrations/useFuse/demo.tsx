@@ -1,4 +1,4 @@
-// Relative (not `@reaxuse/integrations`): the package name resolves through the
+// Relative (not `@reause/integrations`): the package name resolves through the
 // worktree node_modules junction to the main repo's integrations package, which
 // does not export `useFuse` until this PR is merged.
 import type { UseFuseOptions } from '../useFuse'

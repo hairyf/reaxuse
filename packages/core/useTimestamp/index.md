@@ -9,13 +9,13 @@ Reactive current timestamp (`Date.now() + offset`), updating on every animation 
 ## Usage
 
 ```tsx
-import { useTimestamp } from '@reaxuse/core'
+import { useTimestamp } from '@reause/core'
 
 const timestamp = useTimestamp({ offset: 0 })
 ```
 
 ```tsx
-import { useTimestamp } from '@reaxuse/core'
+import { useTimestamp } from '@reause/core'
 // ---cut---
 const { timestamp, pause, resume } = useTimestamp({ controls: true })
 ```

@@ -1,4 +1,4 @@
-import { useSessionStorage } from '@reaxuse/core'
+import { useSessionStorage } from '@reause/core'
 
 const theDefault = {
   name: 'Banana',

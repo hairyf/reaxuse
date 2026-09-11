@@ -9,7 +9,7 @@ Get the DOM element of a React ref-like object or a plain element
 ## Usage
 
 ```tsx
-import { unrefElement } from '@reaxuse/core'
+import { unrefElement } from '@reause/core'
 import { useEffect, useRef } from 'react'
 
 const div = useRef<HTMLDivElement>(null)

@@ -1,5 +1,5 @@
-import type { ConfigurableWindow, EventFilter } from '@reaxuse/shared'
-import { throttleFilter, timestamp } from '@reaxuse/shared'
+import type { ConfigurableWindow, EventFilter } from '@reause/shared'
+import { throttleFilter, timestamp } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 const defaultEvents: (keyof WindowEventMap)[] = ['mousemove', 'mousedown', 'resize', 'keydown', 'touchstart', 'wheel']

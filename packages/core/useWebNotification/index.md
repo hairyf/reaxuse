@@ -13,7 +13,7 @@ Before an app can send a notification, the user must grant the application the r
 :::
 
 ```tsx
-import { useWebNotification } from '@reaxuse/core'
+import { useWebNotification } from '@reause/core'
 import { useEffect } from 'react'
 
 const {
@@ -27,7 +27,7 @@ const {
   onError,
   onClose,
 } = useWebNotification({
-  title: 'Hello, reaxuse world!',
+  title: 'Hello, reause world!',
   dir: 'auto',
   lang: 'en',
   renotify: true,

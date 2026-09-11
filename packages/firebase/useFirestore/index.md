@@ -9,7 +9,7 @@ Reactive [Firestore](https://firebase.google.com/docs/firestore) binding. Making
 ## Usage
 
 ```tsx
-import { useFirestore } from '@reaxuse/firebase'
+import { useFirestore } from '@reause/firebase'
 import { initializeApp } from 'firebase/app'
 import { collection, doc, getFirestore, limit, orderBy, query } from 'firebase/firestore'
 
@@ -64,7 +64,7 @@ You can reuse the db reference by passing `autoDispose: false`. You can also set
 Note : Getting a not disposed db reference again don't cost a Firestore read.
 
 ```tsx
-import { useFirestore } from '@reaxuse/firebase'
+import { useFirestore } from '@reause/firebase'
 import { collection } from 'firebase/firestore'
 // ---cut---
 const todos = useFirestore(collection(db, 'todos'), undefined, { autoDispose: false })
@@ -74,8 +74,8 @@ or use `createGlobalState` from the shared package
 
 ```ts
 // store.ts
-import { useFirestore } from '@reaxuse/firebase'
-import { createGlobalState } from '@reaxuse/shared'
+import { useFirestore } from '@reause/firebase'
+import { createGlobalState } from '@reause/shared'
 import { collection } from 'firebase/firestore'
 
 export const useTodos = createGlobalState(

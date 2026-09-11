@@ -1,4 +1,4 @@
-import { useScreenOrientation } from '@reaxuse/core'
+import { useScreenOrientation } from '@reause/core'
 
 export default function UseScreenOrientationDemo() {
   const { isSupported, orientation, angle } = useScreenOrientation()

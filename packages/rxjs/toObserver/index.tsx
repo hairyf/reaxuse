@@ -25,7 +25,7 @@ export type ObserverTarget<T> = { current: T } | ((value: T) => void)
  *
  * Adjustment for React: a `useRef` write never schedules a re-render, so a
  * 1:1 mirror accepting only a Vue-style `Ref` would silently pin consumers to
- * non-rendering state. The reaxuse version therefore accepts either a
+ * non-rendering state. The reause version therefore accepts either a
  * ref-like object (`{ current }`, written through `.current`) or a setter
  * function (`(value: T) => void`, called directly) — pass a `useState` setter
  * when the UI must update, or a `useRef` when the latest value only needs to

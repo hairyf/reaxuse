@@ -1,4 +1,4 @@
-import { useArrayEvery } from '@reaxuse/shared'
+import { useArrayEvery } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseArrayEveryDemo() {

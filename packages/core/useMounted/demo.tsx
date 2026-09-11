@@ -1,4 +1,4 @@
-import { useMounted } from '@reaxuse/core'
+import { useMounted } from '@reause/core'
 
 export default function UseMountedDemo() {
   const isMounted = useMounted()

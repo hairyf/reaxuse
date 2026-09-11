@@ -1,4 +1,4 @@
-import { clamp, useControllableState } from '@reaxuse/shared'
+import { clamp, useControllableState } from '@reause/shared'
 import { useCallback } from 'react'
 
 /**

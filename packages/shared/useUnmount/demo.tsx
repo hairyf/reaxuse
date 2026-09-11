@@ -1,4 +1,4 @@
-import { useUnmount } from '@reaxuse/shared'
+import { useUnmount } from '@reause/shared'
 import { useState } from 'react'
 
 function Logger({ onUnmount }: { onUnmount: () => void }) {

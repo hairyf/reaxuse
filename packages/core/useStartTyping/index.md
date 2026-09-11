@@ -9,7 +9,7 @@ Fires when users start typing on non-editable elements. Useful for auto-focusing
 ## Usage
 
 ```tsx
-import { useStartTyping } from '@reaxuse/core'
+import { useStartTyping } from '@reause/core'
 import { useRef } from 'react'
 
 const input = useRef<HTMLInputElement>(null)
@@ -25,7 +25,7 @@ useStartTyping(() => {
 ## Custom Valid Key
 
 ```ts
-import { useStartTyping } from '@reaxuse/core'
+import { useStartTyping } from '@reause/core'
 
 useStartTyping(handleKey, {
   // only allow numbers
@@ -36,7 +36,7 @@ useStartTyping(handleKey, {
 ## Custom Editable Element
 
 ```ts
-import { isFocusedElementEditable as defaultEditable, useStartTyping } from '@reaxuse/core'
+import { isFocusedElementEditable as defaultEditable, useStartTyping } from '@reause/core'
 
 useStartTyping(handleKey, {
   isFocusedElementEditable: () => {

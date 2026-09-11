@@ -19,7 +19,7 @@ npm i rxjs
 ## Usage
 
 ```tsx
-import { useExtractedObservable } from '@reaxuse/rxjs'
+import { useExtractedObservable } from '@reause/rxjs'
 import { useState } from 'react'
 import { interval } from 'rxjs'
 import { mapTo, scan, startWith } from 'rxjs/operators'
@@ -48,7 +48,7 @@ export function Counter() {
 The subscription is created in an effect: it is unsubscribed whenever the source value changes, and on unmount. Upstream's `watch` options have no React equivalent — the extractor always runs on mount (upstream's `immediate: true` default), and a source object mutated in place is re-extracted by listing the mutation inputs in `deps`:
 
 ```tsx
-import { useExtractedObservable } from '@reaxuse/rxjs'
+import { useExtractedObservable } from '@reause/rxjs'
 import { useState } from 'react'
 import { of } from 'rxjs'
 
@@ -64,7 +64,7 @@ const label = useExtractedObservable(
 If you want to add custom error handling to an `Observable` that might error, you can supply an optional `onError` configuration. Without this, RxJS will treat any error in the supplied `Observable` as an "unhandled error" and it will be thrown in a new call stack and reported to `window.onerror` (or `process.on('error')` if you happen to be in Node).
 
 ```tsx
-import { useExtractedObservable } from '@reaxuse/rxjs'
+import { useExtractedObservable } from '@reause/rxjs'
 import { useState } from 'react'
 import { interval } from 'rxjs'
 import { mapTo, scan, startWith, tap } from 'rxjs/operators'
@@ -95,7 +95,7 @@ const count = useExtractedObservable(
 You can also supply an optional `onComplete` configuration if you need to attach special behavior when the watched observable completes.
 
 ```tsx
-import { useExtractedObservable } from '@reaxuse/rxjs'
+import { useExtractedObservable } from '@reause/rxjs'
 import { useState } from 'react'
 import { interval } from 'rxjs'
 import { mapTo, scan, startWith, takeWhile } from 'rxjs/operators'

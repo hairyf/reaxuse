@@ -1,4 +1,4 @@
-import { isClient } from '@reaxuse/shared'
+import { isClient } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export type RouteQueryValueRaw = string | number | boolean | null | (string | number | boolean | null)[]

@@ -1,5 +1,5 @@
-import type { RefOrValue } from '@reaxuse/shared'
-import { isClient, toValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
+import { isClient, toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface UseBase64Options {

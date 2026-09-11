@@ -1,7 +1,7 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
 import type { RefObject } from 'react'
 import type { StorageLike, UseStorageOptions } from '../useStorage'
-import { toValue } from '@reaxuse/shared'
+import { toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { usePreferredDark } from '../usePreferredDark'
 import { useStorage } from '../useStorage'
@@ -197,7 +197,7 @@ export function useColorMode<T extends string = BasicColorMode>(
   // localStorage is read or written and no storage-event listener is added.
   // `storageKey: null` is likewise backed by the inert storage.
   const [stored, setStored] = useStorage<T | BasicColorSchema>(
-    storageKey ?? 'reaxuse-use-color-mode',
+    storageKey ?? 'reause-use-color-mode',
     initialMode,
     storageKey == null || storageRef ? inertStorage : storage,
     storageRef

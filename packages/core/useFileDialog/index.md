@@ -9,8 +9,8 @@ Open file dialog with ease
 ## Usage
 
 ```tsx
-import { useFileDialog } from '@reaxuse/core'
-import { useListener } from '@reaxuse/shared'
+import { useFileDialog } from '@reause/core'
+import { useListener } from '@reause/shared'
 
 const {
   files,
@@ -35,7 +35,7 @@ useListener(onCancel, () => {
 With buttons:
 
 ```tsx
-import { useFileDialog } from '@reaxuse/core'
+import { useFileDialog } from '@reause/core'
 
 function Component() {
   const { files, open, reset } = useFileDialog()

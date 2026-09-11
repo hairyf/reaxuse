@@ -1,4 +1,4 @@
-import { useParentElement } from '@reaxuse/core'
+import { useParentElement } from '@reause/core'
 import { useRef } from 'react'
 
 export default function UseParentElementDemo() {

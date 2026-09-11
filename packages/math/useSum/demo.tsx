@@ -1,4 +1,4 @@
-import { useSum } from '@reaxuse/math'
+import { useSum } from '@reause/math'
 import { useState } from 'react'
 
 export default function UseSumDemo() {

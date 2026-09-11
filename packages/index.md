@@ -2,12 +2,12 @@
 layout: home
 
 hero:
-  name: ReaxUse
+  name: ReaUse
   text: Collection of React Hooks
   tagline: Reactive utilities for React — an experimental 1:1 AI-mapped port of VueUse
   image:
-    src: /reaxuse.svg
-    alt: ReaxUse
+    src: /reause.svg
+    alt: ReaUse
   actions:
     - theme: brand
       text: Get Started
@@ -17,7 +17,7 @@ hero:
       link: /functions
     - theme: alt
       text: View on GitHub
-      link: https://github.com/hairyf/reaxuse
+      link: https://github.com/hairyf/reause
 
 features:
   - title: VueUse 1:1

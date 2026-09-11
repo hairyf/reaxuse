@@ -1,12 +1,12 @@
-import type { RefOrValue } from '@reaxuse/shared'
-import { hasOwn, toValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
+import { hasOwn, toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface UseFileDialogOptions {
   /**
    * A custom `document` instance, e.g. working with iframes or in testing
    * environments. Inlined here — `ConfigurableDocument` is not ported to
-   * `@reaxuse/shared`, so `document?` mirrors the option `useTitle` exposes
+   * `@reause/shared`, so `document?` mirrors the option `useTitle` exposes
    * (defaults to the global `document` when not provided).
    */
   document?: Document | null

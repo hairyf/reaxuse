@@ -1,4 +1,4 @@
-import { debounceFilter, useWatchWithFilter } from '@reaxuse/shared'
+import { debounceFilter, useWatchWithFilter } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseWatchWithFilterDemo() {

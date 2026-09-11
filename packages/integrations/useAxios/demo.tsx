@@ -1,7 +1,7 @@
-// Relative (not `@reaxuse/integrations`): until this PR is merged the package
+// Relative (not `@reause/integrations`): until this PR is merged the package
 // name resolves through the worktree node_modules junction to the main repo's
 // still-empty integrations package.
-import { noop } from '@reaxuse/shared'
+import { noop } from '@reause/shared'
 import { useAxios } from '../useAxios'
 
 interface Todo {

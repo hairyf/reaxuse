@@ -1,4 +1,4 @@
-import { useElementVisibility } from '@reaxuse/core'
+import { useElementVisibility } from '@reause/core'
 import { useRef } from 'react'
 
 export default function UseElementVisibilityDemo() {

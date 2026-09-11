@@ -9,7 +9,7 @@ Use timeout to poll something — it triggers the callback after the last task i
 ## Usage
 
 ```tsx
-import { useTimeoutPoll } from '@reaxuse/core'
+import { useTimeoutPoll } from '@reause/core'
 import { useState } from 'react'
 
 const [count, setCount] = useState(0)

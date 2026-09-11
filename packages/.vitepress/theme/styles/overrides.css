@@ -11,7 +11,7 @@
 .note {
   margin: 1rem 0;
   padding: 0.75rem 1rem;
-  border-left: 3px solid var(--reaxuse-brand);
+  border-left: 3px solid var(--reause-brand);
   border-radius: 4px;
   background-color: var(--vp-c-bg-soft);
   font-size: 0.95rem;
@@ -48,7 +48,7 @@
 .reload-prompt button {
   font: inherit;
   color: #fff;
-  background-color: var(--reaxuse-brand);
+  background-color: var(--reause-brand);
   border: none;
   border-radius: 6px;
   padding: 0.25rem 0.75rem;

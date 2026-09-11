@@ -1,5 +1,5 @@
 /**
- * @reaxuse/math — React port of @vueuse/math
+ * @reause/math — React port of @vueuse/math
  */
 
 export * from './createGenericProjection'

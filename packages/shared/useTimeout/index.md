@@ -9,7 +9,7 @@ A reactive value that becomes `true` after a given time.
 ## Usage
 
 ```tsx
-import { useTimeout } from '@reaxuse/shared'
+import { useTimeout } from '@reause/shared'
 
 const ready = useTimeout(1000)
 ```
@@ -19,7 +19,7 @@ After 1 second, `ready` becomes `true`.
 ### With Controls
 
 ```tsx
-import { useTimeout } from '@reaxuse/shared'
+import { useTimeout } from '@reause/shared'
 
 const { ready, start, stop, isPending } = useTimeout(1000, { controls: true })
 
@@ -44,7 +44,7 @@ start()
 ### Callback on Timeout
 
 ```tsx
-import { useTimeout } from '@reaxuse/shared'
+import { useTimeout } from '@reause/shared'
 
 useTimeout(1000, {
   callback: () => {
@@ -58,7 +58,7 @@ useTimeout(1000, {
 The timeout duration can be reactive:
 
 ```tsx
-import { useTimeout } from '@reaxuse/shared'
+import { useTimeout } from '@reause/shared'
 import { useRef } from 'react'
 
 const duration = useRef(1000)

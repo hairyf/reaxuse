@@ -1,4 +1,4 @@
-import { useLastChanged } from '@reaxuse/shared'
+import { useLastChanged } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseLastChangedDemo() {

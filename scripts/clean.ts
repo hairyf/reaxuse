@@ -5,7 +5,7 @@ import fs from 'node:fs/promises'
  * Remove ignored build artifacts across the monorepo, mirroring VueUse's
  * `scripts/clean.ts` (`git clean -Xdn` over all git-ignored paths).
  * Filtered out: `node_modules`, `.vitepress` (docs cache/output),
- * `.eslintcache`, `.md`, `public`, and reaxuse's git-ignored `skills/`
+ * `.eslintcache`, `.md`, `public`, and reause's git-ignored `skills/`
  * directory (local skill definitions must survive a clean).
  */
 const result = execSync('git clean -Xdn', { encoding: 'utf-8' })

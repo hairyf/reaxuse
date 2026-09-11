@@ -1,4 +1,4 @@
-import { useUserMedia } from '@reaxuse/core'
+import { useUserMedia } from '@reause/core'
 import { useEffect, useRef } from 'react'
 
 export default function UseUserMediaDemo() {

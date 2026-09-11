@@ -1,4 +1,4 @@
-import { createGlobalState } from '@reaxuse/shared'
+import { createGlobalState } from '@reause/shared'
 import { useState } from 'react'
 
 // module-level store: every `Counter` below reads and writes the same state,

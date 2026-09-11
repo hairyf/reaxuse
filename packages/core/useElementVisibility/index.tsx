@@ -1,6 +1,6 @@
-import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reause/shared'
 import type { ElementTarget } from '../useResizeObserver'
-import { toValue } from '@reaxuse/shared'
+import { toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useIntersectionObserver } from '../useIntersectionObserver'
 

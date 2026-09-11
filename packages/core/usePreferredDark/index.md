@@ -9,7 +9,7 @@ Reactive [`prefers-color-scheme: dark`](https://developer.mozilla.org/en-US/docs
 ## Usage
 
 ```tsx
-import { usePreferredDark } from '@reaxuse/core'
+import { usePreferredDark } from '@reause/core'
 
 const isDark = usePreferredDark() // boolean
 // `true` while the user prefers a dark theme, flips live with the OS setting

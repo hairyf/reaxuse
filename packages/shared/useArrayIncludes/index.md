@@ -9,7 +9,7 @@ Reactive `Array.includes`
 ## Usage
 
 ```tsx
-import { useArrayIncludes } from '@reaxuse/shared'
+import { useArrayIncludes } from '@reause/shared'
 import { useState } from 'react'
 
 const [list, setList] = useState([0, 2, 4])
@@ -26,7 +26,7 @@ useArrayIncludes(objects, { id: 1 }, { fromIndex: 1, comparator: (element, value
 ### Use with reactive array
 
 ```tsx
-import { useArrayIncludes } from '@reaxuse/shared'
+import { useArrayIncludes } from '@reause/shared'
 import { useState } from 'react'
 
 const [list, setList] = useState([0, 2, 4, 6, 8])

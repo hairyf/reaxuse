@@ -9,7 +9,7 @@ Create and read and write local files with [FileSystemAccessAPI](https://develop
 ## Usage
 
 ```tsx
-import { useFileSystemAccess } from '@reaxuse/core'
+import { useFileSystemAccess } from '@reause/core'
 
 const [data, setData, {
   isSupported,
@@ -43,5 +43,5 @@ function handleSave() {
 - `controls.open()` / `controls.create()` / `controls.save()` / `controls.saveAs()` / `controls.updateData()` — the picker and read/write controls.
 
 The return is a React tuple `[data, setData, controls]` — upstream returns an object with a writable `data` shallow ref
-(`ShallowRef<T | undefined>`) and no setter, so `setData` is a reaxuse addition and the controls are plain values and
+(`ShallowRef<T | undefined>`) and no setter, so `setData` is a reause addition and the controls are plain values and
 functions (no `.value`).

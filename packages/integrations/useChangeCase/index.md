@@ -17,7 +17,7 @@ npm i change-case@^5
 ## Usage
 
 ```tsx
-import { useChangeCase } from '@reaxuse/integrations'
+import { useChangeCase } from '@reause/integrations'
 
 // `changeCase` is the transformed value, `setChangeCase` updates the input
 const [changeCase, setChangeCase] = useChangeCase('hello world', 'camelCase')
@@ -63,7 +63,7 @@ format knobs, not the hook's value source.
 Can be passed into `options` for customization
 
 ```tsx
-import { useChangeCase } from '@reaxuse/integrations'
+import { useChangeCase } from '@reause/integrations'
 
 const [changeCase] = useChangeCase('helloWorld', 'snakeCase', {
   delimiter: '-',

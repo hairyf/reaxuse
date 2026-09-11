@@ -1,4 +1,4 @@
-import { useGamepad } from '@reaxuse/core'
+import { useGamepad } from '@reause/core'
 import { useEffect, useState } from 'react'
 
 export default function UseGamepadDemo() {

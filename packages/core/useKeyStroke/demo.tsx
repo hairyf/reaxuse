@@ -1,4 +1,4 @@
-import { useKeyStroke } from '@reaxuse/core'
+import { useKeyStroke } from '@reause/core'
 import { useState } from 'react'
 
 export default function UseKeyStrokeDemo() {

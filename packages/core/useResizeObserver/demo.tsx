@@ -1,4 +1,4 @@
-import { useResizeObserver } from '@reaxuse/core'
+import { useResizeObserver } from '@reause/core'
 import { useRef, useState } from 'react'
 
 export default function UseResizeObserverDemo() {

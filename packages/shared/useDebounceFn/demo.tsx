@@ -1,4 +1,4 @@
-import { useDebounceFn } from '@reaxuse/shared'
+import { useDebounceFn } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseDebounceFnDemo() {

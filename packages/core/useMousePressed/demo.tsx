@@ -1,4 +1,4 @@
-import { useMousePressed } from '@reaxuse/core'
+import { useMousePressed } from '@reause/core'
 import { useRef, useState } from 'react'
 
 export default function UseMousePressedDemo() {

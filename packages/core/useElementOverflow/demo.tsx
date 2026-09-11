@@ -1,4 +1,4 @@
-import { useElementOverflow } from '@reaxuse/core'
+import { useElementOverflow } from '@reause/core'
 import { useRef, useState } from 'react'
 
 export default function UseElementOverflowDemo() {

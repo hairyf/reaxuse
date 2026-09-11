@@ -9,7 +9,7 @@ Infinite scrolling of the element
 ## Usage
 
 ```tsx
-import { useInfiniteScroll } from '@reaxuse/core'
+import { useInfiniteScroll } from '@reause/core'
 import { useRef, useState } from 'react'
 
 const el = useRef<HTMLDivElement>(null)

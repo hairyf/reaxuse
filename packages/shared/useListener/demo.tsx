@@ -1,4 +1,4 @@
-import { useListener } from '@reaxuse/shared'
+import { useListener } from '@reause/shared'
 import { useState } from 'react'
 
 function createHook() {

@@ -1,5 +1,5 @@
-import type { RefOrValue } from '@reaxuse/shared'
-import { isObject, isRefLike, toArray, toValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
+import { isObject, isRefLike, toArray, toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 type Arrayable<T> = T | T[]

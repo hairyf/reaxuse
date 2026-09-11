@@ -1,4 +1,4 @@
-import { useAbs } from '@reaxuse/math'
+import { useAbs } from '@reause/math'
 import { useState } from 'react'
 
 export default function UseAbsDemo() {

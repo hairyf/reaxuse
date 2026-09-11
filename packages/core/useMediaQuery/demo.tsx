@@ -1,4 +1,4 @@
-import { useMediaQuery } from '@reaxuse/core'
+import { useMediaQuery } from '@reause/core'
 
 export default function UseMediaQueryDemo() {
   const isLargeScreen = useMediaQuery('(min-width: 1024px)')

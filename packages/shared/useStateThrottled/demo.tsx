@@ -1,4 +1,4 @@
-import { useStateThrottled } from '@reaxuse/shared'
+import { useStateThrottled } from '@reause/shared'
 import { useEffect, useRef, useState } from 'react'
 
 export default function UseStateThrottledDemo() {

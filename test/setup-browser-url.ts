@@ -26,9 +26,9 @@ interface SharedHistoryCalls { calls: number[] }
 
 const shared: SharedHistoryCalls = (() => {
   try {
-    const parent = window.parent as Window & { __reaxuseHistoryCalls?: SharedHistoryCalls }
-    parent.__reaxuseHistoryCalls ??= { calls: [] }
-    return parent.__reaxuseHistoryCalls
+    const parent = window.parent as Window & { __reauseHistoryCalls?: SharedHistoryCalls }
+    parent.__reauseHistoryCalls ??= { calls: [] }
+    return parent.__reauseHistoryCalls
   }
   catch {
     // cross-origin parent: fall back to this frame's own counter

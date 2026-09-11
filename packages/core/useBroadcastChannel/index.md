@@ -17,7 +17,7 @@ Messages are broadcasted via a message event fired at all BroadcastChannel
 objects listening to the channel.
 
 ```tsx
-import { useBroadcastChannel } from '@reaxuse/core'
+import { useBroadcastChannel } from '@reause/core'
 
 const {
   isSupported,

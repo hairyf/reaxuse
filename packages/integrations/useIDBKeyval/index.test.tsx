@@ -19,10 +19,10 @@ vi.mock('idb-keyval', async (importOriginal) => {
 // and `index.browser.test.ts` (cross-tab BroadcastChannel syncing). The store
 // is cleared before and after every test so the keys stay deterministic.
 
-const KEY = 'reaxuse-idb-keyval-1'
-const KEY_2 = 'reaxuse-idb-keyval-2'
-const KEY_3 = 'reaxuse-idb-keyval-3'
-const KEY_4 = 'reaxuse-idb-keyval-4'
+const KEY = 'reause-idb-keyval-1'
+const KEY_2 = 'reause-idb-keyval-2'
+const KEY_3 = 'reause-idb-keyval-3'
+const KEY_4 = 'reause-idb-keyval-4'
 const CHANNEL_NAME = `vueuse-idb-${JSON.stringify(KEY)}`
 
 /** Serializer mirroring upstream: `'foo'` ⇄ `1`, anything else ⇄ `0`. */

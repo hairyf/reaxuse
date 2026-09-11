@@ -1,4 +1,4 @@
-import { useWindowScroll } from '@reaxuse/core'
+import { useWindowScroll } from '@reause/core'
 
 export default function UseWindowScrollDemo() {
   const { x, y, setX, setY } = useWindowScroll({ behavior: 'smooth' })

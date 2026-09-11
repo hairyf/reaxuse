@@ -9,14 +9,14 @@ Get the sum of an array reactively
 ## Usage
 
 ```tsx
-import { useSum } from '@reaxuse/math'
+import { useSum } from '@reause/math'
 
 const array = [1, 2, 3, 4]
 const sum = useSum(array) // 10
 ```
 
 ```tsx
-import { useSum } from '@reaxuse/math'
+import { useSum } from '@reause/math'
 import { useState } from 'react'
 
 const [a, setA] = useState(1)

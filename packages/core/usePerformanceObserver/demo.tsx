@@ -1,4 +1,4 @@
-import { usePerformanceObserver } from '@reaxuse/core'
+import { usePerformanceObserver } from '@reause/core'
 import { useState } from 'react'
 
 export default function UsePerformanceObserverDemo() {

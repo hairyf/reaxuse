@@ -1,4 +1,4 @@
-import { useAverage } from '@reaxuse/math'
+import { useAverage } from '@reause/math'
 import { useState } from 'react'
 
 export default function UseAverageDemo() {

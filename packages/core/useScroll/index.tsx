@@ -1,5 +1,5 @@
-import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
-import { noop, toValue, useDebounceFn, useThrottleFn } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reause/shared'
+import { noop, toValue, useDebounceFn, useThrottleFn } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -147,7 +147,7 @@ export interface UseScrollReturn {
  *    together.
  * 2. The `scroll` / `scrollend` listeners are registered inline in a
  *    `useEffect` with cleanup (upstream composes `useEventListener`), and the
- *    idle reset is a `useDebounceFn` from `@reaxuse/shared` (upstream composes
+ *    idle reset is a `useDebounceFn` from `@reause/shared` (upstream composes
  *    it from `@vueuse/shared` too). The scroll handler is wrapped in a shared
  *    `useThrottleFn` when `throttle > 0`; at `throttle = 0` the raw handler is
  *    registered instead, mirroring upstream.

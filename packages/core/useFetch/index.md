@@ -16,7 +16,7 @@ result of the request, the `error` value will contain any errors, and the `isFet
 value will indicate if the request is loading.
 
 ```ts
-import { useFetch } from '@reaxuse/core'
+import { useFetch } from '@reause/core'
 
 const { isFetching, error, data } = useFetch(url)
 ```
@@ -26,7 +26,7 @@ const { isFetching, error, data } = useFetch(url)
 `useFetch` can also be awaited just like a normal fetch:
 
 ```ts
-import { useFetch } from '@reaxuse/core'
+import { useFetch } from '@reause/core'
 // ---cut---
 const { isFetching, error, data } = await useFetch(url)
 ```
@@ -37,7 +37,7 @@ Using a plain value for the url parameter (e.g. driven by `useState`) will allow
 `useFetch` function to automatically trigger another request when the url changes.
 
 ```tsx
-import { useFetch } from '@reaxuse/core'
+import { useFetch } from '@reause/core'
 import { useState } from 'react'
 
 const [url, setUrl] = useState('https://my-api.com/user/1')
@@ -53,7 +53,7 @@ Setting the `immediate` option to false will prevent the request from firing unt
 `execute` function is called.
 
 ```ts
-import { useFetch } from '@reaxuse/core'
+import { useFetch } from '@reause/core'
 // ---cut---
 const { execute } = useFetch(url, { immediate: false })
 
@@ -66,7 +66,7 @@ A request can be aborted by using the `abort` function from the `useFetch` funct
 `canAbort` property indicates if the request can be aborted.
 
 ```ts
-import { useFetch } from '@reaxuse/core'
+import { useFetch } from '@reause/core'
 // ---cut---
 const { abort, canAbort } = useFetch(url)
 
@@ -80,7 +80,7 @@ A request can also be aborted automatically by using `timeout` property. It will
 `abort` function when the given timeout is reached.
 
 ```ts
-import { useFetch } from '@reaxuse/core'
+import { useFetch } from '@reause/core'
 // ---cut---
 const { data } = useFetch(url, { timeout: 100 })
 ```
@@ -91,7 +91,7 @@ The `beforeFetch` option can intercept a request before it is sent and modify th
 request options and url.
 
 ```ts
-import { useFetch } from '@reaxuse/core'
+import { useFetch } from '@reause/core'
 // ---cut---
 const { data } = useFetch(url, {
   async beforeFetch({ url, options, cancel }) {
@@ -115,7 +115,7 @@ const { data } = useFetch(url, {
 The `afterFetch` option can intercept the response data before it is updated.
 
 ```ts
-import { useFetch } from '@reaxuse/core'
+import { useFetch } from '@reause/core'
 // ---cut---
 const { data } = useFetch(url, {
   afterFetch(ctx) {
@@ -131,7 +131,7 @@ The `onFetchError` option can intercept the response data and error before it is
 when `updateDataOnError` is set to `true`.
 
 ```ts
-import { useFetch } from '@reaxuse/core'
+import { useFetch } from '@reause/core'
 // ---cut---
 const { data } = useFetch(url, {
   updateDataOnError: true,
@@ -154,7 +154,7 @@ The request method and return type can be set by adding the appropriate methods 
 end of `useFetch`
 
 ```ts
-import { useFetch } from '@reaxuse/core'
+import { useFetch } from '@reause/core'
 // ---cut---
 // Request will be sent with GET method and data will be parsed as JSON
 const { data } = useFetch(url).get().json()
@@ -175,7 +175,7 @@ options that are provided to it. This is useful for interacting with API's throu
 application that uses the same base URL or needs Authorization headers.
 
 ```ts
-import { createFetch } from '@reaxuse/core'
+import { createFetch } from '@reause/core'
 // ---cut---
 const useMyFetch = createFetch({
   baseUrl: 'https://my-api.com',
@@ -200,7 +200,7 @@ between the pre-configured instance and newly spawned instance. You can provide 
 `combination` option to toggle between `overwrite` or `chaining`.
 
 ```ts
-import { createFetch } from '@reaxuse/core'
+import { createFetch } from '@reause/core'
 // ---cut---
 const useMyFetch = createFetch({
   baseUrl: 'https://my-api.com',
@@ -242,7 +242,7 @@ const { isFetching, error, data } = useMyFetch('users', {
 You can re-execute the request by calling the `execute` method in `afterFetch` or `onFetchError`. Here is a simple example of refreshing a token:
 
 ```ts
-import { createFetch } from '@reaxuse/core'
+import { createFetch } from '@reause/core'
 // ---cut---
 let isRefreshing = false
 const refreshSubscribers: Array<() => void> = []
@@ -323,7 +323,7 @@ The `onFetchResponse` and `onFetchError` will fire on fetch request responses an
 respectively.
 
 ```ts
-import { useFetch } from '@reaxuse/core'
+import { useFetch } from '@reause/core'
 // ---cut---
 const { onFetchResponse, onFetchError } = useFetch(url)
 

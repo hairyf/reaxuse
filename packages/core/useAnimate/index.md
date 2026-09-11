@@ -13,7 +13,7 @@ Reactive [Web Animations API](https://developer.mozilla.org/en-US/docs/Web/API/W
 The `useAnimate` function returns the animation instance and control functions.
 
 ```tsx
-import { useAnimate } from '@reaxuse/core'
+import { useAnimate } from '@reause/core'
 import { useRef } from 'react'
 
 const el = useRef<HTMLSpanElement>(null)
@@ -46,7 +46,7 @@ return <span ref={el} style={{ display: 'inline-block' }}>useAnimate</span>
 Either an array of keyframe objects, or a keyframe object, or a controllable state. See [Keyframe Formats](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API/Keyframe_Formats) for more details.
 
 ```tsx
-import { useAnimate } from '@reaxuse/core'
+import { useAnimate } from '@reause/core'
 
 const keyframes = { transform: 'rotate(360deg)' }
 // Or
@@ -69,7 +69,7 @@ useAnimate(el, keyframes, 1000)
 The third argument accepts a duration number or an options object with the following additional properties on top of [KeyframeAnimationOptions](https://developer.mozilla.org/en-US/docs/Web/API/Element/animate#parameters):
 
 ```tsx
-import { useAnimate } from '@reaxuse/core'
+import { useAnimate } from '@reause/core'
 
 useAnimate(el, keyframes, {
   duration: 1000,
@@ -97,7 +97,7 @@ useAnimate(el, keyframes, {
 Set `immediate: false` to prevent the animation from starting automatically.
 
 ```tsx
-import { useAnimate } from '@reaxuse/core'
+import { useAnimate } from '@reause/core'
 
 const { play } = useAnimate(el, keyframes, {
   duration: 1000,

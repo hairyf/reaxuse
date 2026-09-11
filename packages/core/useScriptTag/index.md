@@ -11,7 +11,7 @@ If a script tag already exists for the given URL, `useScriptTag()` will not crea
 ## Usage
 
 ```tsx
-import { useScriptTag } from '@reaxuse/core'
+import { useScriptTag } from '@reause/core'
 
 const { scriptTag, load, unload } = useScriptTag(
   'https://player.twitch.tv/js/embed/v1.js',

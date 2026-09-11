@@ -1,4 +1,4 @@
-import { breakpointsTailwind, useBreakpoints } from '@reaxuse/core'
+import { breakpointsTailwind, useBreakpoints } from '@reause/core'
 import { useState } from 'react'
 
 function BooleanDisplay({ value }: { value: boolean }) {

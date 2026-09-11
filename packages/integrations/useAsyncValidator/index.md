@@ -16,7 +16,7 @@ npm i async-validator@^4
 
 ```tsx
 import type { Rules } from 'async-validator'
-import { useAsyncValidator } from '@reaxuse/integrations'
+import { useAsyncValidator } from '@reause/integrations'
 import { useState } from 'react'
 
 const rules: Rules = {

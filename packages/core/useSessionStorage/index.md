@@ -11,7 +11,7 @@ Reactive [SessionStorage](https://developer.mozilla.org/en-US/docs/Web/API/Windo
 Please refer to `useStorage`.
 
 ```tsx
-import { useSessionStorage } from '@reaxuse/core'
+import { useSessionStorage } from '@reause/core'
 
 const [state, setState] = useSessionStorage('my-store', { hello: 'hi', greeting: 'Hello' })
 const [flag, setFlag] = useSessionStorage('my-flag', true)

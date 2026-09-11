@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { useScrollLock } from '@reaxuse/core'
+import { useScrollLock } from '@reause/core'
 import { useRef } from 'react'
 
 const boxStyle: CSSProperties = {

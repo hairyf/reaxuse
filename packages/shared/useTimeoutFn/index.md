@@ -9,7 +9,7 @@ Wrapper for `setTimeout` with controls
 ## Usage
 
 ```tsx
-import { useTimeoutFn } from '@reaxuse/shared'
+import { useTimeoutFn } from '@reause/shared'
 
 const { isPending, start, stop } = useTimeoutFn(() => {
   /* ... */

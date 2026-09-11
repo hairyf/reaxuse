@@ -11,7 +11,7 @@ Shorthand for `useStateHistory` with throttled filter.
 This function takes the first snapshot right after the counter's value was changed and the second with a delay of 1000ms.
 
 ```tsx
-import { useStateThrottledHistory } from '@reaxuse/core'
+import { useStateThrottledHistory } from '@reause/core'
 import { useState } from 'react'
 
 const [count, setCount] = useState(0)

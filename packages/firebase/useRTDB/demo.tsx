@@ -1,6 +1,6 @@
 // Worktree note: this demo imports the implementation relatively because the
-// worktree's `@reaxuse/firebase` junction resolves to the main checkout, where
-// `useRTDB` does not exist yet. Published docs import from `@reaxuse/firebase`.
+// worktree's `@reause/firebase` junction resolves to the main checkout, where
+// `useRTDB` does not exist yet. Published docs import from `@reause/firebase`.
 import type { DatabaseReference } from 'firebase/database'
 import { useState } from 'react'
 import { useRTDB } from '../useRTDB'

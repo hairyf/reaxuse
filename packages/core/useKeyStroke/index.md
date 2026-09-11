@@ -10,7 +10,7 @@ Listen for keyboard keystrokes. By default, listens on `keydown` events on `wind
 ## Usage
 
 ```tsx
-import { useKeyStroke } from '@reaxuse/core'
+import { useKeyStroke } from '@reause/core'
 
 useKeyStroke('ArrowDown', (e) => {
   e.preventDefault()

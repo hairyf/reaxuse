@@ -10,7 +10,7 @@ Two-way state synchronization between two writable `State<T>` sources
 ## Usage
 
 ```tsx
-import { syncState } from '@reaxuse/shared'
+import { syncState } from '@reause/shared'
 import { useState } from 'react'
 
 function App() {
@@ -38,7 +38,7 @@ function App() {
 ### One directional
 
 ```tsx
-import { syncState } from '@reaxuse/shared'
+import { syncState } from '@reause/shared'
 
 // right follows left
 const stopLTR = syncState([a, setA], [b, setB], { direction: 'ltr' })
@@ -50,7 +50,7 @@ const stopRTL = syncState([a, setA], [b, setB], { direction: 'rtl' })
 ### Custom Transform
 
 ```tsx
-import { syncState } from '@reaxuse/shared'
+import { syncState } from '@reause/shared'
 import { useState } from 'react'
 
 const [a, setA] = useState(10)

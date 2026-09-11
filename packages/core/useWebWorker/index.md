@@ -10,7 +10,7 @@ Simple [Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Worker
 ## Usage
 
 ```tsx
-import { useWebWorker } from '@reaxuse/core'
+import { useWebWorker } from '@reause/core'
 
 const { data, post, terminate, worker } = useWebWorker('/path/to/worker.js')
 ```
@@ -32,7 +32,7 @@ function returning one, instead of a URL (upstream's second overload,
 `useWebWorker(worker: Worker | WorkerFn)`):
 
 ```tsx
-import { useWebWorker } from '@reaxuse/core'
+import { useWebWorker } from '@reause/core'
 
 // adopt an existing instance (its `onmessage` is wired; terminated on unmount)
 const external = new Worker('/path/to/worker.js')

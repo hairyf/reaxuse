@@ -9,7 +9,7 @@ A controllable state which will be reset to the default value after some time.
 ## Usage
 
 ```tsx
-import { useStateAutoReset } from '@reaxuse/shared'
+import { useStateAutoReset } from '@reause/shared'
 
 const [message, setMessage] = useStateAutoReset('default message', 1000)
 

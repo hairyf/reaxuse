@@ -1,4 +1,4 @@
-import { useLocalStorage } from '@reaxuse/core'
+import { useLocalStorage } from '@reause/core'
 
 const theDefault = {
   name: 'Banana',
@@ -8,8 +8,8 @@ const theDefault = {
 }
 
 export default function UseLocalStorageDemo() {
-  const [state, setState] = useLocalStorage('reaxuse-use-local-storage', theDefault)
-  const [state2] = useLocalStorage('reaxuse-use-local-storage', theDefault)
+  const [state, setState] = useLocalStorage('reause-use-local-storage', theDefault)
+  const [state2] = useLocalStorage('reause-use-local-storage', theDefault)
 
   const update = (patch: Partial<typeof theDefault>) =>
     setState(prev => ({ ...(prev ?? theDefault), ...patch }))

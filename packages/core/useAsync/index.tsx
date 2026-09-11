@@ -1,9 +1,9 @@
-import type { State } from '@reaxuse/shared'
-import { noop, useControllableState } from '@reaxuse/shared'
+import type { State } from '@reause/shared'
+import { noop, useControllableState } from '@reause/shared'
 import { useEffect, useRef } from 'react'
 
 /**
- * Upstream re-exports `Fn` from `@vueuse/shared` types; `@reaxuse/shared`
+ * Upstream re-exports `Fn` from `@vueuse/shared` types; `@reause/shared`
  * does not export it, so it is declared locally here (same pattern as
  * `packages/shared/useIntervalFn/index.tsx`).
  */
@@ -29,7 +29,7 @@ export interface UseAsyncOptions {
    * When true, skip the initial mount evaluation; evaluate only when `deps`
    * change. With the default `[]` deps the hook then never evaluates.
    *
-   * This is the reaxuse replacement for upstream's `lazy`. Upstream's `lazy`
+   * This is the reause replacement for upstream's `lazy`. Upstream's `lazy`
    * starts evaluation on the first access to the returned computed; React has
    * no first-access hook, so that semantic has no equivalent here.
    *

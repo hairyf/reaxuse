@@ -1,4 +1,4 @@
-import { makeDestructurable } from '@reaxuse/shared'
+import { makeDestructurable } from '@reause/shared'
 
 const foo = { name: 'foo' }
 const bar = 1024

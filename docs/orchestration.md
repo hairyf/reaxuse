@@ -1,6 +1,6 @@
 # 编排（Orchestration）
 
-reaxuse 自动化流水线的总入口：定义总体流程、各环节职责与**精准轮询频率**，具体执行细节引用各分文档。
+reause 自动化流水线的总入口：定义总体流程、各环节职责与**精准轮询频率**，具体执行细节引用各分文档。
 
 ## 1. 总体流水线
 
@@ -51,7 +51,7 @@ Nightly Release
 
 ## 4. 节点定义
 
-1. **监控上游变动**：见 [upstream-monitoring.md](upstream-monitoring.md)。定期轮询/监控上游库（VueUse / react-use 等）的 Merged PR。若更改适用于 reaxuse，自动创建“合并更新 Issue”。
+1. **监控上游变动**：见 [upstream-monitoring.md](upstream-monitoring.md)。定期轮询/监控上游库（VueUse / react-use 等）的 Merged PR。若更改适用于 reause，自动创建“合并更新 Issue”。
 2. **接收用户需求**：见 [issues-monitoring.md](issues-monitoring.md)。用户提出新增 Hook 请求（例如“请添加 react-use 的 `useXXX`”）时，直接创建对应的“新增 Hook Issue”。
 3. **调度实现代理**：监控到 Issue 被打上 `implement` 标签后，系统自动派发**实现子代理**，按照根目录 [AGENTS.md](../AGENTS.md) 与 [subagent-execution.md](subagent-execution.md) 规范完成编码并提交 PR。
 4. **处理 PR 审查**：见 [issues-monitoring.md](issues-monitoring.md) §3。持续监控 PR 中的用户评论/审查意见，一旦产生评论，**必须重新指派原子代理**在同一个 Worktree 和分支上进行修复与提交，禁止重新创建 PR。
@@ -63,7 +63,7 @@ Nightly Release
 派发任何实现子代理之前，必须以 Issue 为唯一需求来源，按以下优先级取用（高 → 低）：
 
 1. **Issue 评论中最后一条仓库所有者（`hairyf`）的评论**：**覆盖**正文中一切与之冲突的内容——Hook 命名、归属包、文件路径、参数与返回值结构、默认值与选项。绝大多数 Issue 都带有这类调整评论，子代理必须逐条读完再动手。
-2. **Issue 标题**：给出该 Hook 在 reaxuse 中的最终名称（可能与正文引用的上游 VueUse 名称不同，例如 `createReusableTemplate` → `createPortalSlot`、`createTemplatePromise` → `createPromisifiedComponent`）。
+2. **Issue 标题**：给出该 Hook 在 reause 中的最终名称（可能与正文引用的上游 VueUse 名称不同，例如 `createReusableTemplate` → `createPortalSlot`、`createTemplatePromise` → `createPromisifiedComponent`）。
 3. **Issue 正文**：`## Target` / `## Mapping files` / `## Mapping notes` 提供上游来源（`source/vueuse/...`）与映射决策。正文里的 `packages/<pkg>/src/<hook>.ts` 路径是历史遗留写法，**实际布局是 `packages/<pkg>/<hook>/index.tsx`**。
 4. **Issue 标签**：`implement` = 已确认、可派发；`adjustment` = 该 Issue 的预期 React 实现仍需按所有者评论调整，未澄清前不得派发。
 

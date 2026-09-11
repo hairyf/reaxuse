@@ -9,7 +9,7 @@ Reactive [Network status](https://developer.mozilla.org/en-US/docs/Web/API/Netwo
 ## Usage
 
 ```tsx
-import { useNetwork } from '@reaxuse/core'
+import { useNetwork } from '@reause/core'
 
 const { isOnline, offlineAt, onlineAt, downlink, downlinkMax, effectiveType, saveData, rtt, type } = useNetwork()
 

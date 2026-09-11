@@ -1,4 +1,4 @@
-import { useFullscreen } from '@reaxuse/core'
+import { useFullscreen } from '@reause/core'
 import { useRef } from 'react'
 
 export default function UseFullscreenDemo() {

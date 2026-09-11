@@ -1,5 +1,5 @@
 import type { AxiosAdapter, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
-import { noop } from '@reaxuse/shared'
+import { noop } from '@reause/shared'
 import axios, { AxiosError } from 'axios'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'

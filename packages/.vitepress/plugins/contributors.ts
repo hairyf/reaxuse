@@ -18,7 +18,7 @@ export interface ContributorInfo {
 
 export function Contributors(data: Record<string, ContributorInfo[]>): Plugin {
   return {
-    name: 'reaxuse-contributors',
+    name: 'reause-contributors',
     resolveId(id) {
       if (id === '/virtual-contributors')
         return '\0virtual-contributors'

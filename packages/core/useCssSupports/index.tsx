@@ -1,5 +1,5 @@
-import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
-import { isClient, toValue } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reause/shared'
+import { isClient, toValue } from '@reause/shared'
 import { useEffect, useState } from 'react'
 
 /**
@@ -68,7 +68,7 @@ type WindowWithCss = Window & {
  *   window": the mount effect returns early and `isSupported` stays at
  *   `options.ssrValue` (divergence). Upstream only defaults an `undefined`
  *   window to `defaultWindow`, so `{ window: null }` reaches
- *   `window?.CSS.supports(...)` and yields `undefined`; reaxuse deliberately
+ *   `window?.CSS.supports(...)` and yields `undefined`; reause deliberately
  *   keeps the declared `boolean` state instead of surfacing `undefined`;
  * - the two overloads are detected like upstream: a trailing argument that
  *   resolves to an object is treated as the options bag, otherwise two

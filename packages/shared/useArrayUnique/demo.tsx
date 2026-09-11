@@ -1,4 +1,4 @@
-import { useArrayUnique } from '@reaxuse/shared'
+import { useArrayUnique } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseArrayUniqueDemo() {

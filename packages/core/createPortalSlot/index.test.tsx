@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { objectOmit } from '@reaxuse/shared'
+import { objectOmit } from '@reause/shared'
 import { describe, expect, it } from 'vitest'
 import { render } from 'vitest-browser-react'
 import { createPortalSlot } from '../createPortalSlot'

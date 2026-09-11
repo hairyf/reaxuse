@@ -1,5 +1,5 @@
 import type { ElementTarget, TargetElement } from '../useResizeObserver'
-import { toValue } from '@reaxuse/shared'
+import { toValue } from '@reause/shared'
 
 /**
  * Return type of `unrefElement`. Upstream keeps the Vue component-instance

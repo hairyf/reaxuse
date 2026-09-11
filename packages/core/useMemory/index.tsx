@@ -1,5 +1,5 @@
 import type { Pausable } from '../useTimeoutPoll'
-import { useIntervalFn } from '@reaxuse/shared'
+import { useIntervalFn } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -37,7 +37,7 @@ export interface UseMemoryOptions {
    * Called during render, so it must follow the Rules of Hooks — pass it
    * consistently across renders, e.g.
    * `scheduler: cb => useIntervalFn(cb, 500)` with `useIntervalFn` from
-   * `@reaxuse/shared`.
+   * `@reause/shared`.
    *
    * The returned `Pausable` is paused while `performance.memory` is
    * unavailable and resumed once it is detected, so `pause` / `resume` must

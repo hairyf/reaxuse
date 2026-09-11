@@ -9,7 +9,7 @@ Reactive mouse pressing state
 ## Basic Usage
 
 ```tsx
-import { useMousePressed } from '@reaxuse/core'
+import { useMousePressed } from '@reause/core'
 
 const { pressed, sourceType } = useMousePressed()
 

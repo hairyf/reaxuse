@@ -1,4 +1,4 @@
-import { useBroadcastChannel } from '@reaxuse/core'
+import { useBroadcastChannel } from '@reause/core'
 import { useState } from 'react'
 
 export default function UseBroadcastChannelDemo() {

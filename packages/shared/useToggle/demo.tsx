@@ -1,4 +1,4 @@
-import { useToggle } from '@reaxuse/shared'
+import { useToggle } from '@reause/shared'
 
 export default function UseToggleDemo() {
   const [value, toggle] = useToggle()

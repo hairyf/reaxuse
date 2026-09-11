@@ -1,4 +1,4 @@
-import { useNow } from '@reaxuse/core'
+import { useNow } from '@reause/core'
 
 export default function UseNowDemo() {
   const now = useNow()

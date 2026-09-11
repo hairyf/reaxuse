@@ -4,12 +4,12 @@ category: State
 
 # useListener
 
-Bind a callback to a listener registration function returned by a reaxuse hook, with automatic cleanup on unmount.
+Bind a callback to a listener registration function returned by a reause hook, with automatic cleanup on unmount.
 
 ## Usage
 
 ```tsx
-import { createEventHook, useListener } from '@reaxuse/shared'
+import { createEventHook, useListener } from '@reause/shared'
 
 const resultEvent = createEventHook<Response>()
 

@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { useFocus } from '@reaxuse/core'
+import { useFocus } from '@reause/core'
 import { useRef } from 'react'
 
 const elementStyle: CSSProperties = {

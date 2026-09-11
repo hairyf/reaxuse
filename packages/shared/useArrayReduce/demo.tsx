@@ -1,4 +1,4 @@
-import { useArrayReduce } from '@reaxuse/shared'
+import { useArrayReduce } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseArrayReduceDemo() {

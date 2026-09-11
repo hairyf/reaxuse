@@ -9,7 +9,7 @@ Listen for clicks outside of an element. Useful for modals or dropdowns.
 ## Usage
 
 ```tsx
-import { useClickOutside } from '@reaxuse/core'
+import { useClickOutside } from '@reause/core'
 import { useRef } from 'react'
 
 function App() {

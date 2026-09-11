@@ -13,7 +13,7 @@ times the callback is triggered. After the count is reached, further changes
 are ignored.
 
 ```tsx
-import { useWatchAtMost } from '@reaxuse/shared'
+import { useWatchAtMost } from '@reause/shared'
 import { useState } from 'react'
 
 const [num, setNum] = useState(0)

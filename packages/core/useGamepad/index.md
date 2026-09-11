@@ -11,7 +11,7 @@ Provides reactive bindings for the [Gamepad API](https://developer.mozilla.org/e
 > Due to how the Gamepad API works, you must interact with the page using the gamepad before it will be detected.
 
 ```tsx
-import { useGamepad } from '@reaxuse/core'
+import { useGamepad } from '@reause/core'
 
 const [gamepads, setGamepads, { isSupported }] = useGamepad()
 const gamepad = gamepads.find(g => g.mapping === 'standard')
@@ -22,7 +22,7 @@ const gamepad = gamepads.find(g => g.mapping === 'standard')
 Currently the Gamepad API does not have event support to update the state of the gamepad. To update the gamepad state, `requestAnimationFrame` is used to poll for gamepad changes. You can control this polling by using the `pause` and `resume` functions provided by `useGamepad`
 
 ```tsx
-import { useGamepad } from '@reaxuse/core'
+import { useGamepad } from '@reause/core'
 
 const [gamepads, , { pause, resume }] = useGamepad()
 
@@ -40,7 +40,7 @@ resume()
 The `onConnected` and `onDisconnected` events will trigger when a gamepad is connected or disconnected.
 
 ```tsx
-import { useGamepad } from '@reaxuse/core'
+import { useGamepad } from '@reause/core'
 
 const [gamepads, , { onConnected, onDisconnected }] = useGamepad()
 
@@ -58,7 +58,7 @@ onDisconnected((index) => {
 > The Gamepad Haptics API is sparse, so check the [compatibility table](https://developer.mozilla.org/en-US/docs/Web/API/GamepadHapticActuator#browser_compatibility) before using.
 
 ```tsx
-import { useGamepad } from '@reaxuse/core'
+import { useGamepad } from '@reause/core'
 
 const [gamepads] = useGamepad()
 const gamepad = gamepads[0]!
@@ -84,7 +84,7 @@ To make the Gamepad API easier to use, we provide mappings to map a controller t
 #### Xbox360 Controller
 
 ```tsx
-import { mapGamepadToXbox360Controller } from '@reaxuse/core'
+import { mapGamepadToXbox360Controller } from '@reause/core'
 
 const [gamepads] = useGamepad()
 const gamepad = gamepads[0]

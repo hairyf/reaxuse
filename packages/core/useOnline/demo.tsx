@@ -1,4 +1,4 @@
-import { useOnline } from '@reaxuse/core'
+import { useOnline } from '@reause/core'
 
 export default function UseOnlineDemo() {
   const online = useOnline()

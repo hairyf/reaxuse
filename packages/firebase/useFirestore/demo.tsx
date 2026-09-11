@@ -1,7 +1,7 @@
 // Worktree note: this demo imports the implementation relatively because the
-// worktree's `@reaxuse/firebase` junction resolves to the main checkout, where
+// worktree's `@reause/firebase` junction resolves to the main checkout, where
 // `useFirestore` does not exist yet. Published docs import from
-// `@reaxuse/firebase`.
+// `@reause/firebase`.
 import type { Query } from 'firebase/firestore'
 import { useState } from 'react'
 import { useFirestore } from '../useFirestore'

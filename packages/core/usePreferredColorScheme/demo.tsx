@@ -1,4 +1,4 @@
-import { usePreferredColorScheme } from '@reaxuse/core'
+import { usePreferredColorScheme } from '@reause/core'
 
 export default function UsePreferredColorSchemeDemo() {
   const colorScheme = usePreferredColorScheme()

@@ -9,7 +9,7 @@ Shorthand for watching a value with `{ deep: true }` — invokes the callback on
 ## Usage
 
 ```tsx
-import { useWatchDeep } from '@reaxuse/shared'
+import { useWatchDeep } from '@reause/shared'
 import { useState } from 'react'
 
 const [obj, setObj] = useState({ foo: { bar: { deep: 5 } } })
@@ -33,11 +33,11 @@ useWatchDeep([count, obj], (value, oldValue) => {
 
 ## Helpers
 
-`deepEqual` and `deepClone` are exported from `@reaxuse/shared` and also used
+`deepEqual` and `deepClone` are exported from `@reause/shared` and also used
 by core hooks that need deep change detection (e.g. `useCloned`):
 
 ```tsx
-import { deepClone, deepEqual } from '@reaxuse/shared'
+import { deepClone, deepEqual } from '@reause/shared'
 
 deepEqual({ foo: 1 }, { foo: 1 }) // true
 deepEqual(deepClone({ foo: { bar: 1 } }), { foo: { bar: 1 } }) // true

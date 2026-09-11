@@ -1,4 +1,4 @@
-import { useWatchArray } from '@reaxuse/shared'
+import { useWatchArray } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseWatchArrayDemo() {

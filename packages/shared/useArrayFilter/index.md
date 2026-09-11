@@ -11,7 +11,7 @@ Reactive `Array.filter`
 ### Use with array of multiple refs
 
 ```tsx
-import { useArrayFilter } from '@reaxuse/shared'
+import { useArrayFilter } from '@reause/shared'
 import { useState } from 'react'
 
 const [item1, setItem1] = useState(0)
@@ -30,7 +30,7 @@ setItem2(1)
 ### Use with reactive array
 
 ```tsx
-import { useArrayFilter } from '@reaxuse/shared'
+import { useArrayFilter } from '@reause/shared'
 import { useState } from 'react'
 
 const [list, setList] = useState([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])

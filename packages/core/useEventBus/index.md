@@ -9,7 +9,7 @@ A basic event bus
 ## Usage
 
 ```tsx
-import { useEventBus } from '@reaxuse/core'
+import { useEventBus } from '@reause/core'
 
 const bus = useEventBus<string>('news')
 
@@ -35,7 +35,7 @@ bus.reset()
 React has no scope disposal, so `on` / `once` return an unsubscribe function; when a component owns a subscription, unsubscribe from a `useEffect` cleanup:
 
 ```tsx
-import { useEventBus } from '@reaxuse/core'
+import { useEventBus } from '@reause/core'
 import { useEffect } from 'react'
 
 function NewsTicker() {
@@ -53,13 +53,13 @@ Using `EventBusKey` is the key to bind the event type to the key, similar to ups
 
 ```ts
 // fooKey.ts
-import type { EventBusKey } from '@reaxuse/core'
+import type { EventBusKey } from '@reause/core'
 
 export const fooKey: EventBusKey<{ name: 'foo' }> = Symbol('symbol-key')
 ```
 
 ```tsx
-import { useEventBus } from '@reaxuse/core'
+import { useEventBus } from '@reause/core'
 
 import { fooKey } from './fooKey'
 

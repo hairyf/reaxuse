@@ -1,5 +1,5 @@
 /**
- * @reaxuse/electron — React port of @vueuse/electron
+ * @reause/electron — React port of @vueuse/electron
  *
  * Electron renderer process modules. `electron` stays an optional peer
  * dependency — keep it external to the bundle.

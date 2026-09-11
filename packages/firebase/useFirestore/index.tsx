@@ -1,5 +1,5 @@
 import type { DocumentData, DocumentReference, DocumentSnapshot, Query, QueryDocumentSnapshot, Unsubscribe } from 'firebase/firestore'
-import { isDef } from '@reaxuse/shared'
+import { isDef } from '@reause/shared'
 import { useEffect, useRef, useState } from 'react'
 
 export interface UseFirestoreOptions {

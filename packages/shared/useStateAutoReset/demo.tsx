@@ -1,4 +1,4 @@
-import { useStateAutoReset } from '@reaxuse/shared'
+import { useStateAutoReset } from '@reause/shared'
 
 export default function UseStateAutoResetDemo() {
   const [message, setMessage] = useStateAutoReset('Default message', 1000)

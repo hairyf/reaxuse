@@ -9,7 +9,7 @@ Tracks whether the user is being inactive
 ## Usage
 
 ```tsx
-import { useIdle } from '@reaxuse/core'
+import { useIdle } from '@reause/core'
 
 const { idle, lastActive, reset } = useIdle(5 * 60 * 1000) // 5 min
 

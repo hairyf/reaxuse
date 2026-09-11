@@ -9,7 +9,7 @@ Reactive offset pagination
 ## Usage
 
 ```tsx
-import { useOffsetPagination } from '@reaxuse/core'
+import { useOffsetPagination } from '@reause/core'
 
 function fetchData({ currentPage, currentPageSize }: { currentPage: number, currentPageSize: number }) {
   fetch(currentPage, currentPageSize).then((responseData) => {

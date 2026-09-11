@@ -1,5 +1,5 @@
-import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
-import { isClient, toValue } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reause/shared'
+import { isClient, toValue } from '@reause/shared'
 import { useEffect, useRef, useState } from 'react'
 import { useScreenOrientation } from '../useScreenOrientation'
 

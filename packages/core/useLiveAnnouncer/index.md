@@ -9,7 +9,7 @@ Accessible way to announce messages to screen reader users (ARIA live regions)
 ## Usage
 
 ```tsx
-import { useLiveAnnouncer } from '@reaxuse/core'
+import { useLiveAnnouncer } from '@reause/core'
 
 function ScreenReaderNotifications() {
   const { announce, polite, assertive } = useLiveAnnouncer()

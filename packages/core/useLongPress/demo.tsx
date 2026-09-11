@@ -1,4 +1,4 @@
-import { useLongPress } from '@reaxuse/core'
+import { useLongPress } from '@reause/core'
 import { useRef, useState } from 'react'
 
 export default function UseLongPressDemo() {

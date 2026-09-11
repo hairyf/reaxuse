@@ -9,7 +9,7 @@ Shorthand for binding refs to elements rendered inside a list
 ## Usage
 
 ```tsx
-import { useRefsList } from '@reaxuse/core'
+import { useRefsList } from '@reause/core'
 
 function List({ items }: { items: string[] }) {
   const refs = useRefsList<HTMLLIElement>()

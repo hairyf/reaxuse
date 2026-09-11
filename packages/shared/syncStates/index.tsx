@@ -34,7 +34,7 @@ export interface SyncStatesOptions {
 
 // sentinel marking "no value observed yet" — the first effect run performs the
 // initial sync, mirroring upstream's default `immediate: true`
-const neverObserved = Symbol('reaxuse.syncStates.neverObserved')
+const neverObserved = Symbol('reause.syncStates.neverObserved')
 
 /**
  * Keep target state(s) in sync with a source value — React port of VueUse's
@@ -57,7 +57,7 @@ const neverObserved = Symbol('reaxuse.syncStates.neverObserved')
  * all targets. Because the observation happens post-commit, the caller must
  * re-render (e.g. `setState`) for a new source value to reach the targets —
  * a bare mutation outside of React is never observed (see the maintainer
- * notes on reaxuse #40 / #41). The returned `stop` function tears the
+ * notes on reause #40 / #41). The returned `stop` function tears the
  * synchronization down; the effect also stops doing any work once the owning
  * component unmounts.
  *

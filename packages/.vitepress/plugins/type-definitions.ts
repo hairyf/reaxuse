@@ -11,7 +11,7 @@ import ts from 'typescript'
  * hook's source module (`packages/<pkg>/<Fn>/index.tsx`) is walked and every public
  * declaration (function signatures, interfaces, type aliases, enums, exported
  * consts) is printed as a clean `export` block. Types surfacing in those
- * signatures that are imported from other reaxuse modules — or local non-exported
+ * signatures that are imported from other reause modules — or local non-exported
  * helper aliases — are resolved and inlined, mirroring what a bundled `.d.ts`
  * would contain (and what the hand-written sections used to show).
  *
@@ -255,7 +255,7 @@ export function getTypeDefinitions(srcFile: string, depth = 0): string {
   }
 
   // Inline dependent types referenced by the declarations above: local helpers
-  // first, then types imported from other reaxuse modules.
+  // first, then types imported from other reause modules.
   const definedHere = new Set<string>()
   for (const chunk of chunks) {
     for (const m of chunk.matchAll(/^export\s+(?:declare\s+)?(?:type\s+|interface\s+|enum\s+|class\s+|function\s+|const\s+)?([A-Za-z_$][\w$]*)\b/gm))

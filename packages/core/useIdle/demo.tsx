@@ -1,4 +1,4 @@
-import { useIdle, useNow } from '@reaxuse/core'
+import { useIdle, useNow } from '@reause/core'
 
 function BooleanDisplay({ value }: { value: boolean }) {
   return (

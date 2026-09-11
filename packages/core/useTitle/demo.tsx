@@ -1,4 +1,4 @@
-import { useTitle } from '@reaxuse/core'
+import { useTitle } from '@reause/core'
 
 export default function UseTitleDemo() {
   const [title, setTitle] = useTitle(null)

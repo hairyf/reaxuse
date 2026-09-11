@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { until } from '../until'
 
 // type-level helpers (upstream imports these from @type-challenges/utils,
-// which reaxuse does not depend on)
+// which reause does not depend on)
 type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2) ? true : false
 type Expect<T extends true> = T
 

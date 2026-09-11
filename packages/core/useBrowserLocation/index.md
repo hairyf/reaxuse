@@ -9,7 +9,7 @@ Reactive browser location
 ## Usage
 
 ```tsx
-import { useBrowserLocation } from '@reaxuse/core'
+import { useBrowserLocation } from '@reause/core'
 
 const location = useBrowserLocation()
 

@@ -1,4 +1,4 @@
-import { useRafFn } from '@reaxuse/core'
+import { useRafFn } from '@reause/core'
 import { useState } from 'react'
 
 export default function UseRafFnDemo() {

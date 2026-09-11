@@ -9,7 +9,7 @@ Fires when the element or any element containing it is removed from the DOM.
 ## Usage
 
 ```tsx
-import { useElementRemoval } from '@reaxuse/core'
+import { useElementRemoval } from '@reause/core'
 import { useRef, useState } from 'react'
 
 const btnRef = useRef<HTMLButtonElement | null>(null)
@@ -32,7 +32,7 @@ useElementRemoval(btnRef, () => setRemovedCount(count => count + 1))
 The callback receives an array of `MutationRecord` objects that triggered the removal.
 
 ```ts
-import { useElementRemoval } from '@reaxuse/core'
+import { useElementRemoval } from '@reause/core'
 
 useElementRemoval(targetRef, (mutationRecords) => {
   console.log('Element removed', mutationRecords)

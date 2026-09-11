@@ -9,7 +9,7 @@ Derived value for async functions
 ## Usage
 
 ```tsx
-import { useAsync } from '@reaxuse/core'
+import { useAsync } from '@reause/core'
 import { useState } from 'react'
 
 const [name, setName] = useState('jack')
@@ -28,7 +28,7 @@ const userInfo = useAsync(
 Use the `onEvaluating` callback to track if the async function is currently evaluating.
 
 ```tsx
-import { useAsync } from '@reaxuse/core'
+import { useAsync } from '@reause/core'
 import { useState } from 'react'
 
 const [evaluating, setEvaluating] = useState(false)
@@ -45,10 +45,10 @@ const userInfo = useAsync(
 When the derived value's dependencies change before the previous async function resolves, you may want to cancel the previous one. Here is an example showing how to incorporate with the fetch API.
 
 ```tsx
-import { useAsync } from '@reaxuse/core'
+import { useAsync } from '@reause/core'
 import { useState } from 'react'
 
-const [packageName, setPackageName] = useState('@reaxuse/core')
+const [packageName, setPackageName] = useState('@reause/core')
 
 const downloads = useAsync(async (onCancel) => {
   const abortController = new AbortController()
@@ -69,7 +69,7 @@ const downloads = useAsync(async (onCancel) => {
 By default, `useAsync` will start resolving immediately on creation. Specify `skipInitial: true` to skip the initial evaluation and start resolving only when `deps` change.
 
 ```tsx
-import { useAsync } from '@reaxuse/core'
+import { useAsync } from '@reause/core'
 import { useState } from 'react'
 
 const [evaluating, setEvaluating] = useState(false)
@@ -86,7 +86,7 @@ const userInfo = useAsync(
 Use the `onError` callback to handle errors from the async function.
 
 ```tsx
-import { useAsync } from '@reaxuse/core'
+import { useAsync } from '@reause/core'
 import { useState } from 'react'
 
 const [name, setName] = useState('jack')

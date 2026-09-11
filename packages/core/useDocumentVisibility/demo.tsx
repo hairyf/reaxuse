@@ -1,5 +1,5 @@
-import { useDocumentVisibility } from '@reaxuse/core'
-import { useTimeoutFn } from '@reaxuse/shared'
+import { useDocumentVisibility } from '@reause/core'
+import { useTimeoutFn } from '@reause/shared'
 import { useEffect, useRef, useState } from 'react'
 
 export default function UseDocumentVisibilityDemo() {

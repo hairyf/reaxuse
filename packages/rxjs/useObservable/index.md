@@ -15,7 +15,7 @@ npm i rxjs
 ## Usage
 
 ```tsx
-import { useObservable } from '@reaxuse/rxjs'
+import { useObservable } from '@reause/rxjs'
 import { interval } from 'rxjs'
 import { mapTo, scan, startWith } from 'rxjs/operators'
 
@@ -47,7 +47,7 @@ The state is also writable from React code through the returned setter — the n
 You can provide an initial value that will be used before the Observable emits its first value:
 
 ```tsx
-import { useObservable } from '@reaxuse/rxjs'
+import { useObservable } from '@reause/rxjs'
 import { interval } from 'rxjs'
 
 const [count, setCount] = useObservable(
@@ -62,7 +62,7 @@ const [count, setCount] = useObservable(
 If you want to add custom error handling to an `Observable` that might error, you can supply an optional `onError` configuration. Without this, RxJS will treat any error in the supplied `Observable` as an "unhandled error" and it will be thrown in a new call stack and reported to `window.onerror` (or `process.on('error')` if you happen to be in Node).
 
 ```tsx
-import { useObservable } from '@reaxuse/rxjs'
+import { useObservable } from '@reause/rxjs'
 import { interval } from 'rxjs'
 import { map } from 'rxjs/operators'
 

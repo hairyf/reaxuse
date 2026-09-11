@@ -1,4 +1,4 @@
-import { useMin } from '@reaxuse/math'
+import { useMin } from '@reause/math'
 import { useState } from 'react'
 
 export default function UseMinDemo() {

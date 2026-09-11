@@ -1,4 +1,4 @@
-import { useArrayMap } from '@reaxuse/shared'
+import { useArrayMap } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseArrayMapDemo() {

@@ -1,4 +1,4 @@
-import { useMutationObserver } from '@reaxuse/core'
+import { useMutationObserver } from '@reause/core'
 import { useEffect, useRef, useState } from 'react'
 
 export default function UseMutationObserverDemo() {

@@ -9,7 +9,7 @@ Reactive [Fullscreen API](https://developer.mozilla.org/en-US/docs/Web/API/Fulls
 ## Usage
 
 ```tsx
-import { useFullscreen } from '@reaxuse/core'
+import { useFullscreen } from '@reause/core'
 
 const { isFullscreen, enter, exit, toggle } = useFullscreen()
 ```
@@ -17,7 +17,7 @@ const { isFullscreen, enter, exit, toggle } = useFullscreen()
 Fullscreen specified element. Some platforms (like iOS's Safari) only allow fullscreen on video elements.
 
 ```tsx
-import { useFullscreen } from '@reaxuse/core'
+import { useFullscreen } from '@reause/core'
 import { useRef } from 'react'
 
 const el = useRef<HTMLVideoElement>(null)

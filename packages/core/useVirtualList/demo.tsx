@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { useVirtualList } from '@reaxuse/core'
+import { useVirtualList } from '@reause/core'
 import { useMemo, useState } from 'react'
 
 const allItems = Array.from(Array.from({ length: 99999 }).keys())

@@ -1,4 +1,4 @@
-import { useDropZone } from '@reaxuse/core'
+import { useDropZone } from '@reause/core'
 import { useState } from 'react'
 
 interface FileData {

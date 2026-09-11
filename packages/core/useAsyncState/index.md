@@ -9,7 +9,7 @@ Reactive async state. It will not block your component and triggers changes once
 ## Usage
 
 ```tsx
-import { useAsyncState } from '@reaxuse/core'
+import { useAsyncState } from '@reause/core'
 
 const initialState = { value: { id: null } }
 const { state, isReady, isLoading, error, execute } = useAsyncState(
@@ -44,7 +44,7 @@ const { state, isReady } = await useAsyncState(fetchData, null)
 Set `immediate: false` to prevent automatic execution on mount.
 
 ```tsx
-import { useAsyncState } from '@reaxuse/core'
+import { useAsyncState } from '@reause/core'
 
 const { state, execute, executeImmediate } = useAsyncState(action, '', { immediate: false })
 

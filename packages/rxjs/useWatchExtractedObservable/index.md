@@ -12,7 +12,7 @@ Automatically unsubscribe on observable change, and automatically unsubscribe fr
 
 ```tsx
 import type { Observable } from 'rxjs'
-import { useWatchExtractedObservable } from '@reaxuse/rxjs'
+import { useWatchExtractedObservable } from '@reause/rxjs'
 import { useState } from 'react'
 import { Subject } from 'rxjs'
 

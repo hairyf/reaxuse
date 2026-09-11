@@ -1,4 +1,4 @@
-import { useTimestamp } from '@reaxuse/core'
+import { useTimestamp } from '@reause/core'
 
 export default function UseTimestampDemo() {
   const timestamp = useTimestamp()

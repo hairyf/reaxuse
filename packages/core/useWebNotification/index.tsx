@@ -1,4 +1,4 @@
-import type { ConfigurableWindow } from '@reaxuse/shared'
+import type { ConfigurableWindow } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -128,7 +128,7 @@ export interface UseWebNotificationOptions extends ConfigurableWindow, WebNotifi
  *   onShow,
  *   onError,
  *   onClose,
- * } = useWebNotification({ title: 'Hello, reaxuse world!', tag: 'test' })
+ * } = useWebNotification({ title: 'Hello, reause world!', tag: 'test' })
  *
  * onClick((event) => {
  *   // Do something with the notification on:click event...

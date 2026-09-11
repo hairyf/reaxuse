@@ -13,7 +13,7 @@ Inject reactive `style` element in head.
 Provide a CSS string, then `useStyleTag` will automatically generate an id and inject it in `<head>`.
 
 ```tsx
-import { useStyleTag } from '@reaxuse/core'
+import { useStyleTag } from '@reause/core'
 
 const [css, setCss, { id, load, unload, isLoaded }] = useStyleTag('.foo { margin-top: 32px; }')
 
@@ -24,7 +24,7 @@ setCss('.foo { margin-top: 64px; }')
 This code will be injected to `<head>`:
 
 ```html
-<style id="reaxuse_styletag_1">
+<style id="reause_styletag_1">
   .foo {
     margin-top: 64px;
   }
@@ -36,7 +36,7 @@ This code will be injected to `<head>`:
 If you need to define your own id, you can pass `id` as first argument.
 
 ```tsx
-import { useStyleTag } from '@reaxuse/core'
+import { useStyleTag } from '@reause/core'
 // ---cut---
 useStyleTag('.foo { margin-top: 32px; }', { id: 'custom-id' })
 ```
@@ -55,14 +55,14 @@ useStyleTag('.foo { margin-top: 32px; }', { id: 'custom-id' })
 You can pass media attributes as last argument within object.
 
 ```tsx
-import { useStyleTag } from '@reaxuse/core'
+import { useStyleTag } from '@reause/core'
 // ---cut---
 useStyleTag('.foo { margin-top: 32px; }', { media: 'print' })
 ```
 
 ```html
 <!-- injected to <head> -->
-<style id="reaxuse_styletag_1" media="print">
+<style id="reause_styletag_1" media="print">
   .foo {
     margin-top: 32px;
   }

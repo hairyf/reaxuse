@@ -1,4 +1,4 @@
-import { noop, promiseTimeout } from '@reaxuse/shared'
+import { noop, promiseTimeout } from '@reause/shared'
 import { describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useAsyncState } from '../useAsyncState'

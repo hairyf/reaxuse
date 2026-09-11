@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug in reaxuse
+description: Report a bug in reause
 labels: [bug]
 body:
   - type: markdown
@@ -26,6 +26,6 @@ body:
     id: system-info
     attributes:
       label: System Info
-      description: reaxuse version, React version, Node version, OS.
+      description: reause version, React version, Node version, OS.
     validations:
       required: true

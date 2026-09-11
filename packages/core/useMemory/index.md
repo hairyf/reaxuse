@@ -9,7 +9,7 @@ Reactive Memory Info
 ## Usage
 
 ```tsx
-import { useMemory } from '@reaxuse/core'
+import { useMemory } from '@reause/core'
 
 const { isSupported, memory } = useMemory()
 ```

@@ -1,4 +1,4 @@
-import { useClipboard, usePermission } from '@reaxuse/core'
+import { useClipboard, usePermission } from '@reause/core'
 import { useState } from 'react'
 
 export default function UseClipboardDemo() {

@@ -1,5 +1,5 @@
 import type { RefObject } from 'react'
-import { noop } from '@reaxuse/shared'
+import { noop } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export type UseConfirmDialogRevealResult<C, D>

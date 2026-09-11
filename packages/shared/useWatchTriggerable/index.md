@@ -11,7 +11,7 @@ Watch that can be triggered manually
 A `watch` wrapper that supports manual triggering of `WatchCallback`, which returns an additional `trigger` to execute a `WatchCallback` immediately.
 
 ```tsx
-import { useWatchTriggerable } from '@reaxuse/shared'
+import { useWatchTriggerable } from '@reause/shared'
 import { useState } from 'react'
 
 const [source, setSource] = useState(0)
@@ -34,7 +34,7 @@ When you want to manually call a `watch` that uses the onCleanup parameter; simp
 Using `useWatchTriggerable` will solve this problem.
 
 ```tsx
-import { useWatchTriggerable } from '@reaxuse/shared'
+import { useWatchTriggerable } from '@reause/shared'
 import { useState } from 'react'
 
 const [source, setSource] = useState(0)

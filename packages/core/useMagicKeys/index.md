@@ -9,7 +9,7 @@ Reactive keys pressed state, with magical keys combination support
 ## Usage
 
 ```tsx
-import { useMagicKeys } from '@reaxuse/core'
+import { useMagicKeys } from '@reause/core'
 import { useEffect } from 'react'
 
 const { shift, space, a /* keys you want to monitor */ } = useMagicKeys()
@@ -52,7 +52,7 @@ Check out [all the possible keycodes](https://developer.mozilla.org/en-US/docs/W
 You can magically use combinations (shortcuts/hotkeys) by connecting keys with `+` or `_`.
 
 ```tsx
-import { useMagicKeys } from '@reaxuse/core'
+import { useMagicKeys } from '@reause/core'
 
 const keys = useMagicKeys()
 const shiftCtrlA = keys['Shift+Ctrl+A']
@@ -64,7 +64,7 @@ useEffect(() => {
 ```
 
 ```tsx
-import { useMagicKeys } from '@reaxuse/core'
+import { useMagicKeys } from '@reause/core'
 
 const { Ctrl_A_B, space, alt_s /* ... */ } = useMagicKeys()
 
@@ -77,8 +77,8 @@ useEffect(() => {
 You can also use `useWhenever` function to make it shorter
 
 ```tsx
-import { useMagicKeys } from '@reaxuse/core'
-import { useWhenever } from '@reaxuse/shared'
+import { useMagicKeys } from '@reause/core'
+import { useWhenever } from '@reause/shared'
 
 const keys = useMagicKeys()
 
@@ -92,7 +92,7 @@ useWhenever(keys.shift_space, () => {
 A special property `current` is provided to representing all the keys been pressed currently.
 
 ```tsx
-import { useMagicKeys } from '@reaxuse/core'
+import { useMagicKeys } from '@reause/core'
 
 const { current } = useMagicKeys()
 
@@ -107,7 +107,7 @@ useWhenever(
 ### Key Aliasing
 
 ```tsx
-import { useMagicKeys } from '@reaxuse/core'
+import { useMagicKeys } from '@reause/core'
 
 const { shift_cool } = useMagicKeys({
   aliasMap: {
@@ -128,7 +128,7 @@ By default, we have some [preconfigured alias for common practices](https://gith
 You might have some `<input />` elements in your apps, and you don't want to trigger the magic keys handling when users focused on those inputs. There is an example of using `useActiveElement` to do that.
 
 ```tsx
-import { useActiveElement, useMagicKeys } from '@reaxuse/core'
+import { useActiveElement, useMagicKeys } from '@reause/core'
 import { useEffect } from 'react'
 
 const activeElement = useActiveElement()
@@ -146,7 +146,7 @@ useEffect(() => {
 ### Custom Event Handler
 
 ```tsx
-import { useMagicKeys } from '@reaxuse/core'
+import { useMagicKeys } from '@reause/core'
 
 const { ctrl_s } = useMagicKeys({
   passive: false,
@@ -164,7 +164,7 @@ const { ctrl_s } = useMagicKeys({
 React state is always "reactive" — the `reactive: true` option is accepted for API compatibility but has no effect, values are plain booleans either way.
 
 ```tsx
-import { useMagicKeys } from '@reaxuse/core'
+import { useMagicKeys } from '@reause/core'
 
 const keys = useMagicKeys({ reactive: true })
 ```

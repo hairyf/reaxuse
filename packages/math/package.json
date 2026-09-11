@@ -1,5 +1,5 @@
 {
-  "name": "@reaxuse/math",
+  "name": "@reause/math",
   "type": "module",
   "version": "0.1.2",
   "description": "Math functions — React port of @vueuse/math (experimental, AI-mapped)",
@@ -26,6 +26,6 @@
     "react": ">=18"
   },
   "dependencies": {
-    "@reaxuse/shared": "workspace:*"
+    "@reause/shared": "workspace:*"
   }
 }

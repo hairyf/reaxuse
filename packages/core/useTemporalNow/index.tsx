@@ -97,7 +97,7 @@ export interface UseTemporalNowOptions {
    * Custom scheduler driving the `now` updates. Called during render, so it
    * must follow the Rules of Hooks (pass it consistently across renders) —
    * e.g. `scheduler: cb => useIntervalFn(cb, 500, { immediate: false })` with
-   * `useIntervalFn` from `@reaxuse/shared`.
+   * `useIntervalFn` from `@reause/shared`.
    *
    * @default requestAnimationFrame loop, started immediately
    */
@@ -204,7 +204,7 @@ function resolveTemporal(custom?: TemporalImplementation): TemporalImplementatio
 
 function assertTemporal(impl: TemporalImplementation | undefined): TemporalImplementation {
   if (!impl)
-    throw new Error('[Reaxuse] No `Temporal` implementation found. Provide a global `Temporal` (native or polyfill) or pass the `temporal` option.')
+    throw new Error('[reause] No `Temporal` implementation found. Provide a global `Temporal` (native or polyfill) or pass the `temporal` option.')
   return impl
 }
 

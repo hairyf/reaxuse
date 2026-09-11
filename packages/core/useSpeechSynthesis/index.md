@@ -9,7 +9,7 @@ Reactive [SpeechSynthesis](https://developer.mozilla.org/en-US/docs/Web/API/Spee
 ## Usage
 
 ```tsx
-import { useSpeechSynthesis } from '@reaxuse/core'
+import { useSpeechSynthesis } from '@reause/core'
 
 const {
   isSupported,
@@ -29,7 +29,7 @@ const {
 The following shows the default values of the options, they will be directly passed to [SpeechSynthesis API](https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis).
 
 ```ts
-import { useSpeechSynthesis } from '@reaxuse/core'
+import { useSpeechSynthesis } from '@reause/core'
 
 useSpeechSynthesis('Hello world', {
   lang: 'en-US',

@@ -1,4 +1,4 @@
-import { useToString } from '@reaxuse/shared'
+import { useToString } from '@reause/shared'
 
 const numberValue = useToString(123.345)
 const stringValue = useToString('hi')

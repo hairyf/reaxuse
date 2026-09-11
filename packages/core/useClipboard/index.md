@@ -9,7 +9,7 @@ Reactive [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipbo
 ## Usage
 
 ```tsx
-import { useClipboard } from '@reaxuse/core'
+import { useClipboard } from '@reause/core'
 
 const { text, copy, copied, isSupported } = useClipboard({ source: 'Hello' })
 

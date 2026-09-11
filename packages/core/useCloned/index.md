@@ -9,7 +9,7 @@ Reactive clone of a value. By default, it use `JSON.parse(JSON.stringify())` to 
 ## Usage
 
 ```tsx
-import { useCloned } from '@reaxuse/core'
+import { useCloned } from '@reause/core'
 
 const original = { key: 'value' }
 
@@ -35,7 +35,7 @@ immediately.
 the values on the render that follows the change:
 
 ```tsx
-import { useCloned } from '@reaxuse/core'
+import { useCloned } from '@reause/core'
 
 const [cloned] = useCloned(plainValue) // plain value
 const [cloned] = useCloned(() => value) // getter
@@ -71,7 +71,7 @@ Mutating `cloned` in place is still detected on the next render as a legacy fall
 source (set `deep: false` to only re-sync when the source reference is replaced).
 
 ```tsx
-import { useCloned } from '@reaxuse/core'
+import { useCloned } from '@reause/core'
 
 const original = { current: { key: 'value' } }
 
@@ -90,7 +90,7 @@ console.log(cloned) // { key: 'replaced' }
 ## Manual cloning
 
 ```tsx
-import { useCloned } from '@reaxuse/core'
+import { useCloned } from '@reause/core'
 
 const original = { current: { key: 'value' } }
 
@@ -110,7 +110,7 @@ console.log(cloned.key) // 'manual'
 Using [`klona`](https://www.npmjs.com/package/klona) for example:
 
 ```tsx
-import { useCloned } from '@reaxuse/core'
+import { useCloned } from '@reause/core'
 import { klona } from 'klona'
 
 const original = { key: 'value' }

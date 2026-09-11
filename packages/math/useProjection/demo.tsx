@@ -1,4 +1,4 @@
-import { useProjection } from '@reaxuse/math'
+import { useProjection } from '@reause/math'
 import { useState } from 'react'
 
 const from = [0, 10] as const

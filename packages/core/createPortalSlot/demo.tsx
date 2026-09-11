@@ -1,4 +1,4 @@
-import { createPortalSlot } from '@reaxuse/core'
+import { createPortalSlot } from '@reause/core'
 
 const [PortalSlot, SlotTarget] = createPortalSlot<{ title: string }>()
 

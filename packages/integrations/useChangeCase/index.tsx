@@ -1,7 +1,7 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
 import type { Options } from 'change-case'
 import type { Dispatch, SetStateAction } from 'react'
-import { toValue } from '@reaxuse/shared'
+import { toValue } from '@reause/shared'
 import * as changeCase from 'change-case'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
@@ -49,7 +49,7 @@ const changeCaseTransforms = /* @__PURE__ */ Object.entries(changeCase)
  * `input` is the hook's **read-only value source** and takes a plain `string`
  * (upstream: `MaybeRef<string>` / `MaybeRefOrGetter<string>`); `type` and
  * `options` stay `RefOrValue` (format knobs, upstream `MaybeRefOrGetter`) and
- * are resolved with `toValue` from `@reaxuse/shared`.
+ * are resolved with `toValue` from `@reause/shared`.
  *
  * Adjustment for React:
  * - upstream's writable computed captures a plain `input` once at setup. Here

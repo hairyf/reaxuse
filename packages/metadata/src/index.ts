@@ -1,5 +1,5 @@
 /**
- * @reaxuse/metadata — React port of @vueuse/metadata
+ * @reause/metadata — React port of @vueuse/metadata
  *
  * Exposes the package manifests and the function registry that drive
  * the docs site, the mapping progress table (meta/functions.md) and

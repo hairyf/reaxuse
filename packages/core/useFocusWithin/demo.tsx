@@ -1,4 +1,4 @@
-import { useFocusWithin } from '@reaxuse/core'
+import { useFocusWithin } from '@reause/core'
 import { useRef } from 'react'
 
 function BooleanDisplay({ value }: { value: boolean }) {

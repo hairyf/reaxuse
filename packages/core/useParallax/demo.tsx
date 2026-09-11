@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { useParallax } from '@reaxuse/core'
+import { useParallax } from '@reause/core'
 import { useRef } from 'react'
 
 export default function UseParallaxDemo() {

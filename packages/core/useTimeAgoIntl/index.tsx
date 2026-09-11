@@ -1,4 +1,4 @@
-import { useIntervalFn } from '@reaxuse/shared'
+import { useIntervalFn } from '@reause/shared'
 import { useNow } from '../useNow'
 
 export interface TimeAgoUnit {

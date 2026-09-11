@@ -9,7 +9,7 @@ Reactive utility to track if an element or one of its descendants has focus. It 
 ## Basic Usage
 
 ```tsx
-import { useFocusWithin } from '@reaxuse/core'
+import { useFocusWithin } from '@reause/core'
 import { useRef } from 'react'
 
 const target = useRef<HTMLFormElement>(null)

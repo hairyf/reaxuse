@@ -1,4 +1,4 @@
-import { logicOr } from '@reaxuse/math'
+import { logicOr } from '@reause/math'
 import { useState } from 'react'
 
 export default function LogicOrDemo() {

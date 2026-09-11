@@ -63,7 +63,7 @@ export function isTypedCharValid({
  *
  * The upstream `ConfigurableDocument` is inlined as `document` here (see
  * `useActiveElement` / `useScriptTag` — `ConfigurableDocument` is not ported
- * to `@reaxuse/shared`).
+ * to `@reause/shared`).
  */
 export interface UseStartTypingOptions {
   /**

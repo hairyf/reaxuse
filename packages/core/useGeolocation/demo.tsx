@@ -1,4 +1,4 @@
-import { useGeolocation } from '@reaxuse/core'
+import { useGeolocation } from '@reause/core'
 
 export default function UseGeolocationDemo() {
   const { coords, locatedAt, error, resume, pause } = useGeolocation()

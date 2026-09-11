@@ -1,4 +1,4 @@
-import { useEventBus } from '@reaxuse/core'
+import { useEventBus } from '@reause/core'
 import { useEffect, useState } from 'react'
 
 const news = [

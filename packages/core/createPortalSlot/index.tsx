@@ -1,5 +1,5 @@
 import type { ComponentType, ReactNode } from 'react'
-import { makeDestructurable, objectPick } from '@reaxuse/shared'
+import { makeDestructurable, objectPick } from '@reause/shared'
 
 type ObjectLiteralWithPotentialObjectLiterals = Record<string, Record<string, any> | undefined>
 
@@ -148,7 +148,7 @@ export function createPortalSlot<
     if (!template.current) {
       // eslint-disable-next-line node/prefer-global/process -- browser package, no `require()` available; `typeof` keeps the reference safe in bundles that do not replace NODE_ENV
       if (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production')
-        throw new Error('[reaxuse] Failed to find the definition of the portal slot')
+        throw new Error('[reause] Failed to find the definition of the portal slot')
       return null
     }
 
@@ -172,7 +172,7 @@ export function createPortalSlot<
 
 /**
  * `my-msg` → `myMsg`. Upstream camelizes attrs with `camelize` from
- * `@vueuse/shared`; `camelize` is deliberately unported in `@reaxuse/shared`
+ * `@vueuse/shared`; `camelize` is deliberately unported in `@reause/shared`
  * (only `hyphenate` exists there — see `packages/shared/utils/index.tsx`,
  * "port.ts (hyphenate only)"), so the helper is inlined here.
  */

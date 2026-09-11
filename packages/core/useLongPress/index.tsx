@@ -1,5 +1,5 @@
-import type { RefOrValue } from '@reaxuse/shared'
-import { toValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
+import { toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef } from 'react'
 import { useEventListener } from '../useEventListener'
 

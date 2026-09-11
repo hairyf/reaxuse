@@ -9,7 +9,7 @@ Reactive `Math.floor`
 ## Usage
 
 ```tsx
-import { useFloor } from '@reaxuse/math'
+import { useFloor } from '@reause/math'
 
 const result = useFloor(45.95) // 45
 ```
@@ -18,7 +18,7 @@ const result = useFloor(45.95) // 45
 new value — e.g. from `useState` — and the hook recomputes:
 
 ```tsx
-import { useFloor } from '@reaxuse/math'
+import { useFloor } from '@reause/math'
 import { useState } from 'react'
 
 const [value, setValue] = useState(45.95)

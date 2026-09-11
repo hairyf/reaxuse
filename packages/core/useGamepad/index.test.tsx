@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react'
-import { useListener } from '@reaxuse/shared'
+import { useListener } from '@reause/shared'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { mapGamepadToXbox360Controller, useGamepad } from '../useGamepad'

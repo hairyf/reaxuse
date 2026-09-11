@@ -1,4 +1,4 @@
-import { noop, promiseTimeout } from '@reaxuse/shared'
+import { noop, promiseTimeout } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface UseImageOptions {

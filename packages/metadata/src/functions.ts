@@ -2502,7 +2502,7 @@ export const pages: FunctionPageInfo[] = [
     pkg: 'electron',
     doc: 'packages/electron/_resolve/index.md',
     category: '@Electron',
-    description: 'internal helpers shared by the `@reaxuse/electron` hooks',
+    description: 'internal helpers shared by the `@reause/electron` hooks',
     internal: true,
     lastUpdated: 1788942682000,
   },
@@ -3463,7 +3463,7 @@ export const pages: FunctionPageInfo[] = [
     pkg: 'shared',
     doc: 'packages/shared/useListener/index.md',
     category: 'State',
-    description: 'bind a callback to a listener registration function returned by a reaxuse hook',
+    description: 'bind a callback to a listener registration function returned by a reause hook',
     lastUpdated: 1789001818000,
   },
   {

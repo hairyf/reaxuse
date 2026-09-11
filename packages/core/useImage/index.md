@@ -9,7 +9,7 @@ Reactive load an image in the browser
 ## Usage
 
 ```tsx
-import { useImage } from '@reaxuse/core'
+import { useImage } from '@reause/core'
 
 const avatarUrl = 'https://place.dog/300/200'
 const { isLoading } = useImage({ src: avatarUrl })

@@ -91,7 +91,7 @@ function supportsVibration(nav: Navigator | undefined): nav is Navigator {
  *   no `navigator` access before mount;
  * - upstream's `scheduler` option (a `useIntervalFn` factory returning a
  *   `Pausable`) is ported inline as the upstream `interval` option, driven by
- *   a self-contained `useEffect` + `setInterval` (reaxuse core has no
+ *   a self-contained `useEffect` + `setInterval` (reause core has no
  *   `useIntervalFn` yet): the loop is inert until `intervalControls.resume()`
  *   is called — a bare `vibrate()` is one-shot like upstream — re-triggers
  *   the pattern every `interval` ms, and is cancelled by

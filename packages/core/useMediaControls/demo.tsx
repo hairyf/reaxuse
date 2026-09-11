@@ -1,4 +1,4 @@
-import { useMediaControls } from '@reaxuse/core'
+import { useMediaControls } from '@reause/core'
 import { useEffect, useRef, useState } from 'react'
 
 function formatDuration(seconds: number) {

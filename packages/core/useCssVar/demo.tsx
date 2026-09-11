@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { useCssVar } from '@reaxuse/core'
+import { useCssVar } from '@reause/core'
 import { useState } from 'react'
 
 export default function UseCssVarDemo() {

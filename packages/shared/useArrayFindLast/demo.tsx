@@ -1,4 +1,4 @@
-import { useArrayFindLast } from '@reaxuse/shared'
+import { useArrayFindLast } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseArrayFindLastDemo() {

@@ -9,7 +9,7 @@ Wrapper for `setInterval` with controls
 ## Usage
 
 ```tsx
-import { useIntervalFn } from '@reaxuse/shared'
+import { useIntervalFn } from '@reause/shared'
 
 const { isActive, pause, resume } = useIntervalFn(() => {
   /* ... */

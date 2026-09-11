@@ -13,7 +13,7 @@ Reactive color mode (dark / light / customs) with auto data persistence.
 ## Basic Usage
 
 ```tsx
-import { useColorMode } from '@reaxuse/core'
+import { useColorMode } from '@reause/core'
 
 const [mode, setMode] = useColorMode()
 ```
@@ -21,7 +21,7 @@ const [mode, setMode] = useColorMode()
 By default, it will match with users' browser preference using `usePreferredDark` (a.k.a `auto` mode). When reading the state, it will by default return the current color mode (`dark`, `light` or your custom modes). The `auto` mode can be included in the returned modes by enabling the `emitAuto` option. When writing to the state, it will trigger DOM updates and persist the color mode to local storage (or your custom storage). You can pass `auto` to set back to auto mode.
 
 ```tsx
-import { useColorMode } from '@reaxuse/core'
+import { useColorMode } from '@reause/core'
 
 const [mode, setMode] = useColorMode()
 // ---cut---
@@ -35,7 +35,7 @@ setMode('auto') // change to auto mode
 ## Config
 
 ```tsx
-import { useColorMode } from '@reaxuse/core'
+import { useColorMode } from '@reause/core'
 
 const [mode, setMode] = useColorMode({
   attribute: 'theme',
@@ -54,7 +54,7 @@ storage key holds the raw (possibly `auto`) choice and `usePreferredDark` report
 preference:
 
 ```tsx
-import { useColorMode, usePreferredDark, useStorage } from '@reaxuse/core'
+import { useColorMode, usePreferredDark, useStorage } from '@reause/core'
 
 const [mode, setMode] = useColorMode()
 const [store] = useStorage('vueuse-color-scheme', 'auto') // 'dark' | 'light' | 'auto'

@@ -9,7 +9,7 @@ Reactive [dir](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attribut
 ## Usage
 
 ```tsx
-import { useTextDirection } from '@reaxuse/core'
+import { useTextDirection } from '@reause/core'
 
 const [dir, setDir] = useTextDirection() // ['ltr' | 'rtl' | 'auto', setter]
 // <html dir="rtl"> → dir === 'rtl'

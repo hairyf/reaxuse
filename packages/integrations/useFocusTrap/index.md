@@ -19,7 +19,7 @@ npm i focus-trap@^7
 **Basic Usage**
 
 ```tsx
-import { useFocusTrap } from '@reaxuse/integrations'
+import { useFocusTrap } from '@reause/integrations'
 import { useRef } from 'react'
 
 function Component() {

@@ -1,4 +1,4 @@
-import { useTimeAgo } from '@reaxuse/core'
+import { useTimeAgo } from '@reause/core'
 import { useState } from 'react'
 
 export default function UseTimeAgoDemo() {

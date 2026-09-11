@@ -14,7 +14,7 @@ caching mechanism to avoid memory leaks.
 ## Usage
 
 ```tsx
-import { useMemoize } from '@reaxuse/core'
+import { useMemoize } from '@reause/core'
 
 const getUser = useMemoize(
   async (userId: number): Promise<UserData> =>
@@ -46,7 +46,7 @@ Using `JSON.stringify` as the default key generator can be **slow for large or c
 #### Basic Example
 
 ```tsx
-import { useMemoize } from '@reaxuse/core'
+import { useMemoize } from '@reause/core'
 
 const getUser = useMemoize(
   async (userId: number, headers: AxiosRequestHeaders): Promise<UserData> =>

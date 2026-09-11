@@ -15,7 +15,7 @@ npm i idb-keyval@^6
 ## Usage
 
 ```tsx
-import { useIDBKeyval } from '@reaxuse/integrations'
+import { useIDBKeyval } from '@reause/integrations'
 
 // bind object
 const [storedObject, setStoredObject, { isFinished }] = useIDBKeyval('my-idb-keyval-store', {

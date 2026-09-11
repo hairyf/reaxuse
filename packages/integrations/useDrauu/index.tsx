@@ -1,7 +1,7 @@
-import type { ListenerOn } from '@reaxuse/shared'
+import type { ListenerOn } from '@reause/shared'
 import type { Brush, Drauu, Options } from 'drauu'
 import type { Dispatch, SetStateAction } from 'react'
-import { isRefLike, toValue } from '@reaxuse/shared'
+import { isRefLike, toValue } from '@reause/shared'
 import { createDrauu } from 'drauu'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -120,7 +120,7 @@ type DrauuTarget = MaybeElementRef
  * Resolve the target to a DOM element — a plain element, a React ref-like
  * object (`{ current }`), or `null` when it cannot be resolved. Upstream
  * resolves elements with `unrefElement` (`@vueuse/core`); the React port
- * composes the same unwrapping from `toValue` / `isRefLike` (`@reaxuse/shared`)
+ * composes the same unwrapping from `toValue` / `isRefLike` (`@reause/shared`)
  * — one pass unwraps a ref-like object, a second one covers a ref-like object
  * holding another ref-like (`{ current: { current: element } }`).
  */
@@ -152,7 +152,7 @@ interface EventHookRegistrar<T extends (...args: any[]) => void> {
 }
 
 /**
- * Minimal event hook — mirrors `@reaxuse/shared`'s `createEventHook` shape
+ * Minimal event hook — mirrors `@reause/shared`'s `createEventHook` shape
  * (`on` / `trigger`) while staying identity-stable across renders: the
  * listener set lives in a ref, so `on` never changes identity and
  * `useListener(on, cb)` does not re-register on every render. Upstream
@@ -203,7 +203,7 @@ function useEventHook<T extends (...args: any[]) => void>(): EventHookRegistrar<
  *   precedent: `useFileSystemAccess`'s `file`, `useAsyncState`'s `isReady` /
  *   `error`, `useTextareaAutosize`'s `textarea`);
  * - the five `on*` members are §2D registrars — `(fn) => ({ off })` typed
- *   `ListenerOn<T>` (`@reaxuse/shared`), consumable as
+ *   `ListenerOn<T>` (`@reause/shared`), consumable as
  *   `useListener(onChanged, cb)` for automatic cleanup on unmount, and `off()`
  *   removes exactly that listener and is idempotent;
  * - the instance is created in an effect keyed on the resolved element's
@@ -215,8 +215,8 @@ function useEventHook<T extends (...args: any[]) => void>(): EventHookRegistrar<
  *   until scope dispose. Destroying is deliberate in React: a `null` ref means
  *   the element is gone, and a stale live instance would keep drawing on a
  *   detached `<svg>`; the co-located test pins this behavior;
- * - the element is resolved locally from `@reaxuse/shared`'s `toValue` /
- *   `isRefLike` (precedent: `useFocusTrap.ts`), never from `@reaxuse/core` —
+ * - the element is resolved locally from `@reause/shared`'s `toValue` /
+ *   `isRefLike` (precedent: `useFocusTrap.ts`), never from `@reause/core` —
  *   `packages/integrations` must not depend on core (eslint
  *   `no-restricted-imports`). Only an `SVGSVGElement` target mounts, matching
  *   upstream's guard.

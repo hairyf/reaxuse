@@ -9,7 +9,7 @@ Reactive `Array.findLast`.
 ## Usage
 
 ```tsx
-import { useArrayFindLast } from '@reaxuse/shared'
+import { useArrayFindLast } from '@reause/shared'
 
 const list = [1, -1, 2]
 const positive = useArrayFindLast(list, val => val > 0) // 2
@@ -18,7 +18,7 @@ const positive = useArrayFindLast(list, val => val > 0) // 2
 ### Use with reactive array
 
 ```tsx
-import { useArrayFindLast } from '@reaxuse/shared'
+import { useArrayFindLast } from '@reause/shared'
 import { useState } from 'react'
 
 const [list, setList] = useState([-1, -2])

@@ -4,7 +4,7 @@ export interface UseDocumentVisibilityOptions {
   /**
    * Specify a custom `document` instance, e.g. working with iframes or in
    * testing environments. Inlined here — `ConfigurableDocument` is not ported
-   * to `@reaxuse/shared`, so `document?` mirrors the option `useFileDialog`
+   * to `@reause/shared`, so `document?` mirrors the option `useFileDialog`
    * exposes (defaults to the global `document` when not provided).
    *
    * @default typeof document !== 'undefined' ? document : undefined

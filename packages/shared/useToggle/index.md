@@ -9,7 +9,7 @@ A boolean (or value) toggler with controllable state support.
 ## Usage
 
 ```tsx
-import { useToggle } from '@reaxuse/shared'
+import { useToggle } from '@reause/shared'
 import { useState } from 'react'
 
 const [value, toggle] = useToggle()
@@ -43,7 +43,7 @@ state updates are asynchronous, so read it from `value` on the next render.
 You can use custom truthy and falsy values instead of `true` and `false`:
 
 ```tsx
-import { useToggle } from '@reaxuse/shared'
+import { useToggle } from '@reause/shared'
 
 const [value, toggle] = useToggle('on', {
   truthyValue: 'on',

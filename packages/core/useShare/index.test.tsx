@@ -52,9 +52,9 @@ it('useShare merges hook options with call-time overrides (overrides win)', asyn
   const { share, canShare } = stubShareableNavigator()
   const { result } = await renderHook(() => useShare({ title: 'Hello', text: 'from the hook' }))
 
-  await result.current.share({ text: 'call-time', url: 'https://reaxuse.dev' })
+  await result.current.share({ text: 'call-time', url: 'https://reause.dev' })
 
-  const merged = { title: 'Hello', text: 'call-time', url: 'https://reaxuse.dev' }
+  const merged = { title: 'Hello', text: 'call-time', url: 'https://reause.dev' }
   expect(canShare).toHaveBeenCalledWith(merged)
   expect(share).toHaveBeenCalledTimes(1)
   expect(share).toHaveBeenCalledWith(merged)

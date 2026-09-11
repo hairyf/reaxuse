@@ -1,5 +1,5 @@
 import type { UseDrauuReturn } from '../useDrauu'
-import { useListener } from '@reaxuse/shared'
+import { useListener } from '@reause/shared'
 import { useRef } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { render, renderHook } from 'vitest-browser-react'

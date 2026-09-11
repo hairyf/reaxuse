@@ -1,6 +1,6 @@
 // Worktree note: this demo imports the implementation relatively because the
-// worktree's `@reaxuse/firebase` junction resolves to the main checkout, where
-// `useAuth` does not exist yet. Published docs import from `@reaxuse/firebase`.
+// worktree's `@reause/firebase` junction resolves to the main checkout, where
+// `useAuth` does not exist yet. Published docs import from `@reause/firebase`.
 import type { Auth, User } from 'firebase/auth'
 import { useAuth } from '../useAuth'
 

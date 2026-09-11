@@ -1,4 +1,4 @@
-import { useEyeDropper } from '@reaxuse/core'
+import { useEyeDropper } from '@reause/core'
 
 export default function UseEyeDropperDemo() {
   const { isSupported, open, sRGBHex } = useEyeDropper()

@@ -9,7 +9,7 @@ Template as Promise. Useful for constructing custom Dialogs, Modals, Toasts, etc
 ## Usage
 
 ```tsx
-import { createPromisifiedComponent } from '@reaxuse/core'
+import { createPromisifiedComponent } from '@reause/core'
 
 const Promisified = createPromisifiedComponent<ReturnType>()
 
@@ -45,7 +45,7 @@ This function is migrated from [vue-template-promise](https://github.com/antfu/v
 `createPromisifiedComponent` returns a **React component** that you can use anywhere in your tree.
 
 ```ts
-import { createPromisifiedComponent } from '@reaxuse/core'
+import { createPromisifiedComponent } from '@reause/core'
 
 const Promisified = createPromisifiedComponent()
 const MyPromise = createPromisifiedComponent<boolean>() // with generic type
@@ -77,7 +77,7 @@ Once `resolve` or `reject` is called in the template, the promise will be resolv
 You can pass arguments to the `start` with arguments.
 
 ```ts
-import { createPromisifiedComponent } from '@reaxuse/core'
+import { createPromisifiedComponent } from '@reause/core'
 
 const Promisified = createPromisifiedComponent<boolean, [string, number]>()
 
@@ -107,7 +107,7 @@ And in the template render prop, you can access the arguments via `args` propert
 Use the `singleton` option to ensure only one instance of the promise can be active at a time. If `start` is called while a promise is already active, it will return the existing promise instead of creating a new one.
 
 ```ts
-import { createPromisifiedComponent } from '@reaxuse/core'
+import { createPromisifiedComponent } from '@reause/core'
 
 const Promisified = createPromisifiedComponent<boolean>({
   singleton: true,
@@ -123,7 +123,7 @@ const result2 = Promisified.start() // returns the same promise as result1
 The `transition` option is accepted for API parity with upstream, where it
 passes props to Vue's `TransitionGroup` to animate the template. React has no
 built-in transition-group system, so this option has **no runtime effect** in
-reaxuse — animate the rendered template with CSS animations or a transition
+reause — animate the rendered template with CSS animations or a transition
 library instead.
 
 ### Template Props

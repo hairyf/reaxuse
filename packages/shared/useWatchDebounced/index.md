@@ -12,7 +12,7 @@ Similar to `useWatch`, but offering extra options `debounce` and `maxWait` which
 be applied to the callback function.
 
 ```tsx
-import { useWatchDebounced } from '@reaxuse/shared'
+import { useWatchDebounced } from '@reause/shared'
 
 useWatchDebounced(
   input,
@@ -32,7 +32,7 @@ useWatchDebounced(
 Fire the callback once on mount with the current value (still debounced):
 
 ```tsx
-import { useWatchDebounced } from '@reaxuse/shared'
+import { useWatchDebounced } from '@reause/shared'
 
 useWatchDebounced(input, () => console.log('changed!'), { immediate: true })
 ```

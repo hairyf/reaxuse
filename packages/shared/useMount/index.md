@@ -9,7 +9,7 @@ Runs a callback once after the component mounts — React port of react-use's `u
 ## Usage
 
 ```tsx
-import { useMount } from '@reaxuse/shared'
+import { useMount } from '@reause/shared'
 
 useMount(() => {
   console.log('mounted')

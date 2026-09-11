@@ -4,7 +4,7 @@ import { useScriptTag } from '../useScriptTag'
 
 declare global {
   interface Window {
-    __reaxuseUseScriptTagTestFlag?: boolean
+    __reauseUseScriptTagTestFlag?: boolean
   }
 }
 
@@ -12,8 +12,8 @@ declare global {
 // - a `data:` URL loads (and executes) in chromium, firing the `load` event;
 // - port 1 is in chromium's restricted-port list, so the fetch fails with
 //   ERR_UNSAFE_PORT and fires the `error` event without leaving the machine.
-const GOOD_SRC = 'data:text/javascript,window.__reaxuseUseScriptTagTestFlag = true'
-const BAD_SRC = 'http://127.0.0.1:1/reaxuse-use-script-tag-test.js'
+const GOOD_SRC = 'data:text/javascript,window.__reauseUseScriptTagTestFlag = true'
+const BAD_SRC = 'http://127.0.0.1:1/reause-use-script-tag-test.js'
 
 function scriptTagElement(src: string): HTMLScriptElement | null {
   return document.head.querySelector(`script[src="${src}"]`)
@@ -21,7 +21,7 @@ function scriptTagElement(src: string): HTMLScriptElement | null {
 
 beforeEach(() => {
   document.head.innerHTML = ''
-  window.__reaxuseUseScriptTagTestFlag = undefined
+  window.__reauseUseScriptTagTestFlag = undefined
 })
 
 afterEach(() => {
@@ -200,7 +200,7 @@ it('should call onLoaded once the script loads and re-use a data-loaded tag', as
   expect(onLoaded1).toBeCalledTimes(1)
   expect(onLoaded1).toBeCalledWith(loaded)
   expect(scriptTagElement(GOOD_SRC)?.getAttribute('data-loaded')).toBe('true')
-  expect(window.__reaxuseUseScriptTagTestFlag).toBe(true)
+  expect(window.__reauseUseScriptTagTestFlag).toBe(true)
 
   // A second tag for the same src resolves with the existing element
   // without loading (or calling onLoaded) again.

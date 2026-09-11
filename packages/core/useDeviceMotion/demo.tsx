@@ -1,4 +1,4 @@
-import { useDeviceMotion } from '@reaxuse/core'
+import { useDeviceMotion } from '@reause/core'
 
 export default function UseDeviceMotionDemo() {
   const {

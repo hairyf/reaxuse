@@ -1,4 +1,4 @@
-import { useTextDirection } from '@reaxuse/core'
+import { useTextDirection } from '@reause/core'
 
 export default function UseTextDirectionDemo() {
   const [dir, setDir] = useTextDirection({

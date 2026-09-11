@@ -1,6 +1,6 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
 import type { UseScrollOptions, UseScrollReturn } from '../useScroll'
-import { toValue } from '@reaxuse/shared'
+import { toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useElementVisibility } from '../useElementVisibility'
 import { useScroll } from '../useScroll'

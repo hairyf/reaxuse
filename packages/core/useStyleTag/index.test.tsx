@@ -192,13 +192,13 @@ describe('useStyleTag', () => {
     await unmount()
   })
 
-  it('should auto-generate an id with the reaxuse_styletag_ prefix', async () => {
+  it('should auto-generate an id with the reause_styletag_ prefix', async () => {
     const { result, unmount } = await renderHook(() => {
       const [, , { id }] = useStyleTag('body { color: red; }')
       return { id }
     })
 
-    expect(result.current.id).toMatch(/^reaxuse_styletag_\d+$/)
+    expect(result.current.id).toMatch(/^reause_styletag_\d+$/)
     expect(document.getElementById(result.current.id)).not.toBeNull()
 
     await unmount()
@@ -312,7 +312,7 @@ describe('useStyleTag', () => {
     expect(result.current).toHaveLength(3)
     expect(result.current[0]).toBe('body { color: red; }')
     expect(result.current[1]).toBeTypeOf('function')
-    expect(result.current[2].id).toMatch(/^reaxuse_styletag_\d+$/)
+    expect(result.current[2].id).toMatch(/^reause_styletag_\d+$/)
     expect(result.current[2].isLoaded).toBe(true)
     expect(result.current[2].load).toBeTypeOf('function')
     expect(result.current[2].unload).toBeTypeOf('function')

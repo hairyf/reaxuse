@@ -169,7 +169,7 @@ it('listens for copy/cut events and refreshes content when read is enabled', asy
 it('re-binds the copy/cut listeners when `read` toggles after mount', async () => {
   const items = createItems('from event')
   const { readSpy } = installClipboard(items)
-  // upstream decides once at setup; reaxuse keys the listener effect on
+  // upstream decides once at setup; reause keys the listener effect on
   // `read`, so the listeners follow runtime toggles (documented divergence)
   const { result, rerender, act } = await renderHook(
     ({ read }: { read: boolean }) => useClipboardItems({ read }),

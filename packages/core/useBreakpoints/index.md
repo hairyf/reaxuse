@@ -9,7 +9,7 @@ Reactive viewport breakpoints
 ## Usage
 
 ```tsx
-import { breakpointsTailwind, useBreakpoints } from '@reaxuse/core'
+import { breakpointsTailwind, useBreakpoints } from '@reause/core'
 
 const breakpoints = useBreakpoints(breakpointsTailwind)
 
@@ -20,7 +20,7 @@ const smallerThanLg = breakpoints.smaller('lg') // only smaller than lg
 ```
 
 ```tsx
-import { useBreakpoints } from '@reaxuse/core'
+import { useBreakpoints } from '@reause/core'
 
 const breakpoints = useBreakpoints({
   mobile: 0, // optional
@@ -86,7 +86,7 @@ If you are using `useBreakpoints` with SSR enabled, then you need to specify whi
 on the server and before hydration to avoid a hydration mismatch
 
 ```ts
-import { breakpointsTailwind, useBreakpoints } from '@reaxuse/core'
+import { breakpointsTailwind, useBreakpoints } from '@reause/core'
 
 const breakpoints = useBreakpoints(breakpointsTailwind, {
   ssrWidth: 768 // Will enable SSR mode and render like if the screen was 768px wide
@@ -98,7 +98,7 @@ Alternatively you can set this up globally for your app using [`SSRWidthProvider
 override it.
 
 ```tsx
-import { SSRWidthProvider } from '@reaxuse/core'
+import { SSRWidthProvider } from '@reause/core'
 
 <SSRWidthProvider width={768}>
   <App />
@@ -122,6 +122,6 @@ _Breakpoint presets are standalone exported objects (they are not returned by `u
 need explicitly:_
 
 ```js
-import { breakpointsTailwind } from '@reaxuse/core'
+import { breakpointsTailwind } from '@reause/core'
 // and so on
 ```

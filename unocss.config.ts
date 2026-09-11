@@ -8,7 +8,7 @@ import {
 } from 'unocss'
 
 // UnoCSS for the docs demos — mirrors VueUse's unocss.config.ts (used by the
-// packages/.vitepress docs build), with reaxuse's brand as the `primary`
+// packages/.vitepress docs build), with reause's brand as the `primary`
 // color. The co-located React demos (packages/<pkg>/<fn>/demo.tsx) use the
 // same UnoCSS utility classes as VueUse's demos; without this config they
 // render with browser-default styles.

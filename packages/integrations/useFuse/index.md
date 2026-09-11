@@ -29,7 +29,7 @@ yarn add fuse.js
 ## Usage
 
 ```tsx
-import { useFuse } from '@reaxuse/integrations'
+import { useFuse } from '@reause/integrations'
 import { useState } from 'react'
 
 const data = [
@@ -73,7 +73,7 @@ reference when the collection changes.
 Options are passed through `fuseOptions`, plus `resultLimit` and `matchAllWhenSearchEmpty`:
 
 ```tsx
-import { useFuse } from '@reaxuse/integrations'
+import { useFuse } from '@reause/integrations'
 import { useMemo, useState } from 'react'
 
 const [search, setSearch] = useState('')

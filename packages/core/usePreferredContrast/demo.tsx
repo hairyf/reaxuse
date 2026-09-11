@@ -1,4 +1,4 @@
-import { usePreferredContrast } from '@reaxuse/core'
+import { usePreferredContrast } from '@reause/core'
 
 export default function UsePreferredContrastDemo() {
   const contrast = usePreferredContrast()

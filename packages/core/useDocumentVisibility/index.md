@@ -9,7 +9,7 @@ Reactively track [`document.visibilityState`](https://developer.mozilla.org/en-U
 ## Usage
 
 ```tsx
-import { useDocumentVisibility } from '@reaxuse/core'
+import { useDocumentVisibility } from '@reause/core'
 
 const visibility = useDocumentVisibility() // 'visible' | 'hidden'
 ```

@@ -1,5 +1,5 @@
-import { useFileDialog } from '@reaxuse/core'
-import { useListener } from '@reaxuse/shared'
+import { useFileDialog } from '@reause/core'
+import { useListener } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseFileDialogDemo() {

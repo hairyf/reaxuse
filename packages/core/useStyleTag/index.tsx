@@ -24,7 +24,7 @@ export interface UseStyleTagOptions {
   /**
    * DOM id of the style tag
    *
-   * @default auto-incremented (`reaxuse_styletag_N`)
+   * @default auto-incremented (`reause_styletag_N`)
    */
   id?: string
 
@@ -104,7 +104,7 @@ const _refCount = new WeakMap<HTMLStyleElement, number>()
  * - SSR-safe: `document` is only touched inside the mount effect and the
  *   callbacks, never during render — with no `document` available `load()`
  *   and `unload()` are no-ops (upstream's `defaultDocument` guard);
- * - auto-generated ids use the `reaxuse_styletag_` prefix (upstream:
+ * - auto-generated ids use the `reause_styletag_` prefix (upstream:
  *   `vueuse_styletag_`).
  *
  * @example
@@ -123,7 +123,7 @@ export function useStyleTag(
   // counter only advances once per mounted instance — never during a render
   // that is later discarded (upstream assigns eagerly at setup: `id =
   // \`vueuse_styletag_${++_id}\``)
-  const [id] = useState(() => options.id ?? `reaxuse_styletag_${++_id}`)
+  const [id] = useState(() => options.id ?? `reause_styletag_${++_id}`)
 
   // latest-value refs (repo idiom, see useStateManualHistory) so `load`,
   // `unload` and `setCss` stay stable callbacks that always read the newest

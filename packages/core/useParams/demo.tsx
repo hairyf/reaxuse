@@ -1,4 +1,4 @@
-import { useParams } from '@reaxuse/core'
+import { useParams } from '@reause/core'
 import { useState } from 'react'
 
 export default function UseParamsDemo() {

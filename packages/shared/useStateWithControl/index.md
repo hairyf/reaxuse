@@ -11,7 +11,7 @@ Fine-grained controls over a state and its re-renders
 ## Usage
 
 ```tsx
-import { useStateWithControl } from '@reaxuse/shared'
+import { useStateWithControl } from '@reause/shared'
 
 const [num, setNum, control] = useStateWithControl(0)
 
@@ -61,7 +61,7 @@ control.lay('bar') // an alias for `silentSet`
 example:
 
 ```tsx
-import { useStateWithControl } from '@reaxuse/shared'
+import { useStateWithControl } from '@reause/shared'
 
 const [num, setNum] = useStateWithControl(0, {
   onBeforeChange(value, oldValue) {
@@ -84,7 +84,7 @@ console.log(num) // 1 after the next render (change been dismissed)
 an effect (upstream: `watch`):
 
 ```tsx
-import { useStateWithControl } from '@reaxuse/shared'
+import { useStateWithControl } from '@reause/shared'
 
 const [num, setNum] = useStateWithControl(0, {
   onChanged(value, oldValue) {

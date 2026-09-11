@@ -1,4 +1,4 @@
-import { unrefElement } from '@reaxuse/core'
+import { unrefElement } from '@reause/core'
 import { useRef, useState } from 'react'
 
 export default function UnrefElementDemo() {

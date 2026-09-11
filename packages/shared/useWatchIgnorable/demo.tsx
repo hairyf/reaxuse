@@ -1,4 +1,4 @@
-import { useWatchIgnorable } from '@reaxuse/shared'
+import { useWatchIgnorable } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseWatchIgnorableDemo() {

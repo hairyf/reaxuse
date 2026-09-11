@@ -9,7 +9,7 @@ Use EventListener with ease. Register using [`addEventListener`](https://develop
 ## Usage
 
 ```tsx
-import { useEventListener } from '@reaxuse/core'
+import { useEventListener } from '@reause/core'
 
 useEventListener(document, 'visibilitychange', (evt) => {
   console.log(evt)
@@ -21,7 +21,7 @@ useEventListener(document, 'visibilitychange', (evt) => {
 When the target is omitted, it defaults to `window`:
 
 ```tsx
-import { useEventListener } from '@reaxuse/core'
+import { useEventListener } from '@reause/core'
 
 // Listens on window
 useEventListener('resize', (evt) => {
@@ -34,7 +34,7 @@ useEventListener('resize', (evt) => {
 You can pass a ref as the event target, `useEventListener` will unregister the previous event and register the new one when the target changes:
 
 ```tsx
-import { useEventListener } from '@reaxuse/core'
+import { useEventListener } from '@reause/core'
 import { useRef } from 'react'
 
 const element = useRef<HTMLDivElement>(null)

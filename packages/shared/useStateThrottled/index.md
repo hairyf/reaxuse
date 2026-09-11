@@ -9,7 +9,7 @@ Throttle changing of a state value
 ## Usage
 
 ```tsx
-import { useStateThrottled } from '@reaxuse/shared'
+import { useStateThrottled } from '@reause/shared'
 
 const [input, setInput, throttled] = useStateThrottled('', 1000)
 ```
@@ -25,7 +25,7 @@ const [input, setInput, throttled] = useStateThrottled([value, setValue], 1000)
 An example with an object value.
 
 ```tsx
-import { useStateThrottled } from '@reaxuse/shared'
+import { useStateThrottled } from '@reause/shared'
 
 const [data, setData, throttled] = useStateThrottled({
   count: 0,

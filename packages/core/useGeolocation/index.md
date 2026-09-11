@@ -9,7 +9,7 @@ Reactive [Geolocation API](https://developer.mozilla.org/en-US/docs/Web/API/Geol
 ## Usage
 
 ```tsx
-import { useGeolocation } from '@reaxuse/core'
+import { useGeolocation } from '@reause/core'
 
 const { coords, locatedAt, error, resume, pause } = useGeolocation()
 ```

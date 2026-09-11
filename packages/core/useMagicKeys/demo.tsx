@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { useMagicKeys } from '@reaxuse/core'
+import { useMagicKeys } from '@reause/core'
 import { useMemo } from 'react'
 
 function Key({ value, children }: { value: boolean, children: ReactNode }) {

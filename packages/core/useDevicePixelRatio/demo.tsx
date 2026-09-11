@@ -1,4 +1,4 @@
-import { useDevicePixelRatio } from '@reaxuse/core'
+import { useDevicePixelRatio } from '@reause/core'
 
 export default function UseDevicePixelRatioDemo() {
   const { pixelRatio } = useDevicePixelRatio()

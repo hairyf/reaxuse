@@ -1,4 +1,4 @@
-import { useFocusTrap } from '@reaxuse/integrations'
+import { useFocusTrap } from '@reause/integrations'
 import { useRef } from 'react'
 
 export default function UseFocusTrapDemo() {

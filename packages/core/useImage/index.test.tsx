@@ -9,7 +9,7 @@ import { useImage } from '../useImage'
 //   ERR_UNSAFE_PORT and fires the `error` event without leaving the machine.
 const GOOD_GIF_SRC = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 const GOOD_PNG_SRC = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
-const BAD_SRC = 'http://127.0.0.1:1/reaxuse-use-image-test.png'
+const BAD_SRC = 'http://127.0.0.1:1/reause-use-image-test.png'
 
 afterEach(() => {
   vi.restoreAllMocks()

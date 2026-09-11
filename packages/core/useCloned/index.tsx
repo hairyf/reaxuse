@@ -1,6 +1,6 @@
-import type { State } from '@reaxuse/shared'
+import type { State } from '@reause/shared'
 import type { Dispatch, SetStateAction } from 'react'
-import { deepClone, deepEqual, isRefLike, toValue } from '@reaxuse/shared'
+import { deepClone, deepEqual, isRefLike, toValue } from '@reause/shared'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 export interface UseClonedOptions<T = any> {

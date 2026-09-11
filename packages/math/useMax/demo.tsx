@@ -1,4 +1,4 @@
-import { useMax } from '@reaxuse/math'
+import { useMax } from '@reause/math'
 import { useState } from 'react'
 
 export default function UseMaxDemo() {

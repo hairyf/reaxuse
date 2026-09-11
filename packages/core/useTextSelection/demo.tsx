@@ -1,4 +1,4 @@
-import { useTextSelection } from '@reaxuse/core'
+import { useTextSelection } from '@reause/core'
 
 export default function UseTextSelectionDemo() {
   const { text, rects } = useTextSelection()

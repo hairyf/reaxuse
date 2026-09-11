@@ -9,7 +9,7 @@ Reactive [Screen Wake Lock API](https://developer.mozilla.org/en-US/docs/Web/API
 ## Usage
 
 ```tsx
-import { useWakeLock } from '@reaxuse/core'
+import { useWakeLock } from '@reause/core'
 
 const { isSupported, isActive, forceRequest, request, release } = useWakeLock()
 ```

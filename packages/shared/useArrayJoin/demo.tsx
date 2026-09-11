@@ -1,4 +1,4 @@
-import { useArrayJoin } from '@reaxuse/shared'
+import { useArrayJoin } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseArrayJoinDemo() {

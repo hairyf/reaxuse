@@ -15,7 +15,7 @@ npm i qrcode@^1
 ## Usage
 
 ```tsx
-import { useQRCode } from '@reaxuse/integrations'
+import { useQRCode } from '@reause/integrations'
 
 // `qrcode` is the data URL, `''` until the first encode resolves
 const qrcode = useQRCode('text-to-encode')

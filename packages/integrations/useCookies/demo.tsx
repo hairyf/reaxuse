@@ -1,4 +1,4 @@
-import { useCookies } from '@reaxuse/integrations'
+import { useCookies } from '@reause/integrations'
 
 export default function UseCookiesDemo() {
   const cookies = useCookies(['locale'])

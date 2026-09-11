@@ -9,7 +9,7 @@ Track the change history of a state automatically — every change commits a his
 ## Usage
 
 ```tsx
-import { useStateHistory } from '@reaxuse/core'
+import { useStateHistory } from '@reause/core'
 import { useState } from 'react'
 
 const [count, setCount] = useState(0)
@@ -38,7 +38,7 @@ You can use `undo` to reset the state to the last history point.
 When working with objects or arrays, since changing their attributes does not change the reference, it will not trigger the committing. React state is normally replaced instead of mutated — the `clone` option and custom `dump` / `parse` support mutation-style sources and create clones for each history record:
 
 ```tsx
-import { useStateHistory } from '@reaxuse/core'
+import { useStateHistory } from '@reause/core'
 import { useState } from 'react'
 
 const [target, setTarget] = useState({ foo: 1, bar: 2 })
@@ -54,7 +54,7 @@ setSource({ foo: 2, bar: 2 }) // committed immediately
 For example, using [structuredClone](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone):
 
 ```tsx
-import { useStateHistory } from '@reaxuse/core'
+import { useStateHistory } from '@reause/core'
 
 const stateHistory = useStateHistory([target, setTarget], { clone: structuredClone })
 ```
@@ -62,7 +62,7 @@ const stateHistory = useStateHistory([target, setTarget], { clone: structuredClo
 Or by using [lodash's `cloneDeep`](https://lodash.com/docs/4.17.15#cloneDeep):
 
 ```tsx
-import { useStateHistory } from '@reaxuse/core'
+import { useStateHistory } from '@reause/core'
 import { cloneDeep } from 'lodash-es'
 
 const stateHistory = useStateHistory([target, setTarget], { clone: cloneDeep })
@@ -71,7 +71,7 @@ const stateHistory = useStateHistory([target, setTarget], { clone: cloneDeep })
 Or a more lightweight [`klona`](https://github.com/lukeed/klona):
 
 ```tsx
-import { useStateHistory } from '@reaxuse/core'
+import { useStateHistory } from '@reause/core'
 import { klona } from 'klona'
 
 const stateHistory = useStateHistory([target, setTarget], { clone: klona })
@@ -82,7 +82,7 @@ const stateHistory = useStateHistory([target, setTarget], { clone: klona })
 Instead of using the `clone` options, you can pass custom functions to control the serialization and parsing. In case you do not need history values to be objects, this can save an extra clone when undoing. It is also useful in case you want to have the snapshots already stringified to be saved to local storage for example.
 
 ```tsx
-import { useStateHistory } from '@reaxuse/core'
+import { useStateHistory } from '@reause/core'
 
 const stateHistory = useStateHistory([target, setTarget], {
   dump: JSON.stringify,
@@ -107,7 +107,7 @@ clear() // explicitly clear all the history
 Multiple state updates in the same tick render once and collapse into a single commit carrying the final value; there is no per-assignment `flush: 'sync'` timing. You can use `commit()` in case you need to create multiple history points in the same "tick"
 
 ```tsx
-import { useStateHistory } from '@reaxuse/core'
+import { useStateHistory } from '@reause/core'
 import { useState } from 'react'
 
 const [r, setR] = useState(0)
@@ -130,7 +130,7 @@ console.log(history)
 On the other hand, you can use `batch(fn)` to generate a single history point for several operations
 
 ```tsx
-import { useStateHistory } from '@reaxuse/core'
+import { useStateHistory } from '@reause/core'
 import { useState } from 'react'
 
 const [r, setR] = useState({ names: [], version: 1 })

@@ -9,7 +9,7 @@ Reactive `Math.abs`
 ## Usage
 
 ```tsx
-import { useAbs } from '@reaxuse/math'
+import { useAbs } from '@reause/math'
 
 const result = useAbs(-23) // 23
 ```
@@ -18,7 +18,7 @@ const result = useAbs(-23) // 23
 new value — e.g. from `useState` — and the hook recomputes:
 
 ```tsx
-import { useAbs } from '@reaxuse/math'
+import { useAbs } from '@reause/math'
 import { useState } from 'react'
 
 const [value, setValue] = useState(-23)

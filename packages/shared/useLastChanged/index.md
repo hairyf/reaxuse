@@ -9,7 +9,7 @@ Records the timestamp of the last change
 ## Usage
 
 ```tsx
-import { useLastChanged } from '@reaxuse/shared'
+import { useLastChanged } from '@reause/shared'
 import { useState } from 'react'
 
 const [a, setA] = useState(0)

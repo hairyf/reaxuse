@@ -13,8 +13,8 @@ Make a composable function usable with multiple React components.
 ## Usage
 
 ```ts
-import { useMouse } from '@reaxuse/core'
-import { createSharedHook } from '@reaxuse/shared'
+import { useMouse } from '@reause/core'
+import { createSharedHook } from '@reause/shared'
 
 const useSharedMouse = createSharedHook(useMouse)
 

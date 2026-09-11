@@ -1,4 +1,4 @@
-import { useFps } from '@reaxuse/core'
+import { useFps } from '@reause/core'
 
 export default function UseFpsDemo() {
   const fps = useFps()

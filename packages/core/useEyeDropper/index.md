@@ -9,7 +9,7 @@ Reactive [EyeDropper API](https://developer.mozilla.org/en-US/docs/Web/API/EyeDr
 ## Usage
 
 ```tsx
-import { useEyeDropper } from '@reaxuse/core'
+import { useEyeDropper } from '@reause/core'
 
 const { isSupported, open, sRGBHex } = useEyeDropper()
 ```

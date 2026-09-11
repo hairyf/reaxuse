@@ -63,7 +63,7 @@ describe('useSubject', () => {
     expect(result.current[0]).toBe(true)
   })
 
-  describe('setter (React adjustment, hairyf/reaxuse#218)', () => {
+  describe('setter (React adjustment, hairyf/reause#218)', () => {
     it('writes through the subject instead of a second state', async () => {
       const subject = new BehaviorSubject('initial')
       const received: string[] = []

@@ -1,6 +1,6 @@
-import type { State } from '@reaxuse/shared'
+import type { State } from '@reause/shared'
 import type { Dispatch, SetStateAction } from 'react'
-import { clamp, isRefLike, noop, toValue, writeState } from '@reaxuse/shared'
+import { clamp, isRefLike, noop, toValue, writeState } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**

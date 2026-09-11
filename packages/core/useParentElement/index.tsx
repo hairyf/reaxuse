@@ -1,5 +1,5 @@
 import type { Ref } from 'react'
-import { toValue } from '@reaxuse/shared'
+import { toValue } from '@reause/shared'
 import { useEffect, useState } from 'react'
 
 type ElementSource = HTMLElement | SVGElement | null | undefined

@@ -1,5 +1,5 @@
 import type { Pausable } from '../useTimeoutPoll'
-import { useIntervalFn } from '@reaxuse/shared'
+import { useIntervalFn } from '@reause/shared'
 import { expect, it } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useNow } from '../useNow'

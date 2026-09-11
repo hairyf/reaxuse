@@ -9,7 +9,7 @@ Reactively track user text selection based on [`Window.getSelection`](https://de
 ## Usage
 
 ```tsx
-import { useTextSelection } from '@reaxuse/core'
+import { useTextSelection } from '@reause/core'
 
 const { text, rects, ranges, selection } = useTextSelection()
 ```

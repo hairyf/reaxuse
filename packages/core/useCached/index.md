@@ -9,7 +9,7 @@ Cache a value with a custom comparator
 ## Usage
 
 ```tsx
-import { useCached } from '@reaxuse/core'
+import { useCached } from '@reause/core'
 import { useState } from 'react'
 
 interface Data {

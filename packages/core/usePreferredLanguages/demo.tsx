@@ -1,4 +1,4 @@
-import { usePreferredLanguages } from '@reaxuse/core'
+import { usePreferredLanguages } from '@reause/core'
 
 export default function UsePreferredLanguagesDemo() {
   const languages = usePreferredLanguages()

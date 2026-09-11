@@ -1,6 +1,6 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
 import type { Dispatch, SetStateAction } from 'react'
-import { toValue, useIntervalFn } from '@reaxuse/shared'
+import { toValue, useIntervalFn } from '@reause/shared'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
 export interface UseCountdownOptions {

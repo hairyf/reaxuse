@@ -96,7 +96,7 @@ describe('useObservable', () => {
     })
   })
 
-  describe('setter (React adjustment, hairyf/reaxuse#174)', () => {
+  describe('setter (React adjustment, hairyf/reause#174)', () => {
     it('writes through the returned setter', async () => {
       const subject = new Subject<number>()
 

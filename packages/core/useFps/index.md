@@ -9,7 +9,7 @@ Reactive FPS (frames per second)
 ## Usage
 
 ```tsx
-import { useFps } from '@reaxuse/core'
+import { useFps } from '@reause/core'
 
 const fps = useFps()
 // 60

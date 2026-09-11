@@ -1,4 +1,4 @@
-import { useStateDebounced } from '@reaxuse/shared'
+import { useStateDebounced } from '@reause/shared'
 import { useEffect, useRef, useState } from 'react'
 
 export default function UseStateDebouncedDemo() {

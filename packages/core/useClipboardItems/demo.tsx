@@ -1,4 +1,4 @@
-import { useClipboardItems, usePermission } from '@reaxuse/core'
+import { useClipboardItems, usePermission } from '@reause/core'
 import { useEffect, useState } from 'react'
 
 const mime = 'text/plain'

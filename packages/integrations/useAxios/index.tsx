@@ -1,5 +1,5 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import { noop } from '@reaxuse/shared'
+import { noop } from '@reause/shared'
 import axios, { AxiosError } from 'axios'
 import { useCallback, useEffect, useRef, useState } from 'react'
 

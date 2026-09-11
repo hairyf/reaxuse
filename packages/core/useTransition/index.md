@@ -11,7 +11,7 @@ Transition between values
 Define a source value to follow, and when changed the output will transition to the new value. If the source changes while a transition is in progress, a new transition will begin from where the previous one was interrupted.
 
 ```tsx
-import { TransitionPresets, useTransition } from '@reaxuse/core'
+import { TransitionPresets, useTransition } from '@reause/core'
 import { useState } from 'react'
 
 const [source, setSource] = useState(0)
@@ -27,7 +27,7 @@ setSource(100)
 Transition easing can be customized using [cubic bezier curves](https://developer.mozilla.org/en-US/docs/Web/CSS/easing-function/cubic-bezier#description).
 
 ```tsx
-import { useTransition } from '@reaxuse/core'
+import { useTransition } from '@reause/core'
 // ---cut---
 useTransition(source, {
   easing: [0.75, 0, 0.25, 1],
@@ -65,7 +65,7 @@ The following transitions are available via the `TransitionPresets` constant.
 For more complex easing, a custom function can be provided.
 
 ```tsx
-import { useTransition } from '@reaxuse/core'
+import { useTransition } from '@reause/core'
 // ---cut---
 function easeOutElastic(n) {
   return n === 0
@@ -83,7 +83,7 @@ useTransition(source, {
 To control when a transition starts, set a `delay` value. To choreograph behavior around a transition, define `onStarted` or `onFinished` callbacks.
 
 ```tsx
-import { useTransition } from '@reaxuse/core'
+import { useTransition } from '@reause/core'
 // ---cut---
 const output = useTransition(source, {
   delay: 1000,

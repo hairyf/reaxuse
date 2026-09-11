@@ -53,14 +53,14 @@ describe('useWebWorker', () => {
   it('passes workerOptions through to the Worker constructor', async () => {
     // self.name inside the worker reflects the `name` worker option
     const url = createWorkerUrl('self.onmessage = () => self.postMessage(self.name)')
-    const { result, act } = await renderHook(() => useWebWorker<string>(url, { name: 'reaxuse-echo' }))
+    const { result, act } = await renderHook(() => useWebWorker<string>(url, { name: 'reause-echo' }))
 
     await expect.poll(() => result.current.worker).toBeInstanceOf(Worker)
 
     await act(() => {
       result.current.post('name?')
     })
-    await expect.poll(() => result.current.data).toBe('reaxuse-echo')
+    await expect.poll(() => result.current.data).toBe('reause-echo')
   })
 
   it('leaves worker errors to the consumer via worker.onerror', async () => {

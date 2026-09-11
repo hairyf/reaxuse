@@ -1,5 +1,5 @@
-import type { StorageLikeAsync } from '@reaxuse/core'
-import { useStorageAsync } from '@reaxuse/core'
+import type { StorageLikeAsync } from '@reause/core'
+import { useStorageAsync } from '@reause/core'
 
 // async adapter around localStorage — every call resolves on a microtask, so
 // the demo shows the value loading asynchronously after mount

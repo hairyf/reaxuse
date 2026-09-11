@@ -1,5 +1,5 @@
-import type { RefOrValue } from '@reaxuse/shared'
-import { toValue, useTimeoutFn } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
+import { toValue, useTimeoutFn } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSupported } from '../useSupported'
 
@@ -96,7 +96,7 @@ export interface UseClipboardItemsReturn<Optional> {
  *   time through `toValue` (React has no reactive refs), writes no-op when
  *   the API is unsupported or no value is available, and sets `content` +
  *   `copied` after a successful write;
- * - the `copiedDuring` reset timer composes `@reaxuse/shared` `useTimeoutFn`
+ * - the `copiedDuring` reset timer composes `@reause/shared` `useTimeoutFn`
  *   with `immediate: false`, and the pending timer is cleared on unmount.
  *
  * @example

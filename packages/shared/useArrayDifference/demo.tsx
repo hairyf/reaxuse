@@ -1,4 +1,4 @@
-import { useArrayDifference } from '@reaxuse/shared'
+import { useArrayDifference } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseArrayDifferenceDemo() {

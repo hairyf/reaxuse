@@ -11,7 +11,7 @@ Reactively track [`window.devicePixelRatio`](https://developer.mozilla.org/docs/
 ## Usage
 
 ```tsx
-import { useDevicePixelRatio } from '@reaxuse/core'
+import { useDevicePixelRatio } from '@reause/core'
 
 const { pixelRatio } = useDevicePixelRatio()
 

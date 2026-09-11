@@ -1,4 +1,4 @@
-// Relative (not `@reaxuse/rxjs`): until this PR is merged the package name
+// Relative (not `@reause/rxjs`): until this PR is merged the package name
 // resolves through the worktree node_modules junction to the main repo's
 // rxjs package, which does not export `useExtractedObservable` yet.
 import { useState } from 'react'

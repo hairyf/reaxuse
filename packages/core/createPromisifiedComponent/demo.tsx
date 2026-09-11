@@ -1,4 +1,4 @@
-import { createPromisifiedComponent } from '@reaxuse/core'
+import { createPromisifiedComponent } from '@reause/core'
 import { useState } from 'react'
 
 type DialogResult = 'ok' | 'cancel'

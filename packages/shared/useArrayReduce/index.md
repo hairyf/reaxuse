@@ -9,7 +9,7 @@ Reactive `Array.reduce`.
 ## Usage
 
 ```tsx
-import { useArrayReduce } from '@reaxuse/shared'
+import { useArrayReduce } from '@reause/shared'
 
 const sum = useArrayReduce([1, 2, 3], (sum, val) => sum + val) // 6
 ```
@@ -17,7 +17,7 @@ const sum = useArrayReduce([1, 2, 3], (sum, val) => sum + val) // 6
 ### Use with reactive array
 
 ```tsx
-import { useArrayReduce } from '@reaxuse/shared'
+import { useArrayReduce } from '@reause/shared'
 import { useState } from 'react'
 
 const [list, setList] = useState([1, 2])
@@ -30,7 +30,7 @@ setList([...list, 3])
 ### Use with initialValue
 
 ```tsx
-import { useArrayReduce } from '@reaxuse/shared'
+import { useArrayReduce } from '@reause/shared'
 import { useState } from 'react'
 
 const [list, setList] = useState([{ num: 1 }, { num: 2 }])

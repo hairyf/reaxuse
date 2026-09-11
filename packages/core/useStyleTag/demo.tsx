@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react'
-import { useStyleTag } from '@reaxuse/core'
+import { useStyleTag } from '@reause/core'
 
 const initialCSS = `
 .react-demo { background: #ad4c2e50; }

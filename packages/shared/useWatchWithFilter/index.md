@@ -12,7 +12,7 @@ Similar to `useWatch`, but with an `eventFilter` option that controls if events
 should be received:
 
 ```tsx
-import { useWatchWithFilter } from '@reaxuse/shared'
+import { useWatchWithFilter } from '@reause/shared'
 
 useWatchWithFilter(
   input,
@@ -33,7 +33,7 @@ The filter factories are exported alongside the hook — `debounceFilter(ms)`
 and `throttleFilter(ms)` — mirroring upstream's filter semantics:
 
 ```tsx
-import { debounceFilter, throttleFilter, useWatchWithFilter } from '@reaxuse/shared'
+import { debounceFilter, throttleFilter, useWatchWithFilter } from '@reause/shared'
 
 // Debounce: bursts of changes collapse into one call 100ms after the last change,
 // forced by maxWait when changes never settle
@@ -57,7 +57,7 @@ time.
 ### Stopping the watcher
 
 ```tsx
-import { debounceFilter, useWatchWithFilter } from '@reaxuse/shared'
+import { debounceFilter, useWatchWithFilter } from '@reause/shared'
 
 const stop = useWatchWithFilter(source, callback, { eventFilter: debounceFilter(100) })
 
@@ -68,7 +68,7 @@ stop()
 Fire the callback once on mount with the current value (still filtered):
 
 ```tsx
-import { useWatchWithFilter } from '@reaxuse/shared'
+import { useWatchWithFilter } from '@reause/shared'
 
 useWatchWithFilter(input, () => console.log('changed!'), { immediate: true })
 ```

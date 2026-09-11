@@ -1,6 +1,6 @@
 # Get Started
 
-`reaxuse` is a collection of React hooks based on the Hooks
+`reause` is a collection of React hooks based on the Hooks
 API (`useState` / `useEffect` / `useCallback` / `useMemo`). We assume you are
 already familiar with the basic ideas of [React Hooks](https://react.dev/reference/react)
 before you continue.
@@ -13,30 +13,30 @@ adapted to the React idiom. The package structure, docs and demos are mirrored
 - The official [vueuse/vueuse](https://github.com/vueuse/vueuse) repository is referenced as a
   git submodule (`source/vueuse`) and serves as the single source of truth for mapping
 - Every function is a React hook (`useX`) mapped 1:1 from the upstream implementation
-- See [architecture](/guide/architecture) for the full VueUse → reaxuse mapping
+- See [architecture](/guide/architecture) for the full VueUse → reause mapping
 
 ## Installation
 
 ```bash
-npm i @reaxuse/core
+npm i @reause/core
 ```
 
 Packages mirror `@vueuse/*` 1:1 — install the package that matches the upstream
 one:
 
-| VueUse                 | reaxuse                 |
+| VueUse                 | reause                 |
 | ---------------------- | ----------------------- |
-| `@vueuse/core`         | `@reaxuse/core`         |
-| `@vueuse/shared`       | `@reaxuse/shared`       |
-| `@vueuse/integrations` | `@reaxuse/integrations` |
-| `@vueuse/math`         | `@reaxuse/math`         |
-| `@vueuse/metadata`     | `@reaxuse/metadata`     |
-| `@vueuse/rxjs`         | `@reaxuse/rxjs`         |
-| `@vueuse/electron`     | `@reaxuse/electron`     |
-| `@vueuse/firebase`     | `@reaxuse/firebase`     |
-| `@vueuse/skills`       | `@reaxuse/skills`       |
+| `@vueuse/core`         | `@reause/core`         |
+| `@vueuse/shared`       | `@reause/shared`       |
+| `@vueuse/integrations` | `@reause/integrations` |
+| `@vueuse/math`         | `@reause/math`         |
+| `@vueuse/metadata`     | `@reause/metadata`     |
+| `@vueuse/rxjs`         | `@reause/rxjs`         |
+| `@vueuse/electron`     | `@reause/electron`     |
+| `@vueuse/firebase`     | `@reause/firebase`     |
+| `@vueuse/skills`       | `@reause/skills`       |
 
-> reaxuse requires React `>= 18`.
+> reause requires React `>= 18`.
 
 ## Usage Example
 
@@ -44,7 +44,7 @@ Simply import the hooks you need. React hooks return plain values (not refs), so
 you destructure and use them directly:
 
 ```tsx
-import { useLocalStorage, useMouse, usePreferredDark } from '@reaxuse/core'
+import { useLocalStorage, useMouse, usePreferredDark } from '@reause/core'
 
 function App() {
   // tracks mouse position

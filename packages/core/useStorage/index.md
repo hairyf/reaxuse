@@ -11,7 +11,7 @@ Uses localStorage by default, other storage sources be specified via third argum
 ## Usage
 
 ```tsx
-import { useStorage } from '@reaxuse/core'
+import { useStorage } from '@reause/core'
 
 const [state, setState] = useStorage('my-store', { hello: 'hi', greeting: 'Hello' })
 const [flag, setFlag] = useStorage('my-flag', true)
@@ -25,7 +25,7 @@ setState(null) // delete data from storage
 By default, `useStorage` will use the value from storage if it is present and ignores the default value. Be aware that when you are adding more properties to the default value, the key might be `undefined` if client's storage does not have that key.
 
 ```tsx
-import { useStorage } from '@reaxuse/core'
+import { useStorage } from '@reause/core'
 // ---cut---
 localStorage.setItem('my-store', '{"hello": "hello"}')
 
@@ -37,7 +37,7 @@ console.log(state.greeting) // undefined, since the value is not presented in st
 To solve that, you can enable `mergeDefaults` option.
 
 ```tsx
-import { useStorage } from '@reaxuse/core'
+import { useStorage } from '@reause/core'
 // ---cut---
 localStorage.setItem('my-store', '{"hello": "nihao"}')
 
@@ -55,7 +55,7 @@ console.log(state.greeting) // 'hello', from merged default value
 When setting it to true, it will perform a **shallow merge** for objects. You can pass a function to perform custom merge (e.g. deep merge), for example:
 
 ```tsx
-import { useStorage } from '@reaxuse/core'
+import { useStorage } from '@reause/core'
 // ---cut---
 const [state, setState] = useStorage(
   'my-store',
@@ -72,7 +72,7 @@ By default, `useStorage` will smartly use the corresponding serializer based on 
 You can also provide your own serialization function to `useStorage`:
 
 ```tsx
-import { useStorage } from '@reaxuse/core'
+import { useStorage } from '@reause/core'
 
 useStorage(
   'key',
@@ -90,7 +90,7 @@ useStorage(
 Please note when you provide `null` as the default value, `useStorage` can't assume the data type from it. In this case, you can provide a custom serializer or reuse the built-in ones explicitly.
 
 ```tsx
-import { StorageSerializers, useStorage } from '@reaxuse/core'
+import { StorageSerializers, useStorage } from '@reause/core'
 
 const [objectLike, setObjectLike] = useStorage('key', null, undefined, { serializer: StorageSerializers.object })
 setObjectLike({ foo: 'bar' })
@@ -112,7 +112,7 @@ The following serializers are available via `StorageSerializers`:
 | `any`     | Raw string passthrough                |
 
 ```tsx
-import { StorageSerializers, useStorage } from '@reaxuse/core'
+import { StorageSerializers, useStorage } from '@reause/core'
 
 const [myMap, setMyMap] = useStorage('my-map', new Map(), undefined, {
   serializer: StorageSerializers.map,
@@ -137,7 +137,7 @@ useStorage('key', defaults, storage, {
 The storage key can be derived from state — the data will be updated when the key changes between renders:
 
 ```tsx
-import { useStorage } from '@reaxuse/core'
+import { useStorage } from '@reause/core'
 import { useState } from 'react'
 
 const [userId, setUserId] = useState('user-1')

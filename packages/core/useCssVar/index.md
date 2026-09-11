@@ -9,7 +9,7 @@ Manipulate CSS variables
 ## Usage
 
 ```tsx
-import { useCssVar } from '@reaxuse/core'
+import { useCssVar } from '@reause/core'
 import { useRef } from 'react'
 
 const el = useRef<HTMLDivElement>(null)

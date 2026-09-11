@@ -1,6 +1,6 @@
-import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reause/shared'
 import type { Dispatch, SetStateAction } from 'react'
-import { toValue } from '@reaxuse/shared'
+import { toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
@@ -51,7 +51,7 @@ export type UseCssVarReturn = [
  * inline style. Setting `null`/`undefined` through the setter removes the
  * property.
  *
- * Return tuple follows this repo's React idiom (see hairyf/reaxuse#100) —
+ * Return tuple follows this repo's React idiom (see hairyf/reause#100) —
  * upstream returns a single writable Vue `ShallowRef`, here it becomes
  * `const [value, setValue] = useCssVar('--color', el)`.
  *

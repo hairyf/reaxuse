@@ -1,4 +1,4 @@
-import { useSupported } from '@reaxuse/core'
+import { useSupported } from '@reause/core'
 
 export default function UseSupportedDemo() {
   const isBatterySupported = useSupported(() => navigator && 'getBattery' in navigator)

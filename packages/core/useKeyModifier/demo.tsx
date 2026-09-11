@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react'
-import { useKeyModifier } from '@reaxuse/core'
+import { useKeyModifier } from '@reause/core'
 
 function Key({ value, children }: { value: boolean | null, children: ReactNode }) {
   const active = value === true

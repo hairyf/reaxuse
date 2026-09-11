@@ -9,7 +9,7 @@ Reactive countdown timer in seconds
 ## Usage
 
 ```tsx
-import { useCountdown } from '@reaxuse/core'
+import { useCountdown } from '@reause/core'
 
 const countdownSeconds = 5
 const [remaining, setRemaining, { start, stop, pause, resume }] = useCountdown(countdownSeconds, {
@@ -29,7 +29,7 @@ You can use a `ref` to change the initial countdown.
 `start()` and `resume()` also accept a new countdown value for the next countdown.
 
 ```tsx
-import { useCountdown } from '@reaxuse/core'
+import { useCountdown } from '@reause/core'
 
 const countdown = { current: 5 }
 const [, , { start, reset }] = useCountdown(countdown)
@@ -51,7 +51,7 @@ start()
 
 | Option       | Type         | Default | Description                                                  |
 | ------------ | ------------ | ------- | ------------------------------------------------------------ |
-| `interval`   | `number`     | `1000`  | Countdown interval in milliseconds (reaxuse-only, see below) |
+| `interval`   | `number`     | `1000`  | Countdown interval in milliseconds (reause-only, see below) |
 | `onComplete` | `() => void` | —       | Callback function called when the countdown reaches 0        |
 | `onTick`     | `() => void` | —       | Callback function called on each tick of the countdown       |
 
@@ -69,6 +69,6 @@ start()
 ## React divergences
 
 - The return is a React tuple `[remaining, setRemaining, { reset, stop, start, pause, resume, isActive }]` instead of upstream's object: `remaining` is a `number` and `controls.isActive` a `boolean` (no `.value`), and `setRemaining` is the React state setter writing the internal state directly.
-- Upstream accepts a `scheduler` option (`UseCountdownOptions extends ConfigurableScheduler`, defaulting to `useIntervalFn(cb, 1000, { immediate: false })`). There is no React equivalent, so `scheduler` is not ported; the reaxuse-only `interval` option sets the tick rate instead (default `1000` ms, matching upstream's default scheduler).
+- Upstream accepts a `scheduler` option (`UseCountdownOptions extends ConfigurableScheduler`, defaulting to `useIntervalFn(cb, 1000, { immediate: false })`). There is no React equivalent, so `scheduler` is not ported; the reause-only `interval` option sets the tick rate instead (default `1000` ms, matching upstream's default scheduler).
 - A plain-number `initialCountdown` is captured once at setup, like upstream's `toValue(initialCountdown)` closure — a later no-arg `start()`/`reset()` keeps using the setup value. Pass a ref-like `{ current }` to read the latest value.
 - `start()`/`resume()` begin the interval from event handlers/effects only, so no timers run during SSR.

@@ -9,7 +9,7 @@ Reactive swipe detection based on [PointerEvents](https://developer.mozilla.org/
 ## Usage
 
 ```tsx
-import { usePointerSwipe } from '@reaxuse/core'
+import { usePointerSwipe } from '@reause/core'
 import { useRef } from 'react'
 
 const el = useRef<HTMLDivElement>(null)

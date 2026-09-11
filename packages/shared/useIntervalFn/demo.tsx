@@ -1,4 +1,4 @@
-import { useIntervalFn } from '@reaxuse/shared'
+import { useIntervalFn } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseIntervalFnDemo() {

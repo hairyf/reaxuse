@@ -10,7 +10,7 @@ Create global state that can be injected into components.
 
 ```tsx
 // useCounterStore.ts
-import { createInjectionState } from '@reaxuse/shared'
+import { createInjectionState } from '@reause/shared'
 import { useState } from 'react'
 
 const [CounterStoreProvider, useCounterStore] = createInjectionState(({ initialValue }: { initialValue: number }) => {
@@ -102,7 +102,7 @@ export function ButtonComponent() {
 
 ```tsx
 // useCounterStore.ts
-import { createInjectionState } from '@reaxuse/shared'
+import { createInjectionState } from '@reause/shared'
 import { createContext, useState } from 'react'
 
 // custom injectionKey
@@ -130,7 +130,7 @@ When a custom `injectionKey` is supplied, `defaultValue` is not used — the cus
 
 ```tsx
 // useCounterStore.ts
-import { createInjectionState } from '@reaxuse/shared'
+import { createInjectionState } from '@reause/shared'
 import { useState } from 'react'
 
 // useCounterStore does not return undefined when defaultValue is specified

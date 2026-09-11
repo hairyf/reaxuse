@@ -9,7 +9,7 @@ Watch for changes being made to the DOM tree
 ## Usage
 
 ```tsx
-import { useMutationObserver } from '@reaxuse/core'
+import { useMutationObserver } from '@reause/core'
 import { useRef, useState } from 'react'
 
 const el = useRef<HTMLDivElement | null>(null)

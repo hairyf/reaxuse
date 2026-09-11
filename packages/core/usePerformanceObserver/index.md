@@ -9,7 +9,7 @@ Observe performance metrics
 ## Usage
 
 ```tsx
-import { usePerformanceObserver } from '@reaxuse/core'
+import { usePerformanceObserver } from '@reause/core'
 import { useState } from 'react'
 
 const [entrys, setEntrys] = useState<PerformanceEntry[]>([])

@@ -1,4 +1,4 @@
-import { useTemporalNow } from '@reaxuse/core'
+import { useTemporalNow } from '@reause/core'
 import { useState } from 'react'
 
 const timezones = [

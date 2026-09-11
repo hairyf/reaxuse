@@ -1,6 +1,6 @@
 # Guidelines
 
-Here are the guidelines for reaxuse hooks. You could also take them as a
+Here are the guidelines for reause hooks. You could also take them as a
 reference for authoring your own React hooks or apps.
 
 ## General
@@ -14,7 +14,7 @@ reference for authoring your own React hooks or apps.
 - Avoid using console logs
 - When the function is asynchronous, return a PromiseLike
 
-Naming follows the mapping rules in [AGENTS.md](https://github.com/hairyf/reaxuse/blob/main/AGENTS.md):
+Naming follows the mapping rules in [AGENTS.md](https://github.com/hairyf/reause/blob/main/AGENTS.md):
 
 - `ref*` → `useState*`; `on*` → `use*`; `use*RefHistory` → `useState*History`
 - VueUse conversions return **React array destructuring** by default; hooks with multiple writable values return an **object** with paired setters
@@ -73,7 +73,7 @@ useActiveElement({ window: window.parent })
 
 VueUse uses the `controls` option allowing users to use functions with a single
 return for simple usages, while being able to have more controls and
-flexibility when needed. reaxuse mirrors this for the hooks that have it.
+flexibility when needed. reause mirrors this for the hooks that have it.
 
 ### When to provide a `controls` option
 
@@ -103,7 +103,7 @@ also outputs `isSupported` flag.
 For example `useShare`:
 
 ```tsx
-import { useShare } from '@reaxuse/core'
+import { useShare } from '@reause/core'
 
 const { isSupported, share } = useShare()
 ```
@@ -121,7 +121,7 @@ PromiseLike object so the user is able to await the hook. This is especially
 useful inside async event handlers.
 
 ```tsx
-import { useFetch } from '@reaxuse/core'
+import { useFetch } from '@reause/core'
 
 // awaited directly — resolves when the request finishes
 const { isFetching, error, data } = await useFetch(url)

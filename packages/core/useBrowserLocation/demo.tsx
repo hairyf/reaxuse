@@ -1,4 +1,4 @@
-import { useBrowserLocation } from '@reaxuse/core'
+import { useBrowserLocation } from '@reause/core'
 
 export default function UseBrowserLocationDemo() {
   const location = useBrowserLocation()

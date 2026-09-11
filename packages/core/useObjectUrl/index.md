@@ -10,7 +10,7 @@ Reactive URL representing an object.
 
 ```tsx
 import type { ChangeEvent } from 'react'
-import { useObjectUrl } from '@reaxuse/core'
+import { useObjectUrl } from '@reause/core'
 import { useState } from 'react'
 
 const [file, setFile] = useState<File>()

@@ -55,7 +55,7 @@ Get the formatted date according to the string of tokens passed in, inspired by 
 ### Basic
 
 ```tsx
-import { useDateFormat } from '@reaxuse/shared'
+import { useDateFormat } from '@reause/shared'
 
 const formatted = useDateFormat(new Date(), 'YYYY-MM-DD HH:mm:ss')
 ```
@@ -63,7 +63,7 @@ const formatted = useDateFormat(new Date(), 'YYYY-MM-DD HH:mm:ss')
 ### Use with locales
 
 ```tsx
-import { useDateFormat } from '@reaxuse/shared'
+import { useDateFormat } from '@reause/shared'
 
 const formatted = useDateFormat(new Date(), 'YYYY-MM-DD (ddd)', { locales: 'en-US' })
 ```

@@ -11,7 +11,7 @@ Reactive [Web Share API](https://developer.mozilla.org/en-US/docs/Web/API/Naviga
 ## Usage
 
 ```tsx
-import { useShare } from '@reaxuse/core'
+import { useShare } from '@reause/core'
 
 const { share, isSupported } = useShare()
 

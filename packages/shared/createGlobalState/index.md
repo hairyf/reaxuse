@@ -12,7 +12,7 @@ Keep state in the global scope, reusable across React components
 
 ```ts
 // store.ts
-import { createGlobalState } from '@reaxuse/shared'
+import { createGlobalState } from '@reause/shared'
 
 export const useGlobalState = createGlobalState(() => ({ count: 0 }))
 ```
@@ -36,7 +36,7 @@ A bigger example:
 
 ```ts
 // store.ts
-import { createGlobalState } from '@reaxuse/shared'
+import { createGlobalState } from '@reause/shared'
 
 export const useGlobalState = createGlobalState(() => ({ count: 0 }))
 
@@ -68,10 +68,10 @@ Store in `localStorage` with `useStorage`:
 
 ```ts
 // store.ts
-import { useStorage } from '@reaxuse/core'
-import { createGlobalState } from '@reaxuse/shared'
+import { useStorage } from '@reause/core'
+import { createGlobalState } from '@reause/shared'
 
 export const useGlobalState = createGlobalState(
-  () => useStorage('reaxuse-local-storage', 'initialValue'),
+  () => useStorage('reause-local-storage', 'initialValue'),
 )
 ```

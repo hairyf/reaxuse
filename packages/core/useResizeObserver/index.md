@@ -9,7 +9,7 @@ Reports changes to the dimensions of an Element's content or the border-box
 ## Usage
 
 ```tsx
-import { useResizeObserver } from '@reaxuse/core'
+import { useResizeObserver } from '@reause/core'
 import { useRef, useState } from 'react'
 
 const el = useRef<HTMLTextAreaElement | null>(null)

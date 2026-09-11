@@ -9,7 +9,7 @@ Reactive pointer state
 ## Basic Usage
 
 ```tsx
-import { usePointer } from '@reaxuse/core'
+import { usePointer } from '@reause/core'
 
 const { x, y, pressure, pointerType, isInside } = usePointer()
 

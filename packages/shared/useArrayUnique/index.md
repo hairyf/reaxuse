@@ -11,7 +11,7 @@ reactive unique array
 ### Use with array of multiple refs
 
 ```tsx
-import { useArrayUnique } from '@reaxuse/shared'
+import { useArrayUnique } from '@reause/shared'
 import { useState } from 'react'
 
 const [item1, setItem1] = useState(0)
@@ -30,7 +30,7 @@ setItem5(1)
 ### Use with reactive array
 
 ```tsx
-import { useArrayUnique } from '@reaxuse/shared'
+import { useArrayUnique } from '@reause/shared'
 import { useState } from 'react'
 
 const [list, setList] = useState([1, 2, 2, 3])
@@ -44,7 +44,7 @@ setList([...list, 1])
 ### Use with custom function
 
 ```tsx
-import { useArrayUnique } from '@reaxuse/shared'
+import { useArrayUnique } from '@reause/shared'
 import { useState } from 'react'
 
 const [list, setList] = useState([

@@ -1,4 +1,4 @@
-import { useBluetooth } from '@reaxuse/core'
+import { useBluetooth } from '@reause/core'
 
 export default function UseBluetoothDemo() {
   const {

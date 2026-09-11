@@ -17,7 +17,7 @@ N.B. This API is not available in Web Workers (not exposed via `WorkerNavigator`
 ## Usage
 
 ```tsx
-import { useBluetooth } from '@reaxuse/core'
+import { useBluetooth } from '@reause/core'
 
 const {
   isSupported,
@@ -89,8 +89,8 @@ This sample illustrates the use of the Web Bluetooth API to read battery level a
 Here, we use the characteristicvaluechanged event listener to handle reading battery level characteristic value. This event listener will optionally handle upcoming notifications as well.
 
 ```tsx
-import type { BluetoothRemoteGATTCharacteristic } from '@reaxuse/core'
-import { useBluetooth, useEventListener } from '@reaxuse/core'
+import type { BluetoothRemoteGATTCharacteristic } from '@reause/core'
+import { useBluetooth, useEventListener } from '@reause/core'
 import { useEffect, useState } from 'react'
 
 export default function Component() {

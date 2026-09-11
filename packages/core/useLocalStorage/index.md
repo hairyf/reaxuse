@@ -11,7 +11,7 @@ Reactive [LocalStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/
 Please refer to `useStorage`.
 
 ```tsx
-import { useLocalStorage } from '@reaxuse/core'
+import { useLocalStorage } from '@reause/core'
 
 const [state, setState] = useLocalStorage('my-store', { hello: 'hi', greeting: 'Hello' })
 const [flag, setFlag] = useLocalStorage('my-flag', true)

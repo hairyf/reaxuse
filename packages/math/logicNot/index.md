@@ -9,7 +9,7 @@ category: '@Math'
 ## Usage
 
 ```tsx
-import { logicNot } from '@reaxuse/math'
+import { logicNot } from '@reause/math'
 
 const notTrue = logicNot(true) // false — re-evaluated on every call
 const notZero = logicNot(0) // true

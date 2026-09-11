@@ -11,7 +11,7 @@ Reactive `Array.join`
 ### Use with array of multiple refs
 
 ```tsx
-import { useArrayJoin } from '@reaxuse/shared'
+import { useArrayJoin } from '@reause/shared'
 import { useState } from 'react'
 
 const [item1, setItem1] = useState('foo')
@@ -28,7 +28,7 @@ setItem1('bar')
 ### Use with reactive array
 
 ```tsx
-import { useArrayJoin } from '@reaxuse/shared'
+import { useArrayJoin } from '@reause/shared'
 import { useState } from 'react'
 
 const [list, setList] = useState(['string', 0, { prop: 'val' }, false, [1], [[2]], null, undefined, []])
@@ -45,7 +45,7 @@ setList([null, 'string', undefined])
 ### Use with reactive separator
 
 ```tsx
-import { useArrayJoin } from '@reaxuse/shared'
+import { useArrayJoin } from '@reause/shared'
 import { useState } from 'react'
 
 const [list, setList] = useState(['string', 0, { prop: 'val' }])

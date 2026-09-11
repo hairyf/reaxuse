@@ -1,5 +1,5 @@
 {
-  "name": "@reaxuse/metadata",
+  "name": "@reause/metadata",
   "type": "module",
   "version": "0.1.2",
   "description": "Function metadata for generating docs — React port of @vueuse/metadata (experimental, AI-mapped)",

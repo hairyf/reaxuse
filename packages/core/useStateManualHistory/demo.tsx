@@ -1,4 +1,4 @@
-import { useStateManualHistory } from '@reaxuse/core'
+import { useStateManualHistory } from '@reause/core'
 import { useState } from 'react'
 
 function format(ts: number) {

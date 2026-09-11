@@ -1,4 +1,4 @@
-import { useSorted } from '@reaxuse/core'
+import { useSorted } from '@reause/core'
 import { useState } from 'react'
 
 const objArr = [

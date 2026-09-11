@@ -1,4 +1,4 @@
-import { useWatchPausable } from '@reaxuse/shared'
+import { useWatchPausable } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseWatchPausableDemo() {

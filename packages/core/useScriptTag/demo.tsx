@@ -1,4 +1,4 @@
-import { useScriptTag } from '@reaxuse/core'
+import { useScriptTag } from '@reause/core'
 
 export default function UseScriptTagDemo() {
   const { scriptTag, load, unload } = useScriptTag(

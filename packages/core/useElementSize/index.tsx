@@ -1,5 +1,5 @@
 import type { ElementTarget, TargetElement, UseResizeObserverOptions } from '../useResizeObserver'
-import { toArray, toValue } from '@reaxuse/shared'
+import { toArray, toValue } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useResizeObserver } from '../useResizeObserver'
 

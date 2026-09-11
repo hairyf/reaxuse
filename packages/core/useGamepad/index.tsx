@@ -1,4 +1,4 @@
-import type { ConfigurableWindow } from '@reaxuse/shared'
+import type { ConfigurableWindow } from '@reause/shared'
 import type { Dispatch, SetStateAction } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useEventListener } from '../useEventListener'
@@ -226,7 +226,7 @@ function stateFromGamepad(gamepad: Gamepad): Gamepad {
  * - `isSupported` (upstream `useSupported`) is a plain boolean resolved in
  *   the mount effect — nothing touches `navigator` during render (SSR-safe);
  * - `isActive` (upstream `useRafFn`'s shallow ref, missing from the earlier
- *   reaxuse port) is a plain boolean in `controls`;
+ *   reause port) is a plain boolean in `controls`;
  * - the polling loop starts paused (`useRafFn` with `immediate: false`,
  *   mirroring upstream's post-setup `pause()`) and is resumed the first time
  *   a gamepad connects; disconnecting never pauses it, matching upstream;

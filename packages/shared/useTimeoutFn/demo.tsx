@@ -1,4 +1,4 @@
-import { useTimeoutFn } from '@reaxuse/shared'
+import { useTimeoutFn } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseTimeoutFnDemo() {

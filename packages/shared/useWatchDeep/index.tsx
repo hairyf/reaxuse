@@ -11,7 +11,7 @@ import { useWatch } from '../useWatch'
  * deeply.
  *
  * Shared single source of truth — used by {@link useWatchDeep} and imported
- * from `@reaxuse/shared` by core hooks that need deep change detection
+ * from `@reause/shared` by core hooks that need deep change detection
  * (e.g. `useCloned`).
  */
 export function deepEqual(a: unknown, b: unknown): boolean {

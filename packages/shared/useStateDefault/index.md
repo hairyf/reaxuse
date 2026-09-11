@@ -9,7 +9,7 @@ Apply default value to a ref
 ## Usage
 
 ```tsx
-import { useStateDefault } from '@reaxuse/shared'
+import { useStateDefault } from '@reause/shared'
 
 const raw = { current: undefined as string | undefined }
 const [value, setValue] = useStateDefault(raw, 'default')

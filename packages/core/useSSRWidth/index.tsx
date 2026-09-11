@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactNode } from 'react'
-import { noop } from '@reaxuse/shared'
+import { noop } from '@reause/shared'
 import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 
 export interface SSRWidthProviderProps {

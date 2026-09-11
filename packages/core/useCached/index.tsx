@@ -1,6 +1,6 @@
-import type { RefOrValue } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
 import type { RefObject } from 'react'
-import { isRefLike } from '@reaxuse/shared'
+import { isRefLike } from '@reause/shared'
 import { useRef } from 'react'
 
 /**

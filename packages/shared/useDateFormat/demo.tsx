@@ -1,4 +1,4 @@
-import { useDateFormat } from '@reaxuse/shared'
+import { useDateFormat } from '@reause/shared'
 import { useEffect, useState } from 'react'
 
 const languages = [

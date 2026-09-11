@@ -9,10 +9,10 @@ export type ListenerOn<T extends (...args: any[]) => void> = (fn: T) => { off: (
 
 /**
  * React port of the `useListener` protocol — bind a callback to an event
- * registration function returned by a reaxuse hook, with automatic cleanup
+ * registration function returned by a reause hook, with automatic cleanup
  * on unmount.
  *
- * Map from @reaxuse/shared `useListener` (protocol: #129)
+ * Map from @reause/shared `useListener` (protocol: #129)
  * Motivation: hooks like `useFileDialog` return `onChange` / `onCancel`
  * registration functions (upstream `EventHookOn`). In Vue those auto-clean
  * via the effect scope; in React we need a hook to own that lifecycle.

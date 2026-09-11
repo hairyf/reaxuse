@@ -9,7 +9,7 @@ Ignorable watch — extended watch that returns `ignoreUpdates(updater)` / `igno
 ## Usage
 
 ```tsx
-import { useWatchIgnorable } from '@reaxuse/shared'
+import { useWatchIgnorable } from '@reause/shared'
 import { useState } from 'react'
 
 const [source, setSource] = useState('foo')

@@ -1,4 +1,4 @@
-import { useUpdate } from '@reaxuse/shared'
+import { useUpdate } from '@reause/shared'
 import { useRef } from 'react'
 
 export default function UseUpdateDemo() {

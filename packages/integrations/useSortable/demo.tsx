@@ -1,4 +1,4 @@
-import { useSortable } from '@reaxuse/integrations'
+import { useSortable } from '@reause/integrations'
 import { useRef, useState } from 'react'
 
 interface Item {

@@ -9,7 +9,7 @@ Reactive size of an HTML element. [ResizeObserver MDN](https://developer.mozilla
 ## Usage
 
 ```tsx
-import { useElementSize } from '@reaxuse/core'
+import { useElementSize } from '@reause/core'
 import { useRef } from 'react'
 
 const el = useRef<HTMLTextAreaElement | null>(null)
@@ -19,7 +19,7 @@ const { width, height, stop } = useElementSize(el)
 The element's size updates as it is resized:
 
 ```tsx
-import { useElementSize } from '@reaxuse/core'
+import { useElementSize } from '@reause/core'
 import { useRef } from 'react'
 
 const el = useRef<HTMLDivElement | null>(null)

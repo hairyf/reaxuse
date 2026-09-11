@@ -9,14 +9,14 @@ export default defineConfig({
     // Package exports point at dist (like upstream VueUse), so tests resolve the
     // workspace packages from source — mirrors VueUse's vitest.config.ts aliases.
     alias: {
-      '@reaxuse/core': resolve(import.meta.dirname, 'packages/core/index.ts'),
-      '@reaxuse/shared': resolve(import.meta.dirname, 'packages/shared/index.ts'),
-      '@reaxuse/math': resolve(import.meta.dirname, 'packages/math/index.ts'),
-      '@reaxuse/integrations': resolve(import.meta.dirname, 'packages/integrations/index.ts'),
-      '@reaxuse/electron': resolve(import.meta.dirname, 'packages/electron/index.ts'),
-      '@reaxuse/firebase': resolve(import.meta.dirname, 'packages/firebase/index.ts'),
-      '@reaxuse/rxjs': resolve(import.meta.dirname, 'packages/rxjs/index.ts'),
-      '@reaxuse/metadata': resolve(import.meta.dirname, 'packages/metadata/src/index.ts'),
+      '@reause/core': resolve(import.meta.dirname, 'packages/core/index.ts'),
+      '@reause/shared': resolve(import.meta.dirname, 'packages/shared/index.ts'),
+      '@reause/math': resolve(import.meta.dirname, 'packages/math/index.ts'),
+      '@reause/integrations': resolve(import.meta.dirname, 'packages/integrations/index.ts'),
+      '@reause/electron': resolve(import.meta.dirname, 'packages/electron/index.ts'),
+      '@reause/firebase': resolve(import.meta.dirname, 'packages/firebase/index.ts'),
+      '@reause/rxjs': resolve(import.meta.dirname, 'packages/rxjs/index.ts'),
+      '@reause/metadata': resolve(import.meta.dirname, 'packages/metadata/src/index.ts'),
     },
     dedupe: ['react', 'react-dom'],
   },

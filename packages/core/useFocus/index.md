@@ -9,7 +9,7 @@ Reactive utility to track or set the focus state of a DOM element
 ## Basic Usage
 
 ```tsx
-import { useFocus } from '@reaxuse/core'
+import { useFocus } from '@reause/core'
 import { useRef } from 'react'
 
 const input = useRef<HTMLInputElement>(null)
@@ -36,7 +36,7 @@ events for `true` and `false` values respectively. You can utilize this behavior
 element as a result of another action (e.g. when a button click as shown below).
 
 ```tsx
-import { useFocus } from '@reaxuse/core'
+import { useFocus } from '@reause/core'
 import { useRef } from 'react'
 
 function Component() {

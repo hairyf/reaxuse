@@ -1,4 +1,4 @@
-import { useNetwork } from '@reaxuse/core'
+import { useNetwork } from '@reause/core'
 
 export default function UseNetworkDemo() {
   const network = useNetwork()

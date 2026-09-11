@@ -13,7 +13,7 @@ coerced as-is on every call.
 ## Usage
 
 ```tsx
-import { useToString } from '@reaxuse/shared'
+import { useToString } from '@reause/shared'
 
 useToString(123.345) // '123.345'
 useToString('hi') // 'hi'

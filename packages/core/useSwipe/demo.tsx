@@ -1,4 +1,4 @@
-import { useSwipe } from '@reaxuse/core'
+import { useSwipe } from '@reause/core'
 import { useRef, useState } from 'react'
 
 export default function UseSwipeDemo() {

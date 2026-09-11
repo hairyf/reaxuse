@@ -1,17 +1,17 @@
 # Configurations
 
-These show the general configurations for most of the hooks in reaxuse.
+These show the general configurations for most of the hooks in reause.
 
 ## Event Filters
 
 From v4.0, VueUse provides the Event Filters system to give the flexibility to
-control when events will get triggered. reaxuse mirrors the same filter
-factories from `@reaxuse/shared` — `debounceFilter` and `throttleFilter` — and
+control when events will get triggered. reause mirrors the same filter
+factories from `@reause/shared` — `debounceFilter` and `throttleFilter` — and
 the `eventFilter` option on the hooks that support it. For example, you can
 control the event trigger rate:
 
 ```tsx
-import { throttleFilter, useMouse } from '@reaxuse/core'
+import { throttleFilter, useMouse } from '@reause/core'
 
 // mouse position will be updated at most once per 100ms
 const { x, y } = useMouse({ eventFilter: throttleFilter(100) })
@@ -21,7 +21,7 @@ Debouncing with `useWatchWithFilter` (the `watch`-style hook with an
 `eventFilter` option):
 
 ```tsx
-import { debounceFilter, useWatchWithFilter } from '@reaxuse/shared'
+import { debounceFilter, useWatchWithFilter } from '@reause/shared'
 
 useWatchWithFilter(input, (next) => {
   // called only after `input` has been idle for 300ms
@@ -29,7 +29,7 @@ useWatchWithFilter(input, (next) => {
 ```
 
 > React divergence: VueUse exposes `pausableFilter` for temporarily pausing
-> events. reaxuse does not ship a standalone `pausableFilter`; the pausable
+> events. reause does not ship a standalone `pausableFilter`; the pausable
 > behavior lives in the dedicated pausable hooks (`useWatchPausable`, and the
 > `*History` hooks' `pause` / `resume` / `isTracking` controls).
 
@@ -40,7 +40,7 @@ VueUse's functions follow Vue's reactivity system defaults for
 — `{ flush: 'pre' }` by default, with `'post'` and `'sync'` configurable.
 
 React has no equivalent notion of flush timing: state updates are batched and
-effects run after the browser paints, so reaxuse hooks omit the `flush` option
+effects run after the browser paints, so reause hooks omit the `flush` option
 entirely. Two idioms cover the VueUse use cases:
 
 - **After a state mutation (upstream `flush: 'post'`):** write with the
@@ -63,7 +63,7 @@ need to worry about it. This configure is useful when working with iframes and
 testing environments.
 
 ```tsx
-import { useMouse, useTitle } from '@reaxuse/core'
+import { useMouse, useTitle } from '@reause/core'
 
 // accessing parent context
 const parentMousePos = useMouse({ window: window.parent })
@@ -90,12 +90,12 @@ with a `navigator` option.
 ## Custom Scheduler
 
 From v14.1.0, VueUse introduces a custom scheduler system that allows you to
-control how time-based functions update internally. reaxuse mirrors it for the
+control how time-based functions update internally. reause mirrors it for the
 hooks that support timing. For example, `useNow` lets you replace its default
 `useRafFn` scheduler (e.g. to slow updates down):
 
 ```tsx
-import { useIntervalFn, useNow } from '@reaxuse/shared'
+import { useIntervalFn, useNow } from '@reause/shared'
 
 const { now, pause, resume } = useNow({
   controls: true,

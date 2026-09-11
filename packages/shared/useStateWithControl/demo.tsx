@@ -1,4 +1,4 @@
-import { useStateWithControl } from '@reaxuse/shared'
+import { useStateWithControl } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseStateWithControlDemo() {

@@ -17,7 +17,7 @@ import { MarkdownTransform } from './plugins/markdownTransform'
 import { PWAVirtualModule } from './plugins/pwa-virtual'
 
 /**
- * VitePress config for the reaxuse docs site (docs root = `packages/`,
+ * VitePress config for the reause docs site (docs root = `packages/`,
  * mirroring VueUse's `packages/.vitepress/config.ts`).
  */
 
@@ -140,7 +140,7 @@ function getFunctionsSideBar() {
     }))
 }
 
-// Guide pages (mirrors VueUse's Guide links, adapted to reaxuse's pages).
+// Guide pages (mirrors VueUse's Guide links, adapted to reause's pages).
 const Guide = [
   { text: 'Get Started', link: '/guide/' },
   { text: 'Best Practice', link: '/guide/best-practice' },
@@ -151,7 +151,7 @@ const Guide = [
   { text: 'Guidelines', link: '/guidelines' },
 ]
 
-// Utility links (mirrors VueUse's Links list, adapted to reaxuse).
+// Utility links (mirrors VueUse's Links list, adapted to reause).
 const Links = [
   { text: 'Export Size', link: '/export-size' },
   { text: 'Recent Updated', link: '/functions.html#sort=updated' },
@@ -213,10 +213,10 @@ const packageNames: [string, { url: string, hash: string }][] = [
 
 // Per-page head additions (og meta), mirroring VueUse's transformHead.ts.
 function transformHead(context: TransformContext): HeadConfig[] {
-  const title = context.pageData.title ? `${context.pageData.title} | ReaxUse` : 'ReaxUse'
+  const title = context.pageData.title ? `${context.pageData.title} | ReaUse` : 'ReaUse'
   return [
     ['meta', { property: 'og:title', content: title }],
-    ['meta', { property: 'og:image', content: '/reaxuse.svg' }],
+    ['meta', { property: 'og:image', content: '/reause.svg' }],
     ['meta', { name: 'twitter:card', content: 'summary' }],
   ]
 }
@@ -225,7 +225,7 @@ const FunctionsSideBar = getFunctionsSideBar()
 
 export default withPwa(defineConfig({
   lang: 'en-US',
-  title: 'ReaxUse',
+  title: 'ReaUse',
   description: 'Reactive utilities for React — an experimental 1:1 AI-mapped port of VueUse',
   lastUpdated: true,
   // `packages/skills` is build tooling for the generated agent skill, not a
@@ -235,7 +235,7 @@ export default withPwa(defineConfig({
   // relative links would fail the dead-link check).
   srcExclude: ['skills/**'],
   head: [
-    ['link', { rel: 'icon', href: '/reaxuse.svg', type: 'image/svg+xml' }],
+    ['link', { rel: 'icon', href: '/reause.svg', type: 'image/svg+xml' }],
     ['meta', { property: 'og:description', content: 'Reactive utilities for React — an experimental 1:1 AI-mapped port of VueUse' }],
   ],
   transformHead,
@@ -248,14 +248,14 @@ export default withPwa(defineConfig({
     // VueUse's packages/.vitepress/vite.config.ts aliases.
     resolve: {
       alias: {
-        '@reaxuse/shared': resolve(__dirname, '../shared/index.ts'),
-        '@reaxuse/core': resolve(__dirname, '../core/index.ts'),
-        '@reaxuse/math': resolve(__dirname, '../math/index.ts'),
-        '@reaxuse/integrations': resolve(__dirname, '../integrations/index.ts'),
-        '@reaxuse/electron': resolve(__dirname, '../electron/index.ts'),
-        '@reaxuse/firebase': resolve(__dirname, '../firebase/index.ts'),
-        '@reaxuse/rxjs': resolve(__dirname, '../rxjs/index.ts'),
-        '@reaxuse/metadata': resolve(__dirname, '../metadata/src/index.ts'),
+        '@reause/shared': resolve(__dirname, '../shared/index.ts'),
+        '@reause/core': resolve(__dirname, '../core/index.ts'),
+        '@reause/math': resolve(__dirname, '../math/index.ts'),
+        '@reause/integrations': resolve(__dirname, '../integrations/index.ts'),
+        '@reause/electron': resolve(__dirname, '../electron/index.ts'),
+        '@reause/firebase': resolve(__dirname, '../firebase/index.ts'),
+        '@reause/rxjs': resolve(__dirname, '../rxjs/index.ts'),
+        '@reause/metadata': resolve(__dirname, '../metadata/src/index.ts'),
       },
     },
     // Cast: vitepress bundles its own vite copy, so its PluginOption type
@@ -282,12 +282,12 @@ export default withPwa(defineConfig({
           maximumFileSizeToCacheInBytes: 10_000_000,
         },
         manifest: {
-          name: 'ReaxUse',
-          short_name: 'ReaxUse',
+          name: 'ReaUse',
+          short_name: 'ReaUse',
           description: 'Reactive utilities for React — an experimental 1:1 AI-mapped port of VueUse',
           theme_color: '#3b82f6',
           icons: [
-            { src: '/reaxuse.svg', sizes: 'any', type: 'image/svg+xml' },
+            { src: '/reause.svg', sizes: 'any', type: 'image/svg+xml' },
           ],
         },
       }),
@@ -302,7 +302,7 @@ export default withPwa(defineConfig({
     },
   },
   themeConfig: {
-    logo: '/reaxuse.svg',
+    logo: '/reause.svg',
     nav: [
       {
         text: 'Guide',
@@ -331,7 +331,7 @@ export default withPwa(defineConfig({
         items: [
           {
             items: [
-              { text: 'Release Notes', link: 'https://github.com/hairyf/reaxuse/releases' },
+              { text: 'Release Notes', link: 'https://github.com/hairyf/reause/releases' },
             ],
           },
           {

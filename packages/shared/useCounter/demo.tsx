@@ -1,4 +1,4 @@
-import { useCounter } from '@reaxuse/shared'
+import { useCounter } from '@reause/shared'
 
 export default function UseCounterDemo() {
   const { count, inc, dec, reset } = useCounter(0, { min: 0, max: 10 })

@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react'
-import { useBase64 } from '@reaxuse/core'
+import { useBase64 } from '@reause/core'
 import { useState } from 'react'
 
 const BUFFER = new ArrayBuffer(8)

@@ -1,5 +1,5 @@
 {
-  "name": "@reaxuse/playground-next",
+  "name": "@reause/playground-next",
   "version": "0.1.2",
   "private": true,
   "scripts": {
@@ -8,8 +8,8 @@
     "start": "next start"
   },
   "dependencies": {
-    "@reaxuse/core": "workspace:*",
-    "@reaxuse/shared": "workspace:*",
+    "@reause/core": "workspace:*",
+    "@reause/shared": "workspace:*",
     "next": "^15.5.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"

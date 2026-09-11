@@ -1,5 +1,5 @@
 import type { Mock } from 'vitest'
-import { useListener } from '@reaxuse/shared'
+import { useListener } from '@reause/shared'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderHook } from 'vitest-browser-react'
 import { useDevicesList } from '../useDevicesList'

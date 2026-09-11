@@ -1,4 +1,4 @@
-import { useOffsetPagination } from '@reaxuse/core'
+import { useOffsetPagination } from '@reause/core'
 import { useEffect, useState } from 'react'
 
 interface User {

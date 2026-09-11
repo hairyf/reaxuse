@@ -1,5 +1,5 @@
-import type { ConfigurableWindow, RefOrValue } from '@reaxuse/shared'
-import { increaseWithUnit, pxValue, toValue } from '@reaxuse/shared'
+import type { ConfigurableWindow, RefOrValue } from '@reause/shared'
+import { increaseWithUnit, pxValue, toValue } from '@reause/shared'
 import { useEffect, useRef } from 'react'
 import { useMediaQuery } from '../useMediaQuery'
 import { useSSRWidth } from '../useSSRWidth'

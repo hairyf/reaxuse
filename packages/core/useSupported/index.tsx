@@ -28,7 +28,7 @@ export type UseSupportedReturn = boolean
  *   before `useMounted` flips and on the server — so its pre-mount value is
  *   whatever the callback returns in that environment, not `false`. The
  *   first client-side render can therefore disagree with upstream's
- *   server-rendered value; reaxuse deliberately waits for the mount effect.
+ *   server-rendered value; reause deliberately waits for the mount effect.
  *
  * @example
  * const isSupported = useSupported(() => navigator && 'getBattery' in navigator)

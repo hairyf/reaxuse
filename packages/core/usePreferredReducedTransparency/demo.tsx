@@ -1,4 +1,4 @@
-import { usePreferredReducedTransparency } from '@reaxuse/core'
+import { usePreferredReducedTransparency } from '@reause/core'
 
 export default function UsePreferredReducedTransparencyDemo() {
   const transparency = usePreferredReducedTransparency()

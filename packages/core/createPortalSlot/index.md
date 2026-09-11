@@ -31,7 +31,7 @@ So this function is made to provide a way for defining and reusing templates ins
 In the previous example, we could refactor it to:
 
 ```tsx
-import { createPortalSlot } from '@reaxuse/core'
+import { createPortalSlot } from '@reause/core'
 
 const [PortalSlot, SlotTarget] = createPortalSlot()
 
@@ -66,7 +66,7 @@ You can also pass data to the template:
 - Directly bind the data as props on `<SlotTarget>` to pass them to the template
 
 ```tsx
-import { createPortalSlot } from '@reaxuse/core'
+import { createPortalSlot } from '@reause/core'
 
 const [PortalSlot, SlotTarget] = createPortalSlot()
 
@@ -90,7 +90,7 @@ function App({ data, anotherData }: { data: string, anotherData: string }) {
 `createPortalSlot` accepts a generic type to provide type support for the data passed to the template:
 
 ```tsx
-import { createPortalSlot } from '@reaxuse/core'
+import { createPortalSlot } from '@reause/core'
 
 // Comes with a pair of `PortalSlot` and `SlotTarget`
 const [PortalFoo, TargetFoo] = createPortalSlot<{ msg: string }>()
@@ -115,7 +115,7 @@ function App() {
 Optionally, if you are not a fan of array destructuring, the following usages are also legal:
 
 ```tsx
-import { createPortalSlot } from '@reaxuse/core'
+import { createPortalSlot } from '@reause/core'
 
 const { define: PortalFoo, reuse: TargetFoo } = createPortalSlot<{
   msg: string
@@ -135,7 +135,7 @@ function App() {
 ```
 
 ```tsx
-import { createPortalSlot } from '@reaxuse/core'
+import { createPortalSlot } from '@reause/core'
 
 const TemplateFoo = createPortalSlot<{ msg: string }>()
 
@@ -157,7 +157,7 @@ function App() {
 By default, all props passed to `<SlotTarget>` are forwarded to the template. If you don't want certain props to be forwarded, list them in the `props` option. React has no runtime props declaration (upstream uses Vue's `ComponentObjectPropsOptions`), so this is a list of prop keys instead:
 
 ```tsx
-import { createPortalSlot } from '@reaxuse/core'
+import { createPortalSlot } from '@reause/core'
 
 const [PortalSlot, SlotTarget] = createPortalSlot<{ msg: string, enable: boolean }>({
   props: ['msg', 'enable'],
@@ -171,7 +171,7 @@ The `inheritAttrs` option is accepted for API parity with upstream, but it has n
 It's also possible to pass children back from `<SlotTarget>`. You can access them on `<PortalSlot>` from `$slots.default`:
 
 ```tsx
-import { createPortalSlot } from '@reaxuse/core'
+import { createPortalSlot } from '@reause/core'
 
 const [PortalSlot, SlotTarget] = createPortalSlot()
 

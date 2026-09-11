@@ -1,4 +1,4 @@
-import { useClamp } from '@reaxuse/math'
+import { useClamp } from '@reause/math'
 import { useState } from 'react'
 
 export default function UseClampDemo() {

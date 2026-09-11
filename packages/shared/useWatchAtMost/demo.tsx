@@ -1,4 +1,4 @@
-import { useWatchAtMost } from '@reaxuse/shared'
+import { useWatchAtMost } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseWatchAtMostDemo() {

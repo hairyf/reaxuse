@@ -9,7 +9,7 @@ Cycle through a list of items
 ## Usage
 
 ```ts
-import { useCycleList } from '@reaxuse/core'
+import { useCycleList } from '@reause/core'
 
 const { state, next, prev, go } = useCycleList([
   'Dog',

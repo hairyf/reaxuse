@@ -9,7 +9,7 @@ Reactive [pointer lock](https://developer.mozilla.org/en-US/docs/Web/API/Pointer
 ## Basic Usage
 
 ```tsx
-import { usePointerLock } from '@reaxuse/core'
+import { usePointerLock } from '@reause/core'
 
 const targetRef = useRef<HTMLDivElement>(null)
 const { isSupported, element, triggerElement, lock, unlock } = usePointerLock()

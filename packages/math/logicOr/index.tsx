@@ -6,7 +6,7 @@
  * number of values.
  *
  * Adjustment for React: upstream wraps the computation in `computed(() => ...)`
- * and returns a `ComputedRef<boolean>`; the reaxuse version is a pure utility
+ * and returns a `ComputedRef<boolean>`; the reause version is a pure utility
  * function — all plain arguments are evaluated on every call and the plain
  * boolean result is returned directly, with no effects and no `.value` wrapper
  * (SSR-safe). The caller re-invokes it to react to changing values.

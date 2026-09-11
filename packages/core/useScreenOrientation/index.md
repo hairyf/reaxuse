@@ -9,7 +9,7 @@ Reactive [Screen Orientation API](https://developer.mozilla.org/en-US/docs/Web/A
 ## Usage
 
 ```tsx
-import { useScreenOrientation } from '@reaxuse/core'
+import { useScreenOrientation } from '@reause/core'
 
 const {
   isSupported,

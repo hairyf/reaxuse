@@ -1,4 +1,4 @@
-import type { ConfigurableWindow } from '@reaxuse/shared'
+import type { ConfigurableWindow } from '@reause/shared'
 import { useEffect, useLayoutEffect, useState } from 'react'
 
 export type ColorSchemeType = 'dark' | 'light' | 'no-preference'

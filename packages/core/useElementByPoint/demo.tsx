@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { useElementByPoint, useMouse } from '@reaxuse/core'
+import { useElementByPoint, useMouse } from '@reause/core'
 import { useMemo } from 'react'
 
 const panelStyle: CSSProperties = {

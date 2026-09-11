@@ -15,7 +15,7 @@ Consider using [`@tanstack/react-virtual`](https://tanstack.com/virtual/latest) 
 ### Simple list
 
 ```tsx
-import { useVirtualList } from '@reaxuse/core'
+import { useVirtualList } from '@reause/core'
 
 const { list, containerProps, wrapperProps } = useVirtualList(
   Array.from(Array.from({ length: 99999 }).keys()),
@@ -66,7 +66,7 @@ const { list: refList } = useVirtualList(itemsRef.current, { itemHeight: 22 })
 ### Reactive list
 
 ```tsx
-import { useVirtualList } from '@reaxuse/core'
+import { useVirtualList } from '@reause/core'
 import { useMemo, useState } from 'react'
 
 const allItems = Array.from(Array.from({ length: 99999 }).keys())
@@ -82,7 +82,7 @@ const { list, containerProps, wrapperProps } = useVirtualList(
 ### Horizontal list
 
 ```tsx
-import { useVirtualList } from '@reaxuse/core'
+import { useVirtualList } from '@reause/core'
 
 const allItems = Array.from(Array.from({ length: 99999 }).keys())
 

@@ -1,4 +1,4 @@
-import type { ConfigurableWindow } from '@reaxuse/shared'
+import type { ConfigurableWindow } from '@reause/shared'
 import { useEffect, useRef, useState } from 'react'
 
 export interface UseActiveElementOptions extends ConfigurableWindow {
@@ -6,7 +6,7 @@ export interface UseActiveElementOptions extends ConfigurableWindow {
    * Custom `document` or open `ShadowRoot` to read `activeElement` from, e.g.
    * working with iframes or in testing environments (upstream:
    * `ConfigurableDocumentOrShadowRoot`). Inlined here —
-   * `ConfigurableDocument` is not ported to `@reaxuse/shared`, so `document?`
+   * `ConfigurableDocument` is not ported to `@reause/shared`, so `document?`
    * mirrors the option `useDocumentVisibility` exposes.
    *
    * @default the resolved `window`'s `document` on the client

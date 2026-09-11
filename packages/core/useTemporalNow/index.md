@@ -34,7 +34,7 @@ This function relies on the [`Temporal`](https://developer.mozilla.org/en-US/doc
   ...or pass it explicitly via the `temporal` option instead of touching the global scope:
 
   ```tsx
-  import { useTemporalNow } from '@reaxuse/core'
+  import { useTemporalNow } from '@reause/core'
   import { Temporal } from 'temporal-polyfill'
 
   const temporal = useTemporalNow({ temporal: Temporal })
@@ -43,9 +43,9 @@ This function relies on the [`Temporal`](https://developer.mozilla.org/en-US/doc
   [`@js-temporal/polyfill`](https://github.com/js-temporal/temporal-polyfill) is another common alternative. It does not install a global `Temporal` object by itself, so the `temporal` option is the natural way to use it. Its type declarations are authored independently from TypeScript's own ambient `Temporal` types (unlike `temporal-polyfill`, which derives its types from the same source), so a cast is needed to satisfy the `temporal` option at compile time — the runtime objects are spec-compliant and interoperate fine:
 
   ```tsx
-  import type { TemporalImplementation } from '@reaxuse/core'
+  import type { TemporalImplementation } from '@reause/core'
   import { Temporal } from '@js-temporal/polyfill'
-  import { useTemporalNow } from '@reaxuse/core'
+  import { useTemporalNow } from '@reause/core'
 
   const temporal = useTemporalNow({ temporal: Temporal as unknown as TemporalImplementation })
   ```
@@ -57,7 +57,7 @@ If no `Temporal` implementation can be found (neither passed via the `temporal` 
 ### Basic Usage
 
 ```tsx
-import { useTemporalNow } from '@reaxuse/core'
+import { useTemporalNow } from '@reause/core'
 
 const { now, timezone, calendar, format } = useTemporalNow()
 
@@ -132,8 +132,8 @@ custom `scheduler` to control how updates are driven — for example, tick on a
 fixed interval, or start paused:
 
 ```tsx
-import { useTemporalNow } from '@reaxuse/core'
-import { useIntervalFn } from '@reaxuse/shared'
+import { useTemporalNow } from '@reause/core'
+import { useIntervalFn } from '@reause/shared'
 
 const { pause, resume, isActive } = useTemporalNow({
   // Update every 500ms instead of on every animation frame,

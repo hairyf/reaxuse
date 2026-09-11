@@ -23,7 +23,7 @@ npm i sortablejs@^1
 ### Use template ref
 
 ```tsx
-import { useSortable } from '@reaxuse/integrations'
+import { useSortable } from '@reause/integrations'
 import { useRef, useState } from 'react'
 
 function Component() {

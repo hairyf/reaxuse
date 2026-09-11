@@ -1,4 +1,4 @@
-import { useMemory } from '@reaxuse/core'
+import { useMemory } from '@reause/core'
 
 function size(v: number) {
   const kb = v / 1024 / 1024

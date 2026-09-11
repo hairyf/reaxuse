@@ -1,4 +1,4 @@
-import { isClient } from '@reaxuse/shared'
+import { isClient } from '@reause/shared'
 import * as QRCode from 'qrcode'
 import { useEffect, useState } from 'react'
 

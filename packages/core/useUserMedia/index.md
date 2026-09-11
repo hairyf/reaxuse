@@ -10,7 +10,7 @@ Streaming via [`mediaDevices.getUserMedia`](https://developer.mozilla.org/en-US/
 ## Usage
 
 ```tsx
-import { useUserMedia } from '@reaxuse/core'
+import { useUserMedia } from '@reause/core'
 import { useEffect, useRef } from 'react'
 
 const { stream, start } = useUserMedia()
@@ -30,7 +30,7 @@ useEffect(() => {
 ### Devices
 
 ```tsx
-import { useDevicesList, useUserMedia } from '@reaxuse/core'
+import { useDevicesList, useUserMedia } from '@reause/core'
 
 const {
   videoInputs: cameras,

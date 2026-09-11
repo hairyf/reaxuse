@@ -1,5 +1,5 @@
 import type { CSSProperties, MouseEvent } from 'react'
-import { usePointerLock } from '@reaxuse/core'
+import { usePointerLock } from '@reause/core'
 import { useState } from 'react'
 
 const faceBase: CSSProperties = {

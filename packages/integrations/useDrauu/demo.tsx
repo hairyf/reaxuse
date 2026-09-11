@@ -1,5 +1,5 @@
 import type { Brush, DrawingMode } from 'drauu'
-import { useDrauu } from '@reaxuse/integrations'
+import { useDrauu } from '@reause/integrations'
 import { useRef } from 'react'
 
 const colors = ['black', '#ef4444', '#22c55e', '#3b82f6']

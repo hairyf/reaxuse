@@ -1,5 +1,5 @@
-import type { RefOrValue } from '@reaxuse/shared'
-import { toValue, useTimeoutFn } from '@reaxuse/shared'
+import type { RefOrValue } from '@reause/shared'
+import { toValue, useTimeoutFn } from '@reause/shared'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { usePermission } from '../usePermission'
 import { useSupported } from '../useSupported'

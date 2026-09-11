@@ -11,7 +11,7 @@ Manually track the change history of a state when the user calls `commit()`, als
 ## Usage
 
 ```tsx
-import { useStateManualHistory } from '@reaxuse/core'
+import { useStateManualHistory } from '@reause/core'
 import { useState } from 'react'
 
 const [count, setCount] = useState(0)
@@ -38,7 +38,7 @@ You can use `undo` to reset the state to the last history point.
 If you are going to mutate the source, you need to pass a custom clone function or use `clone` `true` as a param, that is a shortcut for a minimal clone function `x => JSON.parse(JSON.stringify(x))` that will be used in both `dump` and `parse`.
 
 ```tsx
-import { useStateManualHistory } from '@reaxuse/core'
+import { useStateManualHistory } from '@reause/core'
 import { useState } from 'react'
 
 const [target, setTarget] = useState({ foo: 1, bar: 2 })
@@ -60,7 +60,7 @@ To use a full featured or custom clone function, you can set up via the `clone` 
 For example, using [structuredClone](https://developer.mozilla.org/en-US/docs/Web/API/structuredClone):
 
 ```tsx
-import { useStateManualHistory } from '@reaxuse/core'
+import { useStateManualHistory } from '@reause/core'
 
 const stateHistory = useStateManualHistory([target, setTarget], { clone: structuredClone })
 ```
@@ -68,7 +68,7 @@ const stateHistory = useStateManualHistory([target, setTarget], { clone: structu
 Or by using [lodash's `cloneDeep`](https://lodash.com/docs/4.17.15#cloneDeep):
 
 ```tsx
-import { useStateManualHistory } from '@reaxuse/core'
+import { useStateManualHistory } from '@reause/core'
 import { cloneDeep } from 'lodash-es'
 
 const stateHistory = useStateManualHistory([target, setTarget], { clone: cloneDeep })
@@ -77,7 +77,7 @@ const stateHistory = useStateManualHistory([target, setTarget], { clone: cloneDe
 Or a more lightweight [`klona`](https://github.com/lukeed/klona):
 
 ```tsx
-import { useStateManualHistory } from '@reaxuse/core'
+import { useStateManualHistory } from '@reause/core'
 import { klona } from 'klona'
 
 const stateHistory = useStateManualHistory([target, setTarget], { clone: klona })
@@ -88,7 +88,7 @@ const stateHistory = useStateManualHistory([target, setTarget], { clone: klona }
 Instead of using the `clone` options, you can pass custom functions to control the serialization and parsing. In case you do not need history values to be objects, this can save an extra clone when undoing. It is also useful in case you want to have the snapshots already stringified to be saved to local storage for example.
 
 ```tsx
-import { useStateManualHistory } from '@reaxuse/core'
+import { useStateManualHistory } from '@reause/core'
 
 const stateHistory = useStateManualHistory([target, setTarget], {
   dump: JSON.stringify,

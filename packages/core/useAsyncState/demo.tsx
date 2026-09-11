@@ -1,4 +1,4 @@
-import { useAsyncState } from '@reaxuse/core'
+import { useAsyncState } from '@reause/core'
 
 export default function UseAsyncStateDemo() {
   const { state, setState, isReady, isLoading, execute } = useAsyncState(

@@ -15,7 +15,7 @@ Due to Safari browser limitations, file type validation is only possible during 
 ## Usage
 
 ```tsx
-import { useDropZone } from '@reaxuse/core'
+import { useDropZone } from '@reause/core'
 import { useRef } from 'react'
 
 function Component() {

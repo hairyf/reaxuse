@@ -9,7 +9,7 @@ Watches a source — a single value or an array of values — and invokes a call
 ## Usage
 
 ```tsx
-import { useWatch } from '@reaxuse/shared'
+import { useWatch } from '@reause/shared'
 
 useWatch(count, (value, oldValue) => {
   console.log(value, oldValue)

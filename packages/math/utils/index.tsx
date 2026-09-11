@@ -5,7 +5,7 @@
  *
  * Shared by the variadic math hooks (`useAverage`, `useSum`, `useMax`,
  * `useMin`) — upstream centralizes this in the math package's `utils.ts`, so
- * the reaxuse port keeps a single copy here instead of four.
+ * the reause port keeps a single copy here instead of four.
  *
  * @__NO_SIDE_EFFECTS__
  */

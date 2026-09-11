@@ -9,7 +9,7 @@ SSR compatibility `isSupported`
 ## Usage
 
 ```tsx
-import { useSupported } from '@reaxuse/core'
+import { useSupported } from '@reause/core'
 
 const isSupported = useSupported(() => navigator && 'getBattery' in navigator)
 

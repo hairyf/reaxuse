@@ -9,7 +9,7 @@ Reactive [`prefers-reduced-transparency`](https://developer.mozilla.org/en-US/do
 ## Usage
 
 ```tsx
-import { usePreferredReducedTransparency } from '@reaxuse/core'
+import { usePreferredReducedTransparency } from '@reause/core'
 
 const transparency = usePreferredReducedTransparency() // 'reduce' | 'no-preference'
 ```

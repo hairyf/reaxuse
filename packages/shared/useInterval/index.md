@@ -9,7 +9,7 @@ Reactive counter that increases on every interval.
 ## Usage
 
 ```tsx
-import { useInterval } from '@reaxuse/shared'
+import { useInterval } from '@reause/shared'
 
 // count will increase every 200ms
 const counter = useInterval(200)
@@ -18,7 +18,7 @@ const counter = useInterval(200)
 ### With Controls
 
 ```tsx
-import { useInterval } from '@reaxuse/shared'
+import { useInterval } from '@reause/shared'
 
 const { counter, reset, pause, resume, isActive } = useInterval(200, {
   controls: true,
@@ -45,7 +45,7 @@ resume()
 The interval can be reactive:
 
 ```tsx
-import { useInterval } from '@reaxuse/shared'
+import { useInterval } from '@reause/shared'
 import { useState } from 'react'
 
 const [intervalMs, setIntervalMs] = useState(1000)
@@ -58,7 +58,7 @@ setIntervalMs(500)
 ### Callback on Every Interval
 
 ```tsx
-import { useInterval } from '@reaxuse/shared'
+import { useInterval } from '@reause/shared'
 
 useInterval(1000, {
   callback: (count) => {

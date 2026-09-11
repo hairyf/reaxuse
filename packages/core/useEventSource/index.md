@@ -9,7 +9,7 @@ An [EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) o
 ## Usage
 
 ```tsx
-import { useEventSource } from '@reaxuse/core'
+import { useEventSource } from '@reause/core'
 
 const { status, data, error, close } = useEventSource('https://event-source-url')
 ```
@@ -44,7 +44,7 @@ useEventSource(urlRef.current) // resolve a React ref at the call site
 You can define named events with the second parameter:
 
 ```tsx
-import { useEventSource } from '@reaxuse/core'
+import { useEventSource } from '@reause/core'
 
 const { event, data } = useEventSource(
   'https://event-source-url',
@@ -69,7 +69,7 @@ If the URL is provided as a React ref object, when the URL changes the hook will
 Reconnect on errors automatically (disabled by default).
 
 ```tsx
-import { useEventSource } from '@reaxuse/core'
+import { useEventSource } from '@reause/core'
 
 const { status, data, close } = useEventSource(
   'https://event-source-url',
@@ -83,7 +83,7 @@ const { status, data, close } = useEventSource(
 Or with more controls over its behavior:
 
 ```tsx
-import { useEventSource } from '@reaxuse/core'
+import { useEventSource } from '@reause/core'
 
 const { status, data, close } = useEventSource(
   'https://event-source-url',
@@ -105,7 +105,7 @@ const { status, data, close } = useEventSource(
 Apply custom transformations to incoming data using a serialization function.
 
 ```tsx
-import { useEventSource } from '@reaxuse/core'
+import { useEventSource } from '@reause/core'
 
 const { data } = useEventSource(
   'https://event-source-url',

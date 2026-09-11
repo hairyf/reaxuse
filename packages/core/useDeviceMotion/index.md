@@ -9,7 +9,7 @@ Reactive [DeviceMotionEvent](https://developer.mozilla.org/en-US/docs/Web/API/De
 ## Usage
 
 ```tsx
-import { useDeviceMotion } from '@reaxuse/core'
+import { useDeviceMotion } from '@reause/core'
 
 const {
   acceleration,

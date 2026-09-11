@@ -1,4 +1,4 @@
-import { useCloned } from '@reaxuse/core'
+import { useCloned } from '@reause/core'
 import { useState } from 'react'
 
 const initialTemplate = { fruit: 'banana', drink: 'water' }

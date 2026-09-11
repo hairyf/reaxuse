@@ -10,7 +10,7 @@ Reactive time ago with i18n supported. Automatically update the time ago string 
 ## Usage
 
 ```tsx
-import { useTimeAgoIntl } from '@reaxuse/core'
+import { useTimeAgoIntl } from '@reause/core'
 
 const timeAgoIntl = useTimeAgoIntl(new Date(2021, 0, 1), { locale: 'en' }) // string, auto-updates over time
 
@@ -24,7 +24,7 @@ const fromString = useTimeAgoIntl('2024-01-01T00:00:00.000Z')
 In case you don't need the reactivity, you can use the `formatTimeAgoIntl` function to get the formatted string instead of a controllable state.
 
 ```tsx
-import { formatTimeAgoIntl } from '@reaxuse/core'
+import { formatTimeAgoIntl } from '@reause/core'
 
 const timeAgoIntl = formatTimeAgoIntl(new Date(2021, 0, 1)) // string
 ```

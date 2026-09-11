@@ -1,4 +1,4 @@
-import { useArrayFindIndex } from '@reaxuse/shared'
+import { useArrayFindIndex } from '@reause/shared'
 import { useState } from 'react'
 
 export default function UseArrayFindIndexDemo() {

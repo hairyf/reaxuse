@@ -36,8 +36,8 @@ export type UseScrollLockReturn = [
  * Inlined from upstream `_resolve-element.ts`: a `Window` target resolves to
  * its `document.documentElement`, a `Document` target to its
  * `documentElement`, anything else passes through — so the lock logic below
- * always operates on an element. Inlined because reaxuse keeps one file per
- * hook (issue #206 mapping) and source files must not import `@reaxuse/*`
+ * always operates on an element. Inlined because reause keeps one file per
+ * hook (issue #206 mapping) and source files must not import `@reause/*`
  * helpers (repo ESLint restriction).
  */
 function resolveTargetElement(
@@ -74,7 +74,7 @@ function unwrapTarget(target: ScrollLockTarget): ScrollLockElement {
 
 /**
  * Upstream computes `isIOS` once at module load from
- * `@vueuse/shared` (`isClient && /iP(ad|hone|od)/.test(userAgent)`); reaxuse
+ * `@vueuse/shared` (`isClient && /iP(ad|hone|od)/.test(userAgent)`); reause
  * checks at lock/unlock time instead so the iOS fallback is testable —
  * identical behavior.
  */
@@ -136,7 +136,7 @@ const elInitialOverflow = new WeakMap<HTMLElement, CSSStyleDeclaration['overflow
  * element by toggling its inline `overflow` style. Upstream's
  * `_resolve-element` target resolution and the iOS `touchmove` fallback
  * helpers (`checkOverflowScroll` / `preventDefault`) are inlined into this
- * single file per the issue #206 mapping (reaxuse keeps one file per hook);
+ * single file per the issue #206 mapping (reause keeps one file per hook);
  * the upstream `vScrollLock` directive variant has no React equivalent and is
  * not ported.
  *

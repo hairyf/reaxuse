@@ -1,4 +1,4 @@
-import type { ConfigurableWindow } from '@reaxuse/shared'
+import type { ConfigurableWindow } from '@reause/shared'
 import type { RefObject } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 

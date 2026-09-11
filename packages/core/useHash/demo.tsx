@@ -1,4 +1,4 @@
-import { useHash } from '@reaxuse/core'
+import { useHash } from '@reause/core'
 import { useState } from 'react'
 
 export default function UseHashDemo() {

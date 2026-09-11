@@ -15,7 +15,7 @@ npm i axios@^1
 ## Usage
 
 ```tsx
-import { useAxios } from '@reaxuse/integrations'
+import { useAxios } from '@reause/integrations'
 
 const { data, isFinished } = useAxios('/api/posts')
 ```
@@ -36,7 +36,7 @@ const { data, isFinished } = useAxios('/api/posts')
 ### With Axios Instance
 
 ```tsx
-import { useAxios } from '@reaxuse/integrations'
+import { useAxios } from '@reause/integrations'
 import axios from 'axios'
 
 const instance = axios.create({
@@ -49,7 +49,7 @@ const { data, isFinished } = useAxios('/posts', instance)
 ### With Config Options
 
 ```tsx
-import { useAxios } from '@reaxuse/integrations'
+import { useAxios } from '@reause/integrations'
 import axios from 'axios'
 
 const instance = axios.create({
@@ -64,7 +64,7 @@ const { data, isFinished } = useAxios('/posts', { method: 'POST' }, instance)
 When you don't pass a `url`, the request won't fire immediately:
 
 ```tsx
-import { useAxios } from '@reaxuse/integrations'
+import { useAxios } from '@reause/integrations'
 
 const { execute } = useAxios()
 execute(url)
@@ -73,7 +73,7 @@ execute(url)
 The `execute` function `url` is optional - `url2` will replace `url1`:
 
 ```tsx
-import { useAxios } from '@reaxuse/integrations'
+import { useAxios } from '@reause/integrations'
 
 const { execute } = useAxios(url1, {}, { immediate: false })
 execute(url2)
@@ -82,7 +82,7 @@ execute(url2)
 The `execute` function can accept config only:
 
 ```tsx
-import { useAxios } from '@reaxuse/integrations'
+import { useAxios } from '@reause/integrations'
 
 const { execute } = useAxios(url1, { method: 'GET' }, { immediate: false })
 execute({ params: { key: 1 } })
@@ -94,7 +94,7 @@ execute({ params: { key: 2 } })
 The return value is thenable, so you can await it:
 
 ```tsx
-import { useAxios } from '@reaxuse/integrations'
+import { useAxios } from '@reause/integrations'
 
 const { data, isFinished, error, execute } = useAxios('/api/posts')
 
@@ -106,7 +106,7 @@ const snapshot = await execute()
 Or await the `execute` function:
 
 ```tsx
-import { useAxios } from '@reaxuse/integrations'
+import { useAxios } from '@reause/integrations'
 
 const { execute } = useAxios()
 const result = await execute(url)

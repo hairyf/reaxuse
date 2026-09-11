@@ -9,7 +9,7 @@ SSR compatible and reactive [`CSS.supports`](https://developer.mozilla.org/docs/
 ## Usage
 
 ```tsx
-import { useCssSupports } from '@reaxuse/core'
+import { useCssSupports } from '@reause/core'
 
 const { isSupported } = useCssSupports('container-type', 'scroll-state')
 ```
@@ -18,7 +18,7 @@ Both the single-argument condition-text form and the property + value form are s
 string or a React ref:
 
 ```tsx
-import { useCssSupports } from '@reaxuse/core'
+import { useCssSupports } from '@reause/core'
 import { useState } from 'react'
 
 const [property, setProperty] = useState('display')
@@ -45,4 +45,4 @@ const { isSupported } = useCssSupports('display: flex', { ssrValue: false })
 - **Falsy custom `window`**: passing a falsy `window` option (for example `useCssSupports('display: flex', { window: null, ssrValue: true })`)
   is treated as "no window available": `CSS.supports` is never evaluated and `isSupported` stays at `options.ssrValue`.
   Upstream only defaults an `undefined` `window` to `defaultWindow`, so a `null` window reaches `window?.CSS.supports(...)`
-  and yields `undefined`; reaxuse keeps the declared `boolean` state instead. This is reaxuse-specific, non-upstream behavior.
+  and yields `undefined`; reause keeps the declared `boolean` state instead. This is reause-specific, non-upstream behavior.

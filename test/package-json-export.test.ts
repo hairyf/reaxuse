@@ -7,9 +7,9 @@ const packages = ['core', 'shared', 'integrations', 'math', 'metadata', 'electro
 
 describe('package.json export maps', () => {
   for (const name of packages) {
-    it(`@reaxuse/${name} has a valid export map`, () => {
+    it(`@reause/${name} has a valid export map`, () => {
       const pkg = JSON.parse(readFileSync(join(root, 'packages', name, 'package.json'), 'utf-8'))
-      expect(pkg.name).toBe(`@reaxuse/${name}`)
+      expect(pkg.name).toBe(`@reause/${name}`)
       expect(pkg.version).toMatch(/^\d+\.\d+\.\d+$/)
       // VueUse-shaped dist exports: the tarball only ships `dist`, and every
       // package rebuilds it at pack time through `prepack`.

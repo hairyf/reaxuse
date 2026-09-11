@@ -1,9 +1,9 @@
-import type { UseWebNotificationOptions } from '@reaxuse/core'
-import { useWebNotification } from '@reaxuse/core'
+import type { UseWebNotificationOptions } from '@reause/core'
+import { useWebNotification } from '@reause/core'
 
 export default function UseWebNotificationDemo() {
   const options: UseWebNotificationOptions = {
-    title: 'Hello, world from reaxuse!',
+    title: 'Hello, world from reause!',
     dir: 'auto',
     lang: 'en',
     renotify: true,

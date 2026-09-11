@@ -1,4 +1,4 @@
-import { usePointer } from '@reaxuse/core'
+import { usePointer } from '@reause/core'
 
 export default function UsePointerDemo() {
   const pointer = usePointer()

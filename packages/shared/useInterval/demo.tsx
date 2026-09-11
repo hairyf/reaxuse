@@ -1,4 +1,4 @@
-import { useInterval } from '@reaxuse/shared'
+import { useInterval } from '@reause/shared'
 
 export default function UseIntervalDemo() {
   const { counter, isActive, pause, resume, reset } = useInterval(1000, { controls: true })

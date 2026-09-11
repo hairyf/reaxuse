@@ -103,7 +103,7 @@ export interface UseWakeLockReturn {
  * - `WakeLockSentinel`/`WakeLockType` are defined locally and re-exported,
  *   mirroring upstream's own interfaces (defined for older TS libs rather
  *   than referenced from lib.dom directly), so `import type {
- *   WakeLockSentinel } from '@reaxuse/core'` keeps parity.
+ *   WakeLockSentinel } from '@reause/core'` keeps parity.
  *
  * @example
  * const { isSupported, isActive, request, release } = useWakeLock()

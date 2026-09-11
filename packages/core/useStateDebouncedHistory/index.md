@@ -11,7 +11,7 @@ Shorthand for `useStateHistory` with debounced filter.
 This function takes a snapshot of your counter after 1000ms when the value of it starts to change.
 
 ```tsx
-import { useStateDebouncedHistory } from '@reaxuse/core'
+import { useStateDebouncedHistory } from '@reause/core'
 import { useState } from 'react'
 
 const [count, setCount] = useState(0)
