@@ -20,12 +20,15 @@ jobs:
           submodules: recursive
       - name: Install pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      # rollup (used by export-size) cannot resolve React's CJS-only
+      # `react/jsx-runtime` named export (`'jsx' is not exported by
+      # .../jsx-runtime.js`), which every dist bundle imports, and the action's
+      # published bundle ignores its own `bundler: esbuild` input — so the
+      # report stays non-blocking until the action/rollup handles the interop.
       - uses: antfu/export-size-action@main
+        continue-on-error: true
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           comment_token: ${{ secrets.COMMENT_TOKEN }}
-          # rollup cannot resolve React's CJS-only `react/jsx-runtime` named
-          # export (`'jsx' is not exported by .../jsx-runtime.js`), which every
-          # dist bundle imports; esbuild handles the interop
           bundler: esbuild
           paths: packages/core,packages/shared,packages/integrations,packages/firebase,packages/rxjs
