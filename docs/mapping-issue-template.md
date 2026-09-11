@@ -29,7 +29,7 @@ Every mapping issue carries exactly two labels, plus optional extras:
 
 | Label                         | Rule                                                  |
 | ----------------------------- | ----------------------------------------------------- |
-| `@reause/<pkg>`              | upstream package of the function (always)             |
+| `@reause/<pkg>`               | upstream package of the function (always)             |
 | `size:<XS\|S\|M\|L\|XL\|XXL>` | from upstream `index.ts` LOC — see [Size](#size-rule) |
 | `good first issue`            | optional — add for `size:S` or below                  |
 

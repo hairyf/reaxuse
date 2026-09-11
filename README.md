@@ -29,7 +29,7 @@ See [packages/guide/architecture.md](packages/guide/architecture.md) for the ful
 ## Package structure (mirroring VueUse)
 
 | VueUse                 | reause                 | status       |
-| ---------------------- | ----------------------- | ------------ |
+| ---------------------- | ---------------------- | ------------ |
 | `@vueuse/core`         | `@reause/core`         | ✅ completed |
 | `@vueuse/shared`       | `@reause/shared`       | ✅ completed |
 | `@vueuse/integrations` | `@reause/integrations` | ✅ completed |
@@ -39,7 +39,7 @@ See [packages/guide/architecture.md](packages/guide/architecture.md) for the ful
 | `@vueuse/electron`     | `@reause/electron`     | ✅ completed |
 | `@vueuse/firebase`     | `@reause/firebase`     | ✅ completed |
 | `@vueuse/skills`       | `@reause/skills`       | ✅ completed |
-| `@vueuse/components`   | —                       | ⏳ TODO      |
+| `@vueuse/components`   | —                      | ⏳ TODO      |
 
 ## Quick start
 

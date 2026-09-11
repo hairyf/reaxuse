@@ -25,7 +25,7 @@ Packages mirror `@vueuse/*` 1:1 — install the package that matches the upstrea
 one:
 
 | VueUse                 | reause                 |
-| ---------------------- | ----------------------- |
+| ---------------------- | ---------------------- |
 | `@vueuse/core`         | `@reause/core`         |
 | `@vueuse/shared`       | `@reause/shared`       |
 | `@vueuse/integrations` | `@reause/integrations` |

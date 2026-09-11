@@ -49,11 +49,11 @@ start()
 
 ### Options
 
-| Option       | Type         | Default | Description                                                  |
-| ------------ | ------------ | ------- | ------------------------------------------------------------ |
+| Option       | Type         | Default | Description                                                 |
+| ------------ | ------------ | ------- | ----------------------------------------------------------- |
 | `interval`   | `number`     | `1000`  | Countdown interval in milliseconds (reause-only, see below) |
-| `onComplete` | `() => void` | —       | Callback function called when the countdown reaches 0        |
-| `onTick`     | `() => void` | —       | Callback function called on each tick of the countdown       |
+| `onComplete` | `() => void` | —       | Callback function called when the countdown reaches 0       |
+| `onTick`     | `() => void` | —       | Callback function called on each tick of the countdown      |
 
 ### Return Values
 
