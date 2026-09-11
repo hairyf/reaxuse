@@ -652,7 +652,7 @@ export const functions: FunctionInfo[] = [
     pkg: 'core',
     dir: 'useAnimate',
     category: 'Animation',
-    lastUpdated: 1788953242000,
+    lastUpdated: 1789107566000,
   },
   {
     name: 'useArrayDifference',
@@ -2673,7 +2673,7 @@ export const pages: FunctionPageInfo[] = [
     doc: 'packages/core/useAnimate/index.md',
     category: 'Animation',
     description: 'reactive [Web Animations API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API)',
-    lastUpdated: 1788953242000,
+    lastUpdated: 1789107566000,
   },
   {
     name: 'useArrayDifference',

@@ -1,7 +1,7 @@
 {
   "name": "@reaxuse/firebase",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Realtime bindings for Firebase — React port of @vueuse/firebase",
   "license": "MIT",
   "sideEffects": false,

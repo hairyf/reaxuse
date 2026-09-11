@@ -1,7 +1,7 @@
 {
   "name": "@reaxuse/integrations",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Integrations with third-party services — React port of @vueuse/integrations (experimental, AI-mapped)",
   "license": "MIT",
   "sideEffects": false,

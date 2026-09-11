@@ -1,7 +1,7 @@
 {
   "name": "@reaxuse/core",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Core React hooks — 1:1 React port of @vueuse/core (experimental, AI-mapped)",
   "license": "MIT",
   "sideEffects": false,
