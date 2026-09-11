@@ -24,4 +24,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           comment_token: ${{ secrets.COMMENT_TOKEN }}
+          # rollup cannot resolve React's CJS-only `react/jsx-runtime` named
+          # export (`'jsx' is not exported by .../jsx-runtime.js`), which every
+          # dist bundle imports; esbuild handles the interop
+          bundler: esbuild
           paths: packages/core,packages/shared,packages/integrations,packages/firebase,packages/rxjs

@@ -131,5 +131,9 @@ jobs:
 
       - run: pnpm run update:full
 
+      # `pkg-pr-new` needs its GitHub App (https://github.com/apps/pkg-pr-new)
+      # installed on the repository; until then the CLI exits with a 404 and the
+      # preview links are simply not posted.
       - run: pnpm dlx pkg-pr-new publish --compact --pnpm './packages/*'
           --packageManager=pnpm,npm,yarn
+        continue-on-error: true
