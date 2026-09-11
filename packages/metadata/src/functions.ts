@@ -2407,6 +2407,14 @@ export const functions: FunctionInfo[] = [
     lastUpdated: 1788994784000,
   },
   {
+    name: 'useWebMCP',
+    file: 'packages/core/useWebMCP/index.tsx',
+    pkg: 'core',
+    dir: 'useWebMCP',
+    category: 'Browser',
+    lastUpdated: 1789150290000,
+  },
+  {
     name: 'useWebNotification',
     file: 'packages/core/useWebNotification/index.tsx',
     pkg: 'core',
@@ -4441,6 +4449,15 @@ export const pages: FunctionPageInfo[] = [
     category: 'Watch',
     description: '`watch` with additional EventFilter control',
     lastUpdated: 1788994784000,
+  },
+  {
+    name: 'useWebMCP',
+    pkg: 'core',
+    doc: 'packages/core/useWebMCP/index.md',
+    category: 'Browser',
+    description:
+      'register a [WebMCP](https://github.com/webmachinelearning/webmcp) tool and tie its lifecycle to the current component',
+    lastUpdated: 1789150290000,
   },
   {
     name: 'useWebNotification',

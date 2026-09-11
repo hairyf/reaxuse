@@ -303,6 +303,7 @@
 | `useWatchThrottled`               | —                                             | `packages/shared/useWatchThrottled/index.tsx`             | ✅ ported (no upstream match) |
 | `useWatchTriggerable`             | —                                             | `packages/shared/useWatchTriggerable/index.tsx`           | ✅ ported (no upstream match) |
 | `useWatchWithFilter`              | —                                             | `packages/shared/useWatchWithFilter/index.tsx`            | ✅ ported (no upstream match) |
+| `useWebMCP`                       | —                                             | `packages/core/useWebMCP/index.tsx`                       | ✅ ported (no upstream match) |
 | `useWebNotification`              | packages/core/useWebNotification              | `packages/core/useWebNotification/index.tsx`              | ✅ ported                     |
 | `useWebSocket`                    | packages/core/useWebSocket                    | `packages/core/useWebSocket/index.tsx`                    | ✅ ported                     |
 | `useWebWorker`                    | packages/core/useWebWorker                    | `packages/core/useWebWorker/index.tsx`                    | ✅ ported                     |
