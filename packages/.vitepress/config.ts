@@ -1,16 +1,16 @@
 import type { HeadConfig, TransformContext } from 'vitepress'
+import type { FunctionPageInfo } from '../../packages/metadata/src/functions'
 import type { CommitInfo } from './plugins/changelog'
 import type { ContributorInfo } from './plugins/contributors'
 import { execSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { withPwa } from '@vite-pwa/vitepress'
 import UnoCSSPostCSS from 'unocss/postcss'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitepress'
 import { currentVersion, versions } from '../../meta/versions'
-import { functions } from '../../packages/metadata/src/functions'
+import { categoryNames, functions, pages } from '../../packages/metadata/src/functions'
 import { ChangeLog } from './plugins/changelog'
 import { Contributors } from './plugins/contributors'
 import { MarkdownTransform } from './plugins/markdownTransform'
@@ -69,9 +69,11 @@ function getFunctionContributors(): Record<string, ContributorInfo[]> {
   return result
 }
 
-// Sidebar groups, mirroring VueUse's `getFunctionsSideBar()`: every function
-// docs page (packages/<pkg>/<fn>/index.md) is grouped by its `category`
-// frontmatter, in VueUse's canonical category order (addon categories last).
+// Sidebar groups, mirroring VueUse's `getFunctionsSideBar()`: the groups are
+// derived from the generated function metadata (`packages/metadata/src`), not
+// from a filesystem scan, so every documented package is covered no matter
+// which package directory it lives in. Categories keep VueUse's canonical
+// order (addon categories last).
 const CATEGORY_ORDER = [
   'State',
   'Elements',
@@ -87,51 +89,28 @@ const CATEGORY_ORDER = [
   'Utilities',
 ]
 
-interface DocsFunction {
-  name: string
-  pkg: string
-  category: string
-}
-
-function getDocsFunctions(): DocsFunction[] {
-  const docsRoot = resolve(__dirname, '..')
-  const result: DocsFunction[] = []
-  for (const pkg of ['core', 'shared', 'math', 'integrations']) {
-    const pkgDir = resolve(docsRoot, pkg)
-    for (const entry of readdirSync(pkgDir, { withFileTypes: true })) {
-      if (!entry.isDirectory())
-        continue
-      let category = ''
-      try {
-        // YAML frontmatter may quote the category (e.g. `category: '@Math'`).
-        const categoryLine = readFileSync(resolve(pkgDir, entry.name, 'index.md'), 'utf-8').split('\n').find(line => line.startsWith('category:'))
-        category = (categoryLine?.slice('category:'.length) ?? '').trim().replace(/^['"]|['"]$/g, '')
-      }
-      catch {
-        // not a docs function directory — no index.md
-      }
-      if (category)
-        result.push({ name: entry.name, pkg, category })
-    }
-  }
-  return result
+// Position in `CATEGORY_ORDER`, with unknown (e.g. `Lifecycle`) and `@`-prefixed
+// addon categories sorted after the ordered core ones.
+function categoryIndex(category: string) {
+  const index = CATEGORY_ORDER.indexOf(category)
+  return index === -1 ? Number.POSITIVE_INFINITY : index
 }
 
 function getFunctionsSideBar() {
-  const groups = new Map<string, DocsFunction[]>()
-  for (const fn of getDocsFunctions()) {
-    const list = groups.get(fn.category) ?? []
-    list.push(fn)
-    groups.set(fn.category, list)
+  const groups = new Map<string, FunctionPageInfo[]>()
+  // `internal: true` entries (e.g. the `_resolve` helper page) are deliberately
+  // absent from the public navigation — mirrors VueUse's `!i.internal` filter.
+  for (const page of pages) {
+    if (page.internal)
+      continue
+    const list = groups.get(page.category) ?? []
+    list.push(page)
+    groups.set(page.category, list)
   }
   return [...groups.entries()]
-    .sort(([a], [b]) => {
-      const ai = CATEGORY_ORDER.indexOf(a)
-      const bi = CATEGORY_ORDER.indexOf(b)
-      return (ai === -1 ? Number.POSITIVE_INFINITY : ai) - (bi === -1 ? Number.POSITIVE_INFINITY : bi) || a.localeCompare(b)
-    })
+    .sort(([a], [b]) => categoryIndex(a) - categoryIndex(b) || a.localeCompare(b))
     .map(([category, fns]) => ({
-      // Addon categories carry a leading `@` in frontmatter (mirroring
+      // Addon categories carry a leading `@` in the metadata (mirroring
       // VueUse's addon naming); strip it for display, like VueUse's nav.
       text: category.startsWith('@') ? category.slice(1) : category,
       items: fns
@@ -162,14 +141,14 @@ const Links = [
 function getCategoryNames() {
   const core: string[] = []
   const addons: string[] = []
-  const seen = new Set<string>()
-  for (const fn of getDocsFunctions()) {
-    if (seen.has(fn.category))
+  const documented = new Set(pages.filter(page => !page.internal).map(page => page.category))
+  for (const category of categoryNames) {
+    if (category.startsWith('_') || !documented.has(category))
       continue
-    seen.add(fn.category)
-    ;(fn.category.startsWith('@') ? addons : core).push(fn.category)
+    const target = category.startsWith('@') ? addons : core
+    target.push(category)
   }
-  core.sort((a, b) => CATEGORY_ORDER.indexOf(a) - CATEGORY_ORDER.indexOf(b) || a.localeCompare(b))
+  core.sort((a, b) => categoryIndex(a) - categoryIndex(b) || a.localeCompare(b))
   addons.sort()
   return { core, addons }
 }
@@ -360,6 +339,9 @@ export default withPwa(defineConfig({
       '/shared/': FunctionsSideBar,
       '/math/': FunctionsSideBar,
       '/integrations/': FunctionsSideBar,
+      '/electron/': FunctionsSideBar,
+      '/firebase/': FunctionsSideBar,
+      '/rxjs/': FunctionsSideBar,
     },
     footer: {
       message: `Released under the MIT License. ${currentVersion}`,
