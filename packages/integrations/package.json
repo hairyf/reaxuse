@@ -4,6 +4,15 @@
   "version": "0.1.3",
   "description": "Integrations with third-party services — React port of @vueuse/integrations (experimental, AI-mapped)",
   "license": "MIT",
+  "homepage": "https://github.com/hairyf/reause#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hairyf/reause.git",
+    "directory": "packages/integrations"
+  },
+  "bugs": {
+    "url": "https://github.com/hairyf/reause/issues"
+  },
   "sideEffects": false,
   "exports": {
     ".": "./dist/index.js",
