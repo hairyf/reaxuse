@@ -30,6 +30,11 @@ one:
 | `@vueuse/shared`       | `@reaxuse/shared`       |
 | `@vueuse/integrations` | `@reaxuse/integrations` |
 | `@vueuse/math`         | `@reaxuse/math`         |
+| `@vueuse/metadata`     | `@reaxuse/metadata`     |
+| `@vueuse/rxjs`         | `@reaxuse/rxjs`         |
+| `@vueuse/electron`     | `@reaxuse/electron`     |
+| `@vueuse/firebase`     | `@reaxuse/firebase`     |
+| `@vueuse/skills`       | `@reaxuse/skills`       |
 
 > reaxuse requires React `>= 18`.
 

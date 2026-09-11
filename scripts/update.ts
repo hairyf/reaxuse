@@ -80,7 +80,7 @@ export async function generateFunctionsMD() {
     const upstream = `source/vueuse/packages/${fn.pkg}/${fn.name}`
     const upstreamExists = globSync(`${upstream}/index.ts`, { cwd: root }).length > 0
     const upstreamRef = upstreamExists ? `packages/${fn.pkg}/${fn.name}` : '—'
-    const status = upstreamExists ? '✅ ported' : '🚧 ported (no upstream match)'
+    const status = upstreamExists ? '✅ ported' : '✅ ported (no upstream match)'
     return `| \`${fn.name}\` | ${upstreamRef} | \`${fn.file}\` | ${status} |`
   })
 

@@ -11,7 +11,8 @@
 [![Status: Experimental](https://img.shields.io/badge/status-experimental-orange)](https://github.com/hairyf/reaxuse)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-> ⚠️ **Experimental (WIP / TODO)**: the base architecture is a 1:1 mirror; hook mapping is in progress.
+> ✅ **Mapping complete**: the base architecture is a 1:1 mirror and every VueUse composable has a React counterpart.
+> The generated [function mapping table](meta/functions.md) tracks each one.
 
 </div>
 
@@ -27,14 +28,18 @@ See [packages/guide/architecture.md](packages/guide/architecture.md) for the ful
 
 ## Package structure (mirroring VueUse)
 
-| VueUse                                                                                 | reaxuse                 | status                      |
-| -------------------------------------------------------------------------------------- | ----------------------- | --------------------------- |
-| `@vueuse/core`                                                                         | `@reaxuse/core`         | 🚧 skeleton + example hooks |
-| `@vueuse/shared`                                                                       | `@reaxuse/shared`       | 🚧 skeleton                 |
-| `@vueuse/integrations`                                                                 | `@reaxuse/integrations` | 🚧 skeleton                 |
-| `@vueuse/math`                                                                         | `@reaxuse/math`         | 🚧 skeleton                 |
-| `@vueuse/metadata`                                                                     | `@reaxuse/metadata`     | 🚧 skeleton                 |
-| `@vueuse/router` / `rxjs` / `electron` / `nuxt` / `firebase` / `components` / `skills` | —                       | ⏳ TODO                     |
+| VueUse                 | reaxuse                 | status       |
+| ---------------------- | ----------------------- | ------------ |
+| `@vueuse/core`         | `@reaxuse/core`         | ✅ completed |
+| `@vueuse/shared`       | `@reaxuse/shared`       | ✅ completed |
+| `@vueuse/integrations` | `@reaxuse/integrations` | ✅ completed |
+| `@vueuse/math`         | `@reaxuse/math`         | ✅ completed |
+| `@vueuse/metadata`     | `@reaxuse/metadata`     | ✅ completed |
+| `@vueuse/rxjs`         | `@reaxuse/rxjs`         | ✅ completed |
+| `@vueuse/electron`     | `@reaxuse/electron`     | ✅ completed |
+| `@vueuse/firebase`     | `@reaxuse/firebase`     | ✅ completed |
+| `@vueuse/skills`       | `@reaxuse/skills`       | ✅ completed |
+| `@vueuse/components`   | —                       | ⏳ TODO      |
 
 ## Quick start
 
@@ -45,17 +50,21 @@ npm install
 npm run typecheck
 ```
 
-## Ported examples
+## Mapped examples
+
+The complete list lives in the generated [function mapping table](meta/functions.md).
+A few entry points:
 
 - `useToggle` → [`packages/shared/useToggle/index.tsx`](packages/shared/useToggle/index.tsx)
 - `useCounter` → [`packages/shared/useCounter/index.tsx`](packages/shared/useCounter/index.tsx)
 - `useNow` → [`packages/core/useNow/index.tsx`](packages/core/useNow/index.tsx)
+- `useStorage` → [`packages/core/useStorage/index.tsx`](packages/core/useStorage/index.tsx)
 
-## TODO
+## Status
 
-- [ ] Large-scale AI mapping of all `@vueuse/core` functions
-- [ ] `router` / `rxjs` / `electron` / `nuxt` / `firebase` / `components` / `skills` sub-packages
-- [ ] Publish to npm (`@reaxuse/*`)
+- [x] Large-scale AI mapping of all `@vueuse/core` functions
+- [x] `rxjs` / `electron` / `firebase` / `skills` sub-packages
+- [x] Publish to npm (`@reaxuse/*`)
 
 ## License
 

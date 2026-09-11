@@ -5,80 +5,80 @@
 
 | VueUse function                   | source (vueuse)                               | reaxuse                                                   | status                        |
 | --------------------------------- | --------------------------------------------- | --------------------------------------------------------- | ----------------------------- |
-| `assert`                          | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `breakpointsAntDesign`            | —                                             | `packages/core/useBreakpoints/index.tsx`                  | 🚧 ported (no upstream match) |
-| `breakpointsBootstrapV5`          | —                                             | `packages/core/useBreakpoints/index.tsx`                  | 🚧 ported (no upstream match) |
-| `breakpointsElement`              | —                                             | `packages/core/useBreakpoints/index.tsx`                  | 🚧 ported (no upstream match) |
-| `breakpointsMasterCss`            | —                                             | `packages/core/useBreakpoints/index.tsx`                  | 🚧 ported (no upstream match) |
-| `breakpointsPrimeFlex`            | —                                             | `packages/core/useBreakpoints/index.tsx`                  | 🚧 ported (no upstream match) |
-| `breakpointsQuasar`               | —                                             | `packages/core/useBreakpoints/index.tsx`                  | 🚧 ported (no upstream match) |
-| `breakpointsSematic`              | —                                             | `packages/core/useBreakpoints/index.tsx`                  | 🚧 ported (no upstream match) |
-| `breakpointsTailwind`             | —                                             | `packages/core/useBreakpoints/index.tsx`                  | 🚧 ported (no upstream match) |
-| `breakpointsVuetify`              | —                                             | `packages/core/useBreakpoints/index.tsx`                  | 🚧 ported (no upstream match) |
-| `breakpointsVuetifyV2`            | —                                             | `packages/core/useBreakpoints/index.tsx`                  | 🚧 ported (no upstream match) |
-| `breakpointsVuetifyV3`            | —                                             | `packages/core/useBreakpoints/index.tsx`                  | 🚧 ported (no upstream match) |
-| `clamp`                           | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `cloneFnJSON`                     | —                                             | `packages/core/useCloned/index.tsx`                       | 🚧 ported (no upstream match) |
-| `createCookies`                   | —                                             | `packages/integrations/useCookies/index.tsx`              | 🚧 ported (no upstream match) |
+| `assert`                          | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `breakpointsAntDesign`            | —                                             | `packages/core/useBreakpoints/index.tsx`                  | ✅ ported (no upstream match) |
+| `breakpointsBootstrapV5`          | —                                             | `packages/core/useBreakpoints/index.tsx`                  | ✅ ported (no upstream match) |
+| `breakpointsElement`              | —                                             | `packages/core/useBreakpoints/index.tsx`                  | ✅ ported (no upstream match) |
+| `breakpointsMasterCss`            | —                                             | `packages/core/useBreakpoints/index.tsx`                  | ✅ ported (no upstream match) |
+| `breakpointsPrimeFlex`            | —                                             | `packages/core/useBreakpoints/index.tsx`                  | ✅ ported (no upstream match) |
+| `breakpointsQuasar`               | —                                             | `packages/core/useBreakpoints/index.tsx`                  | ✅ ported (no upstream match) |
+| `breakpointsSematic`              | —                                             | `packages/core/useBreakpoints/index.tsx`                  | ✅ ported (no upstream match) |
+| `breakpointsTailwind`             | —                                             | `packages/core/useBreakpoints/index.tsx`                  | ✅ ported (no upstream match) |
+| `breakpointsVuetify`              | —                                             | `packages/core/useBreakpoints/index.tsx`                  | ✅ ported (no upstream match) |
+| `breakpointsVuetifyV2`            | —                                             | `packages/core/useBreakpoints/index.tsx`                  | ✅ ported (no upstream match) |
+| `breakpointsVuetifyV3`            | —                                             | `packages/core/useBreakpoints/index.tsx`                  | ✅ ported (no upstream match) |
+| `clamp`                           | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `cloneFnJSON`                     | —                                             | `packages/core/useCloned/index.tsx`                       | ✅ ported (no upstream match) |
+| `createCookies`                   | —                                             | `packages/integrations/useCookies/index.tsx`              | ✅ ported (no upstream match) |
 | `createEventHook`                 | packages/shared/createEventHook               | `packages/shared/createEventHook/index.tsx`               | ✅ ported                     |
-| `createFetch`                     | —                                             | `packages/core/useFetch/index.tsx`                        | 🚧 ported (no upstream match) |
+| `createFetch`                     | —                                             | `packages/core/useFetch/index.tsx`                        | ✅ ported (no upstream match) |
 | `createGenericProjection`         | packages/math/createGenericProjection         | `packages/math/createGenericProjection/index.tsx`         | ✅ ported                     |
 | `createGlobalState`               | packages/shared/createGlobalState             | `packages/shared/createGlobalState/index.tsx`             | ✅ ported                     |
 | `createInjectionState`            | packages/shared/createInjectionState          | `packages/shared/createInjectionState/index.tsx`          | ✅ ported                     |
-| `createPortalSlot`                | —                                             | `packages/core/createPortalSlot/index.tsx`                | 🚧 ported (no upstream match) |
+| `createPortalSlot`                | —                                             | `packages/core/createPortalSlot/index.tsx`                | ✅ ported (no upstream match) |
 | `createProjection`                | packages/math/createProjection                | `packages/math/createProjection/index.tsx`                | ✅ ported                     |
-| `createPromisifiedComponent`      | —                                             | `packages/core/createPromisifiedComponent/index.tsx`      | 🚧 ported (no upstream match) |
-| `createSharedHook`                | —                                             | `packages/shared/createSharedHook/index.tsx`              | 🚧 ported (no upstream match) |
-| `createSingletonPromise`          | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `customStorageEventName`          | —                                             | `packages/core/useStorage/index.tsx`                      | 🚧 ported (no upstream match) |
-| `debounceFilter`                  | —                                             | `packages/shared/useWatchWithFilter/index.tsx`            | 🚧 ported (no upstream match) |
-| `deepClone`                       | —                                             | `packages/shared/useWatchDeep/index.tsx`                  | 🚧 ported (no upstream match) |
-| `deepEqual`                       | —                                             | `packages/shared/useWatchDeep/index.tsx`                  | 🚧 ported (no upstream match) |
-| `events`                          | —                                             | `packages/core/useEventBus/index.tsx`                     | 🚧 ported (no upstream match) |
-| `formatDate`                      | —                                             | `packages/shared/useDateFormat/index.tsx`                 | 🚧 ported (no upstream match) |
-| `formatTimeAgo`                   | —                                             | `packages/core/useTimeAgo/index.tsx`                      | 🚧 ported (no upstream match) |
-| `formatTimeAgoIntl`               | —                                             | `packages/core/useTimeAgoIntl/index.tsx`                  | 🚧 ported (no upstream match) |
-| `formatTimeAgoIntlParts`          | —                                             | `packages/core/useTimeAgoIntl/index.tsx`                  | 🚧 ported (no upstream match) |
-| `guessSerializerType`             | —                                             | `packages/core/useStorage/index.tsx`                      | 🚧 ported (no upstream match) |
-| `hasOwn`                          | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `hyphenate`                       | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `increaseWithUnit`                | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `insertNodeAt`                    | —                                             | `packages/integrations/useSortable/index.tsx`             | 🚧 ported (no upstream match) |
-| `isClient`                        | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `isDef`                           | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
+| `createPromisifiedComponent`      | —                                             | `packages/core/createPromisifiedComponent/index.tsx`      | ✅ ported (no upstream match) |
+| `createSharedHook`                | —                                             | `packages/shared/createSharedHook/index.tsx`              | ✅ ported (no upstream match) |
+| `createSingletonPromise`          | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `customStorageEventName`          | —                                             | `packages/core/useStorage/index.tsx`                      | ✅ ported (no upstream match) |
+| `debounceFilter`                  | —                                             | `packages/shared/useWatchWithFilter/index.tsx`            | ✅ ported (no upstream match) |
+| `deepClone`                       | —                                             | `packages/shared/useWatchDeep/index.tsx`                  | ✅ ported (no upstream match) |
+| `deepEqual`                       | —                                             | `packages/shared/useWatchDeep/index.tsx`                  | ✅ ported (no upstream match) |
+| `events`                          | —                                             | `packages/core/useEventBus/index.tsx`                     | ✅ ported (no upstream match) |
+| `formatDate`                      | —                                             | `packages/shared/useDateFormat/index.tsx`                 | ✅ ported (no upstream match) |
+| `formatTimeAgo`                   | —                                             | `packages/core/useTimeAgo/index.tsx`                      | ✅ ported (no upstream match) |
+| `formatTimeAgoIntl`               | —                                             | `packages/core/useTimeAgoIntl/index.tsx`                  | ✅ ported (no upstream match) |
+| `formatTimeAgoIntlParts`          | —                                             | `packages/core/useTimeAgoIntl/index.tsx`                  | ✅ ported (no upstream match) |
+| `guessSerializerType`             | —                                             | `packages/core/useStorage/index.tsx`                      | ✅ ported (no upstream match) |
+| `hasOwn`                          | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `hyphenate`                       | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `increaseWithUnit`                | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `insertNodeAt`                    | —                                             | `packages/integrations/useSortable/index.tsx`             | ✅ ported (no upstream match) |
+| `isClient`                        | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `isDef`                           | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
 | `isDefined`                       | packages/shared/isDefined                     | `packages/shared/isDefined/index.tsx`                     | ✅ ported                     |
-| `isFocusedElementEditable`        | —                                             | `packages/core/useStartTyping/index.tsx`                  | 🚧 ported (no upstream match) |
-| `isIOS`                           | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `isObject`                        | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `isRefLike`                       | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `isTypedCharValid`                | —                                             | `packages/core/useStartTyping/index.tsx`                  | 🚧 ported (no upstream match) |
+| `isFocusedElementEditable`        | —                                             | `packages/core/useStartTyping/index.tsx`                  | ✅ ported (no upstream match) |
+| `isIOS`                           | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `isObject`                        | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `isRefLike`                       | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `isTypedCharValid`                | —                                             | `packages/core/useStartTyping/index.tsx`                  | ✅ ported (no upstream match) |
 | `logicAnd`                        | packages/math/logicAnd                        | `packages/math/logicAnd/index.tsx`                        | ✅ ported                     |
 | `logicNot`                        | packages/math/logicNot                        | `packages/math/logicNot/index.tsx`                        | ✅ ported                     |
 | `logicOr`                         | packages/math/logicOr                         | `packages/math/logicOr/index.tsx`                         | ✅ ported                     |
 | `makeDestructurable`              | packages/shared/makeDestructurable            | `packages/shared/makeDestructurable/index.tsx`            | ✅ ported                     |
-| `mapGamepadToXbox360Controller`   | —                                             | `packages/core/useGamepad/index.tsx`                      | 🚧 ported (no upstream match) |
-| `moveArrayElement`                | —                                             | `packages/integrations/useSortable/index.tsx`             | 🚧 ported (no upstream match) |
-| `noop`                            | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `normalizeDate`                   | —                                             | `packages/shared/useDateFormat/index.tsx`                 | 🚧 ported (no upstream match) |
-| `now`                             | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `objectOmit`                      | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `objectPick`                      | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `promiseTimeout`                  | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `pxValue`                         | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `rand`                            | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `removeNode`                      | —                                             | `packages/integrations/useSortable/index.tsx`             | 🚧 ported (no upstream match) |
-| `resolveIpcRenderer`              | —                                             | `packages/electron/_resolve/index.tsx`                    | 🚧 ported (no upstream match) |
-| `resolveWebFrame`                 | —                                             | `packages/electron/_resolve/index.tsx`                    | 🚧 ported (no upstream match) |
-| `SSRWidthProvider`                | —                                             | `packages/core/useSSRWidth/index.tsx`                     | 🚧 ported (no upstream match) |
-| `syncState`                       | —                                             | `packages/shared/syncState/index.tsx`                     | 🚧 ported (no upstream match) |
-| `syncStates`                      | —                                             | `packages/shared/syncStates/index.tsx`                    | 🚧 ported (no upstream match) |
-| `throttleFilter`                  | —                                             | `packages/shared/useWatchWithFilter/index.tsx`            | 🚧 ported (no upstream match) |
-| `timestamp`                       | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `toArgsFlat`                      | —                                             | `packages/math/utils/index.tsx`                           | 🚧 ported (no upstream match) |
-| `toArray`                         | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
+| `mapGamepadToXbox360Controller`   | —                                             | `packages/core/useGamepad/index.tsx`                      | ✅ ported (no upstream match) |
+| `moveArrayElement`                | —                                             | `packages/integrations/useSortable/index.tsx`             | ✅ ported (no upstream match) |
+| `noop`                            | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `normalizeDate`                   | —                                             | `packages/shared/useDateFormat/index.tsx`                 | ✅ ported (no upstream match) |
+| `now`                             | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `objectOmit`                      | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `objectPick`                      | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `promiseTimeout`                  | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `pxValue`                         | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `rand`                            | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `removeNode`                      | —                                             | `packages/integrations/useSortable/index.tsx`             | ✅ ported (no upstream match) |
+| `resolveIpcRenderer`              | —                                             | `packages/electron/_resolve/index.tsx`                    | ✅ ported (no upstream match) |
+| `resolveWebFrame`                 | —                                             | `packages/electron/_resolve/index.tsx`                    | ✅ ported (no upstream match) |
+| `SSRWidthProvider`                | —                                             | `packages/core/useSSRWidth/index.tsx`                     | ✅ ported (no upstream match) |
+| `syncState`                       | —                                             | `packages/shared/syncState/index.tsx`                     | ✅ ported (no upstream match) |
+| `syncStates`                      | —                                             | `packages/shared/syncStates/index.tsx`                    | ✅ ported (no upstream match) |
+| `throttleFilter`                  | —                                             | `packages/shared/useWatchWithFilter/index.tsx`            | ✅ ported (no upstream match) |
+| `timestamp`                       | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `toArgsFlat`                      | —                                             | `packages/math/utils/index.tsx`                           | ✅ ported (no upstream match) |
+| `toArray`                         | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
 | `toObserver`                      | packages/rxjs/toObserver                      | `packages/rxjs/toObserver/index.tsx`                      | ✅ ported                     |
-| `toValue`                         | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
-| `TransitionPresets`               | —                                             | `packages/core/useTransition/index.tsx`                   | 🚧 ported (no upstream match) |
+| `toValue`                         | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |
+| `TransitionPresets`               | —                                             | `packages/core/useTransition/index.tsx`                   | ✅ ported (no upstream match) |
 | `unrefElement`                    | packages/core/unrefElement                    | `packages/core/unrefElement/index.tsx`                    | ✅ ported                     |
 | `until`                           | packages/shared/until                         | `packages/shared/until/index.tsx`                         | ✅ ported                     |
 | `useAbs`                          | packages/math/useAbs                          | `packages/math/useAbs/index.tsx`                          | ✅ ported                     |
@@ -96,7 +96,7 @@
 | `useArrayReduce`                  | packages/shared/useArrayReduce                | `packages/shared/useArrayReduce/index.tsx`                | ✅ ported                     |
 | `useArraySome`                    | packages/shared/useArraySome                  | `packages/shared/useArraySome/index.tsx`                  | ✅ ported                     |
 | `useArrayUnique`                  | packages/shared/useArrayUnique                | `packages/shared/useArrayUnique/index.tsx`                | ✅ ported                     |
-| `useAsync`                        | —                                             | `packages/core/useAsync/index.tsx`                        | 🚧 ported (no upstream match) |
+| `useAsync`                        | —                                             | `packages/core/useAsync/index.tsx`                        | ✅ ported (no upstream match) |
 | `useAsyncQueue`                   | packages/core/useAsyncQueue                   | `packages/core/useAsyncQueue/index.tsx`                   | ✅ ported                     |
 | `useAsyncState`                   | packages/core/useAsyncState                   | `packages/core/useAsyncState/index.tsx`                   | ✅ ported                     |
 | `useAsyncValidator`               | packages/integrations/useAsyncValidator       | `packages/integrations/useAsyncValidator/index.tsx`       | ✅ ported                     |
@@ -113,13 +113,13 @@
 | `useCeil`                         | packages/math/useCeil                         | `packages/math/useCeil/index.tsx`                         | ✅ ported                     |
 | `useChangeCase`                   | packages/integrations/useChangeCase           | `packages/integrations/useChangeCase/index.tsx`           | ✅ ported                     |
 | `useClamp`                        | packages/math/useClamp                        | `packages/math/useClamp/index.tsx`                        | ✅ ported                     |
-| `useClickOutside`                 | —                                             | `packages/core/useClickOutside/index.tsx`                 | 🚧 ported (no upstream match) |
+| `useClickOutside`                 | —                                             | `packages/core/useClickOutside/index.tsx`                 | ✅ ported (no upstream match) |
 | `useClipboard`                    | packages/core/useClipboard                    | `packages/core/useClipboard/index.tsx`                    | ✅ ported                     |
 | `useClipboardItems`               | packages/core/useClipboardItems               | `packages/core/useClipboardItems/index.tsx`               | ✅ ported                     |
 | `useCloned`                       | packages/core/useCloned                       | `packages/core/useCloned/index.tsx`                       | ✅ ported                     |
 | `useColorMode`                    | packages/core/useColorMode                    | `packages/core/useColorMode/index.tsx`                    | ✅ ported                     |
 | `useConfirmDialog`                | packages/core/useConfirmDialog                | `packages/core/useConfirmDialog/index.tsx`                | ✅ ported                     |
-| `useControllableState`            | —                                             | `packages/shared/useControllableState/index.tsx`          | 🚧 ported (no upstream match) |
+| `useControllableState`            | —                                             | `packages/shared/useControllableState/index.tsx`          | ✅ ported (no upstream match) |
 | `useCookies`                      | packages/integrations/useCookies              | `packages/integrations/useCookies/index.tsx`              | ✅ ported                     |
 | `useCountdown`                    | packages/core/useCountdown                    | `packages/core/useCountdown/index.tsx`                    | ✅ ported                     |
 | `useCounter`                      | packages/shared/useCounter                    | `packages/shared/useCounter/index.tsx`                    | ✅ ported                     |
@@ -142,7 +142,7 @@
 | `useElementByPoint`               | packages/core/useElementByPoint               | `packages/core/useElementByPoint/index.tsx`               | ✅ ported                     |
 | `useElementHover`                 | packages/core/useElementHover                 | `packages/core/useElementHover/index.tsx`                 | ✅ ported                     |
 | `useElementOverflow`              | packages/core/useElementOverflow              | `packages/core/useElementOverflow/index.tsx`              | ✅ ported                     |
-| `useElementRemoval`               | —                                             | `packages/core/useElementRemoval/index.tsx`               | 🚧 ported (no upstream match) |
+| `useElementRemoval`               | —                                             | `packages/core/useElementRemoval/index.tsx`               | ✅ ported (no upstream match) |
 | `useElementSize`                  | packages/core/useElementSize                  | `packages/core/useElementSize/index.tsx`                  | ✅ ported                     |
 | `useElementVisibility`            | packages/core/useElementVisibility            | `packages/core/useElementVisibility/index.tsx`            | ✅ ported                     |
 | `useEventBus`                     | packages/core/useEventBus                     | `packages/core/useEventBus/index.tsx`                     | ✅ ported                     |
@@ -160,12 +160,12 @@
 | `useFocusTrap`                    | packages/integrations/useFocusTrap            | `packages/integrations/useFocusTrap/index.tsx`            | ✅ ported                     |
 | `useFocusWithin`                  | packages/core/useFocusWithin                  | `packages/core/useFocusWithin/index.tsx`                  | ✅ ported                     |
 | `useFps`                          | packages/core/useFps                          | `packages/core/useFps/index.tsx`                          | ✅ ported                     |
-| `useFrom`                         | —                                             | `packages/rxjs/useFrom/index.tsx`                         | 🚧 ported (no upstream match) |
+| `useFrom`                         | —                                             | `packages/rxjs/useFrom/index.tsx`                         | ✅ ported (no upstream match) |
 | `useFullscreen`                   | packages/core/useFullscreen                   | `packages/core/useFullscreen/index.tsx`                   | ✅ ported                     |
 | `useFuse`                         | packages/integrations/useFuse                 | `packages/integrations/useFuse/index.tsx`                 | ✅ ported                     |
 | `useGamepad`                      | packages/core/useGamepad                      | `packages/core/useGamepad/index.tsx`                      | ✅ ported                     |
 | `useGeolocation`                  | packages/core/useGeolocation                  | `packages/core/useGeolocation/index.tsx`                  | ✅ ported                     |
-| `useHash`                         | —                                             | `packages/core/useHash/index.tsx`                         | 🚧 ported (no upstream match) |
+| `useHash`                         | —                                             | `packages/core/useHash/index.tsx`                         | ✅ ported (no upstream match) |
 | `useIDBKeyval`                    | packages/integrations/useIDBKeyval            | `packages/integrations/useIDBKeyval/index.tsx`            | ✅ ported                     |
 | `useIdle`                         | packages/core/useIdle                         | `packages/core/useIdle/index.tsx`                         | ✅ ported                     |
 | `useImage`                        | packages/core/useImage                        | `packages/core/useImage/index.tsx`                        | ✅ ported                     |
@@ -177,16 +177,16 @@
 | `useIpcRendererInvoke`            | packages/electron/useIpcRendererInvoke        | `packages/electron/useIpcRendererInvoke/index.tsx`        | ✅ ported                     |
 | `useIpcRendererOn`                | packages/electron/useIpcRendererOn            | `packages/electron/useIpcRendererOn/index.tsx`            | ✅ ported                     |
 | `useJwt`                          | packages/integrations/useJwt                  | `packages/integrations/useJwt/index.tsx`                  | ✅ ported                     |
-| `useKeyDown`                      | —                                             | `packages/core/useKeyStroke/index.tsx`                    | 🚧 ported (no upstream match) |
+| `useKeyDown`                      | —                                             | `packages/core/useKeyStroke/index.tsx`                    | ✅ ported (no upstream match) |
 | `useKeyModifier`                  | packages/core/useKeyModifier                  | `packages/core/useKeyModifier/index.tsx`                  | ✅ ported                     |
-| `useKeyPressed`                   | —                                             | `packages/core/useKeyStroke/index.tsx`                    | 🚧 ported (no upstream match) |
-| `useKeyStroke`                    | —                                             | `packages/core/useKeyStroke/index.tsx`                    | 🚧 ported (no upstream match) |
-| `useKeyUp`                        | —                                             | `packages/core/useKeyStroke/index.tsx`                    | 🚧 ported (no upstream match) |
+| `useKeyPressed`                   | —                                             | `packages/core/useKeyStroke/index.tsx`                    | ✅ ported (no upstream match) |
+| `useKeyStroke`                    | —                                             | `packages/core/useKeyStroke/index.tsx`                    | ✅ ported (no upstream match) |
+| `useKeyUp`                        | —                                             | `packages/core/useKeyStroke/index.tsx`                    | ✅ ported (no upstream match) |
 | `useLastChanged`                  | packages/shared/useLastChanged                | `packages/shared/useLastChanged/index.tsx`                | ✅ ported                     |
-| `useListener`                     | —                                             | `packages/shared/useListener/index.tsx`                   | 🚧 ported (no upstream match) |
+| `useListener`                     | —                                             | `packages/shared/useListener/index.tsx`                   | ✅ ported (no upstream match) |
 | `useLiveAnnouncer`                | packages/core/useLiveAnnouncer                | `packages/core/useLiveAnnouncer/index.tsx`                | ✅ ported                     |
 | `useLocalStorage`                 | packages/core/useLocalStorage                 | `packages/core/useLocalStorage/index.tsx`                 | ✅ ported                     |
-| `useLongPress`                    | —                                             | `packages/core/useLongPress/index.tsx`                    | 🚧 ported (no upstream match) |
+| `useLongPress`                    | —                                             | `packages/core/useLongPress/index.tsx`                    | ✅ ported (no upstream match) |
 | `useMagicKeys`                    | packages/core/useMagicKeys                    | `packages/core/useMagicKeys/index.tsx`                    | ✅ ported                     |
 | `useMath`                         | packages/math/useMath                         | `packages/math/useMath/index.tsx`                         | ✅ ported                     |
 | `useMax`                          | packages/math/useMax                          | `packages/math/useMax/index.tsx`                          | ✅ ported                     |
@@ -195,7 +195,7 @@
 | `useMemoize`                      | packages/core/useMemoize                      | `packages/core/useMemoize/index.tsx`                      | ✅ ported                     |
 | `useMemory`                       | packages/core/useMemory                       | `packages/core/useMemory/index.tsx`                       | ✅ ported                     |
 | `useMin`                          | packages/math/useMin                          | `packages/math/useMin/index.tsx`                          | ✅ ported                     |
-| `useMount`                        | —                                             | `packages/shared/useMount/index.tsx`                      | 🚧 ported (no upstream match) |
+| `useMount`                        | —                                             | `packages/shared/useMount/index.tsx`                      | ✅ ported (no upstream match) |
 | `useMounted`                      | packages/core/useMounted                      | `packages/core/useMounted/index.tsx`                      | ✅ ported                     |
 | `useMouse`                        | packages/core/useMouse                        | `packages/core/useMouse/index.tsx`                        | ✅ ported                     |
 | `useMouseInElement`               | packages/core/useMouseInElement               | `packages/core/useMouseInElement/index.tsx`               | ✅ ported                     |
@@ -211,7 +211,7 @@
 | `useOnline`                       | packages/core/useOnline                       | `packages/core/useOnline/index.tsx`                       | ✅ ported                     |
 | `usePageLeave`                    | packages/core/usePageLeave                    | `packages/core/usePageLeave/index.tsx`                    | ✅ ported                     |
 | `useParallax`                     | packages/core/useParallax                     | `packages/core/useParallax/index.tsx`                     | ✅ ported                     |
-| `useParams`                       | —                                             | `packages/core/useParams/index.tsx`                       | 🚧 ported (no upstream match) |
+| `useParams`                       | —                                             | `packages/core/useParams/index.tsx`                       | ✅ ported (no upstream match) |
 | `useParentElement`                | packages/core/useParentElement                | `packages/core/useParentElement/index.tsx`                | ✅ ported                     |
 | `usePerformanceObserver`          | packages/core/usePerformanceObserver          | `packages/core/usePerformanceObserver/index.tsx`          | ✅ ported                     |
 | `usePermission`                   | packages/core/usePermission                   | `packages/core/usePermission/index.tsx`                   | ✅ ported                     |
@@ -228,9 +228,9 @@
 | `usePrevious`                     | packages/core/usePrevious                     | `packages/core/usePrevious/index.tsx`                     | ✅ ported                     |
 | `useProjection`                   | packages/math/useProjection                   | `packages/math/useProjection/index.tsx`                   | ✅ ported                     |
 | `useQRCode`                       | packages/integrations/useQRCode               | `packages/integrations/useQRCode/index.tsx`               | ✅ ported                     |
-| `useQuery`                        | —                                             | `packages/core/useQuery/index.tsx`                        | 🚧 ported (no upstream match) |
+| `useQuery`                        | —                                             | `packages/core/useQuery/index.tsx`                        | ✅ ported (no upstream match) |
 | `useRafFn`                        | packages/core/useRafFn                        | `packages/core/useRafFn/index.tsx`                        | ✅ ported                     |
-| `useRefsList`                     | —                                             | `packages/core/useRefsList/index.tsx`                     | 🚧 ported (no upstream match) |
+| `useRefsList`                     | —                                             | `packages/core/useRefsList/index.tsx`                     | ✅ ported (no upstream match) |
 | `useResizeObserver`               | packages/core/useResizeObserver               | `packages/core/useResizeObserver/index.tsx`               | ✅ ported                     |
 | `useRound`                        | packages/math/useRound                        | `packages/math/useRound/index.tsx`                        | ✅ ported                     |
 | `useRTDB`                         | packages/firebase/useRTDB                     | `packages/firebase/useRTDB/index.tsx`                     | ✅ ported                     |
@@ -246,17 +246,17 @@
 | `useSpeechRecognition`            | packages/core/useSpeechRecognition            | `packages/core/useSpeechRecognition/index.tsx`            | ✅ ported                     |
 | `useSpeechSynthesis`              | packages/core/useSpeechSynthesis              | `packages/core/useSpeechSynthesis/index.tsx`              | ✅ ported                     |
 | `useSSRWidth`                     | packages/core/useSSRWidth                     | `packages/core/useSSRWidth/index.tsx`                     | ✅ ported                     |
-| `useStartTyping`                  | —                                             | `packages/core/useStartTyping/index.tsx`                  | 🚧 ported (no upstream match) |
-| `useStateAutoReset`               | —                                             | `packages/shared/useStateAutoReset/index.tsx`             | 🚧 ported (no upstream match) |
-| `useStateDebounced`               | —                                             | `packages/shared/useStateDebounced/index.tsx`             | 🚧 ported (no upstream match) |
-| `useStateDebouncedHistory`        | —                                             | `packages/core/useStateDebouncedHistory/index.tsx`        | 🚧 ported (no upstream match) |
-| `useStateDefault`                 | —                                             | `packages/shared/useStateDefault/index.tsx`               | 🚧 ported (no upstream match) |
-| `useStateHistory`                 | —                                             | `packages/core/useStateHistory/index.tsx`                 | 🚧 ported (no upstream match) |
-| `useStateManualHistory`           | —                                             | `packages/core/useStateManualHistory/index.tsx`           | 🚧 ported (no upstream match) |
-| `useStateManualReset`             | —                                             | `packages/shared/useStateManualReset/index.tsx`           | 🚧 ported (no upstream match) |
-| `useStateThrottled`               | —                                             | `packages/shared/useStateThrottled/index.tsx`             | 🚧 ported (no upstream match) |
-| `useStateThrottledHistory`        | —                                             | `packages/core/useStateThrottledHistory/index.tsx`        | 🚧 ported (no upstream match) |
-| `useStateWithControl`             | —                                             | `packages/shared/useStateWithControl/index.tsx`           | 🚧 ported (no upstream match) |
+| `useStartTyping`                  | —                                             | `packages/core/useStartTyping/index.tsx`                  | ✅ ported (no upstream match) |
+| `useStateAutoReset`               | —                                             | `packages/shared/useStateAutoReset/index.tsx`             | ✅ ported (no upstream match) |
+| `useStateDebounced`               | —                                             | `packages/shared/useStateDebounced/index.tsx`             | ✅ ported (no upstream match) |
+| `useStateDebouncedHistory`        | —                                             | `packages/core/useStateDebouncedHistory/index.tsx`        | ✅ ported (no upstream match) |
+| `useStateDefault`                 | —                                             | `packages/shared/useStateDefault/index.tsx`               | ✅ ported (no upstream match) |
+| `useStateHistory`                 | —                                             | `packages/core/useStateHistory/index.tsx`                 | ✅ ported (no upstream match) |
+| `useStateManualHistory`           | —                                             | `packages/core/useStateManualHistory/index.tsx`           | ✅ ported (no upstream match) |
+| `useStateManualReset`             | —                                             | `packages/shared/useStateManualReset/index.tsx`           | ✅ ported (no upstream match) |
+| `useStateThrottled`               | —                                             | `packages/shared/useStateThrottled/index.tsx`             | ✅ ported (no upstream match) |
+| `useStateThrottledHistory`        | —                                             | `packages/core/useStateThrottledHistory/index.tsx`        | ✅ ported (no upstream match) |
+| `useStateWithControl`             | —                                             | `packages/shared/useStateWithControl/index.tsx`           | ✅ ported (no upstream match) |
 | `useStepper`                      | packages/core/useStepper                      | `packages/core/useStepper/index.tsx`                      | ✅ ported                     |
 | `useStorage`                      | packages/core/useStorage                      | `packages/core/useStorage/index.tsx`                      | ✅ ported                     |
 | `useStorageAsync`                 | packages/core/useStorageAsync                 | `packages/core/useStorageAsync/index.tsx`                 | ✅ ported                     |
@@ -283,34 +283,34 @@
 | `useToString`                     | packages/shared/useToString                   | `packages/shared/useToString/index.tsx`                   | ✅ ported                     |
 | `useTransition`                   | packages/core/useTransition                   | `packages/core/useTransition/index.tsx`                   | ✅ ported                     |
 | `useTrunc`                        | packages/math/useTrunc                        | `packages/math/useTrunc/index.tsx`                        | ✅ ported                     |
-| `useUnmount`                      | —                                             | `packages/shared/useUnmount/index.tsx`                    | 🚧 ported (no upstream match) |
-| `useUpdate`                       | —                                             | `packages/shared/useUpdate/index.tsx`                     | 🚧 ported (no upstream match) |
+| `useUnmount`                      | —                                             | `packages/shared/useUnmount/index.tsx`                    | ✅ ported (no upstream match) |
+| `useUpdate`                       | —                                             | `packages/shared/useUpdate/index.tsx`                     | ✅ ported (no upstream match) |
 | `useUrlSearchParams`              | packages/core/useUrlSearchParams              | `packages/core/useUrlSearchParams/index.tsx`              | ✅ ported                     |
 | `useUserMedia`                    | packages/core/useUserMedia                    | `packages/core/useUserMedia/index.tsx`                    | ✅ ported                     |
 | `useVibrate`                      | packages/core/useVibrate                      | `packages/core/useVibrate/index.tsx`                      | ✅ ported                     |
 | `useVirtualList`                  | packages/core/useVirtualList                  | `packages/core/useVirtualList/index.tsx`                  | ✅ ported                     |
 | `useWakeLock`                     | packages/core/useWakeLock                     | `packages/core/useWakeLock/index.tsx`                     | ✅ ported                     |
-| `useWatch`                        | —                                             | `packages/shared/useWatch/index.tsx`                      | 🚧 ported (no upstream match) |
-| `useWatchArray`                   | —                                             | `packages/shared/useWatchArray/index.tsx`                 | 🚧 ported (no upstream match) |
-| `useWatchAtMost`                  | —                                             | `packages/shared/useWatchAtMost/index.tsx`                | 🚧 ported (no upstream match) |
-| `useWatchDebounced`               | —                                             | `packages/shared/useWatchDebounced/index.tsx`             | 🚧 ported (no upstream match) |
-| `useWatchDeep`                    | —                                             | `packages/shared/useWatchDeep/index.tsx`                  | 🚧 ported (no upstream match) |
-| `useWatchExtractedObservable`     | —                                             | `packages/rxjs/useWatchExtractedObservable/index.tsx`     | 🚧 ported (no upstream match) |
-| `useWatchIgnorable`               | —                                             | `packages/shared/useWatchIgnorable/index.tsx`             | 🚧 ported (no upstream match) |
-| `useWatchImmediate`               | —                                             | `packages/shared/useWatchImmediate/index.tsx`             | 🚧 ported (no upstream match) |
-| `useWatchOnce`                    | —                                             | `packages/shared/useWatchOnce/index.tsx`                  | 🚧 ported (no upstream match) |
-| `useWatchPausable`                | —                                             | `packages/shared/useWatchPausable/index.tsx`              | 🚧 ported (no upstream match) |
-| `useWatchThrottled`               | —                                             | `packages/shared/useWatchThrottled/index.tsx`             | 🚧 ported (no upstream match) |
-| `useWatchTriggerable`             | —                                             | `packages/shared/useWatchTriggerable/index.tsx`           | 🚧 ported (no upstream match) |
-| `useWatchWithFilter`              | —                                             | `packages/shared/useWatchWithFilter/index.tsx`            | 🚧 ported (no upstream match) |
+| `useWatch`                        | —                                             | `packages/shared/useWatch/index.tsx`                      | ✅ ported (no upstream match) |
+| `useWatchArray`                   | —                                             | `packages/shared/useWatchArray/index.tsx`                 | ✅ ported (no upstream match) |
+| `useWatchAtMost`                  | —                                             | `packages/shared/useWatchAtMost/index.tsx`                | ✅ ported (no upstream match) |
+| `useWatchDebounced`               | —                                             | `packages/shared/useWatchDebounced/index.tsx`             | ✅ ported (no upstream match) |
+| `useWatchDeep`                    | —                                             | `packages/shared/useWatchDeep/index.tsx`                  | ✅ ported (no upstream match) |
+| `useWatchExtractedObservable`     | —                                             | `packages/rxjs/useWatchExtractedObservable/index.tsx`     | ✅ ported (no upstream match) |
+| `useWatchIgnorable`               | —                                             | `packages/shared/useWatchIgnorable/index.tsx`             | ✅ ported (no upstream match) |
+| `useWatchImmediate`               | —                                             | `packages/shared/useWatchImmediate/index.tsx`             | ✅ ported (no upstream match) |
+| `useWatchOnce`                    | —                                             | `packages/shared/useWatchOnce/index.tsx`                  | ✅ ported (no upstream match) |
+| `useWatchPausable`                | —                                             | `packages/shared/useWatchPausable/index.tsx`              | ✅ ported (no upstream match) |
+| `useWatchThrottled`               | —                                             | `packages/shared/useWatchThrottled/index.tsx`             | ✅ ported (no upstream match) |
+| `useWatchTriggerable`             | —                                             | `packages/shared/useWatchTriggerable/index.tsx`           | ✅ ported (no upstream match) |
+| `useWatchWithFilter`              | —                                             | `packages/shared/useWatchWithFilter/index.tsx`            | ✅ ported (no upstream match) |
 | `useWebNotification`              | packages/core/useWebNotification              | `packages/core/useWebNotification/index.tsx`              | ✅ ported                     |
 | `useWebSocket`                    | packages/core/useWebSocket                    | `packages/core/useWebSocket/index.tsx`                    | ✅ ported                     |
 | `useWebWorker`                    | packages/core/useWebWorker                    | `packages/core/useWebWorker/index.tsx`                    | ✅ ported                     |
 | `useWebWorkerFn`                  | packages/core/useWebWorkerFn                  | `packages/core/useWebWorkerFn/index.tsx`                  | ✅ ported                     |
-| `useWhenever`                     | —                                             | `packages/shared/useWhenever/index.tsx`                   | 🚧 ported (no upstream match) |
+| `useWhenever`                     | —                                             | `packages/shared/useWhenever/index.tsx`                   | ✅ ported (no upstream match) |
 | `useWindowFocus`                  | packages/core/useWindowFocus                  | `packages/core/useWindowFocus/index.tsx`                  | ✅ ported                     |
 | `useWindowScroll`                 | packages/core/useWindowScroll                 | `packages/core/useWindowScroll/index.tsx`                 | ✅ ported                     |
 | `useWindowSize`                   | packages/core/useWindowSize                   | `packages/core/useWindowSize/index.tsx`                   | ✅ ported                     |
 | `useZoomFactor`                   | packages/electron/useZoomFactor               | `packages/electron/useZoomFactor/index.tsx`               | ✅ ported                     |
 | `useZoomLevel`                    | packages/electron/useZoomLevel                | `packages/electron/useZoomLevel/index.tsx`                | ✅ ported                     |
-| `writeState`                      | —                                             | `packages/shared/utils/index.tsx`                         | 🚧 ported (no upstream match) |
+| `writeState`                      | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (no upstream match) |

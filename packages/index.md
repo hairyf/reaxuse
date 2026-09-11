@@ -29,7 +29,7 @@ features:
   - title: Type Strong
     details: Written in TypeScript, with full type docs on every hook
     icon: 🦾
-  - title: Experimental
-    details: Base architecture mirrors VueUse 1:1; hook mapping is in progress
-    icon: 🚧
+  - title: Fully Mapped
+    details: Every VueUse composable is mirrored 1:1 — see the generated function registry
+    icon: ✅
 ---
