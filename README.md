@@ -11,8 +11,8 @@
 [![Status: Experimental](https://img.shields.io/badge/status-experimental-orange)](https://github.com/hairyf/reause)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-> ✅ **Mapping complete**: the base architecture is a 1:1 mirror and every VueUse composable has a React counterpart.
-> The generated [function mapping table](meta/functions.md) tracks each one.
+> ✅ **Mapping complete**: the base architecture is a 1:1 mirror, and every VueUse composable is accounted for — either mirrored by a React hook, or recorded as intentionally impractical (Vue-only `ref`/reactivity APIs, decided per mapping issue).
+> The generated [function mapping table](meta/functions.md) tracks each one; §3.2 of [docs/upstream-monitoring.md](docs/upstream-monitoring.md) documents the coverage audit behind that claim.
 
 </div>
 
