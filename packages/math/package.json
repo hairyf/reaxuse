@@ -4,6 +4,15 @@
   "version": "0.1.3",
   "description": "Math functions — React port of @vueuse/math (experimental, AI-mapped)",
   "license": "MIT",
+  "homepage": "https://github.com/hairyf/reause#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hairyf/reause.git",
+    "directory": "packages/math"
+  },
+  "bugs": {
+    "url": "https://github.com/hairyf/reause/issues"
+  },
   "sideEffects": false,
   "exports": {
     ".": "./dist/index.js",
