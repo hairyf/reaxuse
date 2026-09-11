@@ -1,7 +1,7 @@
 {
   "name": "reaxuse",
   "type": "module",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "packageManager": "pnpm@11.25.0",
   "description": "Reactive utilities for React — an experimental 1:1 AI-mapped port of VueUse",
@@ -25,7 +25,7 @@
     "lint": "eslint --cache .",
     "lint:fix": "nr lint --fix",
     "publish:ci": "tsx scripts/publish.ts",
-    "release": "bumpp --execute=\"nr release:prepare\" --all --pr",
+    "release": "bumpp --execute=\"nr release:prepare\" --recursive --all --pr",
     "release:prepare": "nr update:full && nr build:packages && nr size",
     "size": "tsx scripts/export-size.ts",
     "test": "nr test:unit --project=exports",

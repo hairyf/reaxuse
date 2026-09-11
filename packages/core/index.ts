@@ -146,3 +146,10 @@ export * from './useWebWorkerFn'
 export * from './useWindowFocus'
 export * from './useWindowScroll'
 export * from './useWindowSize'
+
+// Mirrors upstream `@vueuse/core`'s `export * from '@vueuse/shared'`
+// (source/vueuse/packages/core/index.ts), so consumers can reach the shared
+// hooks (`useToggle`, `useDebounceFn`, `useCounter`, …) straight from
+// `@reaxuse/core` without adding `@reaxuse/shared` as a direct dependency.
+// core and shared export disjoint names, so the star re-export is unambiguous.
+export * from '@reaxuse/shared'

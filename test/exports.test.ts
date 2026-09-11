@@ -9,6 +9,12 @@ describe('@reaxuse/core exports', () => {
   it('exposes the ported hooks', () => {
     expect(core.useNow).toBeTypeOf('function')
   })
+  it('re-exports @reaxuse/shared (mirrors `export * from \'@vueuse/shared\'`)', () => {
+    expect(core.noop).toBeTypeOf('function')
+    expect(core.useToggle).toBeTypeOf('function')
+    expect(core.useCounter).toBeTypeOf('function')
+    expect(core.useDebounceFn).toBeTypeOf('function')
+  })
 })
 
 describe('@reaxuse/shared exports', () => {
