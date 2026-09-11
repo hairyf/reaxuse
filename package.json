@@ -13,7 +13,7 @@
     "up": "nlx taze && nr size",
     "backport": "tsx scripts/backport.ts",
     "build": "nr update && nr build:packages",
-    "build:packages": "turbo run build",
+    "build:packages": "pnpm -r run build",
     "build:redirects": "tsx scripts/redirects.ts",
     "build:types": "tsc -p tsconfig.types.json",
     "clean": "tsx scripts/clean.ts",
