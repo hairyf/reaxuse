@@ -25,7 +25,7 @@ locally:
 
 ```bash
 # most agent CLIs accept a local path or a repo path
-npx skills add ./skills/reaxuse-functions
+npx skills add hairyf/reaxuse
 ```
 
 > If you are working in a clone of the reaxuse repository, the skill is already
