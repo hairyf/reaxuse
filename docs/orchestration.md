@@ -21,9 +21,9 @@ reause 自动化流水线的总入口：定义总体流程、各环节职责与*
 │
 ▲
 
-监控 PR 评论 ───(有评论)───> 原子代理二次修复
+监控 PR 评论 ───(有人类评论/审查意见)───> 原子代理二次修复
 │
-▼ (无评论 & CI 通过)
+▼ (无人类评论 & CI 通过)
 
 PR 合并与收尾
 
@@ -54,7 +54,7 @@ Nightly Release
 1. **监控上游变动**：见 [upstream-monitoring.md](upstream-monitoring.md)。定期轮询/监控上游库（VueUse / react-use 等）的 Merged PR。若更改适用于 reause，自动创建“合并更新 Issue”。
 2. **接收用户需求**：见 [issues-monitoring.md](issues-monitoring.md)。用户提出新增 Hook 请求（例如“请添加 react-use 的 `useXXX`”）时，直接创建对应的“新增 Hook Issue”。
 3. **调度实现代理**：监控到 Issue 被打上 `implement` 标签后，系统自动派发**实现子代理**，按照根目录 [AGENTS.md](../AGENTS.md) 与 [subagent-execution.md](subagent-execution.md) 规范完成编码并提交 PR。
-4. **处理 PR 审查**：见 [issues-monitoring.md](issues-monitoring.md) §3。持续监控 PR 中的用户评论/审查意见，一旦产生评论，**必须重新指派原子代理**在同一个 Worktree 和分支上进行修复与提交，禁止重新创建 PR。
+4. **处理 PR 审查**：见 [issues-monitoring.md](issues-monitoring.md) §3。持续监控 PR 中的用户评论/审查意见（**不含** netlify deploy-preview 等自动化评论），一旦产生人类评论，**必须重新指派原子代理**在同一个 Worktree 和分支上进行修复与提交，禁止重新创建 PR。
 5. **PR 合并与收尾**：见 [pr-merge.md](pr-merge.md)。子代理 PR CI 完成后审批合并，合并后更新元数据。
 6. **Nightly Release**：见 [release.md](release.md)。每天晚上有新增/更改内容时发布，否则跳过。
 
