@@ -46,7 +46,7 @@ git -C source/vueuse show origin/main:packages/core/useWebMCP/index.md
 
 ### 3.2 覆盖度审计
 
-`meta/functions.md` 由 `scripts/update.ts` 生成：`collectFunctions()`（L101-129）先遍历 **reause 自己的导出**（`packages/{core,shared,math,integrations,electron,firebase,rxjs}/*/index.tsx`），`generateFunctionsMD()`（L79-85）再**逐个导出**回查上游 `source/vueuse/packages/<pkg>/<name>/index.ts`。检查方向是 **reause → 上游**：上游有、reause 没有的函数根本不会被遍历，也就不会成为一行，表格照旧满屏 `✅ ported`。所以该表是**移植登记表，不是覆盖度证明**——「全部 ✅ ported」不能当作完整性依据。本节把覆盖度审计并入本监控阶段（不新增流水线阶段），按下列三步独立复核。
+`meta/functions.md` 由 `scripts/update.ts` 生成：`collectFunctions()` 先遍历 **reause 自己的导出**（`packages/{core,shared,math,integrations,electron,firebase,rxjs}/*/index.tsx`），`generateFunctionsMD()` 再**逐个导出**回查上游 `source/vueuse/packages/<pkg>/<name>/index.ts`（本节其余 `L<n>` 是撰写时的实测坐标，`scripts/update.ts` 重构后即会漂移（#884 重写 resolver 即为一例）；核对时以函数名 / 符号名为准）。检查方向是 **reause → 上游**：上游有、reause 没有的函数根本不会被遍历，也就不会成为一行，表格照旧满屏 `✅ ported`。所以该表是**移植登记表，不是覆盖度证明**——「全部 ✅ ported」不能当作完整性依据。本节把覆盖度审计并入本监控阶段（不新增流水线阶段），按下列三步独立复核。
 
 **第 1 步：枚举 pin 上的上游函数。** 口径是 `source/vueuse/packages/<pkg>/<dir>/index.ts`，跳过 `_*` 目录（`core/_template`）与没有 `index.ts` 的目录：
 
