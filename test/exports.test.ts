@@ -28,14 +28,19 @@ describe('@reause/shared exports', () => {
   })
 })
 
-describe('skeleton packages are importable', () => {
+// These are auxiliary packages, not skeletons: `math` ships 19 hook modules and
+// `integrations` 12, alongside `metadata`'s generated registry. Assert a real
+// export from each rather than mere importability, which can only fail if the
+// import above threw.
+describe('auxiliary packages expose real exports', () => {
   it('@reause/math', () => {
-    expect(math).toBeDefined()
+    expect(math.useAbs).toBeTypeOf('function')
   })
   it('@reause/integrations', () => {
-    expect(integrations).toBeDefined()
+    expect(integrations.useAxios).toBeTypeOf('function')
   })
   it('@reause/metadata', () => {
-    expect(metadata).toBeDefined()
+    expect(metadata.packages).toBeInstanceOf(Array)
+    expect(metadata.functions.length).toBeGreaterThan(0)
   })
 })

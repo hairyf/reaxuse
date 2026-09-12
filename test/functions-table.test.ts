@@ -67,8 +67,16 @@ describe('meta/functions.md resolution', () => {
   })
 
   it('labels every row ported, outside-the-pin, or reause-only', () => {
+    // Exactly the three statuses `scripts/update.ts` can emit. The retired
+    // `ported (no upstream match)` label is deliberately *not* accepted here: it
+    // is what the removed same-name-directory probe reported for every renamed
+    // or secondary export (issue #882), so accepting it would let that
+    // regression pass silently.
     for (const row of table) {
-      expect(row.status).toMatch(/^✅ (?:ported|ported \(no upstream match\)|ported \(not in pinned submodule\)|reause-only export)$/)
+      expect(row.status).toMatch(/^✅ (?:ported|ported \(not in pinned submodule\)|reause-only export)$/)
+      // The same hole, asserted as its own failure with a readable message
+      // rather than only as the absence of a regex match above.
+      expect(row.status, `${row.name} carries the retired probe status`).not.toContain('no upstream match')
       // A `—` upstream column and a resolved path are mutually exclusive; only
       // the two `—` statuses may carry it.
       if (row.status === '✅ reause-only export' || row.status === '✅ ported (not in pinned submodule)')
