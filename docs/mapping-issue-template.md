@@ -51,7 +51,7 @@ gh label list --repo hairyf/reause --limit 40
 ## Target
 
 - **VueUse**: `useNow` — package `@vueuse/core` — [docs](https://vueuse.org/core/useNow/) — source `source/vueuse/packages/core/useNow`
-- **reause**: `packages/core/src/useNow.ts`, exported from `@reause/core`
+- **reause**: `packages/core/useNow/index.tsx`, exported from `@reause/core`
 - **Status**: ☐ todo · ☐ in progress · ☐ done
 
 ## Upstream API
@@ -74,8 +74,8 @@ Map from (`source/vueuse/packages/core/useNow/`):
 
 Map to (reause):
 
-- `packages/core/src/useNow.ts` — implementation
-- `packages/core/src/useNow.test.tsx` — mirrored tests (vitest-browser-react)
+- `packages/core/useNow/index.tsx` — implementation
+- `packages/core/useNow/index.test.tsx` — mirrored tests (vitest-browser-react)
 - `packages/core/useNow/index.md` + `packages/core/useNow/demo.tsx` — docs page + demo (co-located per function, mirroring upstream)
 
 ## Expected implementation
@@ -122,11 +122,11 @@ General conventions to apply (from [`packages/guide/architecture.md`](../package
 
 ## Acceptance criteria
 
-- [ ] implementation `packages/<pkg>/src/<fn>.ts` + re-export from `packages/<pkg>/src/index.ts`
-- [ ] test `packages/<pkg>/src/<fn>.test.tsx` (vitest-browser-react), mirroring the upstream test files
+- [ ] implementation `packages/<pkg>/<fn>/index.tsx` + one barrel line `export * from './<fn>'` in `packages/<pkg>/index.ts`
+- [ ] test `packages/<pkg>/<fn>/index.test.tsx` (vitest-browser-react), mirroring the upstream test files
 - [ ] docs page `packages/<pkg>/<fn>/index.md` + co-located demo `packages/<pkg>/<fn>/demo.tsx`
 - [ ] docs page references the upstream mapping files (source + tests)
-- [ ] `npm run update` — refresh `meta/functions.md`, `packages/functions.md`, `packages/metadata/src/functions.ts`
+- [ ] metadata trio (`meta/functions.md`, `packages/functions.md`, `packages/metadata/src/functions.ts`) left untouched — the orchestrator regenerates it after merge
 
 ## Size estimate
 
@@ -139,7 +139,7 @@ Already-ported functions still get an issue, kept open as a **review/completion
 tracker** — tick the acceptance items that exist and list the remaining gaps
 honestly instead of pre-marking done. Example:
 
-- `useNow` is implemented (`packages/core/src/useNow.ts`) with test, docs and
+- `useNow` is implemented (`packages/core/useNow/index.tsx`) with test, docs and
   demo — but only supports `useNow(interval)`. Upstream also has the `controls`
   mode and returns a `Date`; those are open checklist items.
 - `useToggle` / `useCounter` upstream live in `@vueuse/shared` and are
