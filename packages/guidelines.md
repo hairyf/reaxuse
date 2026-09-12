@@ -38,15 +38,15 @@ When using global variables like `window` or `document`, support
 the hook flexible for scenarios like multi-windows, testing mocks, and SSR.
 
 ```tsx
-import type { ConfigurableWindow } from './_configurable'
-import { defaultWindow } from './_configurable'
+import type { ConfigurableWindow } from '@reause/shared'
 
 export function useActiveElement(
   options: ConfigurableWindow = {},
 ) {
   const {
-    // defaultWindow = isClient ? window : undefined
-    window = defaultWindow,
+    // the global window on the client, `undefined` on the server (SSR) —
+    // `@reause/shared` has no `defaultWindow` helper to import
+    window = typeof globalThis.window === 'undefined' ? undefined : globalThis.window,
   } = options
 
   // skip when in Node.js environment (SSR)

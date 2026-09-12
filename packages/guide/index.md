@@ -5,14 +5,22 @@ API (`useState` / `useEffect` / `useCallback` / `useMemo`). We assume you are
 already familiar with the basic ideas of [React Hooks](https://react.dev/reference/react)
 before you continue.
 
-It is a **1:1 port of [VueUse](https://vueuse.org)**: every `@vueuse/*`
-composable is mapped to a React hook with the same options and return shape,
-adapted to the React idiom. The package structure, docs and demos are mirrored
-1:1; the only systematic deviation is the React flavor of the APIs.
+It is a **1:1 port of [VueUse](https://vueuse.org)**: the mirror is complete
+modulo documented carve-outs — each `@vueuse/*` composable is either mapped to
+a React hook with the same options and return shape, adapted to the React
+idiom, or recorded as intentionally impractical. The package structure, docs and
+demos mirror upstream 1:1; the only systematic deviation is the React flavor of
+the APIs.
 
 - The official [vueuse/vueuse](https://github.com/vueuse/vueuse) repository is referenced as a
   git submodule (`source/vueuse`) and serves as the single source of truth for mapping
-- Every function is a React hook (`useX`) mapped 1:1 from the upstream implementation
+- Every ported function is a React hook (`useX`) mapped 1:1 from the upstream implementation
+- 27 upstream functions are recorded as intentionally impractical (Vue-only `ref` /
+  reactivity APIs) and the renderless `@vueuse/components` surface is not mapped yet
+  ([#879](https://github.com/hairyf/reause/issues/879)) — the generated
+  [function registry](/functions) tracks each one, and
+  [§3.2 of the coverage audit](https://github.com/hairyf/reause/blob/main/docs/upstream-monitoring.md)
+  documents the decisions behind those carve-outs
 - See [architecture](/guide/architecture) for the full VueUse → reause mapping
 
 ## Installation
