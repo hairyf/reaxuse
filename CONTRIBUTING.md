@@ -9,7 +9,7 @@ Thanks for taking the time to contribute! reause is an experimental 1:1 React po
 ```bash
 git clone --recurse-submodules https://github.com/hairyf/reause.git
 cd reause
-npm install
+pnpm install
 ```
 
 > **Windows note:** if you cloned without `--recurse-submodules`, run
