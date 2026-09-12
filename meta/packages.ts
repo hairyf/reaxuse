@@ -10,9 +10,6 @@ export interface PackageManifest {
   external?: string[]
   /** iife global name mapping for bundled externals, e.g. `{ axios: 'axios' }` */
   globals?: Record<string, string>
-  /** manual import — do not generate an iife build */
-  manualImport?: boolean
-  deprecated?: boolean
   /** build per-hook submodules (`dist/<hook>.js`) in addition to the barrel */
   submodules?: boolean
   /** disable the build entirely */
@@ -29,7 +26,6 @@ export interface PackageManifest {
   utils?: boolean
   /** files to copy into the build output */
   copy?: string[]
-  manualEntryPoints?: true
 }
 
 export const packages: PackageManifest[] = [
@@ -130,7 +126,6 @@ export const packages: PackageManifest[] = [
     name: 'metadata',
     display: '@reause/metadata',
     description: 'Metadata for reause functions — 1:1 React port of @vueuse/metadata',
-    manualImport: true,
     iife: false,
     utils: true,
     target: 'node14',
