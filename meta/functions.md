@@ -76,7 +76,7 @@
 | `syncStates`                      | packages/shared/syncRefs                      | `packages/shared/syncStates/index.tsx`                    | ✅ ported                           |
 | `throttleFilter`                  | packages/shared/utils                         | `packages/shared/useWatchWithFilter/index.tsx`            | ✅ ported                           |
 | `timestamp`                       | packages/shared/utils                         | `packages/shared/utils/index.tsx`                         | ✅ ported                           |
-| `toArgsFlat`                      | —                                             | `packages/math/utils/index.tsx`                           | ✅ reause-only export               |
+| `toArgsFlat`                      | packages/math                                 | `packages/math/utils/index.tsx`                           | ✅ ported                           |
 | `toArray`                         | packages/shared/utils                         | `packages/shared/utils/index.tsx`                         | ✅ ported                           |
 | `toObserver`                      | packages/rxjs/toObserver                      | `packages/rxjs/toObserver/index.tsx`                      | ✅ ported                           |
 | `toValue`                         | —                                             | `packages/shared/utils/index.tsx`                         | ✅ ported (not in pinned submodule) |
