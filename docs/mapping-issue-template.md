@@ -141,12 +141,16 @@ tracker** — tick the acceptance items that exist and list the remaining gaps
 honestly instead of pre-marking done. Example:
 
 - `useTimeAgo` is implemented (`packages/core/useTimeAgo/index.tsx`) with test,
-  docs and demo — but upstream's `controls: true` variant is not ported: the
-  port returns a plain `string` and drops the `Controls` generic, while
-  upstream returns `{ timeAgo, isActive, pause, resume }`
-  (`source/vueuse/packages/core/useTimeAgo/index.ts`). A real gap, not a React
-  divergence — `useNow` already ports the same `Pausable` shape
-  (`packages/core/useNow/index.tsx`) — so it stays on the checklist.
+  docs and demo. Upstream's `controls: true` variant is not ported — the port
+  returns a plain `string`, dropping the `Controls` generic, while upstream
+  returns `{ timeAgo, isActive, pause, resume }`
+  (`source/vueuse/packages/core/useTimeAgo/index.ts`). The divergence is
+  **recorded, not overlooked** — "Divergences from upstream" at
+  `packages/core/useTimeAgo/index.tsx` L196-198, "intentionally not ported,
+  consistent with `useTimeAgo`" at `packages/core/useTimeAgoIntl/index.tsx`
+  L78-79 — so the tracker carries it to confirm the decision or schedule the
+  port; `useNow` already returns the same `Pausable` shape
+  (`packages/core/useNow/index.tsx`), so porting is feasible.
 - `useToggle` / `useCounter` upstream live in `@vueuse/shared` and are
   implemented in `@reause/shared` — package placement matches upstream.
 
