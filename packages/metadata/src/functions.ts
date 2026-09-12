@@ -935,6 +935,14 @@ export const functions: FunctionInfo[] = [
     lastUpdated: 1789147565000,
   },
   {
+    name: 'useConst',
+    file: 'packages/shared/useConst/index.tsx',
+    pkg: 'shared',
+    dir: 'useConst',
+    category: 'Utilities',
+    lastUpdated: 1789221182000,
+  },
+  {
     name: 'useControllableState',
     file: 'packages/shared/useControllableState/index.tsx',
     pkg: 'shared',
@@ -2962,6 +2970,14 @@ export const pages: FunctionPageInfo[] = [
     category: 'Utilities',
     description: 'creates event hooks to support modals and confirmation dialog chains',
     lastUpdated: 1789147565000,
+  },
+  {
+    name: 'useConst',
+    pkg: 'shared',
+    doc: 'packages/shared/useConst/index.md',
+    category: 'Utilities',
+    description: 'return a value that is computed **once**',
+    lastUpdated: 1789221182000,
   },
   {
     name: 'useControllableState',
