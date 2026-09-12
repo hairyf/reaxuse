@@ -254,10 +254,17 @@ function findUpstreamModule(modules: string[], name: string): string | undefined
   return candidates.find(module => moduleExports(module, name))
 }
 
-/** The upstream modules of one reause package (`packages/<pkg>/…`). */
+/**
+ * The upstream modules of one reause package (`packages/<pkg>/…`), including
+ * the package root itself: `collectUpstreamModules()` keys a file by its
+ * dirname, so a root-level file (`packages/math/utils.ts`) keys as
+ * `packages/math` — which a trailing-slash prefix alone would exclude, hiding
+ * its exports from the symbol search in step 1's prose branch and step 4.
+ */
 function modulesOfPackage(pkg: string): string[] {
   const prefix = `packages/${pkg}/`
-  return [...collectUpstreamModules().keys()].filter(module => module.startsWith(prefix))
+  const rootKey = `packages/${pkg}`
+  return [...collectUpstreamModules().keys()].filter(module => module === rootKey || module.startsWith(prefix))
 }
 
 /** What one reause export resolves to, and the claim that decided it. */

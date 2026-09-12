@@ -127,11 +127,12 @@ describe('meta/functions.md resolution', () => {
       expect(upstreamOf('useStateAutoReset')).toBe('packages/shared/refAutoReset')
       expect(upstreamOf('syncState')).toBe('packages/shared/syncRef')
       expect(upstreamOf('createSharedHook')).toBe('packages/shared/createSharedComposable')
-      // A helper whose upstream module is a plain file, not a per-symbol dir:
-      // `toArgsFlat` ← `packages/math/utils.ts`'s `toValueArgsFlat`. The port
-      // used to phrase this as prose (`Mirrors VueUse math's …`), which no
-      // `parseClaims` form recognized, so it read as reause-only (#910).
-      expect(upstreamOf('toArgsFlat')).toBe('packages/math/utils')
+      // A helper whose upstream module is the package root, not a per-symbol
+      // dir: `toArgsFlat` ← `toValueArgsFlat`, defined in `packages/math/utils.ts`
+      // (a root-level file, so the module keys as `packages/math`). The port
+      // used to phrase this as unrecognized prose (`Mirrors VueUse math's …`),
+      // which no `parseClaims` form matched, so it read as reause-only (#910).
+      expect(upstreamOf('toArgsFlat')).toBe('packages/math')
       // Secondary exports of a VueUse-derived page (defined in a module, not a dir).
       expect(upstreamOf('breakpointsTailwind')).toBe('packages/core/useBreakpoints')
       expect(upstreamOf('createCookies')).toBe('packages/integrations/useCookies')
