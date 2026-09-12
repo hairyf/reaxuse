@@ -58,21 +58,38 @@ foreach ($p in $pkgs) {
 }
 ```
 
-**第 2 步：按注解匹配。** 每个移植的 JSDoc 都带 `Map from @vueuse/<pkg> \`<上游名>\``，用的是**上游名**而非 reause 名——这正是重命名可解析的原因（`packages/shared/useWatch/index.tsx`标注的是`watch`）。匹配口径是**「严格注解」与「字面路径」两条通道的并集**，且注解通道必须用反引号包裹上游名的严格形式；两条通道必须同时使用，任一偏差都会让残留数算错：
+**第 2 步：按注解匹配。** 每个移植的 JSDoc 都带 `Map from @vueuse/<pkg> \`<上游名>\``，用的是**上游名**而非 reause 名——这正是重命名可解析的原因（`packages/shared/useWatch/index.tsx`标注的是`watch`）。本步的匹配口径是**「严格反引号注解」与「字面路径」两条通道的并集**——`parseClaims()` 解析的第三种声明形式（散文体，见下文）**不计入本步**；注解通道必须用反引号包裹上游名的严格形式，两条通道必须同时使用，任一偏差都会让残留数算错：
 
 - **只认反引号注解** → 漏掉 3 个只写路径、没写注解的移植（`packages/shared/utils/index.tsx`、`packages/firebase/useAuth/index.tsx`、`packages/firebase/useFirestore/index.tsx`，路径写作 `source/vueuse/packages/<pkg>/<name>`），残留虚增到 38。
 - **把无反引号的注解写法也算命中** → 多命中 6 个（`useWatchImmediate` 等 6 个 `useWatch*` 的注解写作 `Map from @vueuse/shared watchImmediate.`，没有反引号），残留少算到 29。
 
-本节的基线用的是「严格注解 ∪ 字面路径」。
+本节的基线用的是「严格注解 ∪ 字面路径」。但**这并非生成器认识的全部形式**：`scripts/update.ts` 还解析第三种声明——**散文体**，见 `RE_PROSE_PORT`（L67）：
+
+```ts
+const RE_PROSE_PORT = /port of VueUse's `([A-Z_]\w*)`/gi
+// L109-110 —— 与 Map from 声明同等压入 claims，只是不带包名
+for (const match of content.matchAll(RE_PROSE_PORT))
+  claims.push({ module: '', symbol: match[1], offset: match.index })
+```
+
+散文体写成 `React port of VueUse's \`<上游名>\``，只点名上游**符号**、不点名包（`module` 为空），语料里共 **163 个符号**用它；`resolveExport()` 的 L336-342 正为此而设——`module`为空时在本页自己的上游包（如`packages/shared`）里按符号找模块，命中即记为 `✅ ported`（`useWatchArray`/`useStateThrottled`两行在`meta/functions.md`里解析成`packages/shared/watchArray`/`packages/shared/refThrottled`，只可能出自这条通道。去掉它，后续分支 L344、L348-350、L352-354、L356 找的都是 reause 名，上游既无该符号也无同名目录，兜不回来，这两行只会被标成 `✅ reause-only export`，即把已移植的 Hook 误标为「上游没有对应实现」。）因此第 2 步的口径必须写明是哪一种：**231/35 基线 =「严格反引号注解 ∪ 字面路径」两条通道，散文体不计入第 2 步**；把散文体一并计入则是 236/30（见下文「两种口径」）。
 
 ```powershell
 $corpus = Get-ChildItem packages -Recurse -File -Include index.tsx,index.md | Where-Object { $_.FullName -notmatch 'node_modules|dist|\.vitepress' }
 $text = ($corpus | ForEach-Object { Get-Content $_.FullName -Raw }) -join "`n"
 ```
 
+（`index.md` 只是沿用生成器的文件集：`collectFunctions()` 的 `globSync` 只取 `index.tsx`（L451），而 252 个 `index.md` 里 `Map from` 与散文体声明各为 0 处，纳入它不影响任何计数。）
+
 **第 3 步：分流残留项——未命中不等于缺口。**
 
-- **(a) 重命名移植**：确认 `packages/<pkg>/<新名>/` 目录存在，并**核实该目录的注解确实指向这个上游名**——名字相似不算证据。反例：`packages/shared/useStateWithControl/` 的注解是 `Map from @vueuse/shared \`refWithControl\``，与 `computedWithControl`无关；后者是议题 **#14**，已带`impractical` 关闭（所有者结论：Vue 的 computed/effect 依赖追踪在 React 中没有等价实现）。只按名字相似推断就会把一个未移植的上游函数误判为已移植。
+- **(a) 重命名移植**：确认 `packages/<pkg>/<新名>/` 目录存在，并**核实该目录确实声明了这个上游名**——名字相似不算证据。证据有两类，**任一成立即可**：`Map from @vueuse/<pkg> \`<上游名>\``注解（第 2 步的严格形式），或第 2 步不计入、专门在此核实的散文体`React port of VueUse's \`<上游名>\``（`RE_PROSE_PORT`）。8 个重命名移植里有 2 个既没有 `Map from` 注解、也没有字面路径，**只靠散文体**声明，不要因此把它们当成「无来源」：
+
+  - `packages/shared/useWatchArray/index.tsx` L16：`* React port of VueUse's \`watchArray\` — watch for an array with additions and removals.`
+  - `packages/shared/useStateThrottled/index.tsx` L10：`* Throttle changing of a state value — React port of VueUse's \`refThrottled\`.`
+
+  其余 6 个（`useWatchImmediate`、`useWatchPausable`、`useWatchThrottled`、`useWatchTriggerable`、`useWatchWithFilter`、`useWatchIgnorable`）都写了 `Map from` 注解（其中 3 个同时也有散文体）。反例：`packages/shared/useStateWithControl/` 的注解是 `Map from @vueuse/shared \`refWithControl\``，与 `computedWithControl`无关；后者是议题 **#14**，已带`impractical` 关闭（所有者结论：Vue 的 computed/effect 依赖追踪在 React 中没有等价实现）。只按名字相似推断就会把一个未移植的上游函数误判为已移植。
+
 - **(b) barrel 注释占位**：未实现的由 barrel 以 `// export * from './<name>'` 声明，这就是「已声明未移植」的信号（不得删除）：
 
   ```powershell
@@ -96,6 +113,15 @@ $text = ($corpus | ForEach-Object { Get-Content $_.FullName -Raw }) -join "`n"
 | 残留（第 3 步分流）        |  **35** |
 
 按包拆分：`core` 147、`shared` 74、`math` 18、`integrations` 12、`rxjs` 7、`electron` 5、`firebase` 3（合计 266）。
+
+**两种口径。** 同一语料、同一 pin 下，第 2 步用哪种口径计命中，决定了这一行数字：
+
+| 第 2 步口径                               |    命中 |   残留 | 残留分流                      |
+| :---------------------------------------- | ------: | -----: | :---------------------------- |
+| 严格反引号注解 ∪ 字面路径（**本节基线**） | **231** | **35** | **8 重命名 + 27 impractical** |
+| 再计入散文体（`RE_PROSE_PORT`）           | **236** | **30** | **3 重命名 + 27 impractical** |
+
+两种口径下**重命名移植总数都是 8**，27 个 impractical 也完全一致；差别只是其中 5 项（`watchArray`、`refThrottled`、`watchPausable`、`watchThrottled`、`watchIgnorable`）算「第 2 步直接命中」还是留给「第 3(a) 步分流」。下文第 3 步与基线表按**两通道口径（231/35）**展开，并保证 8 个重命名在第 3(a) 步全部可核实。
 
 残留 35 项 = **8 个重命名移植 + 27 个已判定 impractical**（27 = 带 `impractical` 标签且已关闭的议题数，其中 `core` 5 个、`shared` 22 个）。
 
