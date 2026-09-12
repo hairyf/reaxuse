@@ -58,8 +58,8 @@ gh label list --repo hairyf/reause --limit 40
 
 <!-- extracted from upstream index.ts + index.md frontmatter -->
 
-- **Options**: `{ interval?: number, controls?: boolean }`
-- **Returns**: `Date` — or `{ now, pause, resume }` when `controls: true`
+- **Options**: `{ controls?: boolean, scheduler?: (cb: () => void) => Pausable }`
+- **Returns**: `Date` — or `{ now, isActive, pause, resume }` when `controls: true`
 - **Variants**: component `UseNow` / directive `v-*` (only if present upstream)
 
 ## Mapping files
@@ -68,7 +68,7 @@ gh label list --repo hairyf/reause --limit 40
 
 Map from (`source/vueuse/packages/core/useNow/`):
 
-- `index.ts` — main implementation (21 LOC)
+- `index.ts` — main implementation (50 LOC — total lines)
 - `index.browser.test.ts` — upstream tests to mirror
 - `component.ts` / `directive.ts` / `demo.vue` — only when present
 
@@ -130,7 +130,8 @@ General conventions to apply (from [`packages/guide/architecture.md`](../package
 
 ## Size estimate
 
-- upstream `index.ts` LOC: `21` → **`size:S`**
+- upstream `index.ts` LOC: `50` — total lines, counted with
+  `(Get-Content <file>).Count` → **`size:M`**
 - factors: browser-only APIs · external deps · component/directive variants
 
 ## Ported hooks
@@ -139,9 +140,17 @@ Already-ported functions still get an issue, kept open as a **review/completion
 tracker** — tick the acceptance items that exist and list the remaining gaps
 honestly instead of pre-marking done. Example:
 
-- `useNow` is implemented (`packages/core/useNow/index.tsx`) with test, docs and
-  demo — but only supports `useNow(interval)`. Upstream also has the `controls`
-  mode and returns a `Date`; those are open checklist items.
+- `useTimeAgo` is implemented (`packages/core/useTimeAgo/index.tsx`) with test,
+  docs and demo. Upstream's `controls: true` variant is not ported — the port
+  returns a plain `string`, dropping the `Controls` generic, while upstream
+  returns `{ timeAgo, isActive, pause, resume }`
+  (`source/vueuse/packages/core/useTimeAgo/index.ts`). The divergence is
+  **recorded, not overlooked** — "Divergences from upstream" at
+  `packages/core/useTimeAgo/index.tsx` L196-198, "intentionally not ported,
+  consistent with `useTimeAgo`" at `packages/core/useTimeAgoIntl/index.tsx`
+  L78-79 — so the tracker carries it to confirm the decision or schedule the
+  port; `useNow` already returns the same `Pausable` shape
+  (`packages/core/useNow/index.tsx`), so porting is feasible.
 - `useToggle` / `useCounter` upstream live in `@vueuse/shared` and are
   implemented in `@reause/shared` — package placement matches upstream.
 
@@ -170,7 +179,7 @@ Issues are created with the GitHub CLI against `hairyf/reause`:
 gh issue create \
   --repo hairyf/reause \
   --title 'Mapping | `useNow` | Reactive current Date instance' \
-  --label "@reaxuse/core,size:S" \
+  --label "@reaxuse/core,size:M" \
   --body-file <rendered-body.md>
 ```
 
