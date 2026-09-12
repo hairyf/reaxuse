@@ -1,12 +1,12 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { packages } from '../meta/packages'
 
 const root = join(import.meta.dirname, '..')
-const packages = ['core', 'shared', 'integrations', 'math', 'metadata', 'electron', 'firebase', 'rxjs']
 
 describe('package.json export maps', () => {
-  for (const name of packages) {
+  for (const { name } of packages) {
     it(`@reause/${name} has a valid export map`, () => {
       const pkg = JSON.parse(readFileSync(join(root, 'packages', name, 'package.json'), 'utf-8'))
       expect(pkg.name).toBe(`@reause/${name}`)
