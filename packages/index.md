@@ -21,7 +21,7 @@ hero:
 
 features:
   - title: VueUse 1:1
-    details: Every hook maps 1:1 from vueuse/vueuse, pinned as a git submodule (source/vueuse)
+    details: Mapped 1:1 from vueuse/vueuse, pinned as a git submodule (source/vueuse) — ported, or recorded as intentionally impractical
     icon: 🧩
   - title: Built for React
     details: useState / useEffect / useMemo — idiomatic React hooks, no magic
@@ -30,6 +30,6 @@ features:
     details: Written in TypeScript, with full type docs on every hook
     icon: 🦾
   - title: Fully Mapped
-    details: Every VueUse composable is mirrored 1:1 — see the generated function registry
+    details: Every VueUse function is accounted for — mirrored as a hook, or recorded as intentionally impractical; see the generated function registry
     icon: ✅
 ---

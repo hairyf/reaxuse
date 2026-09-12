@@ -85,7 +85,8 @@ Take `useTitle` as an example. It helps you get and set the current page's
 import { useDark, useTitle } from '@reause/core'
 import { useEffect } from 'react'
 
-const isDark = useDark()
+// `useDark` returns an `[isDark, toggleDark]` tuple — destructure the boolean
+const [isDark] = useDark()
 const [title, setTitle] = useTitle('Hello')
 
 console.log(document.title) // "Hello"
@@ -101,7 +102,7 @@ document title in sync automatically:
 ```tsx
 import { useDark, useTitle } from '@reause/core'
 
-const isDark = useDark()
+const [isDark] = useDark()
 
 useTitle(isDark ? '🌙 Good evening!' : '☀️ Good morning!')
 ```

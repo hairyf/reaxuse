@@ -17,7 +17,8 @@ reference for authoring your own React hooks or apps.
 Naming follows the mapping rules in [AGENTS.md](https://github.com/hairyf/reause/blob/main/AGENTS.md):
 
 - `ref*` → `useState*`; `on*` → `use*`; `use*RefHistory` → `useState*History`
-- VueUse conversions return **React array destructuring** by default; hooks with multiple writable values return an **object** with paired setters
+- VueUse conversions with **≥2 writable values** return an object with a paired setter each (`useDraggable` → `{ x, setX, y, setY }`); with **exactly 1 writable value** they return a tuple `[value, setValue]` (or `[value, setValue, controls]`)
+- With **0 writable values** the structure and naming fully mirror upstream: an upstream object stays an object (`useMouse`, `useClipboard`), a plain value stays plain (`usePreferredDark`)
 - `react-use` ports keep the upstream React API as-is (direct mirror)
 
 Read also: [Best Practice](./guide/best-practice.md)
@@ -38,15 +39,15 @@ When using global variables like `window` or `document`, support
 the hook flexible for scenarios like multi-windows, testing mocks, and SSR.
 
 ```tsx
-import type { ConfigurableWindow } from './_configurable'
-import { defaultWindow } from './_configurable'
+import type { ConfigurableWindow } from '@reause/shared'
 
 export function useActiveElement(
   options: ConfigurableWindow = {},
 ) {
   const {
-    // defaultWindow = isClient ? window : undefined
-    window = defaultWindow,
+    // the global window on the client, `undefined` on the server (SSR) —
+    // `@reause/shared` has no `defaultWindow` helper to import
+    window = typeof globalThis.window === 'undefined' ? undefined : globalThis.window,
   } = options
 
   // skip when in Node.js environment (SSR)

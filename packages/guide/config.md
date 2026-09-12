@@ -95,7 +95,8 @@ hooks that support timing. For example, `useNow` lets you replace its default
 `useRafFn` scheduler (e.g. to slow updates down):
 
 ```tsx
-import { useIntervalFn, useNow } from '@reause/shared'
+import { useNow } from '@reause/core'
+import { useIntervalFn } from '@reause/shared'
 
 const { now, pause, resume } = useNow({
   controls: true,
