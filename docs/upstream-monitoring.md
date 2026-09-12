@@ -39,10 +39,10 @@ git -C source/vueuse show origin/main:packages/core/useWebMCP/index.md
 由此可解释一个看起来像 bug 的产物：`scripts/update.ts` 按冻结的 pin 做映射，从更新提交移植来的 Hook 会在 `meta/functions.md` 中被记为
 
 ```text
-| `useWebMCP` | — | `packages/core/useWebMCP/index.tsx` | ✅ ported (no upstream match) |
+| `useWebMCP`                       | —                                             | `packages/core/useWebMCP/index.tsx`                       | ✅ ported (not in pinned submodule) |
 ```
 
-其中的 `✅ ported (no upstream match)` 含义是「该 Hook 比当前 pin 更新」，**不是**「上游没有对应实现」——它仍是有效来源，按上述 `git show origin/main:<path>` 取原文比对即可。
+其中的 `✅ ported (not in pinned submodule)` 含义是「该移植声称的上游无法由当前 pin 确认」，**不是**「上游没有对应实现」——它仍是有效来源，按上述 `git show origin/main:<path>` 取原文比对即可。该标签覆盖两种情形：声称的上游比 pin 更新、或上游本就是 Vue 自身 API（`useWebMCP`、`useWatch`），以及该符号是 VueUse 从 `vue` 再导出的（`toValue`）。真正表示「上游既未定义也未再导出该符号」的是第三个标签 `✅ reause-only export`（如 `isRefLike`、`writeState`）。
 
 ### 3.2 覆盖度审计
 
