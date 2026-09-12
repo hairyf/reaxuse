@@ -75,4 +75,4 @@ gh pr checks <PR> --repo hairyf/reause --watch
 - **构建与测试限制**：
   - 修改 Markdown 文档后须先运行 `npx eslint --fix <file>`，避免提交拦截。
   - 测试文件涉及 rxjs 时，必须使用值导入（`import { Observable } from 'rxjs'`），禁止使用 `import type`。
-  - 不得在 worktree 内执行 `npm install`。依赖新增统一在主树根目录安装：`npm install --save-dev <pkg>`。
+  - 不得在 worktree 内执行 `npm/pnpm install`。依赖新增统一在主树根目录以 pnpm workspace 根形式安装：`pnpm add -Dw <pkg>`（同样严禁在 worktree 内执行）。

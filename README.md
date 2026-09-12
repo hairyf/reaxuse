@@ -46,7 +46,7 @@ See [packages/guide/architecture.md](packages/guide/architecture.md) for the ful
 ```bash
 git clone --recurse-submodules https://github.com/hairyf/reause.git
 cd reause
-npm install
+pnpm install
 npm run typecheck
 ```
 
