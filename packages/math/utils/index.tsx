@@ -1,6 +1,6 @@
 /**
  * Flatten the composable arguments into a plain number array.
- * Mirrors VueUse math's `toValueArgsFlat` (`source/vueuse/packages/math/utils.ts`),
+ * React port of VueUse's `toValueArgsFlat` (`source/vueuse/packages/math/utils.ts`),
  * narrowed to plain values because the arguments are read-only value sources.
  *
  * Shared by the variadic math hooks (`useAverage`, `useSum`, `useMax`,
