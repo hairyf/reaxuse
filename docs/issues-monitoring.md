@@ -21,14 +21,14 @@
 3. 确认需求后（Issue 带 `implement` 标签）派发**实现子代理**完成编码并提交 PR（见 [subagent-execution.md](subagent-execution.md)）。
 4. 持续监控子代理 PR 的评论，并区分评论来源：
    - **触发条件**：**人类**提出的评论或审查意见（reviewer 要求修改）。自动化评论**不触发**——本仓库每个 PR 都会收到一条 netlify deploy-preview 通知，它只是文档构建门禁 `netlify/reause/deploy-preview` 的结果，不是审查意见，**不得**因此关闭或改动该检查。
-   - **判定方式**（可执行，不依赖主观判断）：
+   - **判定方式**（可执行，不依赖主观判断；`reviews` 与 `comments` 是两个集合，只提交 “request changes” 而无正文的审查意见只出现在前者，必须一并统计）：
 
      ```bash
-     gh pr view <N> --repo hairyf/reause --json comments \
-       --jq '[.comments[] | select(.author.login != "netlify")] | length'
+     gh pr view <N> --repo hairyf/reause --json comments,reviews \
+       --jq '[(.comments[] | select(.author.login != "netlify")), (.reviews[] | select(.author.login != "netlify"))] | length'
      ```
 
-     输出 `0` 表示只有自动化评论；非 `0` 即为触发条件。
+     输出 `0` 表示既无人类评论也无人类审查意见；非 `0` 即为触发条件。
 
    - **触发后**：**必须重新指派原子代理**在同一个 Worktree 和分支上**追加提交**完成修复，严禁 `amend` / `force-push`，禁止重新创建 PR（合并流程见 [pr-merge.md](pr-merge.md)）。
    - **仅有自动化评论**且 CI 全绿的 PR 视为无待办反馈，正常进入合并流程，不得以“存在评论”为由阻塞。
